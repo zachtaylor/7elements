@@ -1,0 +1,59 @@
+	<html>
+	<head>
+		<title>7Elements Signup</title>
+		<script src="/7elements.js"></script>
+		<link href="/7elements.css" rel="stylesheet">
+		<script>
+			$(function() {
+				if (window.location.search == "?account") {
+					$("#form-group-username").addClass("has-error")
+				}
+				if (window.location.search == "?password") {
+					$("#form-group-password").addClass("has-error")
+				}
+
+				if (window.location.hash) {
+					$("#form-group-username").addClass("has-success")
+					$("#form-group-username input").val(window.location.hash.slice(1))
+					$("title").html('7Elements login'+window.location.hash)
+
+					$("#form-group-password input").focus()
+				} else {
+					$("#form-group-username input").focus()
+				}
+			})
+		</script>
+	</head>
+	<body>
+		<div class="container well">
+			<span>
+				For more information on 7Elements <a href="/">click here</a>
+			</span>
+			<span class="float-right">
+				Need a free account? <a href="/signup/">Click here to signup</a>
+			</span>
+		</div>
+		<div class="container">
+			<form class="well form-horizontal" action="/api/login" method="POST">
+				<fieldset>
+					<legend>7Elements Login</legend>
+					<div class="form-group" id="form-group-username">
+						<div class="input-group input-group-lg">
+							<span class="input-group-addon" id="sizing-addon-username">@</span>
+							<input type="text" class="form-control" name="username" placeholder="username" aria-describedby="sizing-addon-username">
+						</div>
+					</div>
+					<div class="form-group" id="form-group-password1">
+						<div class="input-group input-group-lg">
+							<span class="input-group-addon" id="sizing-addon-password">*</span>
+							<input type="password" class="form-control" name="password" placeholder="password" aria-describedby="sizing-addon-password">
+						</div>
+					</div>
+					<button type="submit" class="float-right btn btn-lg btn-success">Login</button>
+				</fieldset>
+			</form>
+		</div>
+		<div class="container">
+		</div>
+	</body>
+</html>
