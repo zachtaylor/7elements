@@ -10,6 +10,9 @@ import (
 
 func init() {
 	log.SetLevel(options.String("log-level"))
+	if logpath := options.String("log-path"); logpath != "" {
+		log.SetFile(logpath)
+	}
 
 	jsbuilder.SetPath(options.String("js-path"))
 	jsbuilder.Options.Minify = options.Bool("js-minify")

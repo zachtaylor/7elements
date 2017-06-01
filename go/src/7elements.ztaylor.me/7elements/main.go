@@ -11,15 +11,18 @@ import (
 	"net/http"
 )
 
-const patch = 4
+const patch uint64 = 4
 
 func main() {
 	go sessionman.SessionClock()
 
 	log.Add("Patch", patch).Add("port", options.String("port")).Add("server-path", options.String("server-path")).Info("starting 7Elements server...")
 
-	persistence.Patch()
-	if dbPatch := persistence.CheckPatch(); patch != dbPatch {
+	persistence.Patch(options.String("patch-path"))
+	if dbPatch, err := persistence.GetPatch(); err != nil {
+		log.Add("patch-path", options.String("patch-path")).Add("Error", err).Error("patch read error")
+		return
+	} else if patch != dbPatch {
 		log.Add("Expected", patch).Add("Found", dbPatch).Error("patch mismatch")
 		return
 	}

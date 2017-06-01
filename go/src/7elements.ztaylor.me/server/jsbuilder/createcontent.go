@@ -22,7 +22,7 @@ func CreateContent() {
 
 	files, _ := ioutil.ReadDir(Options.path)
 	for _, f := range files {
-		var path = Options.path + f.Name()
+		path := Options.path + f.Name()
 
 		file, err := ioutil.ReadFile(path)
 		if err != nil {
