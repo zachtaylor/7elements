@@ -67,6 +67,8 @@ func ReadRequestCookie(r *http.Request) (*Session, error) {
 		if sessionId, err := strconv.ParseInt(sessionCookie.Value, 10, 0); err == nil {
 			if session := cache[uint(sessionId)]; session != nil {
 				return session, nil
+			} else if sessionId == 0 {
+				return nil, nil
 			} else {
 				return nil, Errors.InvalidSessionId
 			}

@@ -9,14 +9,14 @@ import (
 
 func AccountsGet(username string) (*SE.Account, error) {
 	row := connection.QueryRow(
-		"SELECT username, email, password, language, register, lastlogin FROM accounts WHERE username=?",
+		"SELECT username, email, password, coins, language, register, lastlogin FROM accounts WHERE username=?",
 		username,
 	)
 
 	account := &SE.Account{}
 	var registerbuff, lastloginbuff int64
 
-	if err := row.Scan(&account.Username, &account.Email, &account.Password, &account.Language, &registerbuff, &lastloginbuff); err != nil {
+	if err := row.Scan(&account.Username, &account.Email, &account.Password, &account.Coins, &account.Language, &registerbuff, &lastloginbuff); err != nil {
 		return nil, err
 	} else {
 		account.Register = time.Unix(registerbuff, 0)
@@ -34,10 +34,11 @@ func AccountsInsert(username string) error {
 	}
 
 	_, err := connection.Exec(
-		"INSERT INTO accounts (username, email, password, language, register, lastlogin) VALUES (?, ?, ?, ?, ?, ?)",
+		"INSERT INTO accounts (username, email, password, coins, language, register, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		account.Username,
 		account.Email,
 		account.Password,
+		account.Coins,
 		account.Language,
 		account.Register.Unix(),
 		account.LastLogin.Unix(),

@@ -3,8 +3,8 @@ package login
 import (
 	"7elements.ztaylor.me"
 	"7elements.ztaylor.me/log"
-	"7elements.ztaylor.me/server/redirecthome"
 	"7elements.ztaylor.me/server/sessionman"
+	"7elements.ztaylor.me/server/util"
 	"net/http"
 	"time"
 )
@@ -16,5 +16,5 @@ func DoUnsafe(account *SE.Account, w http.ResponseWriter, r *http.Request, messa
 
 	session.WriteSessionId(w)
 	log.Add("SessionId", session.Id)
-	redirecthome.Write(w, message)
+	serverutil.WriteRedirectHome(w, message)
 }

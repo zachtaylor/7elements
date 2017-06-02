@@ -1,11 +1,11 @@
-package redirecthome
+package serverutil
 
 import (
 	"fmt"
 	"net/http"
 )
 
-const contentTpl = `<html>
+const redirectHomeTpl = `<html>
 	<head><title>redirect...</title></head>
 	<body>
 		<h3>%s</h3>
@@ -18,8 +18,8 @@ const contentTpl = `<html>
 	</body>
 </html>`
 
-func Write(w http.ResponseWriter, reason string) {
-	var content = fmt.Sprintf(contentTpl, reason)
+func WriteRedirectHome(w http.ResponseWriter, reason string) {
+	var content = fmt.Sprintf(redirectHomeTpl, reason)
 
 	w.Write([]byte(content))
 }

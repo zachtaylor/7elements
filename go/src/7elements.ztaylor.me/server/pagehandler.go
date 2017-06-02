@@ -9,7 +9,7 @@ import (
 var fileserver = http.FileServer(http.Dir(options.String("server-path")))
 
 var PageHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	if session, err := sessionman.ReadRequestCookie(r); err == nil {
+	if session, _ := sessionman.ReadRequestCookie(r); session != nil {
 		session.Refresh()
 	}
 

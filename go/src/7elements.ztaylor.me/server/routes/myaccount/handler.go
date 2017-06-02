@@ -5,6 +5,7 @@ import (
 	"7elements.ztaylor.me/log"
 	"7elements.ztaylor.me/server/json"
 	"7elements.ztaylor.me/server/sessionman"
+	"7elements.ztaylor.me/server/util"
 	"net/http"
 	"time"
 )
@@ -19,11 +20,14 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session, err := sessionman.ReadRequestCookie(r)
-	if err != nil {
-		sessionman.EraseSessionId(w)
+	if session == nil {
+		if err != nil {
+			log.Add("Error", err)
+			sessionman.EraseSessionId(w)
+		}
 		w.WriteHeader(400)
 		w.Write([]byte("session missing"))
-		log.Add("Error", err).Error("myaccount: session missing")
+		log.Error("myaccount: session missing")
 		return
 	}
 
@@ -35,17 +39,20 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cardcollection := SE.AccountsCards.Cache[account.Username]
-	if cardcollection == nil {
-		if cc, err := SE.AccountsCards.Get(account.Username); err != nil {
-			sessionman.EraseSessionId(w)
-			w.WriteHeader(500)
-			log.Add("Error", err).Error("myaccount: collection")
-			return
-		} else {
-			cardcollection = cc
-			SE.AccountsCards.Cache[account.Username] = cardcollection
-		}
+	accountcards, err := serverutil.GetAccountsCards(account.Username)
+	if err != nil {
+		sessionman.EraseSessionId(w)
+		w.WriteHeader(500)
+		log.Add("Error", err).Error("myaccount: collection")
+		return
+	}
+
+	accountpacks, err := serverutil.GetAccountsPacks(account.Username)
+	if err != nil {
+		sessionman.EraseSessionId(w)
+		w.WriteHeader(500)
+		log.Add("Error", err).Error("myaccount: packs")
+		return
 	}
 
 	j := json.Json{
@@ -53,9 +60,11 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		"language":       account.Language,
 		"email":          account.Email,
 		"session-expire": session.Expire.Sub(time.Now()).String(),
+		"coins":          account.Coins,
+		"packs":          len(accountpacks),
 	}
 	cardCount := 0
-	for _, list := range cardcollection {
+	for _, list := range accountcards {
 		cardCount += len(list)
 	}
 	j["cards"] = cardCount

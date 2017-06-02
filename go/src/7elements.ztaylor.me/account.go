@@ -9,6 +9,7 @@ type Account struct {
 	Email     string
 	Password  string
 	Language  string
+	Coins     uint
 	Register  time.Time
 	LastLogin time.Time
 	SessionId uint

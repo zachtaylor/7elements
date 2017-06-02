@@ -27,6 +27,7 @@ var options = map[string]*option{
 	"js-minify":     &option{"false", "Minify 7elements.js after every compilation"},
 	"css-path":      &option{"css/", "Path for css compilation"},
 	"css-minify":    &option{"false", "Minify 7elements.css after every compilation"},
+	"image-path":    &option{"img", "Root for image files"},
 	"password-salt": &option{"salt", "Salt string for password hashing"},
 }
 

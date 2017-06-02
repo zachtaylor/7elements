@@ -9,11 +9,29 @@
 		<script src="/index.js"></script>
 		<nav class="navbar navbar-default navbar-fixed-top">
 			<div class="navbar-header">
-				<a class="navbar-brand" href="#">7Elements</a>
+				<a class="navbar-brand">7Elements</a>
 			</div>
-			<a id="myaccount" class="float-right" href="/myaccount/" style="font-size:19px;padding:8px;"></a>
+			<ul class="nav navbar-nav">
+				<li class="active"><a>Home</a></li>
+				<li><a href="/cards/">
+					<img src="/img/icon/card.png"></img>
+					<span id="data-myaccount-cards"></span>
+					Cards
+				</a></li>
+				<li><a href="/packs/">
+						<img src="/img/icon/packs.png"></img>
+						<span id="data-myaccount-packs"></span>
+						Packs
+				</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a id="nav-myaccount-link" href="/myaccount/">
+					My Account
+					<span id="data-myaccount-username"></span>
+				</a></li>
+			</ul>
 		</nav>
-		<div class="container" style="padding-top: 40px;">
+		<div class="container" style="padding-top: 50px;">
 			<div class="well">
 				<h3>This game is in early development!</h3>
 				<br /> <br />

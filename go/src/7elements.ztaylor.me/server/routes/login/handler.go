@@ -17,11 +17,11 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if session, err := sessionman.ReadRequestCookie(r); err == nil {
+	if session, err := sessionman.ReadRequestCookie(r); session != nil {
 		http.Redirect(w, r, "/", 307)
 		log.Add("SessionId", session.Id).Info("login: request has valid session cookie")
 		return
-	} else {
+	} else if err != nil {
 		log.Clone().Add("Error", err).Warn("login: ignoring cookie...")
 	}
 

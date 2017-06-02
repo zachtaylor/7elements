@@ -14,4 +14,5 @@
 # js-minify=true
 # css-path=css/
 # css-minify=true
+# image-path=img/
 # password-salt=salt

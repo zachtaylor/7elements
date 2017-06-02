@@ -6,17 +6,18 @@ import (
 	"7elements.ztaylor.me/options"
 	"7elements.ztaylor.me/persistence"
 	"7elements.ztaylor.me/server"
+	"7elements.ztaylor.me/server/routes/openpack"
 	"7elements.ztaylor.me/server/sessionman"
 	_ "7elements.ztaylor.me/triggers"
 	"net/http"
 )
 
-const patch uint64 = 4
+const patch uint64 = 5
 
 func main() {
 	go sessionman.SessionClock()
 
-	log.Add("Patch", patch).Add("port", options.String("port")).Add("server-path", options.String("server-path")).Info("starting 7Elements server...")
+	log.Add("Patch", patch).Add("Patch-path", options.String("patch-path")).Info("starting 7Elements server...")
 
 	persistence.Patch(options.String("patch-path"))
 	if dbPatch, err := persistence.GetPatch(); err != nil {
@@ -34,6 +35,10 @@ func main() {
 		log.Add("Error", err).Error("cannot load card texts cache, aborting...")
 		return
 	}
+
+	openpack.ShufflePacks()
+
+	log.Add("port", options.String("port")).Add("server-path", options.String("server-path")).Info("7Elements server ready!")
 
 	if options.Bool("use-https") {
 		log.Error(http.ListenAndServeTLS(":443", "7elements.cert", "7elements.key", &server.Router))

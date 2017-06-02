@@ -14,12 +14,16 @@ type RegexpHandler []*route
 
 var Router = make(RegexpHandler, 0)
 
-func Handler(pattern *regexp.Regexp, handler http.Handler) {
+func addhandler(pattern *regexp.Regexp, handler http.Handler) {
 	Router = append(Router, &route{pattern, handler})
 }
 
+func Handler(pattern string, handler http.Handler) {
+	addhandler(regexp.MustCompile(pattern), handler)
+}
+
 func HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
-	Router = append(Router, &route{regexp.MustCompile(pattern), http.HandlerFunc(handler)})
+	Handler(pattern, http.HandlerFunc(handler))
 }
 
 func (rh *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
