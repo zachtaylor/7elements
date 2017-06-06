@@ -1,0 +1,74 @@
+<style>
+	* {
+		color: white;
+		box-sizing: border-box;
+	}
+	a {
+		position: relative;
+		display: block;
+		padding: 14px;
+		line-height: 21px;
+		text-decoration: none;
+	}
+	a:hover {
+		background: rgba(0, 0, 0, 0.5);
+	}
+	img {
+		vertical-align: middle;
+	}
+	.navbar {
+		display: block;
+		position: fixed;
+		top: 0;
+		right: 0;
+		left: 0;
+		font-size: 16px;
+		font-family: Arimo;
+		background: url('/img/texture/woodfine.jpg');
+		list-style: none;
+	}
+	.navbar-header {
+		float: left;
+	}
+	.navbar-nav {
+		float: left;
+		margin: 0;
+	}
+	.navbar-right {
+		float: right;
+	}
+	.nav>li {
+		float: left;
+		position: relative;
+		display: block;
+	}
+	.active {
+		background: rgba(255, 255, 255, 0.5);
+	}
+</style>
+<nav class="navbar navbar-default navbar-fixed-top">
+	<script type="text/javascript">
+		console.log('foo');
+	</script>
+	<div class="navbar-header">
+		<a class="navbar-brand" href="/">7Elements</a>
+	</div>
+	<ul class="nav navbar-nav">
+		<li><a id="cards-link" href="/cards/">
+			<img src="/img/icon/card.png"></img>
+			<span id="data-cards"></span>
+			Cards
+		</a></li>
+		<li><a id="packs-link" href="/packs/">
+			<img src="/img/icon/packs.png"></img>
+			<span id="data-packs"></span>
+			Packs
+		</a></li>
+	</ul>
+	<ul class="nav navbar-nav navbar-right">
+		<li><a id="myaccount-link" href="/myaccount/">
+			My Account
+			<span id="data-username"></span>
+		</a></li>
+	</ul>
+</nav>

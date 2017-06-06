@@ -7,32 +7,8 @@
 	</head>
 	<body>
 		<script src="index.js"></script>
-		<nav class="navbar navbar-default navbar-fixed-top">
-			<div class="navbar-header">
-				<a class="navbar-brand">7Elements</a>
-			</div>
-			<ul class="nav navbar-nav">
-				<li><a href="/">Home</a></li>
-				<li><a href="/cards/">
-					<img src="/img/icon/card.png"></img>
-					<span id="data-myaccount-cards"></span>
-					Cards
-				</a></li>
-				<li class="active"><a>
-						<img src="/img/icon/packs.png"></img>
-						<span id="data-myaccount-packs"></span>
-						Packs
-				</a></li>
-			</ul>
-			<ul class="nav navbar-nav navbar-right">
-				<li><a id="nav-myaccount-link" href="/myaccount/">
-					My Account
-					<span id="data-myaccount-username"></span>
-				</a></li>
-			</ul>
-		</nav>
-		<div id="packs-opened-cards" class="container" style="padding-top: 50px;">
-		</div>
+		<se-nav active="packs"></se-nav>
+		<div id="packs-opened-cards" class="container" style="padding-top: 50px;"></div>
 		<div id="packs-control-buttons" style="width:300px;">
 			<button id="packs-control-buttons-buy" class="btn btn-lg btn-warning">Buy Packs</button>
 			<button id="packs-control-buttons-open" class="btn btn-lg btn-success">Open Pack</button>

@@ -25,14 +25,7 @@
 		</script>
 	</head>
 	<body>
-		<div class="container well">
-			<span>
-				For more information on 7Elements <a href="/">click here</a>
-			</span>
-			<span class="float-right">
-				Need a free account? <a href="/signup/">Click here to signup</a>
-			</span>
-		</div>
+		<se-nav></se-nav>
 		<div class="container">
 			<form class="well form-horizontal" action="/api/login" method="POST">
 				<fieldset>
@@ -49,11 +42,12 @@
 							<input type="password" class="form-control" name="password" placeholder="password" aria-describedby="sizing-addon-password">
 						</div>
 					</div>
+					<span>
+						Need a free account? <a href="/signup/">Click here to signup</a>
+					</span>
 					<button type="submit" class="float-right btn btn-lg btn-success">Login</button>
 				</fieldset>
 			</form>
-		</div>
-		<div class="container">
 		</div>
 	</body>
 </html>
