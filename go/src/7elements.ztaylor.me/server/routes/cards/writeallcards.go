@@ -24,5 +24,4 @@ func WriteAllCards(w http.ResponseWriter, lang string) {
 	}
 
 	j.Write(w)
-	log.Debug("cards: serve all")
 }

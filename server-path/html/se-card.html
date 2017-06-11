@@ -1,0 +1,50 @@
+<style>
+	* {
+		box-sizing: border-box;
+		font-size: 16px;
+		font-family: Arimo;
+		line-height: 20px;
+		color: white;
+		border-color: white;
+		vertical-align:top;
+	}
+	:host {
+		contain: content;
+		position:relative;
+		height: 3.5in;
+		width: 2.5in;
+		max-height: 3.5in;
+		max-width: 2.5in;
+		display: inline-block;
+		background-color: grey;
+	}
+	slot {
+		position:absolute;
+		height:100%;
+		width:100%;
+	}
+	div {
+		padding: 1px 5px;
+	}
+
+	.pa {position:absolute;}
+	.r {right:0px;}
+	.b {bottom:0px;}
+	.w100 {width:100%;}
+
+	#text se-symbol {
+		width: 16px;
+		height: 16px;
+	}
+	#text se-symbol-tap {
+		width: 16px;
+		height: 16px;
+	}
+</style>
+<div id="costs" class="pa""></div>
+<div id="name" class="pa r" style="font-size:20px;line-height:40px;"></div>
+<img id="art" class="w100 pa" style="top:10%;height:50%;">
+<div id="text" class="w100 pa" style="top:60%;max-height:30%;"></div>
+<div id="flavor" class="w100 pa b" style="font-style:italic;font-size:14px;"></div>
+<div id="creature" class="pa r b" style=""></div>
+<slot></slot>

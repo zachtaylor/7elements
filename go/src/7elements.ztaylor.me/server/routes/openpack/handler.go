@@ -11,11 +11,13 @@ import (
 	"time"
 )
 
-var cardRandomFC32 *mathutil.FC32
+var cardRandomFC32s [7]*mathutil.FC32
 
 func ShufflePacks() {
-	cardRandomFC32, _ = mathutil.NewFC32(1, len(SE.Cards.Cache), true)
-	cardRandomFC32.Seed(time.Now().Unix())
+	for i := 0; i < len(cardRandomFC32s); i++ {
+		cardRandomFC32s[i], _ = mathutil.NewFC32(1, len(SE.Cards.Cache), true)
+		cardRandomFC32s[i].Seed(time.Now().Unix() + int64(17*i))
+	}
 }
 
 var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +81,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		"register": pack.Register.String(),
 	}
 
-	for i := 0; i < 7; i++ {
+	for _, cardRandomFC32 := range cardRandomFC32s {
 		cardid := uint(cardRandomFC32.Next())
 		carddata = append(carddata, cardid)
 		accountcard := &SE.AccountCard{

@@ -10,8 +10,6 @@ import (
 )
 
 var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	log.Add("RemoteAddr", r.RemoteAddr)
-
 	acceptlanguage := serverutil.ReadAcceptLanguage(r)
 
 	if session, _ := sessionman.ReadRequestCookie(r); session != nil {
@@ -24,11 +22,11 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		WriteAllCards(w, acceptlanguage)
 	} else if len(r.RequestURI) < 13 {
 		w.WriteHeader(500)
-		log.Add("RequestURI", r.RequestURI).Error("cards: card id unavailable")
+		log.Add("RemoteAddr", r.RemoteAddr).Add("RequestURI", r.RequestURI).Error("cards: card id unavailable")
 	} else if cardidI, err := strconv.Atoi(r.RequestURI[7 : len(r.RequestURI)-5]); err == nil {
 		WriteCardId(uint(cardidI), w, acceptlanguage)
 	} else {
 		w.WriteHeader(500)
-		log.Add("Error", err).Error("cards: parse card id")
+		log.Add("RemoteAddr", r.RemoteAddr).Add("Error", err).Error("cards: parse card id")
 	}
 })
