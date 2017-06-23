@@ -10,20 +10,21 @@ customElements.define('se-nav', class extends HTMLElement {
 		SE.shadow.attach(this, 'se-nav').then(function(shadow) {
 			var pathname = window.location.pathname;
 
-			if (pathname == '/cards/') {
+			if (pathname == '/') {
+				shadow.querySelector('.navbar-brand').classList.add('active');
+			} else if (pathname == '/cards/') {
 				shadow.querySelector('#cards-link').classList.add('active');
 			} else if (pathname == '/packs/') {
 				shadow.querySelector('#packs-link').classList.add('active');
 			} else if (pathname == '/login/') {
 				shadow.querySelector('#myaccount-link').classList.add('active');
-			} else if (pathname == '/myaccount/') {
-				shadow.querySelector('#myaccount-link').classList.add('active');
+			} else if (pathname.substr(0, 7) == '/decks/') {
+				shadow.querySelector('#decks-link').classList.add('active');
 			}
 
 			SE.req.getmyaccount().then(updater, function() {
-				var myAccountLink = shadow.querySelector('#myaccount-link');
-				myAccountLink.innerHTML = 'Login';
-				myAccountLink.href = '/login/';
+				$(shadow.querySelector('#decks-link')).hide();
+				$(shadow.querySelector('#login-link')).show();
 			});
 		});
 	}

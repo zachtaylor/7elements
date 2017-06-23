@@ -49,7 +49,7 @@ func Patch(patchpath string) {
 
 				patch++
 				connection.Exec("UPDATE patch SET patch=?", patch)
-				log.Add("Processed", f.Name()).Info("patch: applied patch")
+				log.Add("File", f.Name()).Info("patch: applied patch")
 			} else if patchid > patch {
 				log.Add("File", f.Name()).Warn("patch: number not next in sequence")
 			}

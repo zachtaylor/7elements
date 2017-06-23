@@ -73,7 +73,8 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pack := accountpacks[0]
-	SE.AccountsPacks.Cache[account.Username] = accountpacks[1:]
+	accountpacks = accountpacks[1:]
+	SE.AccountsPacks.Cache[account.Username] = accountpacks
 	register := time.Now()
 
 	carddata := make([]uint, 0)

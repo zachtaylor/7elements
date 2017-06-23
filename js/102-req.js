@@ -17,6 +17,23 @@ SE.req = {
 		};
 		return SE.req.cache.myaccount;
 	},
+	getmycards: function(subscriber) {
+		if (subscriber) {
+			SE.event.on('data.mycards', subscriber);
+			return SE.req.getmycards().then(subscriber);
+		}
+
+		if (!SE.req.cache.mycards) {
+			console.log('request \'/api/mycards.json\'');
+			SE.req.cache.mycards = new Promise(function(resolve, reject) {
+				$.getJSON('/api/mycards.json').done(function(data) {
+					resolve(data);
+					SE.event.fire('data.mycards', data);
+				}).fail(reject);
+			});
+		};
+		return SE.req.cache.mycards;
+	},
 	getcards: function(subscriber) {
 		if (subscriber) {
 			SE.event.on('data.cards', subscriber);
