@@ -7,7 +7,7 @@ import (
 	// "strconv"
 )
 
-func WriteCardId(id uint, w http.ResponseWriter, lang string) {
+func WriteCardId(id int, w http.ResponseWriter, lang string) {
 	card := SE.Cards.Cache[id]
 	if card == nil {
 		w.WriteHeader(500)

@@ -77,13 +77,13 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	SE.AccountsPacks.Cache[account.Username] = accountpacks
 	register := time.Now()
 
-	carddata := make([]uint, 0)
+	carddata := make([]int, 0)
 	j := json.Json{
 		"register": pack.Register.String(),
 	}
 
 	for _, cardRandomFC32 := range cardRandomFC32s {
-		cardid := uint(cardRandomFC32.Next())
+		cardid := cardRandomFC32.Next()
 		carddata = append(carddata, cardid)
 		accountcard := &SE.AccountCard{
 			Username: account.Username,
@@ -96,6 +96,20 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		} else {
 			accountcards[cardid] = []*SE.AccountCard{accountcard}
 		}
+	}
+
+	if err = serverutil.FlushAccountsCards(account.Username); err != nil {
+		sessionman.EraseSessionId(w)
+		w.WriteHeader(500)
+		log.Add("Error", err).Error("openpack: flush cards")
+		return
+	}
+
+	if err = serverutil.FlushAccountsPacks(account.Username); err != nil {
+		sessionman.EraseSessionId(w)
+		w.WriteHeader(500)
+		log.Add("Error", err).Error("openpack: flush packs")
+		return
 	}
 
 	j["cards"] = carddata

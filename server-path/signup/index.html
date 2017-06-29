@@ -3,6 +3,27 @@
 		<title>7Elements Signup</title>
 		<script src="/7elements.js"></script>
 		<link href="/7elements.css" rel="stylesheet">
+		<script>
+			$(function() {
+				var search = window.location.search.substr(1)
+				search = search.split('&')
+
+				$.each(search, function(_, s) {
+					var parts = s.split('=');
+
+					if (parts[0] == 'email') {
+						$("input[name='email']").val(parts[1])
+						$('#form-group-username').addClass("has-success")
+					} else if (parts[0] == 'username') {
+						$("input[name='username']").val(parts[1]);
+						$('#form-group-email').addClass("has-success")
+					} else if (parts[0] == 'passwordmatch') {
+						console.log('wassup nigga');
+						$('#form-group-password2').append('<span style="color:red;">Password mismatch</span>');
+					}
+				});
+			});
+		</script>
 	</head>
 	<body>
 		<div class="container well">

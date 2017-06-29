@@ -49,12 +49,12 @@ func CardsLoadCache() error {
 	return nil
 }
 
-func CardsInsert(id uint) error {
+func CardsInsert(id int) error {
 	log.Add("CardId", id).Warn("cards: insert")
 	return nil
 }
 
-func CardsDelete(id uint) error {
+func CardsDelete(id int) error {
 	log.Add("CardId", id).Warn("cards: delete")
 	return nil
 }
@@ -78,8 +78,9 @@ func scanCard(scanner Scanner) (*SE.Card, bool) {
 	return card, true
 }
 
-func scanElementCost(scanner Scanner) (uint, *SE.ElementCost, bool) {
-	var cardid, elementbuff uint
+func scanElementCost(scanner Scanner) (int, *SE.ElementCost, bool) {
+	var cardid int
+	var elementbuff uint
 	elementcost := &SE.ElementCost{}
 
 	err := scanner.Scan(&cardid, &elementbuff, &elementcost.Count)

@@ -16,3 +16,15 @@ func GetAccountsPacks(username string) ([]*SE.AccountPack, error) {
 		return accountspacks, nil
 	}
 }
+
+func FlushAccountsPacks(username string) error {
+	if accountspacks := SE.AccountsPacks.Cache[username]; accountspacks != nil {
+		if err := SE.AccountsPacks.Delete(username); err != nil {
+			return err
+		} else if err := SE.AccountsPacks.Insert(username); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

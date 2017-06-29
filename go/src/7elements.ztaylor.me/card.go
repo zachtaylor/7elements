@@ -1,7 +1,7 @@
 package SE
 
 type Card struct {
-	Id           uint
+	Id           int
 	Image        string
 	CardType     *CardType
 	ElementCosts []*ElementCost
@@ -9,8 +9,8 @@ type Card struct {
 
 // persistence headers
 var Cards = struct {
-	Cache     map[uint]*Card
+	Cache     map[int]*Card
 	LoadCache func() error
-	Insert    func(uint) error
-	Delete    func(uint) error
-}{make(map[uint]*Card), nil, nil, nil}
+	Insert    func(int) error
+	Delete    func(int) error
+}{make(map[int]*Card), nil, nil, nil}

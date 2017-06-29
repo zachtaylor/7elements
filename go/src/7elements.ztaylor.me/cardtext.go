@@ -1,7 +1,7 @@
 package SE
 
 type CardText struct {
-	CardId      uint
+	CardId      int
 	Language    string
 	Name        string
 	Description string
@@ -10,6 +10,6 @@ type CardText struct {
 
 // persistence headers
 var CardTexts = struct {
-	Cache     map[string]map[uint]*CardText
+	Cache     map[string]map[int]*CardText
 	LoadCache func(string) error
-}{make(map[string]map[uint]*CardText), nil}
+}{make(map[string]map[int]*CardText), nil}

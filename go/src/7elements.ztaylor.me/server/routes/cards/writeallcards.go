@@ -20,7 +20,7 @@ func WriteAllCards(w http.ResponseWriter, lang string) {
 	}
 
 	for cardid, card := range SE.Cards.Cache {
-		j[json.UItoS(cardid)] = MakeCardJson(card, texts[cardid])
+		j[json.UItoS(uint(cardid))] = MakeCardJson(card, texts[cardid])
 	}
 
 	j.Write(w)

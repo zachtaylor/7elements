@@ -16,7 +16,7 @@ func CardTextsLoadCache(lang string) error {
 
 	texts := SE.CardTexts.Cache[lang]
 	if texts == nil {
-		texts = make(map[uint]*SE.CardText)
+		texts = make(map[int]*SE.CardText)
 		SE.CardTexts.Cache[lang] = texts
 	}
 

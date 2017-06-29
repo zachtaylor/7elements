@@ -48,7 +48,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 	j := json.Json{}
 	for cardId, list := range accountcards {
-		j[json.UItoS(cardId)] = len(list)
+		j[json.UItoS(uint(cardId))] = len(list)
 	}
 
 	j.Write(w)

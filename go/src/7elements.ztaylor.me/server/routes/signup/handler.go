@@ -50,6 +50,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	if password1 != password2 {
 		http.Redirect(w, r, "/signup/?passwordmatch&email="+email+"&username="+username, 307)
 		log.Warn("signup: password mismatch")
+		return
 	}
 
 	acceptLanguage := r.Header.Get("Accept-Language")

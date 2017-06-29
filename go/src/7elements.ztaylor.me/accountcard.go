@@ -6,7 +6,7 @@ import (
 
 type AccountCard struct {
 	Username string
-	Card     uint
+	Card     int
 	Register time.Time
 	Notes    string
 }

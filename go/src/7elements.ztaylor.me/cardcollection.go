@@ -1,3 +1,3 @@
 package SE
 
-type CardCollection map[uint][]*AccountCard
+type CardCollection map[int][]*AccountCard

@@ -28,7 +28,7 @@ INSERT INTO cards_text (cardid, language, name, description, flavor)
 INSERT INTO cards (id, type, image)
 	VALUES (32, 3, "/img/card/32.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
-	VALUES (31, 0, 1);
+	VALUES (32, 0, 1);
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (32, 4, 1);
 INSERT INTO cards_text (cardid, language, name, description, flavor)
@@ -37,7 +37,9 @@ INSERT INTO cards_text (cardid, language, name, description, flavor)
 INSERT INTO cards (id, type, image)
 	VALUES (33, 2, "/img/card/33.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
-	VALUES (33, 5, 2);
+	VALUES (33, 0, 1);
+INSERT INTO cards_element_costs (cardid, element, count)
+	VALUES (33, 5, 1);
 INSERT INTO cards_text (cardid, language, name, description, flavor)
 	VALUES (33, "en-US", "Lightning Strike", "Deal 3 damage to target creature", "");
 

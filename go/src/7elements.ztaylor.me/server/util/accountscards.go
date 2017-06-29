@@ -16,3 +16,15 @@ func GetAccountsCards(username string) (SE.CardCollection, error) {
 		return cardcollection, nil
 	}
 }
+
+func FlushAccountsCards(username string) error {
+	if cardcollection := SE.AccountsCards.Cache[username]; cardcollection != nil {
+		if err := SE.AccountsCards.Delete(username); err != nil {
+			return err
+		} else if err := SE.AccountsCards.Insert(username); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

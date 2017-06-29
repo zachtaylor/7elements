@@ -24,7 +24,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		log.Add("RemoteAddr", r.RemoteAddr).Add("RequestURI", r.RequestURI).Error("cards: card id unavailable")
 	} else if cardidI, err := strconv.Atoi(r.RequestURI[7 : len(r.RequestURI)-5]); err == nil {
-		WriteCardId(uint(cardidI), w, acceptlanguage)
+		WriteCardId(cardidI, w, acceptlanguage)
 	} else {
 		w.WriteHeader(500)
 		log.Add("RemoteAddr", r.RemoteAddr).Add("Error", err).Error("cards: parse card id")

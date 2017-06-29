@@ -49,7 +49,7 @@ func AccountsCardsInsert(username string) error {
 
 	for cardId, list := range collection {
 		for _, accountcard := range list {
-			_, err := connection.Exec("INSERT INTO accounts_cards(username, card, received, notes) VALUES (?, ?, ?, ?)",
+			_, err := connection.Exec("INSERT INTO accounts_cards(username, card, register, notes) VALUES (?, ?, ?, ?)",
 				username,
 				cardId,
 				accountcard.Register.Unix(),
