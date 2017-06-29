@@ -45,4 +45,4 @@ INSERT INTO cards (id, type, image)
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (21, 7, 2);
 INSERT INTO cards_text (cardid, language, name, description, flavor)
-	VALUES (21, "en-US", "Swamp Preserve", "Sacrifice <se-symbol element='7'></se-symbol> land, <se-symbol-tap></se-symbol-tap>: Draw a card<br/>:Whenever a creature you control dies, create <se-symbol element='7'></se-symbol> tapped", "");
+	VALUES (21, "en-US", "Swamp Preserve", "Sacrifice <se-symbol icon='element-7'></se-symbol> land, <se-symbol-tap></se-symbol-tap>: Draw a card<br/>:Whenever a creature you control dies, create <se-symbol icon='element-7'></se-symbol> tapped", "");

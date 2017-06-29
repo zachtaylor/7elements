@@ -31,7 +31,7 @@ INSERT INTO cards (id, type, image)
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (47, 5, 3);
 INSERT INTO cards_text (cardid, language, name, description, flavor)
-	VALUES (47, "en-US", "Death from Above", "Destory all creatures, then create tapped <se-symbol element='5'></se-symbol>", "");
+	VALUES (47, "en-US", "Death from Above", "Destory all creatures, then create tapped <se-symbol icon='element-5'></se-symbol>", "");
 
 INSERT INTO cards (id, type, image)
 	VALUES (48, 4, "/img/card/48.jpg");

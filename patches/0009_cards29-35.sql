@@ -32,7 +32,7 @@ INSERT INTO cards_element_costs (cardid, element, count)
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (32, 4, 1);
 INSERT INTO cards_text (cardid, language, name, description, flavor)
-	VALUES (32, "en-US", "Instigator", "2/3<br/><se-symbol element='4'></se-symbol>:Instigator gets +1/+1", "");
+	VALUES (32, "en-US", "Instigator", "2/3<br/><se-symbol icon='element-4'></se-symbol>:Instigator gets +1/+1", "");
 
 INSERT INTO cards (id, type, image)
 	VALUES (33, 2, "/img/card/33.jpg");
@@ -50,7 +50,7 @@ INSERT INTO cards_element_costs (cardid, element, count)
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (34, 6, 1);
 INSERT INTO cards_text (cardid, language, name, description, flavor)
-	VALUES (34, "en-US", "Sprite", "2/3<br/><se-symbol element='0'></se-symbol><se-symbol element='6'></se-symbol>, <se-symbol-tap></se-symbol-tap>: Create a clone of Sprite", "");
+	VALUES (34, "en-US", "Sprite", "2/3<br/><se-symbol icon='element-0'></se-symbol><se-symbol icon='element-6'></se-symbol>, <se-symbol-tap></se-symbol-tap>: Create a clone of Sprite", "");
 
 INSERT INTO cards (id, type, image)
 	VALUES (35, 2, "/img/card/35.jpg");
