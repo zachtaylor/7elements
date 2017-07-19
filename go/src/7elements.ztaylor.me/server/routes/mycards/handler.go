@@ -38,6 +38,8 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Add("Username", account.Username)
+
 	accountcards, err := serverutil.GetAccountsCards(account.Username)
 	if err != nil {
 		sessionman.EraseSessionId(w)
@@ -52,4 +54,5 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	j.Write(w)
+	log.Debug("mycards: success")
 })

@@ -8,5 +8,5 @@ echo rm -Rf go/pkg/*/7elements.ztaylor.me*
 rm -Rf go/pkg/*/7elements.ztaylor.me*
 echo ./build.sh
 ./build.sh
-echo launching clean server...
+echo build complete. starting 7elements server.
 ./7elements

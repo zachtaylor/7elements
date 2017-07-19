@@ -13,15 +13,15 @@ import (
 )
 
 func init() {
-	HandleFunc(`/7elements.js`, jsbuilder.Handler)
-	HandleFunc(`/7elements.css`, cssbuilder.Handler)
+	HandleFunc(`/7elements\.js`, jsbuilder.Handler)
+	HandleFunc(`/7elements\.css`, cssbuilder.Handler)
 	HandleFunc(`/api/signup`, signup.Handler)
 	HandleFunc(`/api/login`, login.Handler)
 	HandleFunc(`/api/logout`, logout.Handler)
-	HandleFunc(`/api/mycards.json`, mycards.Handler)
-	HandleFunc(`/api/myaccount.json`, myaccount.Handler)
-	HandleFunc(`/api/openpack.json`, openpack.Handler)
-	HandleFunc(`/cards.*\.json`, cards.Handler)
+	HandleFunc(`/api/mycards\.json`, mycards.Handler)
+	HandleFunc(`/api/myaccount\.json`, myaccount.Handler)
+	HandleFunc(`/api/openpack\.json`, openpack.Handler)
+	HandleFunc(`/api/cards.*\.json`, cards.Handler)
 	// http.Handle("/api/websocket", WebsocketHandler)
 	HandleFunc(`/.*`, PageHandler)
 }

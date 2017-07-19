@@ -1,6 +1,12 @@
 $(function() {
-	$('#packs-control-buttons-open').on('click', function() {
+	var openButton = $('#packs-control-buttons-open');
+
+	openButton.on('click', function(e) {
+		openButton[0].innerHTML = '...';
+
 		SE.req.openpack().then(function(data) {
+			openButton[0].innerHTML = 'Open Pack';
+
 			var row = $('<div class="" style="white-space: nowrap;"></div>');
 			var lbutton = $('<button class="btn btn-lg">&lt;</button>');
 			row.append(lbutton);
@@ -13,18 +19,23 @@ $(function() {
 			$.each(data.cards, function(i, cardid) {
 				var card = card = $('<se-card></se-card>')[0];
 				card.cardid = cardid;
-
 				cardpile.append(card);
 			});
 
 			lbutton.click(function(e) {
-				var firstcard = cardpile.find(':first-child').remove();
-				cardpile.append(firstcard);
+				var card = cardpile.find(':first-child')[0];
+				var newcard = $('<se-card></se-card>')[0];
+				newcard.cardid = card.cardid
+				cardpile.append(newcard);
+				$(card).remove();
 			});
 
 			rbutton.click(function(e) {
-				var firstcard = cardpile.find(':last-child').remove();
-				cardpile.prepend(firstcard);
+				var card = cardpile.find(':last-child')[0];
+				var newcard = $('<se-card></se-card>')[0];
+				newcard.cardid = card.cardid
+				cardpile.prepend(newcard);
+				$(card).remove();
 			});
 
 			$('#packs-opened-cards').append(row);

@@ -20,7 +20,7 @@ $(function() {
 		SE.req.getmycards().then(function(data) {
 			console.log('completed getmycards', data);
 			$.each(data, function(cardid, count) {
-				var card = cardsContainer.children[cardid];
+				var card = cardsContainer.children[cardid-1];
 				if (card) {
 					var hoverMessage = $('<span style="color:white;position:absolute;right:0px;top:36px;background:rgba(0,0,0,0.5);">You have '+count+'</span>');
 					$(card).append(hoverMessage);
@@ -29,7 +29,5 @@ $(function() {
 				}
 			});
 		});
-
 	});
-
 });

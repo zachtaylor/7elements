@@ -18,7 +18,7 @@ customElements.define('se-nav', class extends HTMLElement {
 				shadow.querySelector('#packs-link').classList.add('active');
 			} else if (pathname == '/login/') {
 				shadow.querySelector('#myaccount-link').classList.add('active');
-			} else if (pathname.substr(0, 7) == '/decks/') {
+			} else if (pathname.substr(0, 10) == '/myaccount') {
 				shadow.querySelector('#decks-link').classList.add('active');
 			}
 

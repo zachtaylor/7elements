@@ -13,12 +13,16 @@
 
 					if (parts[0] == 'email') {
 						$("input[name='email']").val(parts[1])
-						$('#form-group-username').addClass("has-success")
+						$('#form-group-email').addClass("has-success")
+					} else if (parts[0] == 'usernametaken') {
+						$("input[name='username']").val(parts[1]);
+						$('#form-group-username').addClass("has-error").append('<span style="color:red;">Username taken</span>');
 					} else if (parts[0] == 'username') {
 						$("input[name='username']").val(parts[1]);
-						$('#form-group-email').addClass("has-success")
+						$('#form-group-username').addClass("has-success")
 					} else if (parts[0] == 'passwordmatch') {
 						console.log('wassup nigga');
+						$('#form-group-password1, #form-group-password2').addClass("has-error")
 						$('#form-group-password2').append('<span style="color:red;">Password mismatch</span>');
 					}
 				});
