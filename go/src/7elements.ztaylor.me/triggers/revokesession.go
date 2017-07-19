@@ -24,4 +24,10 @@ func init() {
 		delete(SE.AccountsPacks.Cache, username)
 		log.Add("Username", username).Debug("revokesession: uncache accountspacks")
 	})
+
+	event.On("RevokeSession", func(args ...interface{}) {
+		username := args[0].(string)
+		delete(SE.AccountsDecks.Cache, username)
+		log.Add("Username", username).Debug("revokesession: uncache accountsdecks")
+	})
 }

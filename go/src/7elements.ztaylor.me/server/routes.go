@@ -8,6 +8,7 @@ import (
 	"7elements.ztaylor.me/server/routes/logout"
 	"7elements.ztaylor.me/server/routes/myaccount"
 	"7elements.ztaylor.me/server/routes/mycards"
+	"7elements.ztaylor.me/server/routes/mydecks"
 	"7elements.ztaylor.me/server/routes/openpack"
 	"7elements.ztaylor.me/server/routes/signup"
 )
@@ -22,6 +23,7 @@ func init() {
 	HandleFunc(`/api/myaccount\.json`, myaccount.Handler)
 	HandleFunc(`/api/openpack\.json`, openpack.Handler)
 	HandleFunc(`/api/cards.*\.json`, cards.Handler)
+	HandleFunc(`/api/mydecks.*\.json`, mydecks.Handler)
 	// http.Handle("/api/websocket", WebsocketHandler)
 	HandleFunc(`/.*`, PageHandler)
 }

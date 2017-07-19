@@ -3,6 +3,7 @@ package json
 import (
 	"7elements.ztaylor.me/log"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -28,4 +29,8 @@ func (j Json) Write(w http.ResponseWriter) {
 	}
 
 	w.Write(data)
+}
+
+func NewDecoder(r io.Reader) *json.Decoder {
+	return json.NewDecoder(r)
 }

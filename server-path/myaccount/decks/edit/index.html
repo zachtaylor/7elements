@@ -1,0 +1,84 @@
+<html>
+	<head>
+		<title>7Elements Decks</title>
+		<script src="/7elements.js"></script>
+		<link href="/7elements.css" rel="stylesheet">
+		<style type="text/css">
+			body {
+				overflow-x: hidden;
+			}
+			button[filter] {
+				border:2px solid;
+				width:52px;
+				height:52px;
+				margin:4px;
+			}
+			button[filter="1"] {
+				border-color:green;
+			}
+			button[filter="0"] {
+				border-color:red;
+			}
+			se-card {
+				margin: 10px;
+			}
+			#deck-count {
+				font-size: 40px;
+			}
+			#search-bar {
+				margin-bottom: 20px;
+			}
+			#search-bar, #deck-bar {
+				min-height: 3.5in;
+				background-color: rgba(0,0,0,0.3);
+				white-space: nowrap;
+				box-sizing: border-box;
+				border: 2px solid rgba(0,0,0,0);
+			}
+			#deck-bar.has-warning {
+				border-color:#b67102;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="index.js"></script>
+		<se-nav></se-nav>
+		<div id="deck-settings" style="padding-top:50px;">
+			<div class="input-group input-group-lg">
+				<div id="deck-selector" class="input-group-btn">
+					<button id="deck-selector-currect" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><a>1</a><span class="caret"></span></button>
+					<ul id="deck-selector-list" class="dropdown-menu">
+						<li><a>1</a></li>
+						<li><a>2</a></li>
+						<li><a>3</a></li>
+					</ul>
+				</div>
+				<input id="deck-name" class="form-control" aria-label="deckname" style="width:500px;">
+				Show: 
+				<button id="filter-element-1" filter="1"><se-symbol icon="element-1"></se-symbol></button>
+				<button id="filter-element-2" filter="1"><se-symbol icon="element-2"></se-symbol></button>
+				<button id="filter-element-3" filter="1"><se-symbol icon="element-3"></se-symbol></button>
+				<button id="filter-element-4" filter="1"><se-symbol icon="element-4"></se-symbol></button>
+				<button id="filter-element-5" filter="1"><se-symbol icon="element-5"></se-symbol></button>
+				<button id="filter-element-6" filter="1"><se-symbol icon="element-6"></se-symbol></button>
+				<button id="filter-element-7" filter="1"><se-symbol icon="element-7"></se-symbol></button>
+				Count:
+				<span id="deck-count"></span>
+				<button id="save-button" class="btn btn-lg" style="float:right;">Save</button>
+			</div>
+		</div>
+		<br/>
+		<div id="search-bar-buttons">
+			<button id="search-button-left" class="btn btn-md">&lt;</button>
+			Collection
+			<button id="search-button-right"  class="btn btn-md">&gt;</button>
+		</div>
+		<div id="search-bar"></div>
+		<div id="deck-bar-buttons">
+			<button id="deck-button-left" class="btn btn-md">&lt;</button>
+			Deck
+			<button id="deck-button-right" class="btn btn-md">&gt;</button>
+		</div>
+		<div id="deck-bar"></div>
+	</body>
+</html>

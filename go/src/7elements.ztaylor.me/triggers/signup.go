@@ -29,5 +29,17 @@ func init() {
 		} else {
 			log.Debug("signup: grant 7 packs")
 		}
+
+		SE.AccountsDecks.Cache[username] = map[int]*SE.AccountDeck{
+			1: &SE.AccountDeck{Id: 1, Cards: make(map[int]int)},
+			2: &SE.AccountDeck{Id: 2, Cards: make(map[int]int)},
+			3: &SE.AccountDeck{Id: 3, Cards: make(map[int]int)},
+		}
+
+		if err := SE.AccountsDecks.Insert(username, 0); err != nil {
+			log.Add("Error", err).Error("signup: grant 3 decks")
+		} else {
+			log.Debug("signup: grand 3 decks")
+		}
 	})
 }

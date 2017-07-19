@@ -11,6 +11,9 @@ func init() {
 	SE.AccountsCards.Get = AccountsCardsGet
 	SE.AccountsCards.Insert = AccountsCardsInsert
 	SE.AccountsCards.Delete = AccountsCardsDelete
+	SE.AccountsDecks.Get = AccountsDecksGet
+	SE.AccountsDecks.Insert = AccountsDecksInsert
+	SE.AccountsDecks.Delete = AccountsDecksDelete
 	SE.AccountsPacks.Get = AccountsPacksGet
 	SE.AccountsPacks.Insert = AccountsPacksInsert
 	SE.AccountsPacks.Delete = AccountsPacksDelete
