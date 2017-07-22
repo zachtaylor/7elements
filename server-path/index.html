@@ -6,17 +6,22 @@
     <link href="/7elements.css" rel="stylesheet">
   </head>
   <body>
-    <se-nav></se-nav>
-    <div class="container" style="padding-top: 50px;">
+    <script asyc>SE.widget.replace('se-navbar')</script>
+    <div class="container">
       <div class="well">
         <h3>This game is in early development!</h3>
-        <br /> <br />
+        <br />
+        <ul class="container">Patch: 2017-7-22<br/>
+          <li>Revamped navbar, that works on all browsers</li>
+          <li>added rip sound effect in <a href="/packs/">/packs/</a></li>
+        </ul>
+        <br />
         <ul class="container">Patch: 2017-7-19<br/>
-          <li>Introducing decks! <a href="/myaccount/decks/edit/">/myaccount/decks/edit/</a></li>
+          <li>Introducing decks! <a href="/decks/edit/">/decks/edit/</a></li>
           <li><a href="/packs/">/packs/</a> fixed carousel effect</li>
           <li><a href="/cards/">/cards/</a> fixed display, used to be off by 1 spot, saying you had different cards</li>
         </ul>
-        <br /> <br />
+        <br />
         <ul class="container">Patch: 2017-6-29<br/>
           <li><a href="/packs/">/packs/</a> now has buttons to navigate through a pack you opened</li>
           <li>added artwork for element symbols #4 (gold), and #5 (red)</li>
@@ -25,17 +30,15 @@
           <li>signup screen has some new colorful touches</li>
           <li>signup rejected for not matching passwords doesn't glitch anymore</li>
         </ul>
-        <br /> <br />
+        <br />
         <ul class="container">Patch: 2017-6-23<br/>
           <li><a href="/cards/">/cards/</a> now shows how many copies you have</li>
           <li><a href="/packs/">/packs/</a> now shows visual cards when you open packs</li>
           <li>added artwork for element symbols #0 (any), #3 (green), and #7 (black)</li>
           <li>fixed text for card#50</li>
         </ul>
-        <br /> <br />
+        <br />
         <a href="/signup/">Click here to sign up</a>
-        <br /> <br />
-        <a href="/login/">Click here to log in </a>
         <br /> <br />
         <a href="/api/myaccount.json">Click here to request your account data</a>
         <br /> <br />

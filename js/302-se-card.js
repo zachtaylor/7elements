@@ -13,7 +13,7 @@ customElements.define('se-card', class extends HTMLElement {
 
 	connectedCallback() {
 		this.getShadow();
-		SE.req.getcards(this.updater());
+		SE.api.get('cards', this.updater());
 	}
 
 	get cardid() {
@@ -26,7 +26,7 @@ customElements.define('se-card', class extends HTMLElement {
 
 	attributeChangedCallback(attr, oldval, newval) {
 		if (attr == 'cardid') {
-			SE.req.getcards().then(this.updater());
+			SE.api.get('cards').then(this.updater());
 		}
 	}
 

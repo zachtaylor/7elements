@@ -1,10 +1,13 @@
 $(function() {
 	var openButton = $('#packs-control-buttons-open');
+	var opensound = new Audio('/mp3/openpack.mp3');
 
 	openButton.on('click', function(e) {
+		SE.api.cache.openpack = false;
 		openButton[0].innerHTML = '...';
 
-		SE.req.openpack().then(function(data) {
+		SE.api.get('openpack').then(function(data) {
+			opensound.play();
 			openButton[0].innerHTML = 'Open Pack';
 
 			var row = $('<div class="" style="white-space: nowrap;"></div>');
@@ -41,8 +44,9 @@ $(function() {
 			$('#packs-opened-cards').append(row);
 			$('#packs-opened-cards').append('<br/><br/>');
 
-			SE.req.cache.myaccount = false;
-			SE.req.getmyaccount();
+			SE.api.cache.myaccount = false;
+			SE.api.get('myaccount');
+
 		}, function() {
 			console.error('/api/openpack.json: call failed', arguments);
 		});

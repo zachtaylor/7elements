@@ -15,10 +15,7 @@ SE.event = {
 		if (!eventList) return;
 		for (var i = 0; i < eventList.length; i++) {
 			var f = eventList[i];
-
-			if (f) {
-				f.apply(null, args);
-			}
+			if (f) f.apply(null, args);
 		}
 	}
 };

@@ -14,17 +14,17 @@ $(function() {
 		return card;
 	};
 
-	SE.req.get('cards', function(data) {
+	SE.api.get('cards', function(data) {
 		cards = data;
 		SE.event.fire('decks-edit-filter');
 	});
 
-	SE.req.get('mydecks', function(data) {
+	SE.api.get('mydecks', function(data) {
 		mydecks = data;
 		SE.event.fire('decks-edit-filter');
 	});
 
-	SE.req.get('mycards', function(data) {
+	SE.api.get('mycards', function(data) {
 		mycards = data;
 		SE.event.fire('decks-edit-filter');
 	});
@@ -86,9 +86,9 @@ $(function() {
 
 	$('#save-button').click(function(event) {
 		var saveButton = this;
-		SE.req.post('mydecks/'+activedeck, JSON.stringify(mydecks[activedeck])).then(function(data) {
-			SE.req.cache.mydecks = false;
-			SE.req.get('mydecks');
+		SE.api.post('mydecks/'+activedeck, JSON.stringify(mydecks[activedeck])).then(function(data) {
+			SE.api.cache.mydecks = false;
+			SE.api.get('mydecks');
 			$(saveButton).removeClass('btn-error').removeClass('btn-warning').addClass('btn-success');
 			$('#deck-bar').removeClass('has-warning');
 			$('#deck-settings .input-group').removeClass('has-warning');
