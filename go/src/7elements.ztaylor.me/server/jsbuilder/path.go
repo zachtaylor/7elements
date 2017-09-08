@@ -1,17 +1,14 @@
 package jsbuilder
 
 import (
-	"7elements.ztaylor.me/log"
+	"ztaylor.me/log"
 )
 
-func SetPath(newPath string) {
-	log.Add("Path", newPath)
+func SetPath(path string) {
 	if watcher == nil {
-		log.Warn("jsbuilder: watcher unavailable")
-	} else if err := watcher.Add(newPath); err != nil {
-		log.Add("Error", err).Error("jsbuilder: AddPath")
+	} else if err := watcher.Add(path); err != nil {
+		log.Add("Path", path).Add("Error", err).Error("jsbuilder: SetPath")
 	} else {
-		Options.path = newPath
-		log.Add("Path", newPath).Debug("jsbuilder: setpath")
+		Options.path = path
 	}
 }

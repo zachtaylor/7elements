@@ -1,19 +1,19 @@
 package logout
 
 import (
-	"7elements.ztaylor.me/log"
 	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
+	"ztaylor.me/log"
 )
 
 var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	log.Add("RemoteAddr", r.RemoteAddr)
+	log := log.Add("RemoteAddr", r.RemoteAddr)
 
-	if session, err := sessionman.ReadRequestCookie(r); err == nil {
+	if session, err := sessionman.ReadRequestCookie(r); session != nil {
 		sessionman.RevokeSession(session.Username)
 		log.Debug("logout: success")
 	} else {
-		log.Warn("logout: cookie missing")
+		log.Add("Error", err).Warn("logout: cookie missing")
 	}
 
 	http.Redirect(w, r, "/", 307)

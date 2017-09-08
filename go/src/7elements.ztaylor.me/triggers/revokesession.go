@@ -1,33 +1,19 @@
 package triggers
 
 import (
-	"7elements.ztaylor.me"
+	"7elements.ztaylor.me/accounts"
+	"7elements.ztaylor.me/accountscards"
+	"7elements.ztaylor.me/decks"
 	"7elements.ztaylor.me/event"
-	"7elements.ztaylor.me/log"
+	"ztaylor.me/log"
 )
 
 func init() {
-	event.On("RevokeSession", func(args ...interface{}) {
+	event.On("SessionRevoke", func(args ...interface{}) {
 		username := args[0].(string)
-		delete(SE.Accounts.Cache, username)
-		log.Add("Username", username).Debug("revokesession: uncache account")
-	})
-
-	event.On("RevokeSession", func(args ...interface{}) {
-		username := args[0].(string)
-		delete(SE.AccountsCards.Cache, username)
-		log.Add("Username", username).Debug("revokesession: uncache accountscards")
-	})
-
-	event.On("RevokeSession", func(args ...interface{}) {
-		username := args[0].(string)
-		delete(SE.AccountsPacks.Cache, username)
-		log.Add("Username", username).Debug("revokesession: uncache accountspacks")
-	})
-
-	event.On("RevokeSession", func(args ...interface{}) {
-		username := args[0].(string)
-		delete(SE.AccountsDecks.Cache, username)
-		log.Add("Username", username).Debug("revokesession: uncache accountsdecks")
+		accounts.Forget(username)
+		accountscards.Forget(username)
+		decks.Forget(username)
+		log.Add("Username", username).Debug("sessionrevoke: uncache account")
 	})
 }

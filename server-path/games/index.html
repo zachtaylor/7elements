@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<title>7Elements games</title>
+		<script src="/7elements.js"></script>
+		<link href="/7elements.css" rel="stylesheet">
+		<style type="text/css">
+			.se-game-active {
+				padding:21px;
+				border:2px solid gray;
+				margin-top: 21px;
+			}
+			.se-game-active span {
+				font-size:21px;
+			}
+		</style>
+	</head>
+	<body>
+		<script asyc>SE.widget.replace('se-navbar')</script>
+		<script src="index.js"></script>
+		<a href="search/" style="font-size:21px;float:right;">Click here to search for a new game</a>
+		<div style="font-size:21px;">These are your active games</div>
+		<div id="games-inprogress">
+		</div>
+	</body>
+</html>

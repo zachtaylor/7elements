@@ -1,60 +1,14 @@
-<style>
-	* {
-		box-sizing: border-box;
-		font-size: 16px;
-		font-family: Arimo;
-		line-height: 20px;
-		color: white;
-		border-color: white;
-		vertical-align:top;
-		white-space: normal;
-	}
-	:host {
-		contain: content;
-		position:relative;
-		height: 3.5in;
-		width: 2.5in;
-		max-height: 3.5in;
-		max-width: 2.5in;
-		display: inline-block;
-		background-color: grey;
-	}
-	slot {
-		position:absolute;
-		height:100%;
-		width:100%;
-	}
-	div {
-		padding: 1px 5px;
-	}
-
-	.pa {position:absolute;}
-	.r {right:0px;}
-	.b {bottom:0px;}
-	.w100 {width:100%;}
-
-	#name {
-		font-size:20px;
-		line-height:32px;
-		background:rgba(0,0,0,0.5);
-	}
-	#text se-symbol {
-		width: 16px;
-		height: 16px;
-	}
-	#text se-symbol-tap {
-		width: 16px;
-		height: 16px;
-	}
-	slot {
-		position: absolute;
-		bottom:0px;
-	}
-</style>
-<div id="costs" class="pa""></div>
-<div id="name" class="pa r"></div>
-<img id="art" class="w100 pa" style="top:10%;height:50%;">
-<div id="text" class="w100 pa" style="top:60%;max-height:30%;"></div>
-<div id="flavor" class="w100 pa b" style="font-style:italic;font-size:14px;"></div>
-<div id="creature" class="pa r b" style=""></div>
-<slot></slot>
+<div class="se-card">
+	<div class="se-card-costs pos-abs"></div>
+	<div class="data-control-name pos-abs right0"></div>
+	<div class="data-control-description pos-abs left0 right0"></div>
+	<div class="data-control-flavor pos-abs bottom0"></div>
+	<div class="data-control-body-toggle se-card-banner pos-abs bottom0 right0">
+		<img src="/img/icon/attack.20px.png">
+		<span class="data-control-attack"></span>
+		<img src="/img/icon/life.20px.png">
+		<span class="data-control-health"></span>
+	</div>
+	<div class="data-control-type se-card-banner pos-abs bottom0 right0"></div>
+	<div class="data-control-banner se-card-banner pos-abs right0"></div>
+</div>

@@ -1,8 +1,8 @@
 package serverutil
 
 import (
-	"7elements.ztaylor.me/log"
 	"net/http"
+	"ztaylor.me/log"
 )
 
 func ReadAcceptLanguage(r *http.Request) string {

@@ -1,18 +1,19 @@
 package signup
 
 import (
-	"7elements.ztaylor.me"
+	"7elements.ztaylor.me/accounts"
+	"7elements.ztaylor.me/decks"
 	"7elements.ztaylor.me/event"
-	"7elements.ztaylor.me/log"
 	"7elements.ztaylor.me/server/routes/login"
 	"7elements.ztaylor.me/server/security"
 	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
 	"time"
+	"ztaylor.me/log"
 )
 
 var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	log.Add("RemoteAddr", r.RemoteAddr)
+	log := log.Add("RemoteAddr", r.RemoteAddr)
 
 	if r.Method != "POST" {
 		w.WriteHeader(404)
@@ -20,7 +21,8 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if session, err := sessionman.ReadRequestCookie(r); session != nil {
+	session, err := sessionman.ReadRequestCookie(r)
+	if session != nil {
 		http.Redirect(w, r, "/", 307)
 		log.Add("SessionId", session.Id).Info("signup: request has valid session cookie")
 		return
@@ -35,15 +37,15 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 	log.Add("Username", username).Add("Email", email)
 
-	if account := SE.Accounts.Cache[username]; account != nil {
+	if accounts.Test(username) != nil {
 		sessionman.EraseSessionId(w)
 		http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
 		log.Error("signup: duplicate is online right")
 		return
-	} else if account, _ := SE.Accounts.Get(username); account != nil {
+	} else if account, _ := accounts.Load(username); account != nil {
 		sessionman.EraseSessionId(w)
 		http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
-		log.Error("signup: duplicate exists")
+		log.Add("Error", err).Error("signup: duplicate exists")
 		return
 	}
 
@@ -59,16 +61,28 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		acceptLanguage = "en-US"
 	}
 
-	login.DoUnsafe(&SE.Account{
+	login.DoUnsafe(&accounts.Account{
 		Username: username,
 		Email:    email,
 		Password: password1,
+		Skill:    1000,
+		Packs:    21,
 		Language: acceptLanguage,
 		Register: time.Now(),
 	}, w, r, "Signup success!")
 
-	if err := SE.Accounts.Insert(username); err != nil {
-		delete(SE.Accounts.Cache, username)
+	decks.Store(username, decks.NewDecks())
+	for _, deck := range decks.Test(username) {
+		deck.Username = username
+	}
+	if err := decks.Insert(username, 0); err != nil {
+		log.Add("Error", err).Error("signup: grant 3 decks")
+		return
+	}
+
+	if err := accounts.Insert(username); err != nil {
+		accounts.Forget(username)
+		decks.Forget(username)
 		log.Add("Error", err).Error("signup: account insert")
 		sessionman.EraseSessionId(w)
 		w.WriteHeader(500)

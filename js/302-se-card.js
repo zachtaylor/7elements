@@ -13,6 +13,7 @@ customElements.define('se-card', class extends HTMLElement {
 
 	connectedCallback() {
 		this.getShadow();
+		console.warn("deprecated use of <se-card> type");
 		SE.api.get('cards', this.updater());
 	}
 
@@ -36,11 +37,18 @@ customElements.define('se-card', class extends HTMLElement {
 			shadow.querySelector('#name').innerHTML = data.name;
 			shadow.querySelector('#text').innerHTML = data.description;
 			shadow.querySelector('#flavor').innerHTML = data.flavor;
+			shadow.querySelector('#type').innerHTML = data.type;
+
+			if (data.body) {
+				shadow.querySelector('.se-card-attack').innerHTML = data.attack;
+				shadow.querySelector('.se-card-health').innerHTML = data.health;
+				shadow.querySelector('.se-card-body-divider').style.display = 'initial';
+			}
 
 			$(shadow.querySelector('#costs')).empty();
-			$.each(data.elementcosts, function(i, elementcost) {
-				for (var i=0; i<elementcost.count; i++) {
-					var symbol = $('<se-symbol icon="element-'+elementcost.element+'"></se-symbol>')[0];
+			$.each(data.costs, function(elementid, cost) {
+				for (var i=0; i<cost; i++) {
+					var symbol = $('<se-symbol icon="element-'+elementid+'"></se-symbol>')[0];
 					shadow.querySelector('#costs').append(symbol);
 				}
 			});

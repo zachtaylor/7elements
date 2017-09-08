@@ -1,32 +1,26 @@
 package cards
 
 import (
-	"7elements.ztaylor.me"
-	"7elements.ztaylor.me/server/json"
+	"7elements.ztaylor.me/cards"
+	"ztaylor.me/json"
 )
 
-func MakeCardJson(card *SE.Card, cardtext *SE.CardText) json.Json {
-	j := json.Json{}
-	j["id"] = card.Id
-	j["image"] = card.Image
-
-	j["name"] = cardtext.Name
-	j["description"] = cardtext.Description
-	j["flavor"] = cardtext.Flavor
-
-	elementcosts := make([]json.Json, 0)
-	totalcost := 0
-	for _, elementcost := range card.ElementCosts {
-		elementcostJ := json.Json{
-			"element": *elementcost.Element,
-			"count":   elementcost.Count,
-		}
-		totalcost += int(elementcost.Count)
-		elementcosts = append(elementcosts, elementcostJ)
+func MakeCardJson(card *cards.Card, body *cards.Body, texts *cards.Texts) json.Json {
+	j := json.Json{
+		"id":          card.Id,
+		"image":       card.Image,
+		"name":        texts.Name,
+		"type":        card.CardType.String(),
+		"description": texts.Description,
+		"flavor":      texts.Flavor,
+		"costs":       card.Costs.Copy(),
 	}
 
-	j["totalcost"] = totalcost
-	j["elementcosts"] = elementcosts
+	if body != nil {
+		j["body"] = "true"
+		j["attack"] = body.Attack
+		j["health"] = body.Health
+	}
 
 	return j
 }

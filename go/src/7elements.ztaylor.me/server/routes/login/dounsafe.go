@@ -1,20 +1,22 @@
 package login
 
 import (
-	"7elements.ztaylor.me"
-	"7elements.ztaylor.me/log"
+	"7elements.ztaylor.me/accounts"
 	"7elements.ztaylor.me/server/sessionman"
 	"7elements.ztaylor.me/server/util"
 	"net/http"
 	"time"
+	"ztaylor.me/log"
 )
 
-func DoUnsafe(account *SE.Account, w http.ResponseWriter, r *http.Request, message string) {
+func DoUnsafe(account *accounts.Account, w http.ResponseWriter, r *http.Request, message string) {
 	account.LastLogin = time.Now()
-	SE.Accounts.Cache[account.Username] = account
+	if err := accounts.Store(account); err != nil {
+		log.Add("Error", err).Error("cannot cache account")
+		return
+	}
 	session := sessionman.GrantSession(account.Username)
 
 	session.WriteSessionId(w)
-	log.Add("SessionId", session.Id)
 	serverutil.WriteRedirectHome(w, message)
 }

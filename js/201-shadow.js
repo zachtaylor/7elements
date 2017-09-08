@@ -3,7 +3,7 @@ SE.shadow = {
 	attach: function(el, name) {
 		if (!SE.shadow.cache[name]) {
 			SE.shadow.cache[name] = new Promise(function(resolve, reject) {
-				$.get('/html/'+name+'.html').done(function(data) {
+				$.get('/html/custom:'+name+'.html').done(function(data) {
 					resolve(data);
 				}).fail(reject);
 			});

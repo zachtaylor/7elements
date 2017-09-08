@@ -1,29 +1,32 @@
 package server
 
 import (
+	"7elements.ztaylor.me/server/api"
 	"7elements.ztaylor.me/server/cssbuilder"
 	"7elements.ztaylor.me/server/jsbuilder"
 	"7elements.ztaylor.me/server/routes/cards"
 	"7elements.ztaylor.me/server/routes/login"
 	"7elements.ztaylor.me/server/routes/logout"
-	"7elements.ztaylor.me/server/routes/myaccount"
-	"7elements.ztaylor.me/server/routes/mycards"
-	"7elements.ztaylor.me/server/routes/mydecks"
-	"7elements.ztaylor.me/server/routes/openpack"
 	"7elements.ztaylor.me/server/routes/signup"
+	"7elements.ztaylor.me/server/routes/websocket"
 )
 
 func init() {
 	HandleFunc(`/7elements\.js`, jsbuilder.Handler)
 	HandleFunc(`/7elements\.css`, cssbuilder.Handler)
+
+	HandleFunc(`/api/myaccount\.json`, api.MyAccountJsonHandler)
+	HandleFunc(`/api/mycards\.json`, api.MyCardsJsonHandler)
+	HandleFunc(`/api/navbar\.json`, api.NavbarJsonHandler)
+	HandleFunc(`/api/decks\.json`, api.DecksJsonHandler)
+	HandleFunc(`/api/decks/.*\.json`, api.DecksIdJsonHandler)
+	HandleFunc(`/api/openpack\.json`, api.OpenPackJsonHandler)
+	HandleFunc(`/api/newgame\.json(\?deckid=\d*)?`, api.NewGameJsonHandler)
+
 	HandleFunc(`/api/signup`, signup.Handler)
 	HandleFunc(`/api/login`, login.Handler)
 	HandleFunc(`/api/logout`, logout.Handler)
-	HandleFunc(`/api/mycards\.json`, mycards.Handler)
-	HandleFunc(`/api/myaccount\.json`, myaccount.Handler)
-	HandleFunc(`/api/openpack\.json`, openpack.Handler)
+	Handler(`/api/websocket`, websocket.Handler)
 	HandleFunc(`/api/cards.*\.json`, cards.Handler)
-	HandleFunc(`/api/mydecks.*\.json`, mydecks.Handler)
-	// http.Handle("/api/websocket", WebsocketHandler)
 	HandleFunc(`/.*`, PageHandler)
 }

@@ -1,8 +1,8 @@
 package jsbuilder
 
 import (
-	"7elements.ztaylor.me/log"
 	"github.com/fsnotify/fsnotify"
+	"ztaylor.me/log"
 )
 
 var watcher *fsnotify.Watcher
@@ -19,7 +19,7 @@ func StartWatch() {
 	for {
 		select {
 		case event := <-watcher.Events:
-			log.Add("Event", event).Debug("jsbuilder: rebuild")
+			log.Add("File", event.Name).Add("Op", event.Op).Debug("jsbuilder: rebuild")
 			CreateContent()
 		case err := <-watcher.Errors:
 			log.Add("Error", err.Error()).Error("jsbuilder: watch error")

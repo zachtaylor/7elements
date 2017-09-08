@@ -1,10 +1,10 @@
 package jsbuilder
 
 import (
-	"7elements.ztaylor.me/log"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/js"
 	"io/ioutil"
+	"ztaylor.me/log"
 )
 
 var content string
@@ -15,7 +15,7 @@ func init() {
 }
 
 func CreateContent() {
-	log.Add("Path", Options.path)
+	log := log.Add("Path", Options.path)
 
 	content = ""
 	fileIncludes := make([]string, 0)
@@ -26,7 +26,8 @@ func CreateContent() {
 
 		file, err := ioutil.ReadFile(path)
 		if err != nil {
-			log.Clone().Add("Error", err).Add("Path", path).Error("jsbuilder: file read")
+			log.Add("Error", err).Add("File", path).Error("jsbuilder: file read")
+			return
 		}
 
 		content += string(file)
@@ -40,8 +41,7 @@ func CreateContent() {
 			log.Add("Error", err).Error("jsbuilder: minification error")
 		} else {
 			content = newContent
+			log.Add("Options.Minify", Options.Minify).Debug("jsbuilder: compile")
 		}
 	}
-
-	log.Add("Options.Minify", Options.Minify).Debug("jsbuilder: compile")
 }

@@ -1,8 +1,8 @@
 package cssbuilder
 
 import (
-	"7elements.ztaylor.me/log"
 	"github.com/fsnotify/fsnotify"
+	"ztaylor.me/log"
 )
 
 var watcher *fsnotify.Watcher

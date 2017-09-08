@@ -1,0 +1,16 @@
+.se-gameseat {
+	border:2px solid white;
+	position:relative;
+}
+.se-gameseat.active {
+	border:2px solid black;
+}
+.se-gameseat span {
+	font-size:21px;
+	line-height:32px;
+}
+.se-gameseat .se-card {
+	margin:4px;
+}
+.se-gameseat-stats {
+}

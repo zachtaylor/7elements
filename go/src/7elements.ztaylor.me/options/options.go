@@ -1,12 +1,12 @@
 package options
 
 import (
-	"7elements.ztaylor.me/log"
 	"flag"
 	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
+	"ztaylor.me/log"
 )
 
 type option struct {

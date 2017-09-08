@@ -1,26 +1,26 @@
 package main
 
 import (
-	"7elements.ztaylor.me"
-	"7elements.ztaylor.me/log"
+	"7elements.ztaylor.me/cards"
+	"7elements.ztaylor.me/db"
+	_ "7elements.ztaylor.me/games"
 	"7elements.ztaylor.me/options"
-	"7elements.ztaylor.me/persistence"
 	"7elements.ztaylor.me/server"
-	"7elements.ztaylor.me/server/routes/openpack"
 	"7elements.ztaylor.me/server/sessionman"
 	_ "7elements.ztaylor.me/triggers"
 	"net/http"
+	"ztaylor.me/log"
 )
 
-const patch uint64 = 13
+const patch uint64 = 9
 
 func main() {
 	go sessionman.SessionClock()
 
 	log.Add("Patch", patch).Add("Patch-path", options.String("patch-path")).Info("starting 7Elements server...")
 
-	persistence.Patch(options.String("patch-path"))
-	if dbPatch, err := persistence.GetPatch(); err != nil {
+	db.Patch(options.String("patch-path"))
+	if dbPatch, err := db.GetPatch(); err != nil {
 		log.Add("patch-path", options.String("patch-path")).Add("Error", err).Error("patch read error")
 		return
 	} else if patch != dbPatch {
@@ -28,15 +28,16 @@ func main() {
 		return
 	}
 
-	if err := SE.Cards.LoadCache(); err != nil {
+	if err := cards.LoadCache(); err != nil {
 		log.Add("Error", err).Error("cannot load card cache, aborting...")
 		return
-	} else if err := SE.CardTexts.LoadCache("en-US"); err != nil {
+	} else if err := cards.LoadBodyCache(); err != nil {
+		log.Add("Error", err).Error("cannot load card bodies cache, aborting...")
+		return
+	} else if err := cards.LoadTextsCache("en-US"); err != nil {
 		log.Add("Error", err).Error("cannot load card texts cache, aborting...")
 		return
 	}
-
-	openpack.ShufflePacks()
 
 	log.Add("port", options.String("port")).Add("server-path", options.String("server-path")).Info("7Elements server ready!")
 

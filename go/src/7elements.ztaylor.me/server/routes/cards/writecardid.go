@@ -1,34 +1,34 @@
 package cards
 
 import (
-	"7elements.ztaylor.me"
-	"7elements.ztaylor.me/log"
+	"7elements.ztaylor.me/cards"
 	"net/http"
+	"ztaylor.me/log"
 	// "strconv"
 )
 
-func WriteCardId(id int, w http.ResponseWriter, lang string) {
-	card := SE.Cards.Cache[id]
+func WriteCardId(cardid int, w http.ResponseWriter, lang string) {
+	card := cards.CardCache[cardid]
 	if card == nil {
 		w.WriteHeader(500)
-		log.Add("CardId", id).Error("cards: card missing")
+		log.Add("CardId", cardid).Error("cards: card missing")
 		return
 	}
 
-	texts := SE.CardTexts.Cache[lang]
+	texts := cards.TextsCache[lang]
 	if texts == nil {
 		w.Write([]byte("cards: language missing"))
 		w.WriteHeader(500)
 		log.Add("Language", lang).Error("cards: language missing")
 		return
-	} else if texts[id] == nil {
+	} else if texts[cardid] == nil {
 		w.Write([]byte("cards: language: card missing"))
 		w.WriteHeader(500)
-		log.Add("CardId", id).Add("Language", lang).Error("cards: language missing")
+		log.Add("CardId", cardid).Add("Language", lang).Error("cards: language missing")
 		return
 	}
 
-	j := MakeCardJson(card, texts[id])
+	j := MakeCardJson(card, cards.BodyCache[cardid], texts[cardid])
 	j.Write(w)
-	log.Add("CardId", id).Debug("cards: serve")
+	log.Add("CardId", cardid).Debug("cards: serve")
 }

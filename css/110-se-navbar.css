@@ -9,6 +9,9 @@
 #se-navbar-header {
 	margin-right:21px;
 }
+#se-navbar[packs="0"] .data-control-packs, #se-navbar[games="0"] .data-control-games {
+	display:none;
+}
 #se-navbar-header, #se-navbar-menu, #se-navbar li {
 	float:left;
 }
@@ -25,6 +28,12 @@
 }
 #se-navbar a.active {
 	background-color:rgba(0,0,0,0.5);
+}
+#se-navbar-menu a {
+	display:none;
+}
+#se-navbar-menu a.active {
+	display:block;
 }
 #se-navbar a:hover {
 	background-color:rgba(256,256,256,0.5);

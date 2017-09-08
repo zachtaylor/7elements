@@ -1,31 +1,36 @@
 package sessionman
 
 import (
-	"7elements.ztaylor.me"
+	"7elements.ztaylor.me/accounts"
 	"7elements.ztaylor.me/event"
-	"7elements.ztaylor.me/log"
-	"7elements.ztaylor.me/options"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
+	"ztaylor.me/log"
 )
 
+var Cache = make(map[uint]*Session)
+
+func GetSession(username string) *Session {
+	if account := accounts.Test(username); account != nil {
+		return Cache[account.SessionId]
+	}
+	return nil
+}
+
 func GrantSession(username string) *Session {
-	if account := SE.Accounts.Cache[username]; account != nil {
+	if account := accounts.Test(username); account != nil {
 		if account.SessionId > 0 {
 			log.Add("OldSessionId", account.SessionId).Warn("session: overwrite account.sessionid")
-			delete(cache, account.SessionId)
+			delete(Cache, account.SessionId)
 		}
 
-		session := &Session{
-			Username: account.Username,
-			Id:       uint(sessionIdGen.Next()),
-			Expire:   time.Now().Add(time.Duration(options.Int("session-life")) * time.Second),
-		}
-
+		session := NewSession()
+		session.Username = username
 		account.SessionId = session.Id
-		cache[session.Id] = session
-		event.Fire("GrantSession", session)
+		Cache[session.Id] = session
+		event.Fire("SessionGrant", session)
 		log.Add("Username", username).Add("SessionId", session.Id).Debug("session: created")
 		return session
 	}
@@ -35,51 +40,65 @@ func GrantSession(username string) *Session {
 }
 
 func RevokeSession(username string) {
-	log.Add("Username", username)
+	log := log.Add("Username", username)
+	account := accounts.Test(username)
+	if account == nil {
+		log.Error("sessionman.RevokeSession: account missing")
+		return
+	} else if account.SessionId < 1 {
+		log.Warn("sessionman.RevokeSession: sessionid missing")
+		return
+	}
 
-	if account := SE.Accounts.Cache[username]; account != nil {
-		if account.SessionId < 1 {
-			log.Warn("sessionman: revoke: account does not have session")
-			return
-		}
+	log.Add("SessionId", account.SessionId)
+	session := Cache[account.SessionId]
+	if session == nil {
+		log.Warn("sessionman.RevokeSession: invalid sessionid")
+		return
+	}
 
-		log.Add("SessionId", account.SessionId)
+	revoke(session)
 
-		session := cache[account.SessionId]
-		if session == nil {
-			log.Warn("sessionman: revoke: account points to invalid session")
-			return
-		}
+	log.Add("LifeLeft", time.Now().Sub(session.Expire)).Debug("sessionman: revoke")
+	event.Fire("SessionRevoke", session.Username)
+}
 
-		log.Add("LifeLeft", time.Now().Sub(session.Expire))
-
-		delete(cache, account.SessionId)
+func revoke(session *Session) {
+	close(session.Done)
+	delete(Cache, session.Id)
+	if account := accounts.Test(session.Username); account != nil {
 		account.SessionId = 0
-		event.Fire("RevokeSession", session.Username)
-		log.Debug("sessionman: revoke")
-	} else {
-		log.Error("sessionman: revoke: account must be cached")
 	}
 }
 
 func ReadRequestCookie(r *http.Request) (*Session, error) {
 	if sessionCookie, err := r.Cookie("SessionId"); err == nil {
 		if sessionId, err := strconv.ParseInt(sessionCookie.Value, 10, 0); err == nil {
-			if session := cache[uint(sessionId)]; session != nil {
+			if session := Cache[uint(sessionId)]; session != nil {
 				return session, nil
 			} else if sessionId == 0 {
 				return nil, nil
 			} else {
-				return nil, Errors.InvalidSessionId
+				return nil, errors.New("invalid cookie#" + sessionCookie.Value)
 			}
 		} else {
-			return nil, Errors.CookieParse
+			return nil, errors.New("cookie format")
 		}
 	} else {
-		return nil, Errors.NoCookie
+		return nil, errors.New("session missing")
 	}
 }
 
 func EraseSessionId(w http.ResponseWriter) {
 	w.Header().Set("Set-Cookie", "SessionId=0; Path=/;")
+}
+
+func SessionClock() {
+	for now := range time.Tick(1 * time.Second) {
+		for _, session := range Cache {
+			if session.Expire.Before(now) {
+				go revoke(session)
+			}
+		}
+	}
 }
