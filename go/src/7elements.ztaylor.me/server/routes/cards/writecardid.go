@@ -8,27 +8,22 @@ import (
 )
 
 func WriteCardId(cardid int, w http.ResponseWriter, lang string) {
-	card := cards.CardCache[cardid]
-	if card == nil {
-		w.WriteHeader(500)
-		log.Add("CardId", cardid).Error("cards: card missing")
-		return
-	}
+	log := log.Add("CardId", cardid)
 
-	texts := cards.TextsCache[lang]
-	if texts == nil {
-		w.Write([]byte("cards: language missing"))
+	if card := cards.CardCache[cardid]; card == nil {
 		w.WriteHeader(500)
-		log.Add("Language", lang).Error("cards: language missing")
-		return
+		log.Error("/api/cards: card missing")
+	} else if texts := cards.TextsCache[lang]; texts == nil {
+		w.WriteHeader(500)
+		w.Write([]byte("language missing"))
+		log.Add("Language", lang).Error("/api/cards: language missing")
 	} else if texts[cardid] == nil {
 		w.Write([]byte("cards: language: card missing"))
 		w.WriteHeader(500)
-		log.Add("CardId", cardid).Add("Language", lang).Error("cards: language missing")
-		return
+		log.Add("CardId", cardid).Add("Language", lang).Error("/api/cards: language missing")
+	} else {
+		j := cards.Json(card, cards.BodyCache[cardid], texts[cardid])
+		j.Write(w)
+		log.Add("Language", lang).Error("/api/cards: language missing")
 	}
-
-	j := MakeCardJson(card, cards.BodyCache[cardid], texts[cardid])
-	j.Write(w)
-	log.Add("CardId", cardid).Debug("cards: serve")
 }

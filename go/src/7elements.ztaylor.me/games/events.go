@@ -1,26 +1,26 @@
 package games
 
 import (
-	"7elements.ztaylor.me/event"
-	"7elements.ztaylor.me/server/sessionman"
+	"ztaylor.me/events"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 )
 
 func init() {
-	event.On("WebsocketOpen", func(args ...interface{}) {
-		s := args[0].(*sessionman.Socket)
+	events.On("WebsocketOpen", func(args ...interface{}) {
+		s := args[0].(*sessions.Socket)
 		WebsocketOpen(s)
 	})
 
-	event.On("WebsocketMessage", func(args ...interface{}) {
-		s := args[0].(*sessionman.Socket)
+	events.On("WebsocketMessage", func(args ...interface{}) {
+		s := args[0].(*sessions.Socket)
 		name := args[1].(string)
 		data := args[2].(json.Json)
 		WebsocketMessage(s, name, data)
 	})
 
-	event.On("WebsocketClose", func(args ...interface{}) {
-		s := args[0].(*sessionman.Socket)
+	events.On("WebsocketClose", func(args ...interface{}) {
+		s := args[0].(*sessions.Socket)
 		WebsocketClose(s)
 	})
 }

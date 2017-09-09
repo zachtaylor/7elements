@@ -4,13 +4,13 @@ import (
 	"7elements.ztaylor.me/cards"
 	"7elements.ztaylor.me/cards/types"
 	"7elements.ztaylor.me/games/cards"
-	"7elements.ztaylor.me/server/sessionman"
 	"ztaylor.me/ctxpert"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
 
-func Play(game *Game, socket *sessionman.Socket, data json.Json, log log.Log) {
+func Play(game *Game, socket *sessions.Socket, data json.Json, log log.Log) {
 	seat := game.GetSeat(socket.Username)
 	log.Add("GCID", data["gcid"])
 

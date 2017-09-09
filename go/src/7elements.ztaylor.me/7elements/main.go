@@ -6,16 +6,16 @@ import (
 	_ "7elements.ztaylor.me/games"
 	"7elements.ztaylor.me/options"
 	"7elements.ztaylor.me/server"
-	"7elements.ztaylor.me/server/sessionman"
 	_ "7elements.ztaylor.me/triggers"
 	"net/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
 const patch uint64 = 9
 
 func main() {
-	go sessionman.SessionClock()
+	go sessions.SessionClock()
 
 	log.Add("Patch", patch).Add("Patch-path", options.String("patch-path")).Info("starting 7Elements server...")
 

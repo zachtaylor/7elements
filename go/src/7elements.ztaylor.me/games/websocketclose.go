@@ -1,11 +1,11 @@
 package games
 
 import (
-	"7elements.ztaylor.me/server/sessionman"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
-func WebsocketClose(socket *sessionman.Socket) {
+func WebsocketClose(socket *sessions.Socket) {
 	for gameid, ok := range GetActiveGames(socket.Username) {
 		if !ok {
 			log.Add("Username", socket.Username).Add("GameId", gameid).Warn("wsclose: game id error")

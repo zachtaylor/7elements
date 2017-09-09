@@ -2,10 +2,11 @@ package login
 
 import (
 	"7elements.ztaylor.me/accounts"
-	"7elements.ztaylor.me/server/sessionman"
+	"7elements.ztaylor.me/options"
 	"7elements.ztaylor.me/server/util"
 	"net/http"
 	"time"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
@@ -15,8 +16,9 @@ func DoUnsafe(account *accounts.Account, w http.ResponseWriter, r *http.Request,
 		log.Add("Error", err).Error("cannot cache account")
 		return
 	}
-	session := sessionman.GrantSession(account.Username)
+	session := sessions.Grant(account.Username, time.Duration(options.Int("session-life"))*time.Minute)
+	account.SessionId = session.Id
 
-	session.WriteSessionId(w)
+	session.WriteCookie(w)
 	serverutil.WriteRedirectHome(w, message)
 }

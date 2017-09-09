@@ -4,7 +4,7 @@ import (
 	"7elements.ztaylor.me/games/cards"
 	"7elements.ztaylor.me/games/decks"
 	"7elements.ztaylor.me/games/elements"
-	"7elements.ztaylor.me/server/sessionman"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 )
 
@@ -18,7 +18,7 @@ type GameSeat struct {
 	Active   []*gamecards.GameCard
 	Elements gameelements.GameElements
 	Spent    []*gamecards.GameCard
-	*sessionman.Socket
+	*sessions.Socket
 }
 
 func New() *GameSeat {

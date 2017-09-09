@@ -5,9 +5,9 @@ import (
 	"7elements.ztaylor.me/accountscards"
 	"7elements.ztaylor.me/decks"
 	"7elements.ztaylor.me/games"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
 	"time"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 	// "strconv"
@@ -19,9 +19,9 @@ var NavbarJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Req
 		log.Warn("navbar.json: only GET supported")
 	}
 
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session == nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(401)
 
 		if err != nil {

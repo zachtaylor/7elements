@@ -1,4 +1,4 @@
-package sessionman
+package sessions
 
 import (
 	"ztaylor.me/json"

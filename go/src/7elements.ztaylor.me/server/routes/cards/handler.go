@@ -2,10 +2,10 @@ package cards
 
 import (
 	"7elements.ztaylor.me/accounts"
-	"7elements.ztaylor.me/server/sessionman"
 	"7elements.ztaylor.me/server/util"
 	"net/http"
 	"strconv"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
@@ -13,7 +13,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log := log.Add("RemoteAddr", r.RemoteAddr)
 	acceptlanguage := serverutil.ReadAcceptLanguage(r)
 
-	if session, _ := sessionman.ReadRequestCookie(r); session != nil {
+	if session, _ := sessions.ReadRequestCookie(r); session != nil {
 		if account := accounts.Test(session.Username); account != nil {
 			acceptlanguage = account.Language
 		}

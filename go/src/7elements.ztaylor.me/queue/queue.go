@@ -2,12 +2,12 @@ package queue
 
 import (
 	"7elements.ztaylor.me/decks"
-	"7elements.ztaylor.me/event"
 	"7elements.ztaylor.me/games"
-	"7elements.ztaylor.me/server/sessionman"
 	"github.com/cznic/mathutil"
 	"sync"
 	"time"
+	"ztaylor.me/events"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
@@ -23,7 +23,7 @@ var queue = make([]*GameSearch, 0)
 var qlock sync.Mutex
 var gameIdGen, _ = mathutil.NewFC32(0, 999999999, true)
 
-func Start(session *sessionman.Session, deck *decks.Deck) *GameSearch {
+func Start(session *sessions.Session, deck *decks.Deck) *GameSearch {
 	qlock.Lock()
 	defer qlock.Unlock()
 	search := NewGameSearch(session, deck)
@@ -32,7 +32,7 @@ func Start(session *sessionman.Session, deck *decks.Deck) *GameSearch {
 	return search
 }
 
-func Remove(session *sessionman.Session) {
+func Remove(session *sessions.Session) {
 	qlock.Lock()
 	defer qlock.Unlock()
 
@@ -83,5 +83,5 @@ func match(s1 *GameSearch, s2 *GameSearch) {
 	close(s1.Done)
 	s2.Done <- game.Id
 	go close(s2.Done)
-	event.Fire("GameStart", game)
+	events.Fire("GameStart", game)
 }

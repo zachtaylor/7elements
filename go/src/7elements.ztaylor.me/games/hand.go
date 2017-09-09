@@ -1,12 +1,12 @@
 package games
 
 import (
-	"7elements.ztaylor.me/server/sessionman"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
 
-func Hand(game *Game, socket *sessionman.Socket, data json.Json, log log.Log) {
+func Hand(game *Game, socket *sessions.Socket, data json.Json, log log.Log) {
 	log.Add("Choice", data["choice"])
 
 	if game.GamePhase != GPHSbegin {

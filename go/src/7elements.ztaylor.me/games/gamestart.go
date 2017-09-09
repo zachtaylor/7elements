@@ -1,13 +1,13 @@
 package games
 
 import (
-	"7elements.ztaylor.me/event"
 	"ztaylor.me/ctxpert"
+	"ztaylor.me/events"
 	"ztaylor.me/log"
 )
 
 func init() {
-	event.On("GameStart", func(args ...interface{}) {
+	events.On("GameStart", func(args ...interface{}) {
 		GameStart(args[0].(*Game))
 	})
 }

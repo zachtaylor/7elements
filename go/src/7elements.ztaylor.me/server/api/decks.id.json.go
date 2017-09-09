@@ -3,20 +3,20 @@ package api
 import (
 	"7elements.ztaylor.me/accountscards"
 	"7elements.ztaylor.me/decks"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
 	"strconv"
 	"time"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
 
 func DecksIdJsonHandler(w http.ResponseWriter, r *http.Request) {
 	log := log.Add("RemoteAddr", r.RemoteAddr)
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session == nil {
 		if err != nil {
-			sessionman.EraseSessionId(w)
+			sessions.EraseSessionId(w)
 			log.Add("Error", err)
 		}
 		w.WriteHeader(400)
@@ -28,7 +28,7 @@ func DecksIdJsonHandler(w http.ResponseWriter, r *http.Request) {
 	log.Add("Username", session.Username)
 	ds, err := decks.Get(session.Username)
 	if err != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("decks.json")
 		return

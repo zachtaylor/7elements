@@ -2,9 +2,9 @@ package accounts
 
 import (
 	"7elements.ztaylor.me/db"
-	"7elements.ztaylor.me/event"
 	"errors"
 	"time"
+	"ztaylor.me/events"
 )
 
 var cache = make(map[string]*Account)
@@ -54,7 +54,7 @@ func Load(username string) (*Account, error) {
 		account.LastLogin = time.Unix(lastloginbuff, 0)
 	}
 
-	event.Fire("accounts.Load", account)
+	events.Fire("accounts.Load", account)
 	return account, nil
 }
 

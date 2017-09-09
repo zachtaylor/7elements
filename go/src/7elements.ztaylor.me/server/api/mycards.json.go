@@ -2,8 +2,8 @@ package api
 
 import (
 	"7elements.ztaylor.me/accountscards"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
@@ -17,10 +17,10 @@ var MyCardsJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session == nil {
 		if err != nil {
-			sessionman.EraseSessionId(w)
+			sessions.EraseSessionId(w)
 			log.Add("Error", err)
 		}
 		w.WriteHeader(400)
@@ -32,7 +32,7 @@ var MyCardsJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 	log = log.Add("Username", session.Username)
 	accountcards, err := accountscards.Get(session.Username)
 	if err != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("mycards: accountcards error")
 		return

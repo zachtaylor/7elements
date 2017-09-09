@@ -3,9 +3,9 @@ package api
 import (
 	"7elements.ztaylor.me/accounts"
 	"7elements.ztaylor.me/accountscards"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
 	"time"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
@@ -19,9 +19,9 @@ var MyAccountJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.
 		return
 	}
 
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session == nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(400)
 		w.Write([]byte("session missing"))
 		log.Add("Error", err).Error("myaccount: session missing")
@@ -30,7 +30,7 @@ var MyAccountJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.
 
 	account, err := accounts.Get(session.Username)
 	if err != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("myaccount: collection")
 		return
@@ -38,7 +38,7 @@ var MyAccountJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.
 
 	accountcards, err := accountscards.Get(session.Username)
 	if err != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("myaccount: collection")
 		return

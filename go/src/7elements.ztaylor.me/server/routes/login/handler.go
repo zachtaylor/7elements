@@ -3,8 +3,8 @@ package login
 import (
 	"7elements.ztaylor.me/accounts"
 	"7elements.ztaylor.me/server/security"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
@@ -17,7 +17,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if session, err := sessionman.ReadRequestCookie(r); session != nil {
+	if session, err := sessions.ReadRequestCookie(r); session != nil {
 		http.Redirect(w, r, "/", 307)
 		log.Add("SessionId", session.Id).Info("login: request already has valid session cookie")
 		return
@@ -35,7 +35,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log.Add("SessionId", account.SessionId)
 		}
 
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		log.Error("login: account cache hit panic")
 		return
 	}
@@ -46,14 +46,20 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log.Add("Error", err)
 		}
 
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		http.Redirect(w, r, "/login/?account", 307)
 		log.Warn("login: account not found")
 		return
 	}
 
+	if a := accounts.Test(username); a != nil {
+		http.Redirect(w, r, "/login/?account", 307)
+		log.Add("SessionId", a.SessionId).Warn("login: account already online")
+		return
+	}
+
 	if account.Password != password {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		http.Redirect(w, r, "/login/?password#"+username, 307)
 		log.Warn("login: password does not match")
 		return

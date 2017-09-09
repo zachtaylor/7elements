@@ -2,13 +2,13 @@ package games
 
 import (
 	"7elements.ztaylor.me/games/cards"
-	"7elements.ztaylor.me/server/sessionman"
 	"ztaylor.me/ctxpert"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
 
-func Defend(game *Game, socket *sessionman.Socket, data json.Json, log log.Log) {
+func Defend(game *Game, socket *sessions.Socket, data json.Json, log log.Log) {
 	if game.GamePhase != GPHSplay {
 		log.Add("GamePhase", game.GamePhase).Warn("defend: rejected")
 	} else if game.TurnPhase != TPHSdefend {

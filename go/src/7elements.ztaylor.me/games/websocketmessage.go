@@ -1,12 +1,12 @@
 package games
 
 import (
-	"7elements.ztaylor.me/server/sessionman"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
 
-func WebsocketMessage(socket *sessionman.Socket, name string, data json.Json) {
+func WebsocketMessage(socket *sessions.Socket, name string, data json.Json) {
 	log := log.Add("Username", socket.Username).Add("Data", data)
 
 	if name == "join" {

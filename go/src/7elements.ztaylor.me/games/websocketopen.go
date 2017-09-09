@@ -1,16 +1,16 @@
 package games
 
 import (
-	"7elements.ztaylor.me/server/sessionman"
+	"ztaylor.me/http/sessions"
 	// "ztaylor.me/json"
 	"ztaylor.me/log"
 )
 
-func WebsocketOpen(socket *sessionman.Socket) {
+func WebsocketOpen(socket *sessions.Socket) {
 	log.Add("Username", socket.Username).Info("wsopen")
 }
 
-func WebsocketJoinGame(socket *sessionman.Socket, game *Game) {
+func WebsocketJoinGame(socket *sessions.Socket, game *Game) {
 	log := log.Add("Username", socket.Username).Add("GameId", game.Id).Add("GamePhase", game.GamePhase)
 
 	if game.GamePhase == GPHSdone {

@@ -3,8 +3,8 @@ package api
 import (
 	"7elements.ztaylor.me/accounts"
 	"7elements.ztaylor.me/accountscards"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
@@ -18,10 +18,10 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session == nil {
 		if err != nil {
-			sessionman.EraseSessionId(w)
+			sessions.EraseSessionId(w)
 			log.Add("Error", err)
 		}
 		w.WriteHeader(400)
@@ -33,7 +33,7 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 	log.Add("Username", session.Username)
 	account := accounts.Test(session.Username)
 	if account == nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		log.Error("openpack.json: account missing")
 		return
@@ -55,7 +55,7 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 
 	accountcards, err := accountscards.Get(account.Username)
 	if err != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("openpack.json: collection")
 		return
@@ -66,7 +66,7 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 		carddata[i] = card.CardId
 
 		if err := accountscards.InsertCard(card); err != nil {
-			sessionman.EraseSessionId(w)
+			sessions.EraseSessionId(w)
 			w.WriteHeader(500)
 			log.Add("Error", err).Error("openpack.json: insert card copy")
 			return

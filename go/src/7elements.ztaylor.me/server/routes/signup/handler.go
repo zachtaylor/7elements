@@ -3,12 +3,12 @@ package signup
 import (
 	"7elements.ztaylor.me/accounts"
 	"7elements.ztaylor.me/decks"
-	"7elements.ztaylor.me/event"
 	"7elements.ztaylor.me/server/routes/login"
 	"7elements.ztaylor.me/server/security"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
 	"time"
+	"ztaylor.me/events"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
@@ -21,7 +21,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session != nil {
 		http.Redirect(w, r, "/", 307)
 		log.Add("SessionId", session.Id).Info("signup: request has valid session cookie")
@@ -38,12 +38,12 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Add("Username", username).Add("Email", email)
 
 	if accounts.Test(username) != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
 		log.Error("signup: duplicate is online right")
 		return
 	} else if account, _ := accounts.Load(username); account != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
 		log.Add("Error", err).Error("signup: duplicate exists")
 		return
@@ -84,10 +84,10 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accounts.Forget(username)
 		decks.Forget(username)
 		log.Add("Error", err).Error("signup: account insert")
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 	} else {
 		log.Debug("signup: sucess")
-		event.Fire("Signup", username)
+		events.Fire("Signup", username)
 	}
 })

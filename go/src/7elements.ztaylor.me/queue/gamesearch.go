@@ -2,18 +2,18 @@ package queue
 
 import (
 	"7elements.ztaylor.me/decks"
-	"7elements.ztaylor.me/server/sessionman"
 	"time"
+	"ztaylor.me/http/sessions"
 )
 
 type GameSearch struct {
-	*sessionman.Session
+	*sessions.Session
 	*decks.Deck
 	Start time.Time
 	Done  chan int
 }
 
-func NewGameSearch(session *sessionman.Session, deck *decks.Deck) *GameSearch {
+func NewGameSearch(session *sessions.Session, deck *decks.Deck) *GameSearch {
 	return &GameSearch{
 		Session: session,
 		Deck:    deck,

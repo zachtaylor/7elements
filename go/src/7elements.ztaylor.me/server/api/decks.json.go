@@ -2,17 +2,17 @@ package api
 
 import (
 	"7elements.ztaylor.me/decks"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
 func DecksJsonHandler(w http.ResponseWriter, r *http.Request) {
 	log := log.Add("RemoteAddr", r.RemoteAddr)
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session == nil {
 		if err != nil {
-			sessionman.EraseSessionId(w)
+			sessions.EraseSessionId(w)
 			log.Add("Error", err)
 		}
 		w.WriteHeader(400)
@@ -24,7 +24,7 @@ func DecksJsonHandler(w http.ResponseWriter, r *http.Request) {
 	log.Add("Username", session.Username)
 	decks, err := decks.Get(session.Username)
 	if err != nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("decks.json")
 		return

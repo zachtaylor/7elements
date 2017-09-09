@@ -4,9 +4,9 @@ import (
 	"7elements.ztaylor.me/accounts"
 	"7elements.ztaylor.me/decks"
 	"7elements.ztaylor.me/queue"
-	"7elements.ztaylor.me/server/sessionman"
 	"net/http"
 	"strconv"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
@@ -20,10 +20,10 @@ var NewGameJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	session, err := sessionman.ReadRequestCookie(r)
+	session, err := sessions.ReadRequestCookie(r)
 	if session == nil {
 		if err != nil {
-			sessionman.EraseSessionId(w)
+			sessions.EraseSessionId(w)
 			log.Add("Error", err)
 		}
 		w.WriteHeader(401)
@@ -35,7 +35,7 @@ var NewGameJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 	log.Add("Username", session.Username)
 	account := accounts.Test(session.Username)
 	if account == nil {
-		sessionman.EraseSessionId(w)
+		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 		w.Write([]byte("account error"))
 		log.Error("newgame.json: account missing")

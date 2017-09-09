@@ -1,8 +1,8 @@
-package sessionman
+package sessions
 
 import (
-	"7elements.ztaylor.me/event"
 	"golang.org/x/net/websocket"
+	"ztaylor.me/events"
 	"ztaylor.me/json"
 	"ztaylor.me/log"
 )
@@ -36,7 +36,7 @@ func (socket *Socket) Send(name string, data json.Json) {
 }
 
 func startWatch(socket *Socket, session *Session) {
-	event.Fire("WebsocketOpen", socket)
+	events.Fire("WebsocketOpen", socket)
 	for socket.conn != nil {
 		msgIn, msgErr := socket.receivers()
 		select {
@@ -54,11 +54,11 @@ func startWatch(socket *Socket, session *Session) {
 				socket.conn = nil
 				close(socket.Done)
 			} else {
-				event.Fire("WebsocketMessage", socket, msg.Name, msg.Data)
+				events.Fire("WebsocketMessage", socket, msg.Name, msg.Data)
 			}
 		}
 	}
-	event.Fire("WebsocketClose", socket)
+	events.Fire("WebsocketClose", socket)
 }
 
 func (socket *Socket) receivers() (chan *WebsocketMessage, chan error) {
