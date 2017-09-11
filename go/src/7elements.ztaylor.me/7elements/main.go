@@ -42,8 +42,15 @@ func main() {
 	log.Add("port", options.String("port")).Add("server-path", options.String("server-path")).Info("7Elements server ready!")
 
 	if options.Bool("use-https") {
+		go http.ListenAndServe(":80", http.HandlerFunc(redirectHttps))
 		log.Error(http.ListenAndServeTLS(":443", "7elements.cert", "7elements.key", &server.Router))
 	} else {
 		log.Error(http.ListenAndServe(":"+options.String("port"), &server.Router))
 	}
+}
+
+func redirectHttps(w http.ResponseWriter, req *http.Request) {
+	http.Redirect(w, req,
+		"https://"+req.Host+req.URL.String(),
+		http.StatusMovedPermanently)
 }
