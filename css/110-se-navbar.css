@@ -3,10 +3,11 @@
 	top:0px;
 	width:100%;
 	font-size:18px;
-	background: url('/img/texture/woodfine.jpg');
+	background:linear-gradient(to bottom, #000000, #373737);
 	z-index:1000;
 }
 #se-navbar-header {
+	padding:0px;
 	margin-right:21px;
 }
 #se-navbar[packs="0"] .data-control-packs, #se-navbar[games="0"] .data-control-games {
@@ -26,8 +27,11 @@
 	color:white;
 	text-decoration: none;
 }
+a#se-navbar-header {
+	padding:4px;
+}
 #se-navbar a.active {
-	background-color:rgba(0,0,0,0.5);
+	background:linear-gradient(to top, #373737, #737373);
 }
 #se-navbar-menu a {
 	display:none;
