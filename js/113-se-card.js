@@ -34,6 +34,10 @@ SE.widget.control('se-card', function(cardid) {
 			me.body = "false";
 		}
 
+		if (data.image) {
+			$('.se-card-art', me)[0].src = data.image;
+		}
+
 		$('.se-card-costs', me).empty();
 		$.each(data.costs, function(elementid, cost) {
 			for (var i=0; i<cost; i++) {

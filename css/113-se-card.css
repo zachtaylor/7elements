@@ -8,6 +8,11 @@
 	white-space:initial;
 }
 
+.se-card-art {
+	position:absolute;
+	top:32px;
+}
+
 .se-card-banner {
 	margin:2px;
 	font-size:18px;
