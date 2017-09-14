@@ -12,7 +12,7 @@ import (
 	"ztaylor.me/log"
 )
 
-const patch uint64 = 10
+const patch uint64 = 11
 
 func main() {
 	go sessions.SessionClock()
