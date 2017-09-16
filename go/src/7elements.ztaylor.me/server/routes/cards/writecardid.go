@@ -7,23 +7,18 @@ import (
 	// "strconv"
 )
 
-func WriteCardId(cardid int, w http.ResponseWriter, lang string) {
+func WriteCardId(cardid int, w http.ResponseWriter, texts map[int]*cards.Texts) {
 	log := log.Add("CardId", cardid)
 
 	if card := cards.CardCache[cardid]; card == nil {
 		w.WriteHeader(500)
 		log.Error("/api/cards: card missing")
-	} else if texts := cards.TextsCache[lang]; texts == nil {
-		w.WriteHeader(500)
-		w.Write([]byte("language missing"))
-		log.Add("Language", lang).Error("/api/cards: language missing")
 	} else if texts[cardid] == nil {
-		w.Write([]byte("cards: language: card missing"))
 		w.WriteHeader(500)
-		log.Add("CardId", cardid).Add("Language", lang).Error("/api/cards: language missing")
+		w.Write([]byte("api/cards: card text missing"))
+		log.Add("CardId", cardid).Error("/api/cards: card text missing")
 	} else {
 		j := cards.Json(card, cards.BodyCache[cardid], texts[cardid])
 		j.Write(w)
-		log.Add("Language", lang).Error("/api/cards: language missing")
 	}
 }

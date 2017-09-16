@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 	"ztaylor.me/events"
-	"ztaylor.me/log"
 )
 
 var Cache = make(map[uint]*Session)
@@ -25,18 +24,12 @@ func Grant(username string, lifetime time.Duration) *Session {
 	session.Username = username
 	Cache[session.Id] = session
 	events.Fire("SessionGrant", session)
-	log.Add("Username", username).Add("SessionId", session.Id).Add("Lifetime", lifetime).Debug("session: created")
 	return session
 }
 
 func Revoke(username string) {
-	log := log.Add("Username", username)
-
-	if session := Get(username); session == nil {
-		log.Warn("sessions.revoke: session missing")
-	} else {
-		log.Add("Username", session.Username).Add("Expiration", session.Expire.Unix()).Add("TimeNow", time.Now().Unix()).Info("session expired")
-		session.Expire = time.Now()
+	if session := Get(username); session != nil {
+		session.Revoke()
 	}
 }
 
@@ -64,9 +57,17 @@ func EraseSessionId(w http.ResponseWriter) {
 
 func SessionClock() {
 	for now := range time.Tick(1 * time.Second) {
-		for _, session := range Cache {
+		revokelist := make([]uint, 0)
+
+		for sessionId, session := range Cache {
 			if session.Expire.Before(now) {
-				go session.Revoke()
+				revokelist = append(revokelist, sessionId)
+			}
+		}
+
+		for _, sessionId := range revokelist {
+			if session := Cache[sessionId]; session != nil {
+				session.Revoke()
 			}
 		}
 	}

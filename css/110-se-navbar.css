@@ -1,10 +1,13 @@
-#se-navbar {
+#se-navbar-floater {
 	position:fixed;
 	top:0px;
 	width:100%;
 	font-size:18px;
 	background:linear-gradient(to bottom, #000000, #373737);
 	z-index:1000;
+}
+#se-navbar-spacer {
+	height:60px;
 }
 #se-navbar-header {
 	padding:0px;
@@ -31,7 +34,7 @@ a#se-navbar-header {
 	padding:4px;
 }
 #se-navbar a.active {
-	background:linear-gradient(to top, #373737, #737373);
+	background-color:#373737;
 }
 #se-navbar-menu a {
 	display:none;
@@ -41,7 +44,4 @@ a#se-navbar-header {
 }
 #se-navbar a:hover {
 	background-color:rgba(256,256,256,0.5);
-}
-body {
-	margin-top:60px;
 }

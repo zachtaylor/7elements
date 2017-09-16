@@ -1,0 +1,77 @@
+body {
+	background: #fafafa;
+}
+.float-right {
+	float:right;
+}
+.pos-abs {
+	position:absolute;
+}
+.pos-fix {
+	position:fixed;
+}
+.pos-rel {
+	position:relative;
+}
+.disp-iblock {
+	display:inline-block;
+}
+.left0 {
+	left:0%;
+}
+.right0 {
+	right:0%;
+	text-align:right;
+}
+.top0 {
+	top:0%;
+}
+.bottom0 {
+	bottom:0%;
+}
+.width100 {
+	width:100%;
+}
+.height100 {
+	height:100%;
+}
+.b {
+	font-weight:bold;
+}
+.elemen7s-font-fprint {
+	font-family:sans-serif;
+	font-size:12px;
+}
+.elemen7s-font-label {
+	font-family:'Oswald';
+	font-size:21px;
+}
+.elemen7s-form {
+	font-size:21px;
+}
+.elemen7s-form-group {
+	position:relative;
+	display:table;
+	border-collapse:separate;
+	height:60px;
+	width:100%;
+	margin-bottom:21px;
+}
+.elemen7s-form-group span {
+	display:table-cell;
+	width:200px;
+	padding:21px;
+	text-align:center;
+}
+.elemen7s-form-group input {
+	width:100%;
+	height:100%;
+	display:table-cell;
+	border:1px solid grey;
+}
+input.form-error {
+	border-color:pink;
+}
+input.form-success {
+	border-color:green;
+}

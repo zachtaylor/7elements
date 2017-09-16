@@ -14,8 +14,10 @@ $(function() {
 					spinner.append(card);
 				});
 			});
+			$('#packs-spinners').append('<span class="elemen7s-font-label">New Pack!</span>');
 			$('#packs-spinners').append(spinner);
 			$('#packs-spinners').append('<br/><br/>');
+			window.scrollTo(0,document.body.scrollHeight)
 		});
 	};
 

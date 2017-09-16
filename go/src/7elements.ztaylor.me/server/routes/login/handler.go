@@ -31,12 +31,17 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Add("Username", username)
 
 	if account := accounts.Test(username); account != nil {
-		if account.SessionId > 0 {
-			log.Add("SessionId", account.SessionId)
+		log.Add("SessionId", account.SessionId)
+
+		if session := sessions.Cache[account.SessionId]; session == nil {
+			log.Error("login: account cache hit no session")
+		} else if account.Password != password {
+			log.Warn("login: password does not match")
+		} else {
+			log.Add("SessionId", account.SessionId).Info("login: rewrite sessionid")
+			DoUnsafe(account, w, r, "Login Re-Accepted!")
 		}
 
-		sessions.EraseSessionId(w)
-		log.Error("login: account cache hit panic")
 		return
 	}
 
@@ -66,5 +71,5 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	DoUnsafe(account, w, r, "Login Success!")
-	log.Debug("login: success")
+	log.Info("login succeeded")
 })

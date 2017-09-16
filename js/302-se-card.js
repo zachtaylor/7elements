@@ -13,7 +13,7 @@ customElements.define('se-card', class extends HTMLElement {
 
 	connectedCallback() {
 		this.getShadow();
-		console.warn("deprecated use of <se-card> type");
+		console.warn("deprecated use of <se-card> type", this);
 		SE.api.get('cards', this.updater());
 	}
 

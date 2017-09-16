@@ -13,6 +13,7 @@ customElements.define('se-symbol', class extends HTMLElement {
 
 	connectedCallback() {
 		this.getShadow()
+		console.warn("deprecated use of <se-symbol> type", this);
 	}
 
 	get icon() {

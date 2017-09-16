@@ -41,8 +41,9 @@ SE.widget.control('se-card', function(cardid) {
 		$('.se-card-costs', me).empty();
 		$.each(data.costs, function(elementid, cost) {
 			for (var i=0; i<cost; i++) {
-				var symbol = $('<se-symbol icon="element-'+elementid+'"></se-symbol>')[0];
-				$('.se-card-costs', me).append(symbol);
+				SE.widget.new('se-symbol', 'element-'+elementid).then(function(symbol2) {
+					$('.se-card-costs', me).append(symbol2);
+				});
 			}
 		});
 	}

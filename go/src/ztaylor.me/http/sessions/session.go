@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 	"ztaylor.me/events"
-	"ztaylor.me/log"
 )
 
 var sessionIdGen, _ = mathutil.NewFC32(0, 999999999, true)
@@ -37,8 +36,7 @@ func (session *Session) Refresh() {
 func (session *Session) Revoke() {
 	close(session.Done)
 	delete(Cache, session.Id)
-	log.Add("Username", session.Username).Info("session expired")
-	events.Fire("sessions.revoke", session.Username)
+	events.Fire("SessionRevoke", session.Username)
 }
 
 func (session *Session) WriteCookie(w http.ResponseWriter) {

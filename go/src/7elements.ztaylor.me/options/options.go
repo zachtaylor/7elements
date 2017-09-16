@@ -29,6 +29,7 @@ var options = map[string]*option{
 	"css-minify":    &option{"false", "Minify 7elements.css after every compilation"},
 	"image-path":    &option{"img", "Root for image files"},
 	"password-salt": &option{"salt", "Salt string for password hashing"},
+	"redirect-host": &option{"", "Redirect \"/\" traffic that don't match this hostname to this hostname if set"},
 }
 
 func init() {

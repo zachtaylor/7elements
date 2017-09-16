@@ -16,3 +16,4 @@
 # css-minify=true
 # image-path=img/
 # password-salt=salt
+# redirect-host=

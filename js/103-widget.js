@@ -41,14 +41,15 @@ SE.widget = {
 		SE.widget.controllers[name] = SE.widget.controllers[name] || [];
 		SE.widget.controllers[name].push(f);
 	},
-	replace: function(name, replace) {
-		replace = replace || document.currentScript;
+	replace: function(name) {
+		var script = document.currentScript;
+		var args = Array.prototype.slice.call(arguments);
 		return new Promise(function(resolve, reject) {
-			SE.widget.new(name).then(function(widget) {
-				$(replace).replaceWith(widget);
+			SE.widget.new.apply(null, args).then(function(widget) {
+				$(script).replaceWith(widget);
 				resolve(widget);
 			}, function() {
-				$(replace).replaceWith('<span>widget not found: '+name+'</span>');
+				$(script).replaceWith('<span>widget not found: '+name+'</span>');
 				reject();
 			});
 		});

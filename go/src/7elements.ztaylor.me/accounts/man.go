@@ -10,8 +10,8 @@ import (
 var cache = make(map[string]*Account)
 
 func Store(a *Account) error {
-	if Test(a.Username) != nil {
-		return errors.New("account already stored: " + a.Username)
+	if a2 := Test(a.Username); a2 != nil && a != a2 {
+		return errors.New("account already stored")
 	}
 	cache[a.Username] = a
 	return nil

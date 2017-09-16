@@ -76,18 +76,18 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		deck.Username = username
 	}
 	if err := decks.Insert(username, 0); err != nil {
-		log.Add("Error", err).Error("signup: grant 3 decks")
+		log.Add("Error", err).Error("/api/signup: grant 3 decks")
 		return
 	}
 
 	if err := accounts.Insert(username); err != nil {
 		accounts.Forget(username)
 		decks.Forget(username)
-		log.Add("Error", err).Error("signup: account insert")
+		log.Add("Error", err).Error("/api/signup: account insert")
 		sessions.EraseSessionId(w)
 		w.WriteHeader(500)
 	} else {
-		log.Debug("signup: sucess")
+		log.Info("/api/signup")
 		events.Fire("Signup", username)
 	}
 })

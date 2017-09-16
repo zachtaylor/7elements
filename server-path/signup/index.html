@@ -16,55 +16,44 @@
 						$('#form-group-email').addClass("has-success")
 					} else if (parts[0] == 'usernametaken') {
 						$("input[name='username']").val(parts[1]);
-						$('#form-group-username').addClass("has-error").append('<span style="color:red;">Username taken</span>');
+						$('#form-group-username input').addClass("form-error")
+						$('#form-group-username').prev('.elemen7s-font-fprint').append('<span style="color:red;">Username taken</span>')
 					} else if (parts[0] == 'username') {
 						$("input[name='username']").val(parts[1]);
 						$('#form-group-username').addClass("has-success")
 					} else if (parts[0] == 'passwordmatch') {
-						console.log('wassup nigga');
-						$('#form-group-password1, #form-group-password2').addClass("has-error")
-						$('#form-group-password2').append('<span style="color:red;">Password mismatch</span>');
+						$('#form-group-password1 input, #form-group-password2 input').addClass("form-error")
+						$('#form-group-password1, #form-group-password2').prev('.elemen7s-font-fprint').append('<span style="color:red;">Password mismatch</span>')
 					}
 				});
 			});
 		</script>
 	</head>
-	<body>
-		<div class="container well">
-			<span>
-				For more information on Elemen7s <a href="/">click here</a>
-			</span>
-			<span class="float-right">
-				Already have account? <a href="/login/">Click here to login</a>
-			</span>
-		</div>
-		<div class="container">
-			<form class="well form-horizontal" action="/api/signup" method="POST">
+	<body style="background:linear-gradient(to top, #373737, #737373)">
+		<div class="container elemen7s-font-fprint">
+			<form class="well pos-rel elemen7s-form" action="/api/signup" method="POST">
 				<fieldset>
-					<legend>Elemen7s Signup</legend>
-					<div class="form-group" id="form-group-username">
-						<div class="input-group input-group-lg">
-							<span class="input-group-addon" id="sizing-addon-username">@</span>
-							<input type="text" class="form-control" name="username" placeholder="username" aria-describedby="sizing-addon-username">
-						</div>
+					<span class="pos-abs elemen7s-font-label" style="right:21px;top:21px;">Already have account? <a href="/login/">Click here to login</a></span>
+					<legend class="elemen7s-font-label">Elemen7s Signup</legend>
+					<div class="elemen7s-font-fprint float-right">Your username is your account name.</div>
+					<div class="elemen7s-form-group" id="form-group-username">
+						<span>username</span>
+						<input type="text" name="username">
 					</div>
-					<div class="form-group" id="form-group-email">
-						<div class="input-group input-group-lg">
-							<span class="input-group-addon" id="sizing-addon-email">#</span>
-							<input type="email" class="form-control" name="email" placeholder="email" aria-describedby="sizing-addon-email">
-						</div>
+					<div class="elemen7s-font-fprint float-right">Your e-mail is optional. I might use it for "forgot password" in the future.</div>
+					<div class="elemen7s-form-group" id="form-group-email">
+						<span >e-mail</span>
+						<input type="email" name="email">
 					</div>
-					<div class="form-group" id="form-group-password1">
-						<div class="input-group input-group-lg">
-							<span class="input-group-addon" id="sizing-addon-password1">*</span>
-							<input type="password" class="form-control" name="password1" placeholder="password" aria-describedby="sizing-addon-password1">
-						</div>
+					<div class="elemen7s-font-fprint float-right">Your account password must match below.</div>
+					<div class="elemen7s-form-group" id="form-group-password1">
+						<span>password</span>
+						<input type="password" name="password1">
 					</div>
-					<div class="form-group" id="form-group-password2">
-						<div class="input-group input-group-lg">
-							<span class="input-group-addon" id="sizing-addon-password2">*</span>
-							<input type="password" class="form-control" name="password2" placeholder="same password" aria-describedby="sizing-addon-password2">
-						</div>
+					<div class="elemen7s-font-fprint float-right">Your account password must match above.</div>
+					<div class="elemen7s-form-group" id="form-group-password2">
+						<span>password</span>
+						<input type="password" name="password2">
 					</div>
 					<button type="submit" class="float-right btn btn-lg btn-success">Submit</button>
 				</fieldset>

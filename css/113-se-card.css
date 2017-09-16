@@ -3,31 +3,36 @@
 	width:250px;
 	position:relative;
 	display:inline-block;
-	color:white;
-	background-color:grey;
+	border:3px solid black;
+	border-radius:5px;
+	background-color:#373737;
 	white-space:initial;
 }
-
 .se-card-art {
 	position:absolute;
 	top:32px;
+	left:-3px;
 }
 
 .se-card-banner {
-	margin:2px;
-	font-size:18px;
-	border-radius:4px;
+	font-family:'Oswald';
+	font-size:21px;
 	line-height:21px;
-	padding:2px;
-	color:black;
-	background-color:white;
+	border-radius:8px;
+	height:25px;
+	padding:0 4;
+	color: black;
+	background-color: white;
 }
 
 .se-card .data-control-name {
 	font-size:21px;
-	line-height:32px;
-	padding:0px 8px;
-	background:rgba(0,0,0,0.5);
+	color:white;
+	font-family:'Oswald';
+	line-height: 28px;
+	padding: 0px 8px 4px;
+	border-radius: 8px;
+	background:rgba(0,0,0,0.7);
 }
 
 .se-card .data-control-art {
@@ -35,27 +40,26 @@
 	height:50%;
 }
 
-.se-card .data-control-description {
-	top:60%;
-	height:30%;
-	border-radius:4px;
-	margin:2px;
-	padding:4px;
-	color:black;
+.se-card .se-card-description {
+	top:210px;
+	width:244px;
+	height:108px;
+	border-radius:8px;
+	padding:0 0 0 4;
+	font-size:13;
+	font-family:sans-serif;
 	background-color:white;
 }
 
-.se-card .data-control-description se-symbol {
+.se-card .se-card-description se-symbol {
 	width:20px;
 	height:20px;
 }
 
 .se-card .data-control-flavor {
-	width:70%;
-	min-height:5%;
+	font-family:'Oswald';
 	font-style:italic;
-	margin:2px;
-	font-size:11px;
+	font-size:12px;
 }
 
 .se-card .data-control-body-toggle, .se-card .data-control-type {

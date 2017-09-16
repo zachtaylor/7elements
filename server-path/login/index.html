@@ -6,14 +6,14 @@
 		<script>
 			$(function() {
 				if (window.location.search == "?account") {
-					$("#form-group-username").addClass("has-error")
+					$("#form-group-username input").addClass("form-error")
 				}
 				if (window.location.search == "?password") {
-					$("#form-group-password").addClass("has-error")
+					$("#form-group-password input").addClass("form-error")
 				}
 
 				if (window.location.hash) {
-					$("#form-group-username").addClass("has-success")
+					$("#form-group-username input").addClass("form-success")
 					$("#form-group-username input").val(window.location.hash.slice(1))
 					$("title").html('Elemen7s login'+window.location.hash)
 
@@ -24,34 +24,20 @@
 			})
 		</script>
 	</head>
-	<body>
-		<div class="container well">
-			<span>
-				For more information on Elemen7s <a href="/">click here</a>
-			</span>
-			<span class="float-right">
-				Need an account? <a href="/signup/">Click here to signup</a>
-			</span>
-		</div>
+	<body style="background:linear-gradient(to top, #373737, #737373)">
 		<div class="container">
-			<form class="well form-horizontal" action="/api/login" method="POST">
+			<form class="well pos-rel elemen7s-form" action="/api/login" method="POST">
 				<fieldset>
-					<legend>Elemen7s Login</legend>
-					<div class="form-group" id="form-group-username">
-						<div class="input-group input-group-lg">
-							<span class="input-group-addon" id="sizing-addon-username">@</span>
-							<input type="text" class="form-control" name="username" placeholder="username" aria-describedby="sizing-addon-username">
-						</div>
+					<span class="pos-abs elemen7s-font-label" style="right:21px;top:21px;"> Need a free account? <a href="/signup/">Click here to signup</a></span>
+					<legend class="elemen7s-font-label">Elemen7s Login</legend>
+					<div class="elemen7s-form-group" id="form-group-username">
+						<span id="sizing-addon-username">username</span>
+						<input type="text" name="username">
 					</div>
-					<div class="form-group" id="form-group-password1">
-						<div class="input-group input-group-lg">
-							<span class="input-group-addon" id="sizing-addon-password">*</span>
-							<input type="password" class="form-control" name="password" placeholder="password" aria-describedby="sizing-addon-password">
-						</div>
+					<div class="elemen7s-form-group" id="form-group-password">
+						<span id="sizing-addon-password">password</span>
+						<input type="password" name="password">
 					</div>
-					<span>
-						Need a free account? <a href="/signup/">Click here to signup</a>
-					</span>
 					<button type="submit" class="float-right btn btn-lg btn-success">Login</button>
 				</fieldset>
 			</form>
