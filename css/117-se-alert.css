@@ -1,0 +1,23 @@
+.se-alert {
+	margin:5px;
+	opacity:0.8;
+	border-color:dimgray;
+	border-radius:5px;
+}
+.se-alert.alert-tip {
+	color:black;
+	background-color:white;
+}
+.se-alert.alert-info {
+	color:black;
+	background-color:white;
+	border-color:cornflowerblue;
+}
+.se-alert.alert-warning {
+	color:black;
+	background-color:yellow;
+}
+.se-alert.alert-error {
+	color:white;
+	background-color:red;
+}

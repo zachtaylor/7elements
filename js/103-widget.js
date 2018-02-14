@@ -10,6 +10,12 @@ SE.widget = {
 		return function WidgetFactory() {
 			var args = arguments;
 			var widget = $(data)[0];
+			$('[data-ctrl]', widget).each(function() {
+				SE.widget.controlProperty(widget, this.getAttribute('data-ctrl'));
+			});
+			$('[handle]', widget).each(function() {
+				widget[this.getAttribute('handle')] = this;
+			});
 			$.each(SE.widget.controllers[name], function(i, f) {
 				f.apply(widget, args);
 			});
@@ -61,7 +67,7 @@ SE.widget = {
 			},
 			set: function(val) {
 				scope.setAttribute(property, val);
-				var control = $('.data-control-'+property, scope);
+				var control = $('.data-control-'+property+',[data-ctrl="'+property+'"]', scope);
 				if (hidden) ;
 				else if (control.length) control[0].innerHTML = val;
 				else console.log("control property not found", '"'+property+'"', scope);

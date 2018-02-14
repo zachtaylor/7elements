@@ -1,0 +1,7 @@
+.se-app-play {
+}
+.se-app-play .popup {
+	display:none;
+	position:absolute;
+	margin:128px 64px;
+}

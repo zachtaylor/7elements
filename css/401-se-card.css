@@ -1,0 +1,85 @@
+.se-card {
+	height:350px;
+	width:250px;
+	position:relative;
+	display:inline-block;
+	border:3px solid black;
+	border-radius:5px;
+	background-color:#373737;
+	white-space:initial;
+	overflow:hidden;
+}
+.se-card-title {
+	font-family:'Macondo',cursive;
+	font-size:21px;
+	text-align: left;
+	color:black;
+	background:#f7f7f7;
+	height:32px;
+	padding:4px;
+	border-radius:8px;
+}
+.se-card [handle="costs"] img {
+	height:24px;
+	width:24px;
+}
+.se-card [data-ctrl="name"] {
+	float:right;
+}
+.se-card-art {
+	position:absolute;
+	top:32px;
+	left:-3px;
+	border-radius:8px;
+}
+.se-card-banner {
+	font-family:'Open Sans', sans-serif;
+	font-size:21px;
+	line-height:21px;
+	border-radius:8px;
+	height:25px;
+	padding:0 4;
+	color: black;
+	background-color: white;
+}
+.se-card .data-control-art {
+	top:10%;
+	height:50%;
+}
+.se-card .se-card-powers {
+	top:210px;
+	width:244px;
+	height:108px;
+	border-radius:8px;
+	padding:0 0 0 4;
+	font-size:21px;
+	line-height:21px;
+	font-family:'Open Sans', sans-serif;
+	text-align: left;
+	background: linear-gradient(to top, #eee, #bbb);
+}
+.se-card .se-card-powers .se-symbol {
+	width:20px;
+	height:20px;
+}
+.se-card [data-ctrl="flavor"] {
+	font-family:'Macondo',cursive;
+	font-style:italic;
+	font-size:12px;
+}
+.se-card .data-control-body-toggle, .se-card .data-control-type {
+	display:none;
+}
+.se-card[body="true"] .data-control-body-toggle, .se-card[type] .data-control-type {
+	display:initial;
+}
+.se-card .data-control-banner {
+	bottom:40%;
+	display:none;
+}
+.se-card[banner] .data-control-banner {
+	display:initial;
+}
+.se-card[banner=""] .data-control-banner {
+	display:none;
+}

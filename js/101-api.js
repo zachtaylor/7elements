@@ -18,6 +18,10 @@ SE.api = {
 		SE.api.cache[name] = SE.api.cache[name] || SE.api._promise(eventName, path);
 		return SE.api.cache[name];
 	},
+	uncacheGet: function(name, f) {
+		SE.api.cache[name] = false;
+		return SE.api.get(name, f);
+	},
 	post: function(name, data) {
 		var path = '/api/'+name+'.json';
 		return new Promise(function(resolve, reject) {

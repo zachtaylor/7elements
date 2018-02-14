@@ -1,0 +1,22 @@
+select.vii, input.vii {
+	height:64px;
+	font-size:32px;
+	font-family:Monaco,monospace;
+}
+button.vii {
+	height:64px;
+	font-family:'Macondo',cursive;
+	font-size:21px;
+	background-color: white;
+	border:2px solid black;
+	border-radius:7px;
+}
+button.vii-blue {
+	border-color:royalblue;
+}
+button.vii-green {
+	border-color:orchid;
+}
+button.vii-gold {
+	border-color:gold;
+}

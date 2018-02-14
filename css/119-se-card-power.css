@@ -1,0 +1,4 @@
+.se-card-power.active {
+	border:2px solid black;
+	cursor:pointer;
+}

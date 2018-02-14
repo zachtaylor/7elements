@@ -1,0 +1,92 @@
+html {
+  height:100%;
+}
+body {
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+nav {
+  height:64px;
+  font-size:50px;
+  vertical-align:text-bottom;
+}
+nav a {
+  cursor:pointer;
+  height:64px;
+  display:inline-block;
+  text-decoration: none;
+}
+nav a:hover {
+  background-color:#777;
+}
+#nav-menu {
+  position:fixed;
+  top:0%;
+  z-index:100;
+  height:100%;
+  left:-490px;
+  width:490px;
+  transition:0.7s;
+  background:white;
+  box-shadow:-7px 0px 70px darkgrey inset;
+}
+#nav-menu ul a {
+  display:block;
+}
+#nav-menu ul a {
+  text-decoration:none;
+  margin-top:7px;
+}
+#nav-menu li {
+  color:black;
+  background:whitesmoke;
+  display:block;
+  margin:2px;
+  height:64px;
+  padding-left: 21px;
+}
+#nav-menu li img {
+  padding-right:7px;
+}
+#nav-spacer {
+  height:64px;
+}
+#nav-top {
+  position:fixed;
+  width:100%;
+  z-index:100;
+  color:black;
+  height:64px;
+  background:linear-gradient(to bottom, #000, #777);
+}
+#nav-top-account {
+  display:block;
+  float:right;
+  box-sizing:border-box;
+}
+#nav-top-account li {
+  height:64px;
+  float:left;
+  margin-right:7px;
+}
+#nav-notifications {
+  position:fixed;
+  top:64px;
+  right:0px;
+  z-index:100;
+}
+#content {
+  flex:1;
+  position:relative;
+  overflow:auto;
+}
+#footer {
+  flex:1;
+  position:absolute;
+  max-height:64px;
+  width:100%;
+  bottom:0%;
+  background:linear-gradient(to top, #000, #777);
+  text-align:center;
+}

@@ -1,0 +1,65 @@
+<div class="vii-view se-app-play">
+	<div handle="$start" class="popup">
+		<span>The game has started!</span>
+		<br/><br/>
+		<span>Do you want to keep this hand?</span>
+		<span class="data-control-timer"></span>
+		<br/><br/>
+		<div>You can click on the cards in your hand to view detail</div>
+		<br/>
+		<div><b>Mulligan</b>: Put your entire hand into the spent pile, then draw 3 cards</div>
+		<div id="start-menu-buttons" class="pos-abs width100">
+			<button id="start-button-keep" class="btn btn-lg btn-info">Keep</button>
+			<button id="start-button-mulligan" class="btn btn-lg btn-warning">Mulligan</button>
+		</div>
+	</div>
+	<div id="play-menu">
+		<span data-ctrl="title"></span>
+		<div style="max-height:21%;"></div>
+		<div data-ctrl="content"></div>
+		<div class="pos-abs bottom0 width100" style="text-align:center;margin-bottom:7px;">
+			<button class="btn btn-lg" data-ctrl="close">Close</button>
+			<button class="btn btn-lg" data-ctrl="play">Play</button>
+		</div>
+	</div>
+	<div id="game-menu">
+		<span id="game-menu-meta-message" class="disp-tcell fsize21"></span>
+		<div id="game-menu-meta" style="text-align:center;" class="disp-tcell">
+			<img class="disp-iblock" src="/img/icon/sunrise.0.64px.png"/>
+			<img class="disp-iblock" src="/img/icon/sun.0.64px.png"/>
+			<div id="game-menu-meta-stars" class="disp-iblock"></div>
+			<img class="disp-iblock" src="/img/icon/combat.0.64px.png"/>
+			<img class="disp-iblock" src="/img/icon/sunset.0.64px.png"/>
+			<img class="disp-iblock"  src="/img/icon/moon.0.64px.png"/>
+		</div>
+		<div id="game-menu-seats"></div>
+		<button id="game-menu-pass" class="btn btn-lg right0 button-send-pass">
+			<div class="disp-iblock">
+				<div>Pass</div>
+				<div class="data-control-timer"></div>
+			</div>
+			<img src="/img/icon/use.64px.png">
+		</button>
+	</div>
+	<div handle="$elements" class="popup">
+		<span>Create an Element</span>
+		<span class="data-control-timer"></span>
+		<br/><br/><br/><br/>
+		<button id="elements-menu-1" class="btn"><script>SE.widget.replace('se-element').then(function(w){w.elementid=1;})</script></button>
+		<button id="elements-menu-2" class="btn"><script>SE.widget.replace('se-element').then(function(w){w.elementid=2;})</script></button>
+		<button id="elements-menu-3" class="btn"><script>SE.widget.replace('se-element').then(function(w){w.elementid=3;})</script></button>
+		<button id="elements-menu-4" class="btn"><script>SE.widget.replace('se-element').then(function(w){w.elementid=4;})</script></button>
+		<button id="elements-menu-5" class="btn"><script>SE.widget.replace('se-element').then(function(w){w.elementid=5;})</script></button>
+		<button id="elements-menu-6" class="btn"><script>SE.widget.replace('se-element').then(function(w){w.elementid=6;})</script></button>
+		<button id="elements-menu-7" class="btn"><script>SE.widget.replace('se-element').then(function(w){w.elementid=7;})</script></button>
+	</div>
+	<div handle="$done" class="popup">
+		<h1>This game is over!</h1>
+		<a href="/games/">Click here to go back to your games</a>
+		<br/>
+		<h1>Winners</h1>
+		<div id="done-menu-winners"></div>
+		<h1>Losers</h1>
+		<div id="done-menu-losers"></div>
+	</div>
+</div>

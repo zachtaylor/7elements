@@ -1,18 +1,19 @@
-SE.widget.control('se-alert', function() {
+SE.widget.control('se-alert', function(data) {
 	var me = this;
 
-	SE.widget.controlProperty(me, 'message');
-	
-	me.setMode = function(mode) {
-		$(me).addClass('alert-'+mode);
+	$(me).addClass('alert-'+data.class);
+	$('.se-alert-message', me)[0].innerHTML = '<strong>'+data.username+'</strong> : '+data.message;
+	$(me).click(function() {
+		me.timeout();
+	});
+
+	me.timeout = function() {
+		$(me).slideUp();
+		window.setTimeout(me.cleanup, 1000);
+	};
+	me.cleanup = function() {
+		$(me).remove();
 	};
 
-	me.autoDismissSeconds = function(s) {
-		window.setTimeout(function() {
-			$(me).slideUp();
-			window.setTimeout(function() {
-				$(me).remove();
-			}, 1000);
-		}, s*1000);
-	};
+	window.setTimeout(me.timeout, data.timeout || 7000);
 });

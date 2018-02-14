@@ -1,0 +1,50 @@
+<div class="vii-view" style="display:flex;flex-direction:column">
+	<ul class="vii vii-tabs">
+		<li>Search</li>
+		<a onclick="SE.event.fire('save-filter-el', 1)">
+			<li style="padding:7px" handle="$filterel1"><img src="/img/icon/element-1.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-el', 2)">
+			<li style="padding:7px" handle="$filterel2"><img src="/img/icon/element-2.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-el', 3)">
+			<li style="padding:7px" handle="$filterel3"><img src="/img/icon/element-3.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-el', 4)">
+			<li style="padding:7px" handle="$filterel4"><img src="/img/icon/element-4.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-el', 5)">
+			<li style="padding:7px" handle="$filterel5"><img src="/img/icon/element-5.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-el', 6)">
+			<li style="padding:7px" handle="$filterel6"><img src="/img/icon/element-6.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-el', 7)">
+			<li style="padding:7px" handle="$filterel7"><img src="/img/icon/element-7.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-cost', 1)">
+			<li style="padding:7px" handle="$filtercost1"><img src="/img/icon/element-0.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-cost', 2)">
+			<li style="padding:7px" handle="$filtercost2"><img src="/img/icon/element-0.png"/><img src="/img/icon/element-0.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-cost', 3)">
+			<li style="padding:7px" handle="$filtercost3"><img src="/img/icon/element-0.png"/><img src="/img/icon/element-0.png"/><img src="/img/icon/element-0.png"/></li>
+		</a>
+		<a onclick="SE.event.fire('save-filter-type', 'body')"><li handle="$filterbody">Body</li></a>
+		<a onclick="SE.event.fire('save-filter-type', 'spell')"><li handle="$filterspell">Spell</li></a>
+		<a onclick="SE.event.fire('save-filter-type', 'item')"><li handle="$filteritem">Item</li></a>
+	</ul>
+	<div style="flex:1;display:flex;overflow:hidden;">
+		<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+			<h3>Cards you own</h3>
+			<div handle="$cardsbank" style="overflow:auto;">
+			</div>
+		</div>
+		<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+			<h3 >Cards in deck</h3>
+			<div handle="$cardsdeck" style="flex:1;overflow:auto;">
+			</div>
+		</div>
+	</div>
+</div>

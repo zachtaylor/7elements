@@ -1,0 +1,94 @@
+<html>
+	<head>
+		<title>Elemen7s Decks</title>
+		<script src="/7elements.js"></script>
+		<link href="/7elements.css" rel="stylesheet">
+		<style type="text/css">
+			body {
+				overflow-x: hidden;
+			}
+			button[filter-toggle] {
+				border:2px solid;
+				padding:7px;
+				margin:4px;
+				border-radius:21px;
+			}
+			button[filter-toggle="1"] {
+				border-color:green;
+			}
+			button[filter-toggle="0"] {
+				border-color:red;
+			}
+			.font21 {
+				font-size:21px;
+			}
+			.font50 {
+				font-size:50px;
+			}
+			.se-card {
+				margin: 10px;
+			}
+			#deck-settings-filters {
+				height:60px;
+				left:50%;
+			}
+			#deck-count {
+				font-size: 40px;
+			}
+			#deck-count-mod {
+				color:orange;
+			}
+			#deck-settings[deckcountmod="0"] #deck-count-mod {
+				display:none;
+			}
+			#collection-bar {
+				margin:5px 0px;
+			}
+			#collection-bar, #deck-bar {
+				min-height: 3.5in;
+			}
+			#deck-bar.has-warning {
+				border-color:#b67102;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="index.js"></script>
+		<a class="font50" href="/#decks">Click here to return to your decks</a>
+		<div id="deck-settings" class="pos-rel" deckcountmod="0">
+			<div class="input-group input-group-lg">
+				<span class="font21">Editing...</span>
+				<div id="deck-selector" class="input-group-btn">
+					<button id="deck-selector-currect" type="button" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><a>1</a><span class="caret"></span></button>
+					<ul id="deck-selector-list" class="dropdown-menu">
+						<li><a>1</a></li>
+						<li><a>2</a></li>
+						<li><a>3</a></li>
+					</ul>
+				</div>
+				<input id="deck-name" placeholder="deck name" class="form-control" aria-label="deckname" style="width:500px;">
+				<span class="font21" style="margin-left:21px;">
+					<span>Deck Count:</span>
+					<span id="deck-count">
+							<span class="data-control-deckcount"></span>
+							<span id="deck-count-mod"> + <span class="data-control-deckcountmod"></span></span>
+					</span>
+				</span>
+			</div>
+			<span class="font21">Element Filters:</span>
+			<span class="font21">Cost Filters:</span>
+			<button filter-toggle="1" filter-cost="1"><script async>SE.widget.replace('se-symbol', 'element-0')</script></script></button>
+			<button filter-toggle="1" filter-cost="2"><script async>SE.widget.replace('se-symbol', 'element-0')</script><script async>SE.widget.replace('se-symbol', 'element-0')</script></button>
+			<button filter-toggle="1" filter-cost="3"><script async>SE.widget.replace('se-symbol', 'element-0')</script><script async>SE.widget.replace('se-symbol', 'element-0')</script><script async>SE.widget.replace('se-symbol', 'element-0')</script></button>
+			<button id="save-button" class="btn btn-lg pos-abs right0 top0" disabled>Saved</button>
+		</div>
+		<div id="collection-bar">
+			<span class="font21">Cards in your collection</span>
+			<script async>SE.widget.replace('se-card-spinner')</script>
+		</div>
+		<div id="deck-bar">
+			<span class="font21">Cards in your deck</span>
+			<script async>SE.widget.replace('se-card-spinner')</script>
+		</div>
+	</body>
+</html>

@@ -12,7 +12,7 @@ SE.event = {
 		var args = Array.prototype.slice.call(arguments);
 		var event = args.shift();
 		var eventList = SE.event.cache[event];
-		if (!eventList) return;
+		if (!eventList || !eventList.length) return;
 		for (var i = 0; i < eventList.length; i++) {
 			var f = eventList[i];
 			if (f) f.apply(null, args);

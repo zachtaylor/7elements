@@ -1,0 +1,45 @@
+	<html>
+	<head>
+		<title>Elemen7s Login</title>
+		<script src="/7elements.js"></script>
+		<link href="/7elements.css" rel="stylesheet">
+		<script>
+			$(function() {
+				if (window.location.search == "?account") {
+					$("#form-group-username input").addClass("form-error")
+				}
+				if (window.location.search == "?password") {
+					$("#form-group-password input").addClass("form-error")
+				}
+
+				if (window.location.hash) {
+					$("#form-group-username input").addClass("form-success")
+					$("#form-group-username input").val(window.location.hash.slice(1))
+					$("title").html('Elemen7s login'+window.location.hash)
+
+					$("#form-group-password input").focus()
+				} else {
+					$("#form-group-username input").focus()
+				}
+			})
+		</script>
+	</head>
+	<body>
+		<form class="well pos-rel elemen7s-form" action="/api/login" method="POST">
+			<a href="/"><img src="/img/banner-black.24px.png"></a>
+			<span class="float-right elemen7s-font-label disp-iblock"> Need a free account? <a href="/signup/">Click here to signup</a></span>
+			<fieldset class="width100">
+				<legend class="elemen7s-font-label" style="text-align:center;">Login</legend>
+				<div class="elemen7s-form-group" id="form-group-username">
+					<span id="sizing-addon-username">username</span>
+					<input type="text" name="username">
+				</div>
+				<div class="elemen7s-form-group" id="form-group-password">
+					<span id="sizing-addon-password">password</span>
+					<input type="password" name="password">
+				</div>
+				<button type="submit" class="float-right btn btn-lg btn-success">Login</button>
+			</fieldset>
+		</form>
+	</body>
+</html>

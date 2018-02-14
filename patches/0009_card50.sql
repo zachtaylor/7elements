@@ -15,4 +15,4 @@ INSERT INTO cards_element_costs (cardid, element, count)
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (50, 7, 1);
 INSERT INTO cards_text (cardid, language, name, description, flavor)
-	VALUES (50, "en-US", "7Elements", "You win the game", "'Now that's bad game design...'");
+	VALUES (50, "en-US", "FTW", "You win the game", "'Now that's bad game design...'");

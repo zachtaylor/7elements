@@ -1,0 +1,62 @@
+	<html>
+	<head>
+		<title>Elemen7s Signup</title>
+		<script src="/7elements.js"></script>
+		<link href="/7elements.css" rel="stylesheet">
+		<script>
+			$(function() {
+				var search = window.location.search.substr(1)
+				search = search.split('&')
+
+				$.each(search, function(_, s) {
+					var parts = s.split('=');
+
+					if (parts[0] == 'email') {
+						$("input[name='email']").val(parts[1])
+						$('#form-group-email').addClass("has-success")
+					} else if (parts[0] == 'usernametaken') {
+						$("input[name='username']").val(parts[1]);
+						$('#form-group-username input').addClass("form-error")
+						$('#form-group-username').prev('.elemen7s-font-fprint').append('<span style="color:red;">Username taken</span>')
+					} else if (parts[0] == 'username') {
+						$("input[name='username']").val(parts[1]);
+						$('#form-group-username').addClass("has-success")
+					} else if (parts[0] == 'passwordmatch') {
+						$('#form-group-password1 input, #form-group-password2 input').addClass("form-error")
+						$('#form-group-password1, #form-group-password2').prev('.elemen7s-font-fprint').append('<span style="color:red;">Password mismatch</span>')
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<form class="well pos-rel elemen7s-form" action="/api/signup" method="POST">
+			<a href="/"><img src="/img/banner-black.24px.png"></a>
+			<span class="float-right elemen7s-font-label">Already have account? <a href="/login/">Click here to login</a></span>
+			<fieldset class="width100">
+				<legend class="elemen7s-font-label" style="text-align:center;">Signup</legend>
+				<div class="elemen7s-font-fprint float-right">Your username must be unique</div>
+				<div class="elemen7s-form-group" id="form-group-username">
+					<span>username</span>
+					<input type="text" name="username">
+				</div>
+				<div class="elemen7s-font-fprint float-right">Your e-mail is optional at this point</div>
+				<div class="elemen7s-form-group" id="form-group-email">
+					<span >e-mail</span>
+					<input type="email" name="email">
+				</div>
+				<div class="elemen7s-font-fprint float-right">Your account password has no length or specific requirements</div>
+				<div class="elemen7s-form-group" id="form-group-password1">
+					<span>password</span>
+					<input type="password" name="password1">
+				</div>
+				<div class="elemen7s-font-fprint float-right">Your account password must match above</div>
+				<div class="elemen7s-form-group" id="form-group-password2">
+					<span>password</span>
+					<input type="password" name="password2">
+				</div>
+				<button type="submit" class="float-right btn btn-lg btn-success">Submit</button>
+			</fieldset>
+		</form>
+	</body>
+</html>

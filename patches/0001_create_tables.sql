@@ -18,7 +18,8 @@ CREATE TABLE accounts_decks (
 	name TEXT,
 	id INTEGER,
 	wins INTEGER,
-	register INTEGER);
+	register INTEGER,
+	color TEXT);
 CREATE TABLE accounts_decks_items (
 	username TEXT,
 	id INTEGER,

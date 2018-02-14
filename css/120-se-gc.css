@@ -1,0 +1,18 @@
+.se-gc {
+	display:inline-block;
+	position:relative;
+	height:254px;
+	width:254px;
+	border:2px solid black;
+	border-radius:4px;
+	margin:1px;
+	text-align:initial;
+	transition:0.7s;
+}
+.se-gc-art {
+	display:block;
+	border-radius:4px;
+}
+.se-gc-eye {
+	transition:0.7s;
+}

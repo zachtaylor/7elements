@@ -3,16 +3,22 @@
 	height:400px;
 	width:100%;
 	position:relative;
-	overflow-x:hidden;
+	overflow:hidden;
+	z-index:0;
+	text-align:center;
 }
 .se-card-spinner > button {
 	position:absolute;
+	transition:1s;
 	z-index:1;
 	margin:0px;
 	border:0px;
 	width:7%;
 	height:100%;
 	font-size:48px;
+	color:white;
+}
+.se-card-spinner > button:hover {
 	color:white;
 }
 .se-card-spinner-left {

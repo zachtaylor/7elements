@@ -1,0 +1,22 @@
+<div class="se-search">
+	<h1>Search for a new game</h1>
+	<div class="progress" style="display:none;">
+		<div class="progress-bar progress-bar-warning progress-bar-striped active width100" role="progressbar">
+			<span>Searching...</span><span class="data-control-timer"></span>
+		</div>
+	</div>
+	<div>
+		<button class="btn btn-lg" onclick="SE.event.fire('nav-search-left')">&lt;</button>
+		<h1 class="disp-iblock">Click here to switch decks</h1>
+		<button class="btn btn-lg" onclick="SE.event.fire('nav-search-right')">&gt;</button>
+		<br/><br/>
+		<h1 class="disp-iblock">#<b><span data-ctrl="decknumber"></span></b></h1>
+		<h1 class="disp-iblock">Name:
+			<b><span data-ctrl="deckname"></span></b>
+		</h1>
+		<h1 class="disp-iblock">Wins:
+			<b><span data-ctrl="wins"></span></b>
+		</h1>
+		<div class="se-search-spinner"></div>
+	</div>
+</div>

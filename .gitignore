@@ -1,9 +1,12 @@
 # git ignore file
 
-settings.txt
+.env
 7elements.db
-7elements
+7elements.com
 7elements.log
 go/src/github.com/
 go/src/golang.org/
+go/src/gopkg.in/
+go/src/ztaylor.me/
 go/pkg/
+go/bin/
