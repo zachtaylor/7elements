@@ -12,7 +12,7 @@ COLOR_OFF='\033[0m'
 
 help:
 	@echo -e $(COLOR_PURPLE)Makefile Available Targets$(COLOR_OFF)
-	@echo -e $(COLOR_BWHITE)help$(COLOR_OFF): hello, "world!"
+	@echo -e $(COLOR_BWHITE)help$(COLOR_OFF): "hello, world!"
 	@echo -e $(COLOR_BWHITE)server$(COLOR_OFF): build the server
 	@echo -e $(COLOR_BWHITE)aifight$(COLOR_OFF): build the aifight program
 	@echo -e $(COLOR_BWHITE)run$(COLOR_OFF): run the server

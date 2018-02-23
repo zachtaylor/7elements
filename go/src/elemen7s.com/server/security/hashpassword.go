@@ -2,11 +2,11 @@ package security
 
 import (
 	"crypto/md5"
-	"elemen7s.com/options"
+	"ztaylor.me/env"
 )
 
 func HashPassword(password string) string {
-	hash := md5.Sum([]byte(password + options.String("password-salt")))
+	hash := md5.Sum([]byte(password + env.Default("DB_PWSALT", "")))
 	password = string(hash[:])
 	return password
 }

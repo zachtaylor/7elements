@@ -14,7 +14,7 @@ import (
 )
 
 var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	log := log.Add("RemoteAddr", r.RemoteAddr)
+	log := log.Add("Addr", r.RemoteAddr)
 
 	if r.Method != "POST" {
 		w.WriteHeader(404)

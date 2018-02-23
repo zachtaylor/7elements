@@ -1,6 +1,8 @@
 # 7Elements
 
-A brand new card game [elemen7s.com](https://elements.com/)
+A brand new card game
+
+[elemen7s.com](https://elements.com/)
 
 # License
 

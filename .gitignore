@@ -1,9 +1,8 @@
 # git ignore file
 
 .env
-7elements.db
-7elements.com
-7elements.log
+elemen7s.db
+log/
 go/src/github.com/
 go/src/golang.org/
 go/src/gopkg.in/

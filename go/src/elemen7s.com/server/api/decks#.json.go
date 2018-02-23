@@ -13,7 +13,7 @@ import (
 
 var DecksIdJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	session, err := zhttp.ReadRequestCookie(r)
-	log := log.Add("RemoteAddr", r.RemoteAddr)
+	log := log.Add("Addr", r.RemoteAddr)
 	if err != nil || session == nil {
 		w.WriteHeader(400)
 		w.Write([]byte("session missing"))

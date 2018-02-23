@@ -7,7 +7,7 @@ import (
 )
 
 var LogoutHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	log := log.Add("RemoteAddr", r.RemoteAddr)
+	log := log.Add("Addr", r.RemoteAddr)
 
 	if session, err := zhttp.ReadRequestCookie(r); session != nil {
 		log.Debug("/api/logout")

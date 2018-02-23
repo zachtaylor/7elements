@@ -9,7 +9,7 @@ import (
 )
 
 func EnvPatchDir() string {
-	return env.Default("DB_PATCHES", "patches")
+	return env.Default("DB_PATCHES", "patches/")
 }
 
 func Patch() int {

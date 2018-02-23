@@ -1,7 +1,6 @@
 package server
 
 import (
-	"elemen7s.com/options"
 	"elemen7s.com/server/api"
 	nhttp "net/http"
 	"ztaylor.me/buildir"
@@ -19,10 +18,10 @@ func init() {
 	http.MapLit(`/api/mycards.json`, api.MyCardsHandler)
 	http.MapLit(`/api/decks.json`, api.DecksHandler)
 	http.MapLit(`/api/buypack.json`, api.PackHandler)
-	http.MapRgx(`/api/cards.*\.json`, api.CardsHandler)
+	http.MapRgx(`/api/cards*\.json`, api.CardsHandler)
 
-	http.MapRawLit(`/7elements.js`, buildir.GetFile(".js", options.String("js-path")))
-	http.MapRawLit(`/7elements.css`, buildir.GetFile(".css", options.String("css-path")))
+	http.MapRawLit(`/7elements.js`, buildir.GetFile(".js", env.Default("JS_PATH", "js/")))
+	http.MapRawLit(`/7elements.css`, buildir.GetFile(".css", env.Default("CSS_PATH", "css/")))
 
 	http.MapRawLit(`/api/websocket`, http.SocketHandler)
 	http.MapRawLit(`/api/login`, api.LoginHandler)
@@ -31,8 +30,8 @@ func init() {
 	http.MapRawLit(`/api/openpack.json`, api.OpenPackJsonHandler)
 
 	http.MapRawRgx(`/api/decks/.*\.json`, api.DecksIdJsonHandler)
-	imgPath := env.Default("IMG_PATH", "img")
-	imgHandler := nhttp.StripPrefix("/"+imgPath+"/", http.FileServer(http.Dir(imgPath)))
+	imgPath := env.Default("IMG_PATH", "img/")
+	imgHandler := nhttp.StripPrefix("/"+imgPath, http.FileServer(http.Dir(imgPath)))
 	http.MapRawRgx(`.*\.png`, imgHandler)
 	http.MapRawRgx(`.*\.jpg`, imgHandler)
 	http.MapRawRgx(`.*`, PageHandler)
