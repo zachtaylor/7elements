@@ -18,18 +18,17 @@ nav a {
   text-decoration: none;
 }
 nav a:hover {
-  background-color:#777;
+  cursor:pointer;
 }
 #nav-menu {
   position:fixed;
   top:0%;
-  z-index:100;
+  z-index:101;
   height:100%;
   left:-490px;
   width:490px;
-  transition:0.7s;
+  transition:linear 0.2s;
   background:white;
-  box-shadow:-7px 0px 70px darkgrey inset;
 }
 #nav-menu ul a {
   display:block;
@@ -58,7 +57,7 @@ nav a:hover {
   z-index:100;
   color:black;
   height:64px;
-  background:linear-gradient(to bottom, #000, #777);
+  background:linear-gradient(to bottom, #000, #333);
 }
 #nav-top-account {
   display:block;
@@ -87,6 +86,6 @@ nav a:hover {
   max-height:64px;
   width:100%;
   bottom:0%;
-  background:linear-gradient(to top, #000, #777);
+  background:linear-gradient(to top, #000, #333);
   text-align:center;
 }

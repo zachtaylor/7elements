@@ -1,8 +1,9 @@
 * {
+	margin:0px;
+	padding:0px;
 	box-sizing:border-box;
 }
 body {
-	margin:0px;
 	user-select:none;
 	background: #f7f7f7;
 	font-family:Monaco,monospace;

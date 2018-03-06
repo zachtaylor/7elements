@@ -7,14 +7,20 @@ button.vii {
 	height:64px;
 	font-family:'Macondo',cursive;
 	font-size:21px;
-	background-color: white;
+	background-color:#ccc;
 	border:2px solid black;
 	border-radius:7px;
 }
 button.vii-blue {
+	color:royalblue;
 	border-color:royalblue;
 }
 button.vii-green {
+	color:green;
+	border-color:green;
+}
+button.vii-puple {
+	color:orchid;
 	border-color:orchid;
 }
 button.vii-gold {

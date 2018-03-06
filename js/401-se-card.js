@@ -4,15 +4,6 @@ SE.widget.control('se-card', function(cardid) {
 
 	var powersReady = Promise.Fake();
 
-	SE.widget.controlProperty(me, 'cardid', true);
-	SE.widget.controlProperty(me, 'gcid', true);
-	SE.widget.controlProperty(me, 'description');
-	SE.widget.controlProperty(me, 'type');
-	SE.widget.controlProperty(me, 'attack');
-	SE.widget.controlProperty(me, 'health');
-	SE.widget.controlProperty(me, 'body', true);
-	SE.widget.controlProperty(me, 'banner');
-
 	me.showAwake = function() {
 		$(me).css({opacity:1});
 		powersReady.then(function() {

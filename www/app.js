@@ -16,6 +16,10 @@ $(function() {
 		}
 	};
 
+	$('body').keyup(function(e) {
+		if (e.which == 27) SE.event.fire('nav-drawer');
+	});
+
 	$('#content').click(function(e) {
 		app.drawer.close();
 	});
@@ -51,7 +55,8 @@ $(function() {
 		return app.viewcache[name];
 	};
 	app.gotoview = function(name) {
-		if (app.view == name) return;
+		if (app.view == name) return app.drawer.close();
+		if (SE.dirtypage.state()) return;
 		console.debug('app.goto:',name);
 		app.view = name;
 		app.hash(name);
@@ -182,7 +187,8 @@ $(function() {
 		SE.event.fire(name, data);
 	});
 
-	vii.ping();
+	if (vii.cookie('SessionId')) vii.ping();
+	else console.warn('cash money');
 	if (app.hash()) window.onhashchange();
 	else app.hash('home');
 });

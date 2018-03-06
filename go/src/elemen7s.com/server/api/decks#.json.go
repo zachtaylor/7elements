@@ -1,8 +1,10 @@
 package api
 
 import (
+	"bytes"
 	"elemen7s.com/accountscards"
 	"elemen7s.com/decks"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -39,45 +41,50 @@ var DecksIdJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if r.Method == "GET" {
-		deck := ds[deckid]
-		if deck == nil {
-			w.WriteHeader(500)
-			w.Write([]byte("deckid not found"))
-			log.Add("Error", err).Error("decks.id.json: deck missing: " + session.Username)
-			return
-		}
+	deck := ds[deckid]
+	if deck == nil {
+		w.WriteHeader(500)
+		w.Write([]byte("deckid not found"))
+		log.Add("Error", err).Error("decks.id.json: deck missing: " + session.Username)
+		return
+	}
 
+	if r.Method == "GET" {
 		deck.Json().Write(w)
 		log.Debug("decks.id.json: get")
 	} else if r.Method == "POST" {
-		deck := decks.New()
-		err := js.NewDecoder(r.Body).Decode(deck)
-		if err != nil {
-			log.Add("Error", err).Error("decks.id.json: post: data parse")
+		data := struct {
+			Name  string
+			Cards map[int]int
+		}{}
+		if body, err := ioutil.ReadAll(r.Body); err != nil {
+			log.Add("Error", err).Error("decks.id.json: post: data read")
+			return
+		} else if err := js.NewDecoder(bytes.NewBuffer(body)).Decode(&data); err != nil {
+			log.Add("Body", string(body)).Add("Error", err).Error("decks.id.json: post: data parse")
 			return
 		}
 
-		log.Add("DeckId", deck.Id)
+		log.Add("DeckId", deckid)
 		accountscards, err := accountscards.Get(session.Username)
 		if accountscards == nil {
 			log.Add("Error", err).Error("decks.id.json: post: cards missing")
 			return
 		}
 
-		for cardid, count := range deck.Cards {
+		for cardid, count := range data.Cards {
 			if maxCount := len(accountscards[cardid]); maxCount < count {
 				log.Clone().Add("CardId", cardid).Add("RequestCount", count).Add("MaxCount", maxCount).Warn("decks.id.json: post: request more cards than in collection")
-				ds[deck.Id].Cards[cardid] = maxCount
+				deck.Cards[cardid] = maxCount
 			} else if count == 0 {
-				delete(ds[deck.Id].Cards, cardid)
+				delete(deck.Cards, cardid)
 			} else {
-				ds[deck.Id].Cards[cardid] = count
+				deck.Cards[cardid] = count
 			}
 		}
 
-		ds[deck.Id].Name = deck.Name
-		ds[deck.Id].Register = time.Now()
+		deck.Name = data.Name
+		deck.Register = time.Now()
 
 		if err := decks.Delete(session.Username, deck.Id); err != nil {
 			log.Add("Error", err).Error("mydecks: post: delete old deck")
@@ -87,7 +94,7 @@ var DecksIdJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		ds[deck.Id].Json().Write(w)
+		deck.Json().Write(w)
 		log.Add("Name", deck.Name).Info("decks.id.json: post")
 	}
 })

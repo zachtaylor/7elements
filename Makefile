@@ -15,18 +15,18 @@ help:
 	@echo -e $(COLOR_BWHITE)help$(COLOR_OFF): "hello, world!"
 	@echo -e $(COLOR_BWHITE)server$(COLOR_OFF): build the server
 	@echo -e $(COLOR_BWHITE)aifight$(COLOR_OFF): build the aifight program
-	@echo -e $(COLOR_BWHITE)run$(COLOR_OFF): run the server
+	@echo -e $(COLOR_BWHITE)run, run-server$(COLOR_OFF): run the server
 	@echo -e $(COLOR_BWHITE)run-aifight$(COLOR_OFF): run the aifight program
 
 gopath:
 	@export GOPATH=$(GOPATH)
+	@echo -e $(COLOR_GRAY)7elements build path $$GOPATH $(COLOR_OFF)
 	@go get -v golang.org/x/net/websocket
 	@go get -v github.com/mattn/go-sqlite3
 	@go get -v github.com/sirupsen/logrus
 	@go get -v github.com/cznic/mathutil
 	@go get -v github.com/fsnotify/fsnotify
 	@go get -v github.com/tdewolff/minify
-	@go get -v github.com/joho/godotenv
 	@go get -v gopkg.in/gomail.v2
 	@go get -v ztaylor.me/env
 	@go get -v ztaylor.me/events
@@ -37,35 +37,35 @@ gopath:
 
 update:
 	@export GOPATH=$(GOPATH)
-	@echo -e $(COLOR_BLUE)UPDATING DEPENDENCIES$(COLOR_OFF)
-	@go get -u golang.org/x/net/websocket
-	@go get -u github.com/mattn/go-sqlite3
-	@go get -u github.com/sirupsen/logrus
-	@go get -u github.com/cznic/mathutil
-	@go get -u github.com/fsnotify/fsnotify
-	@go get -u github.com/tdewolff/minify
-	@go get -u github.com/joho/godotenv
-	@go get -u gopkg.in/gomail.v2
-	@go get -u ztaylor.me/env
-	@go get -u ztaylor.me/events
-	@go get -u ztaylor.me/http
-	@go get -u ztaylor.me/buildir
-	@go get -u ztaylor.me/js
-	@go get -u ztaylor.me/log
+	@echo -e $(COLOR_BLUE)7elements updating deps$(COLOR_OFF)
+	@go get -u -v golang.org/x/net/websocket
+	@go get -u -v github.com/mattn/go-sqlite3
+	@go get -u -v github.com/sirupsen/logrus
+	@go get -u -v github.com/cznic/mathutil
+	@go get -u -v github.com/fsnotify/fsnotify
+	@go get -u -v github.com/tdewolff/minify
+	@go get -u -v gopkg.in/gomail.v2
+	@go get -u -v ztaylor.me/env
+	@go get -u -v ztaylor.me/events
+	@go get -u -v ztaylor.me/http
+	@go get -u -v ztaylor.me/buildir
+	@go get -u -v ztaylor.me/js
+	@go get -u -v ztaylor.me/log
 
 aifight: gopath
 	@go install -v elemen7s.com/cmd/aifight
 
-run-aifight: aifight
+run-aifight: go/bin/aifight
 	@echo -e $(COLOR_YELLOW)STARTING AI VS AI FIGHT$(COLOR_OFF)
-	@$(GOPATH)/bin/aifight
+	@go/bin/aifight
 
 server: gopath
+	@echo -e $(COLOR_BWHITE)7elements build server $$GOPATH/src/elemen7s.com/cmd/elemen7s.com $(COLOR_OFF)
 	@go install -v elemen7s.com/cmd/elemen7s.com
 
-run-server: server
-	@echo -e $(COLOR_BWHITE)STARTING SERVER$(COLOR_OFF)
-	@$(GOPATH)/bin/elemen7s.com
+run-server: go/bin/elemen7s.com
+	@echo -e $(COLOR_GREEN)7elements server starting $$GOPATH/bin/elemen7s.com $(COLOR_OFF)
+	@go/bin/elemen7s.com
 
 clean:
 	@rm -R log/*.log

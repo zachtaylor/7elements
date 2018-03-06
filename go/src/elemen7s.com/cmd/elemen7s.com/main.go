@@ -12,13 +12,12 @@ import (
 	"ztaylor.me/log"
 )
 
-const PATCH = 13
+const PATCH = 14
 
 func main() {
 	env.Bootstrap()
 
 	log.SetLevel(env.Default("LOG_LEVEL", "info"))
-	log.StartRoller(env.Default("LOG_PATH", "log/"))
 
 	db.Open(env.Default("DB_PATH", "elemen7s.db"))
 
@@ -35,11 +34,15 @@ func main() {
 		return
 	}
 
+	log.StartRoller(env.Default("LOG_PATH", "log/"))
+
 	if env.Name() == "dev" {
 		// http.SessionLifetime = 1 * time.Minute
 		server.Start(":" + env.Default("PORT", "80"))
 	} else if env.Name() == "elemen7s.com" {
 		buildirjs.EnableMinify()
 		server.StartTLS("7elements.cert", "7elements.key")
+	} else {
+		log.Add("env", env.Name()).Error("7elements failed to launch, env error")
 	}
 }
