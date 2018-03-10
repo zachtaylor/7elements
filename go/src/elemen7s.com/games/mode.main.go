@@ -46,6 +46,7 @@ func (m MainMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 
 func Main(g *Game) {
 	e := NewEvent(g.TurnClock.Username)
+	e.Target = "main"
 	e.EMode = MainMode(true)
 	go func() {
 		g.Timeline <- e

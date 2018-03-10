@@ -1,20 +1,36 @@
-<div class="se-gameseat">
-	<span data-ctrl="username" class="elemen7s-font-label"></span>
-	<span class="se-gameseat-elements"></span>
-	<span class="float-right pos-abs right0 top0">
-		<span data-ctrl="turnphase" class="animate1s"></span>
-		<span class="se-gameseat-active-indicator">
-			<img src="/img/icon/timer.png">
-			<span data-ctrl="timer" class="animate1s"></span>
-		</span>
-		<img src="/img/icon/life.32px.png">
-		<span data-ctrl="life" class="animate1s"></span>
-		<img src="/img/icon/star.32px.png">
-		<span data-ctrl="hand" class="animate1s"></span>
-		<img src="/img/icon/deck.32px.png">
-		<span data-ctrl="deck" class="animate1s"></span>
-		<img src="/img/icon/spent.32px.png">
-		<span data-ctrl="spent" class="animate1s"></span>
-	</span>
-	<div class="se-gameseat-active"></div>
+<div class="se-gameseat" style="display:flex;position:relative;overflow:hidden;">
+	<div class="disp-iblock" style="flex:1;">
+		<div class="se-gameseat-active"></div>
+	</div>
+	<div class="float-right disp-iblock" style="border:2px solid black;width:240px;">
+		<span class="float-right" data-ctrl="turnphase"></span>
+		<span data-ctrl="username"></span>
+		<div class="width100" style="text-align:left;">
+			<div class="disp-iblock float-right" style="width:50%">
+				<span class="se-gameseat-elements"></span>
+			</div>
+			<div class="disp-iblock" style="width:50%">
+				<div class="se-gameseat-active-indicator">
+					<img src="/img/icon/timer.32px.png">
+					<span data-ctrl="timer"></span>
+				</div>
+				<div>
+					<img src="/img/icon/life.32px.png">
+					<span data-ctrl="life"></span>
+				</div>
+				<div>
+					<img src="/img/icon/cards.black.32px.png">
+					<span data-ctrl="hand"></span>
+				</div>
+				<div>
+					<img src="/img/icon/deck.white.32px.png">
+					<span data-ctrl="deck"></span>
+				</div>
+				<div>
+					<img src="/img/icon/graveyard.32px.png">
+					<span data-ctrl="spent"></span>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

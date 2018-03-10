@@ -1,11 +1,38 @@
-<div>
-	<h1>Welcome to 7Elements Online</h1>
+<div style="font-size:21px;">
+	<div style="width:100%;background:rgba(243,255,243,0.7);border:2px solid green;padding:21px;">
+		<b>ANNOUNCE 2018-03-10:</b> Game is now live!
+	</div>
 	<br/>
-	<div>This is a brand new online card game. It is currently in "alpha" stage; it is in development.</div>
-	<br/>
-	<div>In this online card game, you can collect cards, build decks, and play with others and play vs AI.</div>
-	<br/>
-	<h3>Players online now: <span data-ctrl="online" class="b"></span></h3>
-	<h3>Latest Patch: 2018-03-06</h3>
+	<h2>Welcome to 7Elements Online</h2>
+	<br/><br/><br/><br/>
+	<div style="display:flex;text-align:center;">
+		<div style="flex:1;">
+			<button style="padding:7px;" onclick="SE.event.fire('nav-learn')">
+				<div><img src="/img/icon/learn.black.64px.png"></div>
+				Learn More
+			</button>
+		</div>
+		<div style="flex:1;">
+			<button style="padding:7px;" onclick="SE.event.fire('nav-packs')">
+				<div><img src="/img/icon/cards.black.64px.png"></div>
+				Get Cards
+			</button>
+		</div>
+		<div style="flex:1;">
+			<button style="padding:7px;" onclick="SE.event.fire('nav-edit')">
+				<div><img src="/img/icon/edit.black.64px.png"></div>
+				Build Decks
+			</button>
+		</div>
+		<div style="flex:1;">
+			<button style="padding:7px;" onclick="SE.event.fire('nav-search')">
+				<div><img src="/img/icon/games.black.64px.png"></div>
+				Find Match
+			</button>
+		</div>
+	</div>
+	<br/><br/><br/><br/>
+	<div>People online now: <span data-ctrl="online" class="b"></span></div>
+	<br/><br/><br/><br/>
 	<div>Click here to review the most recent <a href="/#patch-notes">patch notes</a></div>
 </div>

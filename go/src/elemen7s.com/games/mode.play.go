@@ -97,6 +97,7 @@ func (m *PlayMode) removeCardAndElements(seat *Seat) error {
 
 func Play(stack *Event, g *Game, c *Card, seat *Seat) {
 	e := NewEvent(seat.Username)
+	e.Target = c.Text.Name
 	e.EMode = &PlayMode{
 		Card:  c,
 		Stack: stack,

@@ -5,7 +5,7 @@ import (
 	"ztaylor.me/http"
 )
 
-var GamesHandler = http.Responder(func(r *http.Request) error {
+func GameHandler(r *http.Request) error {
 	if gameid := r.Data.Ival("gameid"); gameid < 1 {
 		return ErrGameIdRequired
 	} else if game := games.Cache.Get(gameid); game == nil {
@@ -14,4 +14,4 @@ var GamesHandler = http.Responder(func(r *http.Request) error {
 		game.Receive(r.Username, r.Data)
 		return nil
 	}
-})
+}

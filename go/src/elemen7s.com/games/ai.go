@@ -85,8 +85,9 @@ func (ai *AI) send(name string, json js.Object) {
 
 func (ai *AI) EventStart(data js.Object) {
 	ai.SendGameRequest(js.Object{
-		"event": "start",
-		"resp":  "keep",
+		"event":  "start",
+		"gameid": ai.Game.Id,
+		"choice": "keep",
 	})
 }
 
@@ -143,12 +144,10 @@ func (ai *AI) EventSunset(data js.Object) {
 }
 
 func (ai *AI) EventAttack(data js.Object) {
-	if ai.Username == data["username"] {
-		ai.SendGameRequest(js.Object{
-			"event": "attack",
-			"resp":  "pass",
-		})
-	}
+	ai.SendGameRequest(js.Object{
+		"event": "attack",
+		"resp":  "pass",
+	})
 }
 
 func (ai *AI) EventDefend(data js.Object) {

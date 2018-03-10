@@ -1,7 +1,7 @@
 $(function() {
 	var app = {};
 	var seatsready = Promise.Fake();
-	var username, gameid, deckid = 1, games = {}, hand = {}, decks = [], canDeclareAttack;
+	var username, gameid, deckid = 1, games = {}, hand = {}, decks = [], eventName, canDeclareAttack;
 
 	SE.widget.controlProperty($('#start-menu')[0], 'timer');
 	SE.widget.controlProperty($('#elements-menu')[0], 'timer');
@@ -30,6 +30,10 @@ $(function() {
 			$('#alert-menu').append(alert);
 		});
 	}
+	app.addHistory = function(s) {
+		$('#game-event-history').append($('<div>'+s+'</div>')[0]);
+	};
+
 	var eventStart = function(data) {
 		var startMenu = $('#start-menu');
 		var handMenu = $('#hand-menu');
@@ -39,6 +43,7 @@ $(function() {
 		updatetimer($('#start-menu')[0]);
 		handMenu.css({opacity:0});
 		handMenu.css({opacity:1});
+		app.addHistory('game started');
 	};
 	var eventGame = function(data) {
 		var seats = $('#game-menu-seats');
@@ -64,6 +69,8 @@ $(function() {
 		gameMenu.css({opacity:0.5}); // warm up transition prop
 		gameMenu.slideDown();
 		gameMenu.css({opacity:1});
+		SE.dirtypage.on();
+		app.addHistory('[JOINED GAME#'+gameid+']');
 	};
 	var eventHand = function(data) {
 		SE.event.fire('reset-cards-in-hand', data.cards);
@@ -93,6 +100,7 @@ $(function() {
 				}
 			});
 		});
+		app.addHistory('Sunrise(' + data.username + ')');
 	};
 	var eventMain = function(data) {
 		$('#game-menu-pass')[0].timer = data.timer;
@@ -109,14 +117,15 @@ $(function() {
 					seat.deck = data.deck;
 					seat.spent = data.spent;
 				} else {
-					seat.turnphase = 'respond(main)';
+					seat.turnphase = 'respond';
 				}
 			});
 		});
+		app.addHistory('Main(' + data.username + ')');
 	};
 	var eventSunset = function(data) {
 		$('#game-menu-pass')[0].timer = data.timer;
-		$('#game-menu-meta-message')[0].innerHTML = 'night';
+		$('#game-menu-meta-message')[0].innerHTML = 'sunset';
 		$('#game-menu-meta img')[4].src = '/img/icon/moon.1.64px.png';
 		$('#game-menu-meta img')[3].src = '/img/icon/sunset.0.64px.png';
 
@@ -126,10 +135,12 @@ $(function() {
 				if (seat.username == data.username) {
 					seat.turnphase = 'sunset';
 				} else {
-					seat.turnphase = 'respond(sunset)';
+					seat.turnphase = 'respond';
 				}
 			});
 		});
+
+		app.addHistory('Sunset(' + data.username + ')');
 	};
 	var eventPlay = function(data) {
 		$('#game-menu-pass')[0].timer = data.timer;
@@ -143,7 +154,7 @@ $(function() {
 		seatsready.then(function(seats) {
 			$.each(seats, function(name, seat) {
 				seat.timer = data.timer;
-				seat.turnphase = 'response';
+				seat.turnphase = 'respond';
 			});
 
 			seats[data.username].hand = data.hand;
@@ -152,6 +163,8 @@ $(function() {
 				seats[data.username].resetElements(data.elements);
 			});
 		});
+
+		app.addHistory('Play(' + data.username + ':' + data.card.name + ')');
 	};
 	var eventPass = function(data) {
 		seatsready.then(function(seats) {
@@ -159,7 +172,6 @@ $(function() {
 		});
 
 		$('#game-menu-meta-stars img').each(function(img) {
-			console.log('pass event on images');
 			img.src = "/img/icon/stars.0.64px.png";
 		});
 
@@ -171,6 +183,7 @@ $(function() {
 			username:data.username,
 			message:msg
 		});
+		app.addHistory(data.username + ': ' + msg);
 	};
 	var eventResolve = function(data) {
 		console.log('event resolve', data);
@@ -183,6 +196,7 @@ $(function() {
 				seats[data.username].addActiveCard(gc);
 			});
 		});
+		app.addHistory('Spawn(' + data.username + ':' +data.card.name + ')');
 	};
 	var eventAttack = function(data) {
 		$('#game-menu-pass')[0].timer = data.timer;
@@ -193,14 +207,6 @@ $(function() {
 		canDeclareAttack = data.username == username;
 
 		seatsready.then(function(seats) {
-			$('.se-gc', seats[username]).each(function(i, gc) {
-				if (data.attackoptions[gc.gcid]) {
-					gc.showAttack();
-				} else {
-					gc.showClear();
-				}
-			});
-
 			$.each(seats, function(i, seat) {
 				if (seat.username == data.username) {
 					seat.timer = data.timer;
@@ -210,9 +216,19 @@ $(function() {
 					seat.turnphase = 'wait';
 				}
 			});
+
+			var animation = {
+				animate:'attack options',
+				attackoptions:data.attackoptions,
+			};
+			SE.go(function() {
+				console.warn('attack animate attack options', animation);
+				app.animate(animation);
+			});
 		});
 		$('#start-menu-timer').fadeOut();
 		$('#game-menu').fadeIn();
+		app.addHistory('Attack(' + data.username + ')');
 	};
 	var eventDefend = function(data) {
 		$('#game-menu-pass')[0].timer = data.timer;
@@ -230,9 +246,19 @@ $(function() {
 					seat.turnphase = 'wait';
 				}
 			});
+
+			var animation = {
+				animate:'attack options',
+				attackoptions:data.attacks,
+			};
+			SE.go(function() {
+				console.warn('defend animate attack options', animation);
+				app.animate(animation);
+			});
 		});
 		$('#start-menu-timer').fadeOut();
 		$('#game-menu').fadeIn();
+		app.addHistory('Defend(' + data.username + ')');
 	};
 	var eventEnd = function(data) {
 		console.warn('end', data);
@@ -247,6 +273,7 @@ $(function() {
 				seats[name].turnphase = 'loser';
 			});
 		});
+		SE.dirtypage.off();
 	};
 
 	var websocketAlert = function(data) {
@@ -256,7 +283,7 @@ $(function() {
 			$(alert).slideDown();
 		});
 	};
-	var websocketAnimate = function(data) {
+	app.animate = function(data) {
 		if (data.animate == 'not enough elements') {
 			SE.widget.new('se-alert').then(function(alert) {
 				$(alert).css({display:'none'});
@@ -278,6 +305,14 @@ $(function() {
 					if (seat.username != data.username) return true;
 					seat.addElement(data.element, true);
 					return false;
+				});
+			});
+		} else if (data.animate == 'attack options') {
+			$.each(data.attackoptions, function(gcid, attackTarget) {
+				if (attackTarget) SE.gamecards.get(gcid).then(function(card) {
+					card.showAttack();
+				}); else SE.gamecards.get(gcid).then(function(card) {
+					card.showClear();
 				});
 			});
 		} else {
@@ -324,13 +359,29 @@ $(function() {
 			});
 		});
 	};
+	app.promiseHandSpinner = function() {
+		return new Promise(function(resolve, reject) {
+			var spinner = $('#hand-menu .se-card-spinner')[0];
+			if (spinner) {
+				resolve(spinner);
+			} else {
+				SE.go(function() {
+					SE.widget.get('se-card-spinner').then(function() {
+						app.promiseHandSpinner().then(resolve, reject);
+					}, reject);
+				});
+			}
+		});
+	};
 	SE.event.on('reset-cards-in-hand', function(data) {
-		console.log('reset-cards-in-hand', data);
-
-		$('#hand-menu .se-card-spinner')[0].empty();
-		$.each(data, function(i, carddata) {
-			SE.gamecards.get(carddata.gcid, carddata.cardid).then(function(card) {
-				SE.event.fire('add-card-to-hand', card);
+		app.promiseHandSpinner().then(function(spinner) {
+			spinner.empty();
+			$.each(data, function(i, carddata) {
+				var gcid = carddata.gcid;
+				SE.widget.new('se-card', carddata.cardid).then(function(card) {
+					card.gcid = gcid;
+					SE.event.fire('add-card-to-hand', card);
+				});
 			});
 		});
 	});
@@ -338,7 +389,9 @@ $(function() {
 		$(card).click(function(e) {
 			SE.event.fire('play-confirm', card);
 		});
-		$('#hand-menu .se-card-spinner')[0].append(card);
+		app.promiseHandSpinner().then(function(spinner) {
+			spinner.append(card);
+		});
 	});
 
 	// play dialog
@@ -358,7 +411,8 @@ $(function() {
 			});
 			$('[data-ctrl="play"]', playMenu).slideDown();
 			$('[data-ctrl="play"]', playMenu).click(function() {
-				SE.websocket.send('play', {
+				SE.websocket.send('game', {
+					event:'main',
 					gameid: gameid,
 					gcid: parseInt(c.gcid)
 				});
@@ -369,10 +423,10 @@ $(function() {
 		console.log('play-react', data);
 		var playMenu = $('#play-menu');
 		$('[data-ctrl="content"]', playMenu).empty();
-		playMenu.css({opacity:0.5});
+		playMenu.css({opacity:0.1});
 		playMenu.slideDown();
 		playMenu.css({opacity:1});
-		$('[data-ctrl="title"]', playMenu)[0].innerHTML = 'Play: '+data.username;;
+		$('[data-ctrl="title"]', playMenu)[0].innerHTML = 'Play: '+data.username;
 		$('[data-ctrl="content"]', playMenu).append(card);
 
 		$('button', playMenu).off('click');
@@ -389,8 +443,8 @@ $(function() {
 
 	SE.event.on('se-gc-click', function(gc) {
 		if (canDeclareAttack && gc.username == username) {
-			console.warn('se-gc-click attack!', gc);
-			SE.websocket.send('attack', {
+			SE.websocket.send('game', {
+				event:'attack',
 				gameid: gameid,
 				gcid: gc.gcid
 			});
@@ -400,6 +454,8 @@ $(function() {
 	});
 
 	SE.event.on('websocket.message', function(name, data) {
+		var lastEventName = eventName;
+		eventName = name;
 		if (name == 'start') {
 			eventStart(data);
 		} else if (name == 'sunrise') {
@@ -415,10 +471,13 @@ $(function() {
 		} else if (name == 'play') {
 			eventPlay(data);
 		} else if (name == 'resolve') {
+			eventName = lastEventName;
 			eventResolve(data);
 		} else if (name == 'spawn') {
+			eventName = lastEventName;
 			eventSpawn(data);
 		} else if (name == 'pass') {
+			eventName = lastEventName;
 			eventPass(data);
 		} else if (name == 'gamedone') {
 			websocketGameDone(data);
@@ -427,24 +486,28 @@ $(function() {
 		} else if (name == 'defend') {
 			eventDefend(data);
 		} else if (name == 'timer') {
+			eventName = lastEventName;
 			websocketTimer(data);
 		} else if (name == 'attack') {
 			websocketAttack(data);
 		} else if (name == 'animate') {
-			websocketAnimate(data);
+			eventName = lastEventName;
+			app.animate(data);
 		} else if (name == 'alert') {
+			eventName = lastEventName;
 			websocketAlert(data);
 		} else if (name == 'end') {
 			eventEnd(data);
 		} else {
-			console.warn('websocket event not recognized', name);
+			eventName = lastEventName;
 		}
 	});
 
 	// elements menu click triggers
 	var makeSendElementTrigger = function(elementid) {
 		return function() {
-			SE.websocket.send('element', {
+			SE.websocket.send('game', {
+				event:'sunrise',
 				gameid:gameid,
 				elementid:elementid
 			});
@@ -459,14 +522,16 @@ $(function() {
 
 	// start menu click triggers
 	$('#start-button-keep').click(function(){
-		SE.websocket.send('hand', {
+		SE.websocket.send('game', {
+			event:"start",
 			gameid:gameid,
 			choice: 'keep'
 		});
 		$('#start-menu').fadeOut();
 	});
 	$('#start-button-mulligan').click(function(){
-		SE.websocket.send('hand', {
+		SE.websocket.send('game', {
+			event:'start',
 			gameid:gameid,
 			choice:'mulligan'
 		});
@@ -475,15 +540,17 @@ $(function() {
 
 	// pass button
 	$('#game-menu-pass').click(function() {
-		SE.websocket.send('pass', {
-			gameid:gameid
+		SE.websocket.send('game', {
+			gameid:gameid,
+			event:eventName,
+			resp:'pass'
 		});
 		this.timer = 0;
 	});
 
 	// so let's go then
 	vii.ping().then(function(data) {
-		if (!data.username) return console.warn('login required');
+		if (!data.username) return app.addHistory('<a href="/login/">login required</a>');
 		app.data = data;
 
 		var search = window.location.search.substr(1).split('=');

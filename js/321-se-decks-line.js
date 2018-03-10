@@ -19,7 +19,7 @@ SE.widget.control('se-decks-line', function(data) {
 	});
 
 	$('button', me).click(function() {
-		vii.cookie('editid', me.deckid);
-		window.location.href='/#edit';
+		vii.storage.set('editid', me.deckid);
+		SE.event.fire('nav-edit');
 	});
 });

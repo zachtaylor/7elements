@@ -2,30 +2,32 @@
 <html>
   <head>
     <title>Elemen7s homepage</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" sizes="192x192" href="/img/icon/app.192px.png">
     <meta name="viewport" content="width=device-width;initial-scale=1.0;maximum-scale=1.0;user-scalable=0;"/>
     <meta name="theme-color" content="#000000">
     <meta name="msapplication-navbutton-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
     <script src="/7elements.js"></script>
+    <script src="app.js" async></script>
     <link href="/7elements.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Macondo" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link href="index.css" rel="stylesheet">
-    <link href="/templates.html" rel="import">
-    <script async src="app.js"></script>
+    <!-- <link href="templates.html" rel="import"> -->
   </head>
   <body>
     <nav>
       <div id="nav-top">
         <a onclick="SE.event.fire('nav-drawer')"><img src="/img/banner-white.64px.png"/></a>
-        <span id="nav-path" style="color:whitesmoke;"></span>
+        <span id="nav-path" style="color:#fff;"></span>
         <ul id="nav-top-login" class="float-right" style="display:none;">
-          <a href="/signup/" style="color:whitesmoke;">Sign Up</a>
+          <a href="/signup/" style="color:#fff;">Sign Up</a>
           <a href="/login/">Log In</a>
         </ul>
-        <ul id="nav-top-account" class="float-right" style="display:none;color:whitesmoke;">
-          <a onclick="SE.event.fire('nav-chat')">
+        <ul id="nav-top-account" class="float-right" style="display:none;">
+          <a onclick="SE.event.fire('nav-chat')" style="color:#fff;">
             <span data-ctrl="account-username"></span>
             <img src="/img/icon/chat.white.64px.png"/>
             <span data-ctrl="messagecount"></span>

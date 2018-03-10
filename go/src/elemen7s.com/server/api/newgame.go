@@ -22,6 +22,15 @@ func NewGameHandler(r *http.Request) error {
 	} else if deck := mydecks[r.Data.Ival("deckid")]; deck == nil {
 		log.Warn("queue: start failed, deck missing")
 	} else if deck.Count() < 21 {
+		r.Agent.WriteJson(js.Object{
+			"uri": "/notification",
+			"data": js.Object{
+				"class":   "error",
+				"title":   "New Game",
+				"message": "Your deck must have at least 21 cards",
+				"timeout": 7000,
+			},
+		})
 		log.Add("Count", deck.Count()).Warn("queue: start failed, deck too small")
 	} else if ai := r.Data.Bval("ai"); ai {
 		game := games.BuildAIGame()
@@ -36,7 +45,7 @@ func NewGameHandler(r *http.Request) error {
 	if game := games.Cache.Get(gameid); game != nil {
 		r.Agent.WriteJson(js.Object{
 			"uri":  "/match",
-			"data": game.Json(),
+			"data": game.StateJson(r.Session.Username),
 		})
 	}
 

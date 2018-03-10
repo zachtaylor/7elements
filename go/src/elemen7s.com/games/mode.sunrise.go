@@ -55,6 +55,7 @@ func (m *SunriseMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 
 func Sunrise(g *Game) {
 	e := NewEvent(g.TurnClock.Username)
+	e.Target = "sunrise"
 	e.EMode = &SunriseMode{&ElementMode{elements.Null}}
 	g.TimelineJoin(e)
 }

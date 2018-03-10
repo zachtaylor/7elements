@@ -17,10 +17,10 @@ func (a AttackMode) OnActivate(e *Event, g *Game) {
 
 func (a AttackMode) Json(e *Event, g *Game, s *Seat) js.Object {
 	return js.Object{
-		"gameid":     g.Id,
-		"username":   s.Username,
-		"timer":      int(e.Duration.Seconds()),
-		"AttackMode": a,
+		"gameid":        g.Id,
+		"username":      s.Username,
+		"timer":         int(e.Duration.Seconds()),
+		"attackoptions": a,
 	}
 }
 
@@ -29,7 +29,7 @@ func (a AttackMode) OnResolve(e *Event, g *Game) {
 }
 
 func (a AttackMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
-	if j["event"] == "attack" && s.Username == e.Username {
+	if s.Username == e.Username {
 		go a.attack(e, g, s, j)
 	} else {
 		g.Log().Add("Seat", s.Username).Add("Event", j["event"]).Warn("games.AttackMode: receive sync error")
@@ -66,11 +66,15 @@ func (a AttackMode) attack(e *Event, g *Game, s *Seat, j js.Object) {
 		}
 	}
 
-	s.Send(a.Name(), a.Json(e, g, s))
+	s.Send("animate", js.Object{
+		"animate":       "attack options",
+		"attackoptions": a,
+	})
 }
 
 func Attack(g *Game) {
 	e := NewEvent(g.TurnClock.Username)
+	e.Target = "attack"
 	e.EMode = AttackMode{}
 	g.TimelineJoin(e)
 }

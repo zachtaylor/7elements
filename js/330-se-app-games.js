@@ -1,10 +1,10 @@
 SE.widget.control('se-app-games', function() {
 	var me = this;
 
-	me.update = function() {
-		if (!me.data) return console.warn('se-app-games update failed');
+	me.update = function(data) {
+		if (!data) return console.warn('se-app-games update failed');
 		$(me.$gameslist).empty();
-		$.each(me.data.games, function(gameid, gamedata) {
+		$.each(data.games, function(gameid, gamedata) {
 			SE.widget.new('se-games-line', gamedata).then(function(html) {
 				$(me.$gameslist).append(html);
 			});
@@ -12,15 +12,13 @@ SE.widget.control('se-app-games', function() {
 	};
 
 	vii.ping().then(function(data) {
-		me.data = data;
-		me.update();
+		me.update(data);
 	});
 
-	SE.event.on('/match', function(data) {
+	SE.event.on('/match', function() {
 		console.log('se-app-games watch /match');
-		vii.ping().then(function() {
-			me.data.games[data.id] = data;
-			me.update();
+		vii.ping().then(function(data) {
+			me.update(data);
 		});
 	});
 

@@ -2,7 +2,7 @@
 	background-color: red;
 }
 
-#start-menu, #game-menu, #play-menu, #elements-menu, #done-menu {
+#start-menu, #play-menu, #elements-menu, #done-menu {
 	display:none;
 }
 .footer {
@@ -80,9 +80,6 @@
 }
 #elements-menu span {
 	font-size:21px;
-}
-#game-menu-seats {
-	margin-bottom:100px;
 }
 
 #game-menu-defend {

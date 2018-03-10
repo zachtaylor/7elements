@@ -62,16 +62,21 @@ func (s *Seat) Send(name string, json js.Object) {
 	}
 }
 
-func (s *Seat) Json() js.Object {
-	return js.Object{
+func (s *Seat) Json(detailMode bool) js.Object {
+	json := js.Object{
 		"username": s.Username,
 		"deck":     len(s.Deck.Cards),
-		"hand":     len(s.Hand),
 		"life":     s.Life,
 		"active":   s.Alive.Json(),
 		"elements": s.Elements.Copy(),
 		"spent":    len(s.Graveyard),
 	}
+	if detailMode {
+		json["hand"] = s.Hand.Json()
+	} else {
+		json["hand"] = len(s.Hand)
+	}
+	return json
 }
 
 func (s *Seat) String() string {
@@ -93,4 +98,13 @@ func (s *Seat) HasActiveElements() bool {
 
 func (s *Seat) HasCardsInHand() bool {
 	return len(s.Hand) > 0
+}
+
+func (s *Seat) HasCardInHand(gcid int) bool {
+	for _, card := range s.Hand {
+		if card.Id == gcid {
+			return true
+		}
+	}
+	return false
 }

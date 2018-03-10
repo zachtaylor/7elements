@@ -1,8 +1,8 @@
 .se-alert {
 	margin:5px;
-	opacity:0.8;
-	border-color:dimgray;
-	border-radius:5px;
+	padding:7px;
+	border:1px solid black;
+	border-radius:7px;
 }
 .se-alert.alert-tip {
 	color:black;

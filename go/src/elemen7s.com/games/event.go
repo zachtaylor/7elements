@@ -40,7 +40,7 @@ func (e *Event) Activate(g *Game) {
 	g.Active = e
 	g.Broadcast(e.Name(), e.EMode.Json(e, g, g.GetSeat(e.Username)))
 	log := g.Log().Add("Username", e.Username).Add("Mode", e.EMode.Name())
-	log.Debug("activate")
+	log.Debug("games/event: activate")
 	e.EMode.OnActivate(e, g)
 	if e.EMode.Name() != "start" && e.EMode.Name() != "sunrise" {
 		delay(15*time.Second, func() {
@@ -50,7 +50,7 @@ func (e *Event) Activate(g *Game) {
 				return
 			}
 			if e.CheckPass(g) {
-				log.Info("autopass")
+				log.Info("games/event: autopass")
 				e.Timeout()
 			}
 		})
@@ -107,6 +107,19 @@ func (e *Event) RespPass(game *Game, seat *Seat) {
 	}
 }
 
+func (e *Event) SendCatchup(g *Game, seat *Seat) {
+	seat.Send(e.Name(), e.Json(g, seat))
+	for username, resp := range e.Resp {
+		if resp == "pass" {
+			seat.Send("pass", js.Object{
+				"gameid":   g.Id,
+				"target":   e.Target,
+				"username": username,
+			})
+		}
+	}
+}
+
 func (e *Event) CheckPass(g *Game) bool {
 	for _, s := range g.Seats {
 		if e.Resp[s.Username] == "pass" {
@@ -119,4 +132,8 @@ func (e *Event) CheckPass(g *Game) bool {
 
 func (e *Event) Timeout() {
 	e.Duration = time.Second
+}
+
+func (e *Event) Json(g *Game, s *Seat) js.Object {
+	return e.EMode.Json(e, g, s)
 }

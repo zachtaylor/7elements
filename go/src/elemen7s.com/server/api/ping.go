@@ -57,22 +57,11 @@ func PingHandler(r *http.Request) error {
 	}
 }
 
-func pingHandlerDataHelperGames(name string) map[int]js.Object {
+func pingHandlerDataHelperGames(username string) map[int]js.Object {
 	gamesdata := make(map[int]js.Object)
-	for _, gameid := range games.Cache.GetPlayerGames(name) {
-		if game := games.Cache.Get(gameid); game == nil {
-		} else if seat := game.GetSeat(name); seat != nil {
-			gamedata := seat.Json()
-			gamedata["gameid"] = gameid
-			gamedata["timer"] = int(game.Active.Duration.Seconds())
-			opponentsdata := make([]string, 0)
-			for _, seat2 := range game.Seats {
-				if seat2.Username != name {
-					opponentsdata = append(opponentsdata, seat2.Username)
-				}
-			}
-			gamedata["opponents"] = opponentsdata
-			gamesdata[gameid] = gamedata
+	for _, gameid := range games.Cache.GetPlayerGames(username) {
+		if game := games.Cache.Get(gameid); game != nil {
+			gamesdata[gameid] = game.StateJson(username)
 		}
 	}
 	return gamesdata

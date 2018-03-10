@@ -2,11 +2,12 @@
 	<head>
 		<title>Elemen7s Play</title>
 		<script src="/7elements.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Macondo" rel="stylesheet">
 		<link href="/7elements.css" rel="stylesheet">
 		<link href="index.css" rel="stylesheet">
 	</head>
 	<body style="margin-top:0px;">
-		<script src="index.js"></script>
+		<script src="index.js" async></script>
 		<div id="start-menu">
 			<span>The game has started!</span>
 			<br/><br/>
@@ -31,8 +32,9 @@
 			</div>
 		</div>
 		<div id="game-menu">
-			<span id="game-menu-meta-message" class="disp-tcell fsize21"></span>
-			<div id="game-menu-meta" style="text-align:center;" class="disp-tcell">
+			<a class="pos-abs" href="/#home" style="z-index:1;"><img src="/img/banner-black.64px.png"></a>
+			<span id="game-menu-meta-message" class="pos-abs vii-fontc" style="width:100%;text-align:center;font-size:48px;"></span>
+			<div id="game-menu-meta" class="pos-abs right0">
 				<img class="disp-iblock" src="/img/icon/sunrise.0.64px.png"/>
 				<img class="disp-iblock" src="/img/icon/sun.0.64px.png"/>
 				<div id="game-menu-meta-stars" class="disp-iblock"></div>
@@ -40,7 +42,10 @@
 				<img class="disp-iblock" src="/img/icon/sunset.0.64px.png"/>
 				<img class="disp-iblock"  src="/img/icon/moon.0.64px.png"/>
 			</div>
-			<div id="game-menu-seats"></div>
+			<div style="display:flex;padding-top:64px;margin-bottom:100px;">
+				<div id="game-event-history" class="disp-iblock" style="width:320px;overflow:auto;"></div>
+				<div id="game-menu-seats" class="disp-iblock" style="flex:1;"></div>
+			</div>
 			<button id="game-menu-pass" class="btn btn-lg right0 button-send-pass">
 				<div class="disp-iblock">
 					<div>Pass</div>

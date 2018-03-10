@@ -7,6 +7,6 @@ Promise.Fake = function() {
 
 	promise.resolve = resolve;
 	promise.reject = reject;
-	promise.catch(() => {}).then(() => {promise.done = true;});
+	// promise.catch(() => {}).then(() => {promise.done = true;});
 	return promise;
 };

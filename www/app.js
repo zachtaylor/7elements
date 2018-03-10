@@ -172,8 +172,7 @@ $(function() {
 	});
 
 	SE.event.on('/match', function(data) {
-		// vii.ping.data.games[data.gameid] = data;
-		// vii.ping.trigger();
+		vii.ping.data.games[data.gameid] = data;
 		SE.event.fire('/notification', {
 			class:'match',
 			title:'Match Found',
@@ -188,7 +187,7 @@ $(function() {
 	});
 
 	if (vii.cookie('SessionId')) vii.ping();
-	else console.warn('cash money');
+	else console.warn('no session found');
 	if (app.hash()) window.onhashchange();
 	else app.hash('home');
 });

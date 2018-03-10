@@ -52,16 +52,16 @@ SE.widget.control('se-app-edit', function() {
 	};
 	me.mod.reset = function() {
 		me.mod.cards = {};
-		me.mod.name = me.data.deck.name;
+		me.mod.name = me.data.decks[me.deckid].name;
 	};
 	me.mod.addCard = function(cardid) {
 		var copiesInDeck = me.data.decks[me.deckid].cards[cardid] || 0;
-		var copiesMod = me.mod.cards[cardid] = (me.mod.cards[cardid] || 0) + 1;
+		var copiesMod = me.mod.cards[cardid] || 0;
 		if ((copiesInDeck + copiesMod) >= me.data.cards[cardid].copies) {
 			return console.warn('mod.addCard: count exceeded', me.data.cards[cardid].copies);
 		}
 		if (me.mod.cards[cardid]) {
-			me.mod.cards[cardid] = me.mod.cards[cardid]+1;
+			me.mod.cards[cardid] = copiesMod+1;
 		} else {
 			me.mod.cards[cardid] = 1;
 		}
@@ -69,16 +69,20 @@ SE.widget.control('se-app-edit', function() {
 	};
 	me.mod.removeCard = function(cardid) {
 		var copiesInDeck = me.data.decks[me.deckid].cards[cardid] || 0;
-		var copiesMod = me.mod.cards[cardid] = (me.mod.cards[cardid] || 0) - 1;
-		if ((copiesInDeck + copiesMod) >= 1) {
+		var copiesMod = me.mod.cards[cardid] || 0;
+		if ((copiesInDeck + copiesMod) > 1) {
+			me.mod.cards[cardid] = copiesMod - 1;
 			me.mod.updateCardBanner(me.cache.deck[cardid]);
 		}	else {
+			me.mod.cards[cardid] = -copiesInDeck;
 			$(me.cache.deck[cardid]).detach();
 		}
 	};
 	me.mod.updateCardBanner = function(card) {
 		if (!card.copies) card.copies = 0;
-		card.banner = 'x'+card.copies+'+'+me.mod.cards[card.cardid];
+		card.banner = 'x'+card.copies;
+		if (me.mod.cards[card.cardid] > 0) card.banner += '+'+me.mod.cards[card.cardid];
+		else if (me.mod.cards[card.cardid] < 0) card.banner += me.mod.cards[card.cardid];
 	};
 	// modding
 
@@ -96,6 +100,7 @@ SE.widget.control('se-app-edit', function() {
 		return new Promise(function(resolve, reject) {
 			me.getCacheCard('bank', cardid).then(function(card) {
 				if (!card.parentElement) {
+					$(card).off('click');
 					$(card).click(function(e) {
 						SE.dirtypage.on();
 						me.mod.addCard(cardid);
@@ -111,13 +116,18 @@ SE.widget.control('se-app-edit', function() {
 		});
 	};
 	me.showDeckCard = function(cardid, copies) {
-		return new Promise(function(resolve, reject) {
+		if (!me.showDeckCard[cardid]) me.showDeckCard[cardid] = new Promise(function(resolve, reject) {
 			me.getCacheCard('deck', cardid).then(function(card) {
+				$(card).click(function(e) {
+					SE.dirtypage.on();
+					me.mod.removeCard(cardid);
+				});
+				resolve(card);
+			});
+		});
+		return new Promise(function(resolve, reject) {
+			me.showDeckCard[cardid].then(function(card) {
 				if (!card.parentElement) {
-					$(card).click(function(e) {
-						SE.dirtypage.on();
-						me.mod.removeCard(cardid);
-					});
 					$(me.$cardsdeck).append(card);
 				}
 				if (copies) {
@@ -132,6 +142,8 @@ SE.widget.control('se-app-edit', function() {
 	me.layout = function() {
 		if (!me.data || !me.data.decks) return;
 		if (!me.deckid) return;
+
+		me.mod.reset();
 
 		var cardCount = Object.keys(me.data.cards).length;
 
@@ -234,13 +246,12 @@ SE.widget.control('se-app-edit', function() {
 	vii.ping().then(function(data) {
 		if (!data.username) return $(me).prepend('<h2>Edit Screen: <a href="/login/">Login</a> Required</h2>');
 		me.data = data;
-		me.mod.reset();
 		me.layout();
 	});
 
-	vii.cookie('editid', function(val) {
-		if (val) me.deckid = parseInt(val);
-		else me.deckid = 1;
+	vii.storage.with('editid', function(v) {
+		if (!v) return vii.storage.set('editid', 1);
+		me.deckid = v;
 		me.layout();
 	});
 });

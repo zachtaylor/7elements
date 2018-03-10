@@ -51,7 +51,7 @@ func (m *DefendMode) OnResolve(e *Event, g *Game) {
 		}
 	}
 
-	if g.Results != nil {
+	if g.Results == nil {
 		Sunset(g)
 	} else {
 		End(g)
@@ -103,6 +103,7 @@ func (m *DefendMode) defend(e *Event, g *Game, s *Seat, j js.Object) {
 
 func Defend(g *Game, a AttackOptions) {
 	e := NewEvent(g.TurnClock.Next.Username)
+	e.Target = "defend"
 	e.EMode = &DefendMode{
 		AttackOptions: a,
 		DefendOptions: DefendOptions{},

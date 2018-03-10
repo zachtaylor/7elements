@@ -40,6 +40,15 @@ func TryPlay(e *Event, game *Game, seat *Seat, j js.Object, onlySpells bool) {
 		})
 		log.Error("games.Event: play cannot afford")
 		return
+	} else if !seat.HasCardInHand(gcid) {
+		seat.Send("alert", js.Object{
+			"class":    "error",
+			"gameid":   game.Id,
+			"username": card.Text.Name,
+			"message":  card.Text.Name + " is not in your hand",
+		})
+		log.Error("games.Event: play cannot afford")
+		return
 	}
 
 	log.Add("CardId", card.Card.Id).Debug("play test")

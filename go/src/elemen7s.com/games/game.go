@@ -28,12 +28,17 @@ func New() *Game {
 	id := NewGameId()
 	logger := log.NewLogger()
 	logger.SetLevel("debug")
-	logger.SetFile(fmt.Sprintf("log/game-%d.log", id))
+	go func() {
+		logger.SetFile(fmt.Sprintf("log/game-%d.log", id))
+		logger.New().Add("GameId", id).Info("new game")
+	}()
+	<-time.After(time.Second)
+	logger.New().Add("GameId", id).Info("begin")
 	return &Game{
 		Id:       id,
 		Cards:    make(map[int]*Card),
 		Delay:    1 * time.Second,
-		Timeout:  10 * time.Minute,
+		Timeout:  15 * time.Minute,
 		Events:   make(map[int]Event),
 		Timeline: make(chan *Event),
 		Logger:   logger,
@@ -119,8 +124,8 @@ func (g *Game) GetSeat(username string) *Seat {
 }
 
 func (g *Game) SendCatchup(seat *Seat) {
-	seat.Send("game", g.JsonWithPerspective(seat))
-	seat.Send(g.Active.Name(), g.Active.Json(g.Active, g, seat))
+	seat.Send("game", g.StateJson(seat.Username))
+	g.Active.SendCatchup(g, seat)
 }
 
 func (g *Game) Broadcast(name string, json js.Object) {
@@ -140,25 +145,28 @@ func (g *Game) Receive(username string, j js.Object) {
 }
 
 func (g *Game) Start() {
-	go func() {
-		for {
-			e := g.Active
-			start := time.Now()
-			select {
-			case rcv := <-g.Timeline:
-				if rcv != nil {
-					rcv.Activate(g)
-				} else {
-					e.Duration = time.Second
-				}
-			case <-time.After(time.Second):
-				e.Duration -= time.Now().Sub(start)
-				if e.Duration < time.Second {
-					e.Resolve(g)
-				}
+	go g.Watch()
+}
+
+func (g *Game) Watch() {
+	for {
+		e := g.Active
+		start := time.Now()
+		select {
+		case rcv := <-g.Timeline:
+			if rcv != nil {
+				rcv.Activate(g)
+			} else {
+				e.Duration = time.Second
+				g.Log().Add("Mode", g.Active.Name()).Debug("games/watch: close short circuit")
+			}
+		case <-time.After(time.Second):
+			e.Duration -= time.Now().Sub(start)
+			if e.Duration < time.Second {
+				e.Resolve(g)
 			}
 		}
-	}()
+	}
 }
 
 func (g *Game) TimelineJoin(e *Event) {
@@ -195,26 +203,32 @@ func (g *Game) Lose(s *Seat) {
 	End(g)
 }
 
-func (g *Game) Json() js.Object {
-	event := g.Active
-	data := js.Object{
-		"gameid": g.Id,
-		"timer":  int(event.Duration.Seconds()),
-		"mode":   event.ModeName(),
+func (g *Game) StateJson(username string) js.Object {
+	var json js.Object
+	if seat := g.GetSeat(username); seat != nil {
+		json = seat.Json(true)
+		opponentsdata := make([]string, 0)
+		for _, seat2 := range g.Seats {
+			if seat2.Username != username {
+				opponentsdata = append(opponentsdata, seat2.Username)
+			}
+		}
+		json["opponents"] = opponentsdata
+	} else {
+		json = js.Object{
+			"error": "username not found: " + username,
+		}
 	}
+
+	json["gameid"] = g.Id
+	json["timer"] = int(g.Active.Duration.Seconds())
+	json["mode"] = g.Active.ModeName()
 
 	seatdata := js.Object{}
 	for _, seat := range g.Seats {
-		seatdata[seat.Username] = seat.Json()
+		seatdata[seat.Username] = seat.Json(false)
 	}
-	data["seats"] = seatdata
+	json["seats"] = seatdata
 
-	return data
-}
-
-func (game *Game) JsonWithPerspective(s *Seat) js.Object {
-	json := game.Json()
-	json["username"] = s.Username
-	json["hand"] = s.Hand.Json()
 	return json
 }

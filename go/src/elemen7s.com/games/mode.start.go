@@ -40,14 +40,14 @@ func (m StartMode) OnResolve(e *Event, g *Game) {
 }
 
 func (m StartMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
-	log := g.Log().Add("Username", s.Username).Add("Resp", j["resp"])
+	log := g.Log().Add("Username", s.Username).Add("Resp", j["choice"])
 
 	if e.Resp[s.Username] != "" {
 		log.Add("Val", e.Resp[s.Username]).Warn("start: receive already recorded")
 		return
-	} else if j["resp"] == "keep" {
+	} else if j["choice"] == "keep" {
 		e.Resp[s.Username] = "keep"
-	} else if j["resp"] == "mulligan" {
+	} else if j["choice"] == "mulligan" {
 		e.Resp[s.Username] = "mulligan"
 		s.DiscardHand()
 		s.DrawCard(3)
@@ -64,7 +64,7 @@ func (m StartMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 		"class":    "tip",
 		"gameid":   g.Id,
 		"username": s.Username,
-		"message":  j["resp"],
+		"message":  j["choice"],
 		"timer":    1000,
 	})
 	go g.Broadcast("pass", js.Object{

@@ -1,5 +1,5 @@
 // # vii.ping
-// returns a promise to find ping data >= 1 time
+// returns a promise to find ping data
 vii.ping = function() {
 	if (!vii.ping.then) {
 		vii.ping.chain = [];
@@ -13,8 +13,10 @@ vii.ping = function() {
 			});
 		};
 		SE.event.on('websocket.message', function(name, data) {
-			vii.ping.data = data;
-			if (name == '/ping') vii.ping.trigger();
+			if (name == '/ping') {
+				vii.ping.data = data;
+				vii.ping.trigger();
+			}
 		});
 		SE.websocket.send('ping');
 	}
