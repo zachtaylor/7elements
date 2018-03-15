@@ -5,7 +5,10 @@ Promise.Fake = function() {
 		reject = rj;
 	});
 
-	promise.resolve = resolve;
+	promise.resolve = function(v) {
+		promise.val = v;
+		resolve(v);
+	};
 	promise.reject = reject;
 	// promise.catch(() => {}).then(() => {promise.done = true;});
 	return promise;

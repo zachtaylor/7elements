@@ -140,6 +140,14 @@ $(function() {
 			});
 		});
 
+		var animation = {
+			animate:'attack options',
+			attackoptions:{},
+		};
+		SE.go(function() {
+			app.animate(animation);
+		});
+
 		app.addHistory('Sunset(' + data.username + ')');
 	};
 	var eventPlay = function(data) {
@@ -148,7 +156,7 @@ $(function() {
 			img.src = "/img/icon/stars.0.64px.png";
 		});
 		$('#game-menu-meta-stars').append($('<img class="disp-iblock" src="/img/icon/stars.1.64px.png"/>'));
-		SE.gamecards.get(data.card.gcid, data.card.cardid).then(function(card) {
+		vii.gamecard.set(data.card).then(function(card) {
 			SE.event.fire('play-react', data, card);
 		});
 		seatsready.then(function(seats) {
@@ -186,13 +194,19 @@ $(function() {
 		app.addHistory(data.username + ': ' + msg);
 	};
 	var eventResolve = function(data) {
-		console.log('event resolve', data);
+		app.promiseHandSpinner().then(function(spinner) {
+			$('.se-card', spinner).each(function(i, card) {
+				if (card.gcid == data.card.gcid) {
+					$(card).remove();
+				}
+			});
+		});
 	};
 	var eventSpawn = function(data) {
 		$('#play-menu').slideUp();
 		$('#game-menu-pass')[0].timer = data.timer;
 		seatsready.then(function(seats) {
-			SE.widget.new('se-gc', data.card).then(function(gc) {
+			vii.gamecard.set(data.card).then(function(gc) {
 				seats[data.username].addActiveCard(gc);
 			});
 		});
@@ -222,7 +236,6 @@ $(function() {
 				attackoptions:data.attackoptions,
 			};
 			SE.go(function() {
-				console.warn('attack animate attack options', animation);
 				app.animate(animation);
 			});
 		});
@@ -252,7 +265,6 @@ $(function() {
 				attackoptions:data.attacks,
 			};
 			SE.go(function() {
-				console.warn('defend animate attack options', animation);
 				app.animate(animation);
 			});
 		});
@@ -294,7 +306,8 @@ $(function() {
 				$(alert).slideDown();
 			});
 		} else if (data.animate == 'add card') {
-			SE.gamecards.get(data.gcid, data.cardid).then(function(card) {
+			SE.widget.new('se-card', data.cardid).then(function(card) {
+				card.gcid = data.gcid;
 				SE.event.fire('add-card-to-hand', card);
 			}, function(err) {
 				console.error('websocket animate add card', err);
@@ -308,11 +321,12 @@ $(function() {
 				});
 			});
 		} else if (data.animate == 'attack options') {
+			$('.se-gc').each(function(_, gc) {
+				gc.showClear();
+			});
 			$.each(data.attackoptions, function(gcid, attackTarget) {
-				if (attackTarget) SE.gamecards.get(gcid).then(function(card) {
+				vii.gamecard.get(gcid).then(function(card) {
 					card.showAttack();
-				}); else SE.gamecards.get(gcid).then(function(card) {
-					card.showClear();
 				});
 			});
 		} else {

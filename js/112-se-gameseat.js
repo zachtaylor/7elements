@@ -44,8 +44,8 @@ SE.widget.control('se-gameseat', function() {
 		ready.then(function() {
 			$(me.spinner)[0].empty();
 			$.each(data, function(i, carddata) {
-				SE.widget.new('se-gc', carddata).then(function(gcard) {
-					me.addActiveCard(gcard);
+				vii.gamecard.set(carddata).then(function(gc) {
+					me.addActiveCard(gc);
 				});
 			});
 		});
