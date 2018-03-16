@@ -36,7 +36,9 @@ SE.widget.control('se-card', function(cardid) {
 		me.updatePowers(data.powers);
 	};
 	me.updateCosts = function(data) {
-		$('.se-card-costs', me).empty();
+		for (;me.costs.children.length;) {
+			$(me.costs.children[0]).remove();
+		};
 		$.each(data, function(elementid, cost) {
 			for (var i=0; i<cost; i++) {
 				SE.widget.new('se-symbol', 'element-'+elementid).then(function(symbol) {

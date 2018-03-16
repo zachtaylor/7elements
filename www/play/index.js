@@ -136,7 +136,7 @@ $(function() {
 					seat.turnphase = 'sunset';
 				} else {
 					seat.turnphase = 'respond';
-				}
+				};
 			});
 		});
 
@@ -434,7 +434,6 @@ $(function() {
 		});
 	});
 	SE.event.on('play-react', function(data, card) {
-		console.log('play-react', data);
 		var playMenu = $('#play-menu');
 		$('[data-ctrl="content"]', playMenu).empty();
 		playMenu.css({opacity:0.1});
