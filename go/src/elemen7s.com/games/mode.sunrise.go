@@ -1,7 +1,7 @@
 package games
 
 import (
-	"elemen7s.com/elements"
+	"elemen7s.com"
 	"ztaylor.me/js"
 )
 
@@ -27,7 +27,7 @@ func (m *SunriseMode) Json(e *Event, g *Game, s *Seat) js.Object {
 
 func (m *SunriseMode) OnResolve(e *Event, g *Game) {
 	m.ElementMode.OnResolve(e, g)
-	if m.ElementMode.Element == elements.Null {
+	if m.ElementMode.Element == vii.NullElement {
 		g.Log().Warn("games.Sunrise: !resolve forfeit")
 		g.Results = &Results{
 			Losers:  []string{g.TurnClock.Username},
@@ -56,6 +56,6 @@ func (m *SunriseMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 func Sunrise(g *Game) {
 	e := NewEvent(g.TurnClock.Username)
 	e.Target = "sunrise"
-	e.EMode = &SunriseMode{&ElementMode{elements.Null}}
+	e.EMode = &SunriseMode{&ElementMode{}}
 	g.TimelineJoin(e)
 }

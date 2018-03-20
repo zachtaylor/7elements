@@ -1,6 +1,7 @@
 package games
 
 import (
+	"elemen7s.com"
 	"fmt"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
@@ -10,7 +11,7 @@ type Seat struct {
 	Username  string
 	Life      int
 	Deck      *Deck
-	Elements  Elements
+	Elements  vii.ElementSet
 	Hand      Cards
 	Alive     Cards
 	Graveyard Cards
@@ -23,7 +24,7 @@ func newSeat() *Seat {
 		Alive:     Cards{},
 		Hand:      Cards{},
 		Graveyard: Cards{},
-		Elements:  Elements{},
+		Elements:  vii.ElementSet{},
 	}
 }
 
@@ -68,7 +69,7 @@ func (s *Seat) Json(detailMode bool) js.Object {
 		"deck":     len(s.Deck.Cards),
 		"life":     s.Life,
 		"active":   s.Alive.Json(),
-		"elements": s.Elements.Copy(),
+		"elements": s.Elements,
 		"spent":    len(s.Graveyard),
 	}
 	if detailMode {
@@ -93,7 +94,7 @@ func (s *Seat) HasAwakeAliveCards() bool {
 }
 
 func (s *Seat) HasActiveElements() bool {
-	return len(s.Elements.Active()) > 0
+	return len(s.Elements.GetActive()) > 0
 }
 
 func (s *Seat) HasCardsInHand() bool {

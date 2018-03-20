@@ -1,8 +1,8 @@
 package cards
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards/texts"
-	"elemen7s.com/elements"
 	"fmt"
 	"ztaylor.me/js"
 )
@@ -11,7 +11,7 @@ type Powers map[int]*Power
 
 type Power struct {
 	Id       int
-	Costs    elements.Stack
+	Costs    vii.ElementMap
 	UsesTurn bool
 	Script   string
 }
@@ -22,7 +22,7 @@ func NewPowers() Powers {
 
 func NewPower() *Power {
 	return &Power{
-		Costs: elements.Stack{},
+		Costs: vii.ElementMap{},
 	}
 }
 

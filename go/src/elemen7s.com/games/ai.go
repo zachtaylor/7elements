@@ -1,8 +1,8 @@
 package games
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/decks"
-	"elemen7s.com/elements"
 	"time"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
@@ -159,8 +159,9 @@ func (ai *AI) EventDefend(data js.Object) {
 
 func (ai *AI) sendPlayEvent() {
 	choices := make([]int, 0)
+	elements := ai.Seat.Elements.GetActive()
 	for gcid, gc := range ai.Hand {
-		if ai.Seat.Elements.TestStack(gc.Card.Costs) {
+		if elements.Test(gc.Card.Costs) {
 			choices = append(choices, gcid)
 			ai.Game.Log().WithFields(log.Fields{
 				"CardId":  gc.Card.Id,
@@ -188,7 +189,7 @@ func (ai *AI) sendPlayEvent() {
 }
 
 func (ai *AI) sendElementEvent() {
-	devo := elements.Stack{}
+	devo := vii.ElementMap{}
 	for _, card := range ai.Seat.Hand {
 		for element, amount := range card.Card.Costs {
 			devo[element] += amount

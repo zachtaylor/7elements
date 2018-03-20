@@ -1,10 +1,10 @@
 package scripts
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards"
 	"elemen7s.com/cards/texts"
 	"elemen7s.com/cards/types"
-	"elemen7s.com/elements"
 	"elemen7s.com/games"
 )
 
@@ -15,7 +15,7 @@ func init() {
 var ctbCard = &cards.Card{
 	Image:    "/img/cards/zealot-0.jpg",
 	CardType: ctypes.Body,
-	Costs:    elements.Stack{},
+	Costs:    vii.ElementMap{},
 	Powers:   cards.NewPowers(),
 	Body: &cards.Body{
 		Attack: 2,

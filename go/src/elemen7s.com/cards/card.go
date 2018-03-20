@@ -1,9 +1,9 @@
 package cards
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards/texts"
 	"elemen7s.com/cards/types"
-	"elemen7s.com/elements"
 	"ztaylor.me/js"
 )
 
@@ -11,14 +11,14 @@ type Card struct {
 	Id    int
 	Image string
 	ctypes.CardType
-	Costs elements.Stack
+	Costs vii.ElementMap
 	Powers
 	*Body
 }
 
 func NewCard() *Card {
 	return &Card{
-		Costs:  elements.Stack{},
+		Costs:  vii.ElementMap{},
 		Powers: NewPowers(),
 	}
 }

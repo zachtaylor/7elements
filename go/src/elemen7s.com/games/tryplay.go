@@ -31,7 +31,7 @@ func TryPlay(e *Event, game *Game, seat *Seat, j js.Object, onlySpells bool) {
 		})
 		log.Error("games.Play: not spell type")
 		return
-	} else if !seat.Elements.TestStack(card.Card.Costs) {
+	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
 		seat.Send("alert", js.Object{
 			"class":    "error",
 			"gameid":   game.Id,

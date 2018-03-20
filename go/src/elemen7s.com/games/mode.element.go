@@ -1,12 +1,12 @@
 package games
 
 import (
-	"elemen7s.com/elements"
+	"elemen7s.com"
 	"ztaylor.me/js"
 )
 
 type ElementMode struct {
-	elements.Element
+	vii.Element
 }
 
 func (m *ElementMode) Name() string {
@@ -34,7 +34,7 @@ func (m *ElementMode) OnResolve(e *Event, g *Game) {
 
 func (m *ElementMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 	log := g.Log().Add("Username", s.Username)
-	if m.Element != elements.Null {
+	if m.Element != vii.NullElement {
 		log.Add("SavedEl", m.Element).Add("ElementId", j["elementid"]).Warn("element: choice already saved")
 		return
 	} else if j["event"] == "element" {
@@ -48,7 +48,7 @@ func (m *ElementMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 		log.Add("ElementId", elementId).Warn("element: elementid out of bounds")
 		return
 	}
-	m.Element = elements.Elements[int(elementId)]
+	m.Element = vii.Elements[int(elementId)]
 	s.Elements.Append(m.Element)
 	log.Add("Element", m.Element).Info("element")
 	e.Timeout()
@@ -56,6 +56,6 @@ func (m *ElementMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 
 func OpenElement(g *Game) {
 	e := NewEvent(g.TurnClock.Username)
-	e.EMode = &ElementMode{elements.Null}
+	e.EMode = &ElementMode{}
 	g.TimelineJoin(e)
 }

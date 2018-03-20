@@ -1,9 +1,9 @@
 package cards
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards/types"
 	"elemen7s.com/db"
-	"elemen7s.com/elements"
 	"errors"
 	"fmt"
 )
@@ -82,13 +82,13 @@ func loadCardCosts() error {
 
 		if err != nil {
 			return err
-		} else if elementid > len(elements.Elements) || elementid < 0 {
+		} else if elementid > len(vii.Elements) || elementid < 0 {
 			return errors.New(fmt.Sprintf("cards: invalid element#%v", elementid))
 		} else if CardCache[cardid] == nil {
 			return errors.New(fmt.Sprintf("cards: cost matching missed card#%v", cardid))
 		}
 
-		CardCache[cardid].Costs[elements.Elements[elementid]] += count
+		CardCache[cardid].Costs[vii.Elements[elementid]] += count
 	}
 
 	return nil
@@ -139,7 +139,7 @@ func loadCardsPowersCosts() error {
 			return errors.New(fmt.Sprintf("cards: unrooted power cost card#%v id#%v", cardid, powerid))
 		}
 
-		CardCache[cardid].Powers[powerid].Costs[elements.Elements[elementid]] += count
+		CardCache[cardid].Powers[powerid].Costs[vii.Elements[elementid]] += count
 	}
 
 	return nil
