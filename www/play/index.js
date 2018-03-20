@@ -9,7 +9,9 @@ $(function() {
 
 	$('#chat-menu').keydown(function(e) {
 		if (e.keyCode == 13) {
-			SE.websocket.send('chat', {
+			SE.websocket.send('game', {
+				'gameid':gameid,
+				'event':'chat',
 				'message':$(this).val()
 			});
 			$(this).val('');

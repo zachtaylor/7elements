@@ -62,15 +62,6 @@ func (e *Event) Resolve(g *Game) {
 	e.EMode.OnResolve(e, g)
 }
 
-// func (e *Event) chat(game *Game, seat *Seat, msg *wsocks.Message) {
-// 	go game.Broadcast("alert", js.Object{
-// 		"class":    "tip",
-// 		"gameid":   game.Id,
-// 		"username": seat.Username,
-// 		"message":  m.Data["message"],
-// 	})
-// }
-
 func (e *Event) Receive(g *Game, s *Seat, j js.Object) {
 	e.Lock()
 	defer e.Unlock()

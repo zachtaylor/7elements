@@ -3,6 +3,7 @@ package games
 import (
 	"elemen7s.com/cards"
 	"elemen7s.com/cards/texts"
+	"elemen7s.com/chat"
 	"elemen7s.com/decks"
 	"fmt"
 	"time"
@@ -17,6 +18,7 @@ type Game struct {
 	Timeout  time.Duration
 	Events   map[int]Event
 	Timeline chan *Event
+	Chat     chat.Channel
 	*log.Logger
 	Active *Event
 	*TurnClock
@@ -40,6 +42,7 @@ func New() *Game {
 		Timeout:  15 * time.Minute,
 		Events:   make(map[int]Event),
 		Timeline: make(chan *Event),
+		Chat:     chat.NewChannel(fmt.Sprintf("game#%d", id)),
 		Logger:   logger,
 		// Active:   nil,
 		// TurnClock: nil,
@@ -135,11 +138,16 @@ func (g *Game) Broadcast(name string, json js.Object) {
 	}
 }
 
-func (g *Game) Receive(username string, j js.Object) {
-	if g.Active.Name() != j["event"] {
-		g.Log().Add("Seat", username).Add("Event", j["event"]).Add("Active", g.Active.Name()).Warn("receive: out of sync")
-	} else {
-		g.Active.Receive(g, g.GetSeat(username), j)
+func (g *Game) Receive(username string, json js.Object) {
+	switch json["event"] {
+	case "chat":
+		BroadcastAnimateAlertChat(g, username, json.Sval("message"))
+		break
+	case g.Active.Name():
+		g.Active.Receive(g, g.GetSeat(username), json)
+		break
+	default:
+		g.Log().Add("Seat", username).Add("Event", json["event"]).Add("Active", g.Active.Name()).Warn("receive: out of sync")
 	}
 }
 

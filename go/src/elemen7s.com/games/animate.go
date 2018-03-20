@@ -65,3 +65,12 @@ func BroadcastAnimateAlertError(game *Game, text string) {
 		AnimateAlertError(s, game, fmt.Sprintf("Game#%d", game.Id), text)
 	}
 }
+
+func BroadcastAnimateAlertChat(game *Game, username, message string) {
+	game.Broadcast("alert", js.Object{
+		"class":    "tip",
+		"gameid":   game.Id,
+		"username": username,
+		"message":  message,
+	})
+}

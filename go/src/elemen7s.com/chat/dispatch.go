@@ -2,7 +2,6 @@ package chat
 
 import (
 	"sync"
-	"ztaylor.me/http"
 )
 
 var dispatch = make(map[string]Channel)
@@ -14,11 +13,7 @@ func GetChannel(name string) Channel {
 		mu.Unlock()
 		return c
 	} else {
-		c := &channel{
-			name:    name,
-			sockets: make(map[string]*http.Socket),
-			history: make([]*Message, CHANNEL_BUFFER_SIZE),
-		}
+		c := NewChannel(name)
 		dispatch[name] = c
 		mu.Unlock()
 		return c

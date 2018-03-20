@@ -21,6 +21,14 @@ type channel struct {
 	history []*Message
 }
 
+func NewChannel(name string) Channel {
+	return &channel{
+		name:    name,
+		sockets: make(map[string]*http.Socket),
+		history: make([]*Message, CHANNEL_BUFFER_SIZE),
+	}
+}
+
 func (c *channel) MessageJson(msg *Message) js.Object {
 	return js.Object{
 		"uri": "/chat",
