@@ -25,11 +25,7 @@ func (m *ElementMode) OnActivate(e *Event, g *Game) {
 }
 
 func (m *ElementMode) OnResolve(e *Event, g *Game) {
-	g.Broadcast("animate", js.Object{
-		"animate":  "add element",
-		"username": e.Username,
-		"element":  m.Element,
-	})
+	AnimateAddElement(g, e.Username, int(m.Element))
 }
 
 func (m *ElementMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {

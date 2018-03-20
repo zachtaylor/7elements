@@ -30,10 +30,9 @@ func New() *Game {
 	logger.SetLevel("debug")
 	go func() {
 		logger.SetFile(fmt.Sprintf("log/game-%d.log", id))
-		logger.New().Add("GameId", id).Info("new game")
 	}()
 	<-time.After(time.Second)
-	logger.New().Add("GameId", id).Info("begin")
+	logger.New().Add("GameId", id).Info("game started")
 	return &Game{
 		Id:       id,
 		Cards:    make(map[int]*Card),

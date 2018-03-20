@@ -47,27 +47,13 @@ func (m *PlayMode) OnResolve(e *Event, g *Game) {
 
 	if m.Card.Card.CardType == ctypes.Body || m.Card.Card.CardType == ctypes.Item {
 		seat.Alive[m.Card.Id] = m.Card
-		g.Broadcast("spawn", js.Object{
-			"gameid":   g.Id,
-			"username": e.Username,
-			"card":     m.Card.Json(),
-		})
+		AnimateSpawn(g, m.Card)
 	} else if m.Card.Card.CardType == ctypes.Spell {
 		if power := m.Card.Card.Powers[0]; power == nil {
-			g.Broadcast("alert", js.Object{
-				"class":    "error",
-				"gameid":   g.Id,
-				"username": e.Username,
-				"message":  m.Card.Text.Name + " does not work yet",
-			})
+			BroadcastAnimateAlertError(g, m.Card.Text.Name+" does not work yet")
 			log.Warn("play: resolve; card does not work")
 		} else if script := Scripts[power.Script]; script == nil {
-			g.Broadcast("alert", js.Object{
-				"class":    "error",
-				"gameid":   g.Id,
-				"username": e.Username,
-				"message":  m.Card.Text.Name + " does not work yet",
-			})
+			BroadcastAnimateAlertError(g, m.Card.Text.Name+" does not work yet")
 			log.Warn("play: resolve; card does not work")
 		} else {
 			log.Info("play")

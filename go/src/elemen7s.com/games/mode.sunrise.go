@@ -40,11 +40,7 @@ func (m *SunriseMode) OnResolve(e *Event, g *Game) {
 		card := seat.Deck.Draw()
 		seat.Hand[card.Id] = card
 		seat.Reactivate()
-		seat.Send("animate", js.Object{
-			"animate": "add card",
-			"gcid":    card.Id,
-			"cardid":  card.Card.Id,
-		})
+		AnimateAddCard(seat, card)
 		Main(g)
 	}
 }

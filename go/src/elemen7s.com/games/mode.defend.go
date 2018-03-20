@@ -88,12 +88,7 @@ func (m *DefendMode) defend(e *Event, g *Game, s *Seat, j js.Object) {
 	} else if !gc.Awake {
 		log.Warn("games.Defend: card is not awake")
 
-		s.Send("alert", js.Object{
-			"class":    "error",
-			"gameid":   g.Id,
-			"username": e.Username,
-			"message":  gc.Text.Name + " is not awake",
-		})
+		AnimateAlertError(s, g, gc.Text.Name, "not awake")
 	} else {
 		m.DefendOptions[gcid] = target
 	}

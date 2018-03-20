@@ -86,12 +86,8 @@ func (e *Event) Receive(g *Game, s *Seat, j js.Object) {
 func (e *Event) RespPass(game *Game, seat *Seat) {
 	log := game.Log().Add("Username", seat.Username).Add("Mode", e.EMode.Name())
 	if e.Resp[seat.Username] != "" {
+		AnimateAlertError(seat, game, "pass", "already recorded")
 		log.Add("Val", e.Resp[seat.Username]).Warn("pass: response already recorded")
-		seat.Send("alert", js.Object{
-			"class":    "error",
-			"username": "pass",
-			"message":  "already recorded",
-		})
 	} else if e.Resp[seat.Username] == "" {
 		log.Debug("pass")
 		e.Resp[seat.Username] = "pass"
@@ -111,11 +107,7 @@ func (e *Event) SendCatchup(g *Game, seat *Seat) {
 	seat.Send(e.Name(), e.Json(g, seat))
 	for username, resp := range e.Resp {
 		if resp == "pass" {
-			seat.Send("pass", js.Object{
-				"gameid":   g.Id,
-				"target":   e.Target,
-				"username": username,
-			})
+			AnimatePass(seat, g, username)
 		}
 	}
 }
