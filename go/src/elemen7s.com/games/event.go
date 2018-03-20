@@ -28,7 +28,7 @@ func NewEvent(username string) *Event {
 	return &Event{
 		Username: username,
 		Resp:     make(map[string]string),
-		Duration: 5 * time.Minute,
+		Duration: EventTimeout,
 	}
 }
 
@@ -40,7 +40,7 @@ func (e *Event) Activate(g *Game) {
 	g.Active = e
 	g.Broadcast(e.Name(), e.EMode.Json(e, g, g.GetSeat(e.Username)))
 	log := g.Log().Add("Username", e.Username).Add("Mode", e.EMode.Name())
-	log.Debug("games/event: activate")
+	log.Info("games/event: activate")
 	e.EMode.OnActivate(e, g)
 	if e.EMode.Name() != "start" && e.EMode.Name() != "sunrise" {
 		delay(15*time.Second, func() {
@@ -50,7 +50,7 @@ func (e *Event) Activate(g *Game) {
 				return
 			}
 			if e.CheckPass(g) {
-				log.Info("games/event: autopass")
+				g.Log().Add("Target", e.Target).Info("games/event: autopass")
 				e.Timeout()
 			}
 		})

@@ -11,11 +11,11 @@ import (
 	"ztaylor.me/log"
 )
 
+const EventTimeout = 5 * time.Minute
+
 type Game struct {
 	Id       int
 	Cards    map[int]*Card
-	Delay    time.Duration
-	Timeout  time.Duration
 	Events   map[int]Event
 	Timeline chan *Event
 	Chat     chat.Channel
@@ -38,8 +38,6 @@ func New() *Game {
 	return &Game{
 		Id:       id,
 		Cards:    make(map[int]*Card),
-		Delay:    1 * time.Second,
-		Timeout:  15 * time.Minute,
 		Events:   make(map[int]Event),
 		Timeline: make(chan *Event),
 		Chat:     chat.NewChannel(fmt.Sprintf("game#%d", id)),
@@ -160,12 +158,15 @@ func (g *Game) Watch() {
 		e := g.Active
 		start := time.Now()
 		select {
-		case rcv := <-g.Timeline:
+		case rcv, ok := <-g.Timeline:
 			if rcv != nil {
 				rcv.Activate(g)
-			} else {
+			} else if ok {
 				e.Duration = time.Second
 				g.Log().Add("Mode", g.Active.Name()).Debug("games/watch: close short circuit")
+			} else {
+				g.Log().Add("Mode", g.Active.Name()).Debug("games/watch: finished")
+				return
 			}
 		case <-time.After(time.Second):
 			e.Duration -= time.Now().Sub(start)

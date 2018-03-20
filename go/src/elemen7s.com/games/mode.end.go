@@ -43,6 +43,7 @@ func (m EndMode) Json(e *Event, g *Game, s *Seat) js.Object {
 func (m EndMode) OnResolve(e *Event, g *Game) {
 	g.Log().Debug("games.End: resolve")
 	Cache.Remove(g)
+	close(g.Timeline)
 }
 
 func (m EndMode) OnReceive(e *Event, g *Game, seat *Seat, j js.Object) {
@@ -50,7 +51,7 @@ func (m EndMode) OnReceive(e *Event, g *Game, seat *Seat, j js.Object) {
 }
 
 func End(g *Game) {
-	e := NewEvent("end")
+	e := NewEvent(g.TurnClock.Username)
 	e.EMode = EndMode(true)
 	go func() {
 		g.Timeline <- e
