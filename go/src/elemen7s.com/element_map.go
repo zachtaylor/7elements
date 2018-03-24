@@ -18,7 +18,7 @@ func (m ElementMap) Test(m2 ElementMap) bool {
 			if m[element] > 0 {
 				m2[element]--
 			} else {
-				m2[NullElement]--
+				m2[ELEMnull]--
 			}
 		}
 	}
@@ -36,24 +36,24 @@ func (m ElementMap) Remove(m2 ElementMap) {
 	m2 = m2.Copy()
 
 	for element, count := range m2 {
-		if element == NullElement {
+		if element == ELEMnull {
 			continue
 		}
 
 		m[element] -= count
 	}
 
-	for element := NullElement; m2[NullElement] > 0; element++ {
-		if element > Black {
+	for element := ELEMnull; m2[ELEMnull] > 0; element++ {
+		if element > ELEMblack {
 			panic("RemoveElements missing count for any type")
 		}
 
-		if m[element] < m2[NullElement] {
-			m2[NullElement] -= m[element]
+		if m[element] < m2[ELEMnull] {
+			m2[ELEMnull] -= m[element]
 			delete(m, element)
 		} else {
-			m[element] -= m2[NullElement]
-			delete(m2, NullElement)
+			m[element] -= m2[ELEMnull]
+			delete(m2, ELEMnull)
 		}
 	}
 }

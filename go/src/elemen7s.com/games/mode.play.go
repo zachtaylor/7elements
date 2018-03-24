@@ -1,7 +1,7 @@
 package games
 
 import (
-	"elemen7s.com/cards/types"
+	"elemen7s.com"
 	"ztaylor.me/js"
 )
 
@@ -20,7 +20,7 @@ func (m *PlayMode) OnActivate(e *Event, g *Game) {
 		log.Add("Error", err).Error("play: activate failed")
 		e.Timeout()
 	} else {
-		log.Add("Name", m.Card.Text.Name).Info("play")
+		log.Add("Name", m.Card.CardText.Name).Info("play")
 	}
 }
 
@@ -45,15 +45,15 @@ func (m *PlayMode) OnResolve(e *Event, g *Game) {
 		"card":     m.Card.Json(),
 	})
 
-	if m.Card.Card.CardType == ctypes.Body || m.Card.Card.CardType == ctypes.Item {
+	if m.Card.Card.CardType == vii.CTYPbody || m.Card.Card.CardType == vii.CTYPitem {
 		seat.Alive[m.Card.Id] = m.Card
 		AnimateSpawn(g, m.Card)
-	} else if m.Card.Card.CardType == ctypes.Spell {
+	} else if m.Card.Card.CardType == vii.CTYPspell {
 		if power := m.Card.Card.Powers[0]; power == nil {
-			BroadcastAnimateAlertError(g, m.Card.Text.Name+" does not work yet")
+			BroadcastAnimateAlertError(g, m.Card.CardText.Name+" does not work yet")
 			log.Warn("play: resolve; card does not work")
 		} else if script := Scripts[power.Script]; script == nil {
-			BroadcastAnimateAlertError(g, m.Card.Text.Name+" does not work yet")
+			BroadcastAnimateAlertError(g, m.Card.CardText.Name+" does not work yet")
 			log.Warn("play: resolve; card does not work")
 		} else {
 			log.Info("play")
@@ -83,7 +83,7 @@ func (m *PlayMode) removeCardAndElements(seat *Seat) error {
 
 func Play(stack *Event, g *Game, c *Card, seat *Seat) {
 	e := NewEvent(seat.Username)
-	e.Target = c.Text.Name
+	e.Target = c.CardText.Name
 	e.EMode = &PlayMode{
 		Card:  c,
 		Stack: stack,

@@ -1,8 +1,8 @@
 package games
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards"
-	"elemen7s.com/cards/texts"
 	"elemen7s.com/chat"
 	"elemen7s.com/decks"
 	"fmt"
@@ -64,7 +64,7 @@ func (g *Game) AddSeat(s *Seat) {
 }
 
 func (g *Game) RegisterToken(username string, c *Card) {
-	log := g.Log().Add("Username", username).Add("CardName", c.Text.Name)
+	log := g.Log().Add("Username", username).Add("CardName", c.CardText.Name)
 	if s := g.GetSeat(username); s == nil {
 		log.Warn("games.RegisterToken: seat missing")
 	} else if c.IsRegistered() {
@@ -93,13 +93,13 @@ func (g *Game) Register(deck *decks.Deck, lang string) *Seat {
 
 	for cardid, copies := range deck.Cards {
 		card := cards.Test(cardid)
-		text := texts.GetAll(lang)[cardid]
 		if card == nil {
 			log.Clone().Add("CardId", cardid).Warn("register: card missing")
 			return nil
 		}
+		text, err := vii.CardTextService.Get(lang, cardid)
 		if text == nil {
-			log.Clone().Add("CardId", cardid).Warn("register: text missing")
+			log.Clone().Add("CardId", cardid).Add("Error", err).Warn("register: text missing")
 			return nil
 		}
 

@@ -2,7 +2,6 @@ package cards
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/cards/types"
 	"elemen7s.com/db"
 	"errors"
 	"fmt"
@@ -154,10 +153,11 @@ func scanCard(scanner db.Scanner) (*Card, error) {
 		return nil, err
 	}
 
-	if cardtypebuff > len(ctypes.CardTypes) {
+	if ctype := vii.CardType(cardtypebuff); ctype.String() == "error" {
 		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", cardtypebuff))
+	} else {
+		card.CardType = ctype
 	}
 
-	card.CardType = ctypes.CardTypes[cardtypebuff]
 	return card, nil
 }

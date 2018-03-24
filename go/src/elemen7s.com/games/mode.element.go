@@ -30,7 +30,7 @@ func (m *ElementMode) OnResolve(e *Event, g *Game) {
 
 func (m *ElementMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 	log := g.Log().Add("Username", s.Username)
-	if m.Element != vii.NullElement {
+	if m.Element != vii.ELEMnull {
 		log.Add("SavedEl", m.Element).Add("ElementId", j["elementid"]).Warn("element: choice already saved")
 		return
 	} else if j["event"] == "element" {

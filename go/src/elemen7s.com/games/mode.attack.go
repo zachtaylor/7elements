@@ -52,7 +52,7 @@ func (a AttackMode) attack(e *Event, g *Game, s *Seat, j js.Object) {
 	} else if !gc.Awake {
 		log.Warn("games.Attack: card is not awake")
 
-		AnimateAlertError(s, g, gc.Text.Name, "not awake")
+		AnimateAlertError(s, g, gc.CardText.Name, "not awake")
 	} else {
 		for _, s2 := range g.Seats {
 			if s2 != s {

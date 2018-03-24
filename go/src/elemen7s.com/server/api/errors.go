@@ -1,6 +1,8 @@
 package api
 
-import "errors"
+import (
+	"errors"
+)
 
 var ErrSessionRequired = errors.New("session required")
 var ErrGameIdRequired = errors.New("game id required")

@@ -1,8 +1,8 @@
 package games
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards"
-	"elemen7s.com/cards/texts"
 	"fmt"
 	"ztaylor.me/js"
 )
@@ -13,18 +13,18 @@ type Card struct {
 	Id       int
 	Username string
 	Awake    bool
-	Card     *cards.Card
-	Text     *texts.Text
+	*cards.Card
+	*vii.CardText
 	*cards.Body
 	cards.Powers
 }
 
-func NewCard(card *cards.Card, text *texts.Text) *Card {
+func NewCard(card *cards.Card, text *vii.CardText) *Card {
 	return &Card{
-		Card:   card,
-		Text:   text,
-		Body:   copyOrNilBody(card.Body),
-		Powers: card.Powers.Copy(),
+		Card:     card,
+		CardText: text,
+		Body:     copyOrNilBody(card.Body),
+		Powers:   card.Powers.Copy(),
 	}
 }
 
@@ -44,7 +44,7 @@ func (card *Card) Json() js.Object {
 	return js.Object{
 		"gcid":     card.Id,
 		"cardid":   card.Card.Id,
-		"name":     card.Text.Name,
+		"name":     card.CardText.Name,
 		"username": card.Username,
 		"image":    card.Card.Image,
 		"awake":    card.Awake,

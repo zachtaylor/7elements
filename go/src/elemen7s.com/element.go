@@ -2,59 +2,55 @@ package vii
 
 type Element byte
 
-const NullElement Element = 0
-const White Element = 1
-const Red Element = 2
-const Yellow Element = 3
-const Green Element = 4
-const Blue Element = 5
-const Violet Element = 6
-const Black Element = 7
+const ELEMnull Element = 0
+const ELEMwhite Element = 1
+const ELEMred Element = 2
+const ELEMyellow Element = 3
+const ELEMgreen Element = 4
+const ELEMblue Element = 5
+const ELEMviolet Element = 6
+const ELEMblack Element = 7
 
-var Elements = []Element{NullElement, White, Red, Yellow, Green, Blue, Violet, Black}
+var Elements = []Element{ELEMnull, ELEMwhite, ELEMred, ELEMyellow, ELEMgreen, ELEMblue, ELEMviolet, ELEMblack}
 
 func (e Element) Char() string {
 	switch e {
-	case NullElement:
-		return "1"
-	case White:
-		return "w"
-	case Red:
-		return "r"
-	case Yellow:
-		return "y"
-	case Green:
-		return "g"
-	case Blue:
-		return "b"
-	case Violet:
-		return "v"
-	case Black:
-		return "k"
+	case ELEMwhite:
+		return "W"
+	case ELEMred:
+		return "R"
+	case ELEMyellow:
+		return "Y"
+	case ELEMgreen:
+		return "G"
+	case ELEMblue:
+		return "B"
+	case ELEMviolet:
+		return "V"
+	case ELEMblack:
+		return "K"
 	default:
-		return "x"
+		return "X"
 	}
 }
 
 func (e Element) String() string {
 	switch e {
-	case NullElement:
-		return ""
-	case White:
+	case ELEMwhite:
 		return "white"
-	case Red:
+	case ELEMred:
 		return "red"
-	case Yellow:
+	case ELEMyellow:
 		return "yellow"
-	case Green:
+	case ELEMgreen:
 		return "green"
-	case Blue:
+	case ELEMblue:
 		return "blue"
-	case Violet:
+	case ELEMviolet:
 		return "violet"
-	case Black:
+	case ELEMblack:
 		return "black"
 	default:
-		return "error"
+		return ""
 	}
 }

@@ -27,7 +27,7 @@ func (m *SunriseMode) Json(e *Event, g *Game, s *Seat) js.Object {
 
 func (m *SunriseMode) OnResolve(e *Event, g *Game) {
 	m.ElementMode.OnResolve(e, g)
-	if m.ElementMode.Element == vii.NullElement {
+	if m.ElementMode.Element == vii.ELEMnull {
 		g.Log().Warn("games.Sunrise: !resolve forfeit")
 		g.Results = &Results{
 			Losers:  []string{g.TurnClock.Username},

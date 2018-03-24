@@ -2,15 +2,13 @@ package cards
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/cards/texts"
-	"elemen7s.com/cards/types"
 	"ztaylor.me/js"
 )
 
 type Card struct {
 	Id    int
 	Image string
-	ctypes.CardType
+	vii.CardType
 	Costs vii.ElementMap
 	Powers
 	*Body
@@ -23,7 +21,7 @@ func NewCard() *Card {
 	}
 }
 
-func JsonWithText(card *Card, text *texts.Text) js.Object {
+func JsonWithText(card *Card, text *vii.CardText) js.Object {
 	json := js.Object{
 		"id":          card.Id,
 		"image":       card.Image,

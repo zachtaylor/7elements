@@ -34,7 +34,7 @@ func (set ElementSet) Deactivate(emp ElementMap) {
 	emp = emp.Copy()
 
 	for e, count := range emp {
-		if e == NullElement {
+		if e == ELEMnull {
 			continue
 		}
 
@@ -50,16 +50,16 @@ func (set ElementSet) Deactivate(emp ElementMap) {
 		}
 	}
 
-	for e := White; emp[NullElement] > 0; e++ {
-		if e > Black {
+	for e := ELEMwhite; emp[ELEMnull] > 0; e++ {
+		if e > ELEMblack {
 			panic("game elements deactivate missing generic")
 		}
 
 		for i, active := range set[e] {
 			if active {
 				set[e][i] = false
-				emp[NullElement]--
-				if emp[NullElement] < 1 {
+				emp[ELEMnull]--
+				if emp[ELEMnull] < 1 {
 					break
 				}
 			}
@@ -72,11 +72,10 @@ func (set ElementSet) String() string {
 	for e, stack := range set {
 		for _, ok := range stack {
 			if ok {
-				sb.WriteString("+")
+				sb.WriteString(e.Char())
 			} else {
-				sb.WriteString("-")
+				sb.Write([]byte{e.Char()[0] + 32})
 			}
-			sb.WriteString(e.Char())
 		}
 	}
 	return sb.String()

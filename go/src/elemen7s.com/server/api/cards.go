@@ -1,8 +1,8 @@
 package api
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards"
-	"elemen7s.com/cards/texts"
 	"fmt"
 	"strconv"
 	"ztaylor.me/http"
@@ -19,8 +19,9 @@ func CardsHandler(r *http.Request) error {
 		log.Add("Error", err).Error("/api/cards: parse card id")
 	} else if card := cards.CardCache[cardid]; card == nil {
 		log.Error("/cards: card missing")
+	} else if text, err := vii.CardTextService.Get(r.Language, int(cardid)); err != nil {
+		log.Add("Error", err).Error("/api/cards: card text service")
 	} else {
-		text := texts.Get(r.Language, int(cardid))
 		r.WriteJson(cards.JsonWithText(card, text))
 	}
 	return nil
@@ -28,12 +29,11 @@ func CardsHandler(r *http.Request) error {
 
 func AllCardsJson(lang string) js.Object {
 	j := js.Object{}
-	texts := texts.GetAll(lang)
 	for cardid, card := range cards.CardCache {
-		if texts[cardid] == nil {
-			log.Add("CardId", cardid).Error("/cards: card text missing")
+		if text, err := vii.CardTextService.Get(lang, cardid); text == nil {
+			log.Add("Error", err).Add("CardId", cardid).Error("/api/cards: card text service")
 		} else {
-			j[fmt.Sprintf("%d", cardid)] = cards.JsonWithText(card, texts[cardid])
+			j[fmt.Sprintf("%d", cardid)] = cards.JsonWithText(card, text)
 		}
 	}
 	return j

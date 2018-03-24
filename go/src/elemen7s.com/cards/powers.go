@@ -2,7 +2,6 @@ package cards
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/cards/texts"
 	"fmt"
 	"ztaylor.me/js"
 )
@@ -60,7 +59,7 @@ func (p *Power) Json() js.Object {
 	}
 }
 
-func (powers Powers) JsonWithText(text *texts.Text) js.Object {
+func (powers Powers) JsonWithText(text *vii.CardText) js.Object {
 	json := js.Object{}
 	for id, p := range powers {
 		json[fmt.Sprint(id)] = p.JsonWithText(text)
@@ -68,7 +67,7 @@ func (powers Powers) JsonWithText(text *texts.Text) js.Object {
 	return json
 }
 
-func (p *Power) JsonWithText(text *texts.Text) js.Object {
+func (p *Power) JsonWithText(text *vii.CardText) js.Object {
 	return js.Object{
 		"id":          p.Id,
 		"costs":       p.Costs.Copy(),

@@ -1,9 +1,10 @@
 package main
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/cards"
-	"elemen7s.com/cards/texts"
 	"elemen7s.com/db"
+	_ "elemen7s.com/db/service"
 	_ "elemen7s.com/games"
 	_ "elemen7s.com/scripts"
 	"elemen7s.com/server"
@@ -29,7 +30,10 @@ func main() {
 	if err := cards.LoadCache(); err != nil {
 		log.Add("Error", err).Error("cannot load card cache, aborting...")
 		return
-	} else if err := texts.LoadCache("en-US"); err != nil {
+	} else if vii.CardTextService == nil {
+		log.Error("vii.CardTextService must not be nil")
+		return
+	} else if err := vii.CardTextService.Start(); err != nil {
 		log.Add("Error", err).Error("cannot load card texts cache, aborting...")
 		return
 	}

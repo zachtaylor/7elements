@@ -3,8 +3,6 @@ package scripts
 import (
 	"elemen7s.com"
 	"elemen7s.com/cards"
-	"elemen7s.com/cards/texts"
-	"elemen7s.com/cards/types"
 	"elemen7s.com/games"
 )
 
@@ -14,7 +12,7 @@ func init() {
 
 var ctbCard = &cards.Card{
 	Image:    "/img/cards/zealot-0.jpg",
-	CardType: ctypes.Body,
+	CardType: vii.CTYPbody,
 	Costs:    vii.ElementMap{},
 	Powers:   cards.NewPowers(),
 	Body: &cards.Body{
@@ -23,11 +21,10 @@ var ctbCard = &cards.Card{
 	},
 }
 
-var ctbCardText = &texts.Text{
-	Language: "en-US",
-	Name:     "Bannerman",
-	Powers:   make(map[int]string),
-	Flavor:   "At your call",
+var ctbCardText = &vii.CardText{
+	Name:   "Bannerman",
+	Powers: make(map[int]string),
+	Flavor: "At your call",
 }
 
 func CallTheBanners(g *games.Game, s *games.Seat) {
