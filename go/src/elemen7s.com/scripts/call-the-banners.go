@@ -2,7 +2,6 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/cards"
 	"elemen7s.com/games"
 )
 
@@ -10,12 +9,12 @@ func init() {
 	games.Scripts["call-the-banners"] = CallTheBanners
 }
 
-var ctbCard = &cards.Card{
+var ctbCard = &vii.Card{
 	Image:    "/img/cards/zealot-0.jpg",
 	CardType: vii.CTYPbody,
 	Costs:    vii.ElementMap{},
-	Powers:   cards.NewPowers(),
-	Body: &cards.Body{
+	Powers:   vii.NewPowers(),
+	CardBody: &vii.CardBody{
 		Attack: 2,
 		Health: 2,
 	},

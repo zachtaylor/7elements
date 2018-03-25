@@ -2,7 +2,6 @@ package main
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/cards"
 	"elemen7s.com/db"
 	_ "elemen7s.com/db/service"
 	_ "elemen7s.com/games"
@@ -13,7 +12,7 @@ import (
 	"ztaylor.me/log"
 )
 
-const PATCH = 14
+const PATCH = 15
 
 func main() {
 	env.Bootstrap()
@@ -27,7 +26,7 @@ func main() {
 		return
 	}
 
-	if err := cards.LoadCache(); err != nil {
+	if err := vii.CardService.Start(); err != nil {
 		log.Add("Error", err).Error("cannot load card cache, aborting...")
 		return
 	} else if vii.CardTextService == nil {

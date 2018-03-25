@@ -2,7 +2,6 @@ package games
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/cards"
 	"fmt"
 	"ztaylor.me/js"
 )
@@ -13,17 +12,17 @@ type Card struct {
 	Id       int
 	Username string
 	Awake    bool
-	*cards.Card
+	*vii.Card
 	*vii.CardText
-	*cards.Body
-	cards.Powers
+	*vii.CardBody
+	vii.Powers
 }
 
-func NewCard(card *cards.Card, text *vii.CardText) *Card {
+func NewCard(card *vii.Card, text *vii.CardText) *Card {
 	return &Card{
 		Card:     card,
 		CardText: text,
-		Body:     copyOrNilBody(card.Body),
+		CardBody: card.CardBody.Copy(),
 		Powers:   card.Powers.Copy(),
 	}
 }
@@ -49,7 +48,7 @@ func (card *Card) Json() js.Object {
 		"image":    card.Card.Image,
 		"awake":    card.Awake,
 		"powers":   card.Powers.Json(),
-		"body":     card.Body.Json(),
+		"body":     card.CardBody.Json(),
 	}
 }
 
@@ -59,12 +58,4 @@ func (cards Cards) String() string {
 		collapse[i] = card.Card.Id
 	}
 	return fmt.Sprintf("games.Cards%v", collapse)
-}
-
-func copyOrNilBody(body *cards.Body) *cards.Body {
-	if body == nil {
-		return nil
-	}
-
-	return body.Copy()
 }

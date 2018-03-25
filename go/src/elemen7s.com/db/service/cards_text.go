@@ -13,7 +13,7 @@ func init() {
 
 type CardTextService map[string]map[int]*vii.CardText
 
-func (texts CardTextService) Get(lang string, cardid int) (*vii.CardText, error) {
+func (texts CardTextService) GetCardText(lang string, cardid int) (*vii.CardText, error) {
 	return texts.GetAll(lang)[cardid], nil
 }
 

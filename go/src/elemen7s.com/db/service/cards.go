@@ -1,4 +1,4 @@
-package cards
+package dbservice
 
 import (
 	"elemen7s.com"
@@ -7,13 +7,21 @@ import (
 	"fmt"
 )
 
-var CardCache = make(map[int]*Card)
-
-func Test(id int) *Card {
-	return CardCache[id]
+func init() {
+	vii.CardService = CardService{}
 }
 
-func LoadCache() error {
+type CardService map[int]*vii.Card
+
+func (cards CardService) GetCard(id int) (*vii.Card, error) {
+	return cards[id], nil
+}
+
+func (cards CardService) GetAllCards() map[int]*vii.Card {
+	return map[int]*vii.Card(cards)
+}
+
+func (cards CardService) Start() error {
 	// select all cards
 	rows, err := db.Connection.Query("SELECT id, type, image FROM cards")
 	if err != nil {
@@ -22,29 +30,29 @@ func LoadCache() error {
 	}
 
 	for rows.Next() {
-		card, err := scanCard(rows)
+		card, err := cards.scanCard(rows)
 		if err != nil {
 			rows.Close()
 			return err
 		}
-		CardCache[card.Id] = card
+		cards[card.Id] = card
 	}
 	rows.Close()
 
-	if err = loadCardBodies(); err != nil {
+	if err = cards.loadCardBodies(); err != nil {
 		return err
-	} else if err = loadCardCosts(); err != nil {
+	} else if err = cards.loadCardCosts(); err != nil {
 		return err
-	} else if err = loadCardsPowers(); err != nil {
+	} else if err = cards.loadCardsPowers(); err != nil {
 		return err
-	} else if err = loadCardsPowersCosts(); err != nil {
+	} else if err = cards.loadCardsPowersCosts(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func loadCardBodies() error {
+func (cards CardService) loadCardBodies() error {
 	rows, err := db.Connection.Query("SELECT cardid, attack, health FROM cards_bodies")
 	if err != nil {
 		return err
@@ -53,22 +61,22 @@ func loadCardBodies() error {
 
 	for rows.Next() {
 		var cardid int
-		body := &Body{}
+		body := vii.NewCardBody()
 		err = rows.Scan(&cardid, &body.Attack, &body.Health)
 
 		if err != nil {
 			return err
-		} else if CardCache[cardid] == nil {
+		} else if cards[cardid] == nil {
 			return errors.New(fmt.Sprintf("cards: body matching missing card#%v", cardid))
 		}
 
-		CardCache[cardid].Body = body
+		cards[cardid].CardBody = body
 	}
 
 	return nil
 }
 
-func loadCardCosts() error {
+func (cards CardService) loadCardCosts() error {
 	rows, err := db.Connection.Query("SELECT cardid, element, count FROM cards_element_costs")
 	if err != nil {
 		return err
@@ -83,18 +91,18 @@ func loadCardCosts() error {
 			return err
 		} else if elementid > len(vii.Elements) || elementid < 0 {
 			return errors.New(fmt.Sprintf("cards: invalid element#%v", elementid))
-		} else if CardCache[cardid] == nil {
+		} else if card := cards[cardid]; card == nil {
 			return errors.New(fmt.Sprintf("cards: cost matching missed card#%v", cardid))
+		} else {
+			card.Costs[vii.Element(elementid)] += count
 		}
-
-		CardCache[cardid].Costs[vii.Elements[elementid]] += count
 	}
 
 	return nil
 }
 
-func loadCardsPowers() error {
-	rows, err := db.Connection.Query("SELECT cardid, id, usesturn, script FROM cards_powers")
+func (cards CardService) loadCardsPowers() error {
+	rows, err := db.Connection.Query("SELECT cardid, id, usesturn, target, script FROM cards_powers")
 	if err != nil {
 		return err
 	}
@@ -102,24 +110,24 @@ func loadCardsPowers() error {
 
 	for rows.Next() {
 		var cardid int
-		power := NewPower()
-		err = rows.Scan(&cardid, &power.Id, &power.UsesTurn, &power.Script)
+		power := vii.NewPower()
+		err = rows.Scan(&cardid, &power.Id, &power.UsesTurn, &power.Target, &power.Script)
 
 		if err != nil {
 			return err
-		} else if card := CardCache[cardid]; card == nil {
+		} else if card := cards[cardid]; card == nil {
 			return errors.New(fmt.Sprintf("cards: unrooted power card#%v id#%v", cardid, power.Id))
-		} else if power := card.Powers[power.Id]; power != nil {
+		} else if card.Powers[power.Id] != nil {
 			return errors.New(fmt.Sprintf("cards: duplicate power card#%v id#%v", cardid, power.Id))
+		} else {
+			card.Powers[power.Id] = power
 		}
-
-		CardCache[cardid].Powers[power.Id] = power
 	}
 
 	return nil
 }
 
-func loadCardsPowersCosts() error {
+func (cards CardService) loadCardsPowersCosts() error {
 	rows, err := db.Connection.Query("SELECT cardid, powerid, element, count FROM cards_powers_costs")
 	if err != nil {
 		return err
@@ -132,20 +140,20 @@ func loadCardsPowersCosts() error {
 
 		if err != nil {
 			return err
-		} else if card := CardCache[cardid]; card == nil {
+		} else if card := cards[cardid]; card == nil {
 			return errors.New(fmt.Sprintf("cards: unrooted power cost card#%v id#%v", cardid, powerid))
-		} else if card.Powers[powerid] == nil {
+		} else if power := card.Powers[powerid]; power == nil {
 			return errors.New(fmt.Sprintf("cards: unrooted power cost card#%v id#%v", cardid, powerid))
+		} else {
+			power.Costs[vii.Elements[elementid]] += count
 		}
-
-		CardCache[cardid].Powers[powerid].Costs[vii.Elements[elementid]] += count
 	}
 
 	return nil
 }
 
-func scanCard(scanner db.Scanner) (*Card, error) {
-	card := NewCard()
+func (cards CardService) scanCard(scanner db.Scanner) (*vii.Card, error) {
+	card := vii.NewCard()
 	var cardtypebuff int
 
 	err := scanner.Scan(&card.Id, &cardtypebuff, &card.Image)

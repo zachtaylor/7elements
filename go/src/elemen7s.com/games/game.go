@@ -2,7 +2,6 @@ package games
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/cards"
 	"elemen7s.com/chat"
 	"elemen7s.com/decks"
 	"fmt"
@@ -92,12 +91,12 @@ func (g *Game) Register(deck *decks.Deck, lang string) *Seat {
 	deckSize := 0
 
 	for cardid, copies := range deck.Cards {
-		card := cards.Test(cardid)
+		card, _ := vii.CardService.GetCard(cardid)
 		if card == nil {
 			log.Clone().Add("CardId", cardid).Warn("register: card missing")
 			return nil
 		}
-		text, err := vii.CardTextService.Get(lang, cardid)
+		text, err := vii.CardTextService.GetCardText(lang, cardid)
 		if text == nil {
 			log.Clone().Add("CardId", cardid).Add("Error", err).Warn("register: text missing")
 			return nil

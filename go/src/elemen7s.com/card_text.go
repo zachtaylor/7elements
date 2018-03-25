@@ -15,7 +15,7 @@ func NewCardText() *CardText {
 
 type CTService interface {
 	Start() error
-	Get(lang string, cardid int) (*CardText, error)
+	GetCardText(lang string, cardid int) (*CardText, error)
 }
 
 var CardTextService CTService

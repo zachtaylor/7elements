@@ -1,11 +1,11 @@
 package games
 
 func Combat(g *Game, acard *Card, dcard *Card) {
-	if acard.Body == nil || dcard.Body == nil {
+	if acard.CardBody == nil || dcard.CardBody == nil {
 		return
 	}
-	acard.Body.Health -= dcard.Body.Attack
-	dcard.Body.Health -= acard.Body.Attack
+	acard.CardBody.Health -= dcard.CardBody.Attack
+	dcard.CardBody.Health -= acard.CardBody.Attack
 	if acard.Health < 1 {
 		seat := g.GetSeat(acard.Username)
 		delete(seat.Alive, acard.Id)
