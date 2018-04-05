@@ -109,9 +109,10 @@ func (cards CardService) loadCardsPowers() error {
 	defer rows.Close()
 
 	for rows.Next() {
-		var cardid int
+		var cardid, usesturn int
 		power := vii.NewPower()
-		err = rows.Scan(&cardid, &power.Id, &power.UsesTurn, &power.Target, &power.Script)
+		err = rows.Scan(&cardid, &power.Id, &usesturn, &power.Target, &power.Script)
+		power.UsesTurn = usesturn > 0
 
 		if err != nil {
 			return err

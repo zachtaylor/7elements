@@ -16,10 +16,10 @@
 			<br/><br/>
 			<div>You can click on the cards in your hand to view detail</div>
 			<br/>
-			<div><b>Mulligan</b>: Put your entire hand into the spent pile, then draw 3 cards</div>
+			<div><b>Mulligan</b>: Put your entire hand into the <b>Past</b>, then draw a new hand</div>
 			<div id="start-menu-buttons" class="pos-abs width100">
-				<button id="start-button-keep" class="btn btn-lg btn-info">Keep</button>
-				<button id="start-button-mulligan" class="btn btn-lg btn-warning">Mulligan</button>
+				<button id="start-button-keep" class="vii">Keep</button>
+				<button id="start-button-mulligan" class="vii vii-blue">Mulligan</button>
 			</div>
 		</div>
 		<div id="play-menu">
@@ -27,8 +27,27 @@
 			<div style="max-height:21%;"></div>
 			<div data-ctrl="content"></div>
 			<div class="pos-abs bottom0 width100" style="text-align:center;margin-bottom:7px;">
-				<button class="btn btn-lg" data-ctrl="close">Close</button>
-				<button class="btn btn-lg" data-ctrl="play">Play</button>
+				<button class="vii" data-ctrl="close">Close</button>
+				<button class="vii" data-ctrl="play">Play</button>
+			</div>
+		</div>
+		<div id="choice-menu">
+			<div class="width100" style="text-align:center;margin-top:7px;">
+				<h2 handle="title"></h2>
+			</div>
+			<div class="width100">
+				<div handle="content"></div>
+			</div>
+			<div handle="footer" class="pos-abs bottom0 width100" style="text-align:center;margin-bottom:7px;"></div>
+		</div>
+		<div id="gc-menu">
+			<button class="vii pos-abs right0" onclick="SE.event.fire('gc-menu-hide')"><img src="/img/icon/x.64px.png"></button>
+			<div class="width100" style="text-align:center;margin-top:7px;">
+				<h2 handle="title"></h2>
+			</div>
+			<div class="pos-rel" style="display:flex;padding:21px;">
+				<span handle="content" class="height100" style="flex:1;"></span>
+				<span handle="buttons" class="height100" style="flex:1;"></span>
 			</div>
 		</div>
 		<div id="game-menu">
@@ -46,7 +65,7 @@
 				<div id="game-event-history" class="disp-iblock" style="height:100%;width:320px;overflow:auto;"></div>
 				<div id="game-menu-seats" class="disp-iblock" style="flex:1;"></div>
 			</div>
-			<button id="game-menu-pass" class="btn btn-lg right0 button-send-pass">
+			<button id="game-menu-pass" class="vii right0 button-send-pass">
 				<div class="disp-iblock">
 					<div>Pass</div>
 					<div class="data-control-timer"></div>

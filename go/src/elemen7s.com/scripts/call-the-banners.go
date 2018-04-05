@@ -26,7 +26,7 @@ var ctbCardText = &vii.CardText{
 	Flavor: "At your call",
 }
 
-func CallTheBanners(g *games.Game, s *games.Seat) {
+func CallTheBanners(g *games.Game, s *games.Seat, target interface{}) {
 	for i := 0; i < 3; i++ {
 		g.RegisterToken(s.Username, games.NewCard(ctbCard, ctbCardText))
 	}

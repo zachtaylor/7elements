@@ -152,11 +152,39 @@ $(function() {
 
 		app.addHistory('Sunset(' + data.username + ')');
 	};
+	var eventTrigger = function(data) {
+		$('#game-menu-pass')[0].timer = data.timer;
+		$('#game-menu-meta-message')[0].innerHTML = 'trigger';
+		seatsready.then(function(seats) {
+			$.each(seats, function(name, seat) {
+				seat.timer = data.timer;
+				seat.turnphase = 'respond';
+			});
+		});
+
+		vii.gamecard.get(data.gcid).then(function(gc) {
+			app.addHistory('Trigger(' + data.username + ':' + gc.name + ')');
+			gc.showTrigger();
+		});
+	};
+	var eventChoice = function(data) {
+		$('#game-menu-meta-message')[0].innerHTML = 'choice';
+		seatsready.then(function(seats) {
+			$.each(seats, function(name, seat) {
+				if (name == data.username) {
+					seat.timer = data.timer;
+					seat.turnphase = 'choice';
+				} else {
+					seat.timer = 0;
+					seat.turnphase = 'wait';
+				}
+			});
+		});
+		app.addHistory('Choice(' + data.username + ')');
+	};
 	var eventPlay = function(data) {
 		$('#game-menu-pass')[0].timer = data.timer;
-		$('#game-menu-meta-stars img').each(function(img) {
-			img.src = "/img/icon/stars.0.64px.png";
-		});
+		$('#game-menu-meta-message')[0].innerHTML = 'play';
 		$('#game-menu-meta-stars').append($('<img class="disp-iblock" src="/img/icon/stars.1.64px.png"/>'));
 		vii.gamecard.set(data.card).then(function(card) {
 			SE.event.fire('play-react', data, card);
@@ -324,12 +352,46 @@ $(function() {
 			});
 		} else if (data.animate == 'attack options') {
 			$('.se-gc').each(function(_, gc) {
-				gc.showClear();
+				if (gc.showClear) gc.showClear();
+				else console.warn('animate attack se-gc does not have showClear method?', gc);
 			});
 			$.each(data.attackoptions, function(gcid, attackTarget) {
 				vii.gamecard.get(gcid).then(function(card) {
 					card.showAttack();
 				});
+			});
+		} else if (data.animate == 'sleep') {
+			vii.gamecard.get(data.gcid).then(function(card) {
+				card.showAsleep();
+			});
+		} else if (data.animate == 'choice') {
+			var cmnu = $('#choice-menu')[0];
+			$(cmnu).slideDown();
+			$('[handle="title"]', cmnu)[0].innerHTML = data.prompt;
+			$('[handle="content"]', cmnu).empty();
+			if (data.data.card) {
+				SE.widget.new('se-card', data.data.card.cardid).then(function(card) {
+					$('[handle="content"]', cmnu).append(card);
+				});
+			}
+			$('[handle="footer"]', cmnu).empty();
+			$.each(data.choices, function(i, o) {
+				var choice = o.choice;
+				var btn = $('<button class="vii">' + o.display + '</button>')[0];
+				$(btn).click(function() {
+					SE.websocket.send('game', {
+						gameid:gameid,
+						event:'choice',
+						choice:choice
+					});
+					$(cmnu).slideUp();
+				});
+				$('[handle="footer"]', cmnu).append(btn);
+			});
+		} else if (data.animate == 'mulligan') {
+			seatsready.then(function(seats) {
+				seats[data.username].deck -= 3;
+				seats[data.username].spent = 3;
 			});
 		} else {
 			console.log('websocket animate not recognized', data.animate);
@@ -428,7 +490,7 @@ $(function() {
 			$('[data-ctrl="play"]', playMenu).slideDown();
 			$('[data-ctrl="play"]', playMenu).click(function() {
 				SE.websocket.send('game', {
-					event:'main',
+					event:'play',
 					gameid: gameid,
 					gcid: parseInt(c.gcid)
 				});
@@ -456,16 +518,53 @@ $(function() {
 	});
 	// end play dialog
 
+	SE.event.on('gc-menu-hide', function(gc) {
+		$('#gc-menu').slideUp();
+	});
 	SE.event.on('se-gc-click', function(gc) {
-		if (canDeclareAttack && gc.username == username) {
-			SE.websocket.send('game', {
-				event:'attack',
-				gameid: gameid,
-				gcid: gc.gcid
-			});
-		} else {
-			console.warn('se-gc-click', gc);
+		$('#gc-menu [handle="title"]')[0].innerHTML = gc.name;
+		var content = $('#gc-menu [handle="content"]')[0];
+		while(content.children.length) {
+			$(content).empty();
 		}
+		content.append(gc.cloneNode(true));
+		var buttons = $('#gc-menu [handle="buttons"]')[0];
+		while(buttons.children.length) {
+			$(buttons).empty();
+		}
+		$.each(gc.data.powers, function(i, power) {
+			var powerid = power.id;
+			var html = $('<div></div>')[0];
+			$(html).append('<div class="disp-iblock" style="width:70%;">'+power.description+'</div>');
+			var button = $('<button class="vii"><img src="/img/icon/use.64px.png"></button>')[0];
+			$(button).click(function() {
+				SE.websocket.send('game', {
+					event:'trigger',
+					gameid:gameid,
+					gcid:gc.gcid,
+					powerid:powerid
+				});
+				SE.event.fire('gc-menu-hide');
+			});
+			$(html).append(button);
+			$(buttons).append(html);
+		});
+
+		if (canDeclareAttack && gc.username == username) {
+			var html = $('<div class="disp-flex"></div>')[0];
+			$(html).append('<span style="flex:1;">Attack</span>');
+			var button = $('<button class="vii"><img src="/img/icon/use.64px.png"></button>')[0];
+			$(button).click(function() {
+				SE.websocket.send('game', {
+					event:'attack',
+					gameid:gameid,
+					gcid:gc.gcid
+				});
+				SE.event.fire('gc-menu-hide');
+			});
+		}
+
+		$('#gc-menu').fadeIn();
 	});
 
 	SE.event.on('websocket.message', function(name, data) {
@@ -485,6 +584,8 @@ $(function() {
 			eventSunset(data);
 		} else if (name == 'play') {
 			eventPlay(data);
+		} else if (name == 'trigger') {
+			eventTrigger(data);
 		} else if (name == 'resolve') {
 			eventName = lastEventName;
 			eventResolve(data);
@@ -513,8 +614,11 @@ $(function() {
 			websocketAlert(data);
 		} else if (name == 'end') {
 			eventEnd(data);
+		} else if (name == 'choice') {
+			eventChoice(data);
 		} else {
 			eventName = lastEventName;
+			console.warn('websocket.message event type unrecognized:', name);
 		}
 	});
 
@@ -557,8 +661,8 @@ $(function() {
 	$('#game-menu-pass').click(function() {
 		SE.websocket.send('game', {
 			gameid:gameid,
-			event:eventName,
-			resp:'pass'
+			event:'pass',
+			mode:eventName
 		});
 		this.timer = 0;
 	});

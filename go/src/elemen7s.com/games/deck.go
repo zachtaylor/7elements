@@ -17,9 +17,16 @@ func NewDeck() *Deck {
 }
 
 func (deck *Deck) Draw() *Card {
+	if len(deck.Cards) < 1 {
+		return nil
+	}
 	card := deck.Cards[0]
 	deck.Cards = deck.Cards[1:]
 	return card
+}
+
+func (deck *Deck) Prepend(card *Card) {
+	deck.Cards = append([]*Card{card}, deck.Cards...)
 }
 
 func (deck *Deck) Append(card *Card) {

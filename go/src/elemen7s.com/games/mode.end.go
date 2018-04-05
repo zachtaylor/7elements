@@ -32,6 +32,9 @@ func (m EndMode) OnActivate(e *Event, g *Game) {
 	}
 }
 
+func (m EndMode) OnSendCatchup(*Event, *Game, *Seat) {
+}
+
 func (m EndMode) Json(e *Event, g *Game, s *Seat) js.Object {
 	return js.Object{
 		"gameid":  g.Id,

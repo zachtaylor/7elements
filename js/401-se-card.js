@@ -2,6 +2,8 @@ SE.widget.control('se-card', function(cardid) {
 	var me = this;
 	me.cardid = cardid;
 
+	SE.widget.controlProperty(me, 'body', true);
+
 	var powersReady = Promise.Fake();
 
 	me.showAwake = function() {

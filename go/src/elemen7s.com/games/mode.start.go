@@ -28,6 +28,9 @@ func (m StartMode) OnActivate(e *Event, g *Game) {
 	g.TurnClock = BuildTurnClock(names)
 }
 
+func (m StartMode) OnSendCatchup(*Event, *Game, *Seat) {
+}
+
 func (m StartMode) Json(e *Event, g *Game, s *Seat) js.Object {
 	return js.Object{
 		"gameid": g.Id,
@@ -52,20 +55,21 @@ func (m StartMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 		s.DiscardHand()
 		s.DrawCard(3)
 		AnimateHand(s, g, s.Hand)
+		BroadcastAnimateMulligan(g, s.Username)
 	} else {
 		log.Warn("start: receive unrecognized")
 		return
 	}
 
 	log.Debug("start: receive")
-	go g.Broadcast("alert", js.Object{
+	g.Broadcast("alert", js.Object{
 		"class":    "tip",
 		"gameid":   g.Id,
 		"username": s.Username,
 		"message":  j["choice"],
 		"timer":    1000,
 	})
-	go g.Broadcast("pass", js.Object{
+	g.Broadcast("pass", js.Object{
 		"gameid":   g.Id,
 		"username": s.Username,
 	})

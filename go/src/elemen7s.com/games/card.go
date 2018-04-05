@@ -47,7 +47,7 @@ func (card *Card) Json() js.Object {
 		"username": card.Username,
 		"image":    card.Card.Image,
 		"awake":    card.Awake,
-		"powers":   card.Powers.Json(),
+		"powers":   card.Powers.JsonWithText(card.CardText),
 		"body":     card.CardBody.Json(),
 	}
 }

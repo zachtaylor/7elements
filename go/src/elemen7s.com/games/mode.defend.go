@@ -19,6 +19,9 @@ func (m *DefendMode) Name() string {
 func (m *DefendMode) OnActivate(e *Event, g *Game) {
 }
 
+func (m *DefendMode) OnSendCatchup(*Event, *Game, *Seat) {
+}
+
 func (m *DefendMode) Json(e *Event, g *Game, s *Seat) js.Object {
 	return js.Object{
 		"gameid":   g.Id,

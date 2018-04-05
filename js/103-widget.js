@@ -68,9 +68,12 @@ SE.widget = {
 			set: function(val) {
 				scope.setAttribute(property, val);
 				var control = $('.data-control-'+property+',[data-ctrl="'+property+'"]', scope);
-				if (hidden) ;
-				else if (control.length) control[0].innerHTML = val;
-				else console.log("control property not found", '"'+property+'"', scope);
+				if (hidden) {
+				} else if (control.length) {
+					control[0].innerHTML = val;
+				} else {
+					console.log("control property not found", '"'+property+'"', scope);
+				}
 			}
 		});
 	}

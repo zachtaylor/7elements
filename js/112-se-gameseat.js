@@ -76,7 +76,7 @@ SE.widget.control('se-gameseat', function() {
 	me.updatetimer = function() {
 		if (me.timer > 0) me.timer--;
 		else me.timer = 0;
-		window.setTimeout(me.updatetimer, 1000);
+		window.setTimeout(function() {me.updatetimer();}, 1000);
 	};
 	me.updatetimer();
 });

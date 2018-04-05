@@ -14,6 +14,9 @@ func (m MainMode) OnActivate(e *Event, g *Game) {
 	g.Log().Add("Username", e.Username).Add("Elements", g.GetSeat(e.Username).Elements.String()).Info("main")
 }
 
+func (m MainMode) OnSendCatchup(*Event, *Game, *Seat) {
+}
+
 func (m MainMode) Json(event *Event, game *Game, seat *Seat) js.Object {
 	return js.Object{
 		"gameid":   game.Id,
@@ -37,11 +40,7 @@ func (m MainMode) OnResolve(event *Event, g *Game) {
 }
 
 func (m MainMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
-	if j["event"] == "main" {
-		TryPlay(e, g, s, j, false)
-	} else {
-		g.Log().Add("Username", s.Username).Add("EventName", j["event"]).Error("main: receive")
-	}
+	g.Log().Add("Username", s.Username).Add("EventName", j["event"]).Error("main: receive")
 }
 
 func Main(g *Game) {

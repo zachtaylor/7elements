@@ -21,18 +21,21 @@ func NewPower() *Power {
 
 func (p Power) Copy() *Power {
 	return &Power{
-		Id:     p.Id,
-		Costs:  p.Costs.Copy(),
-		Script: p.Script,
+		Id:       p.Id,
+		Costs:    p.Costs.Copy(),
+		Target:   p.Target,
+		UsesTurn: p.UsesTurn,
+		Script:   p.Script,
 	}
 }
 
 func (p *Power) Json() js.Object {
 	return js.Object{
-		"id":     p.Id,
-		"costs":  p.Costs,
-		"target": p.Target,
-		"script": p.Script,
+		"id":       p.Id,
+		"costs":    p.Costs,
+		"target":   p.Target,
+		"usesturn": p.UsesTurn,
+		"script":   p.Script,
 	}
 }
 

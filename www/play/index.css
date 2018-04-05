@@ -2,7 +2,7 @@
 	background-color: red;
 }
 
-#start-menu, #play-menu, #elements-menu, #done-menu {
+#start-menu, #play-menu, #elements-menu, #done-menu, #gc-menu, #choice-menu {
 	display:none;
 }
 .footer {
@@ -15,7 +15,7 @@
 .footer button {
 	height:100%;
 }
-#start-menu, #play-menu {
+#start-menu, #play-menu, #gc-menu, #choice-menu {
 	position:fixed;
 	top:7%;
 	min-height:77%;

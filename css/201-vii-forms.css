@@ -10,6 +10,7 @@ button.vii {
 	background-color:#ccc;
 	border:2px solid black;
 	border-radius:7px;
+	padding:0px 7px;
 }
 button.vii-blue {
 	color:royalblue;

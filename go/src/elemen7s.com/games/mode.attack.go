@@ -15,6 +15,9 @@ func (a AttackMode) Name() string {
 func (a AttackMode) OnActivate(e *Event, g *Game) {
 }
 
+func (a AttackMode) OnSendCatchup(*Event, *Game, *Seat) {
+}
+
 func (a AttackMode) Json(e *Event, g *Game, s *Seat) js.Object {
 	return js.Object{
 		"gameid":        g.Id,

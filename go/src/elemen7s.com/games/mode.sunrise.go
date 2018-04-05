@@ -17,6 +17,9 @@ func (m *SunriseMode) OnActivate(e *Event, g *Game) {
 	m.ElementMode.OnActivate(e, g)
 }
 
+func (m *SunriseMode) OnSendCatchup(*Event, *Game, *Seat) {
+}
+
 func (m *SunriseMode) Json(e *Event, g *Game, s *Seat) js.Object {
 	return js.Object{
 		"gameid":   g.Id,

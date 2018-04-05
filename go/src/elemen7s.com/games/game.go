@@ -15,13 +15,13 @@ const EventTimeout = 5 * time.Minute
 type Game struct {
 	Id       int
 	Cards    map[int]*Card
+	Active   *Event
 	Events   map[int]Event
 	Timeline chan *Event
 	Chat     chat.Channel
+	Seats    map[string]*Seat
 	*log.Logger
-	Active *Event
 	*TurnClock
-	Seats map[string]*Seat
 	*Results
 }
 
@@ -137,14 +137,31 @@ func (g *Game) Broadcast(name string, json js.Object) {
 
 func (g *Game) Receive(username string, json js.Object) {
 	switch json["event"] {
+	case "pass":
+		TryPass(g, g.GetSeat(username), json)
+		break
 	case "chat":
 		BroadcastAnimateAlertChat(g, username, json.Sval("message"))
+		break
+	case "play":
+		TryPlay(g, g.GetSeat(username), json, g.Active.ModeName() != "main" || username != g.Active.Username)
+		break
+	case "trigger":
+		TryTrigger(g, g.GetSeat(username), json)
 		break
 	case g.Active.Name():
 		g.Active.Receive(g, g.GetSeat(username), json)
 		break
 	default:
 		g.Log().Add("Seat", username).Add("Event", json["event"]).Add("Active", g.Active.Name()).Warn("receive: out of sync")
+	}
+}
+
+func (g *Game) PowerScript(username string, power *vii.Power, target interface{}) {
+	if script := Scripts[power.Script]; script == nil {
+		log.Add("Script", power.Script).Warn("script missing")
+	} else if seat := g.GetSeat(username); seat != nil {
+		script(g, seat, target)
 	}
 }
 

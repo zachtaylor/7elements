@@ -66,6 +66,8 @@ func (ai *AI) send(name string, json js.Object) {
 		ai.EventMain(json)
 	} else if name == "play" {
 		ai.EventPlay(json)
+	} else if name == "trigger" {
+		ai.EventTrigger(json)
 	} else if name == "pass" {
 		ai.EventPass(json)
 	} else if name == "resolve" {
@@ -79,7 +81,7 @@ func (ai *AI) send(name string, json js.Object) {
 	} else if name == "end" {
 		ai.EventEnd(json)
 	} else {
-		log.Add("GameId", ai.Game.Id).Add("Username", ai.Seat.Username).Add("EventName", name).Warn("ai: event not recognized")
+		ai.Game.Log().Add("GameId", ai.Game.Id).Add("Username", ai.Seat.Username).Add("EventName", name).Warn("ai: event not recognized")
 	}
 }
 
@@ -92,6 +94,13 @@ func (ai *AI) EventStart(data js.Object) {
 }
 
 func (ai *AI) EventAnimate(data js.Object) {
+}
+
+func (ai *AI) EventTrigger(data js.Object) {
+	ai.SendGameRequest(js.Object{
+		"event": "pass",
+		"mode":  "trigger",
+	})
 }
 
 func (ai *AI) EventSpawn(data js.Object) {
@@ -117,16 +126,16 @@ func (ai *AI) EventMain(data js.Object) {
 		ai.sendPlayEvent()
 	} else {
 		ai.SendGameRequest(js.Object{
-			"event": "main",
-			"resp":  "pass",
+			"event": "pass",
+			"mode":  "main",
 		})
 	}
 }
 
 func (ai *AI) EventPlay(data js.Object) {
 	ai.SendGameRequest(js.Object{
-		"event": "play",
-		"resp":  "pass",
+		"event": "pass",
+		"mode":  "play",
 	})
 }
 
@@ -138,22 +147,22 @@ func (ai *AI) EventResolve(data js.Object) {
 
 func (ai *AI) EventSunset(data js.Object) {
 	ai.SendGameRequest(js.Object{
-		"event": "sunset",
-		"resp":  "pass",
+		"event": "pass",
+		"mode":  "sunset",
 	})
 }
 
 func (ai *AI) EventAttack(data js.Object) {
 	ai.SendGameRequest(js.Object{
-		"event": "attack",
-		"resp":  "pass",
+		"event": "pass",
+		"mode":  "attack",
 	})
 }
 
 func (ai *AI) EventDefend(data js.Object) {
 	ai.SendGameRequest(js.Object{
-		"event": "defend",
-		"resp":  "pass",
+		"event": "pass",
+		"mode":  "defend",
 	})
 }
 
@@ -175,15 +184,15 @@ func (ai *AI) sendPlayEvent() {
 
 	if len(choices) == 0 {
 		ai.SendGameRequest(js.Object{
-			"event": "main",
-			"resp":  "pass",
+			"event": "pass",
+			"mode":  "main",
 		})
 		return
 	}
 
 	ai.Game.Log().Add("#Choices", len(choices)).Add("Choice", choices[0]).Info("ai: choose")
 	ai.SendGameRequest(js.Object{
-		"event": "main",
+		"event": "play",
 		"gcid":  choices[0],
 	})
 }

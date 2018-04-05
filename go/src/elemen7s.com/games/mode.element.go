@@ -24,8 +24,11 @@ func (m *ElementMode) Json(e *Event, g *Game, s *Seat) js.Object {
 func (m *ElementMode) OnActivate(e *Event, g *Game) {
 }
 
+func (m *ElementMode) OnSendCatchup(*Event, *Game, *Seat) {
+}
+
 func (m *ElementMode) OnResolve(e *Event, g *Game) {
-	AnimateAddElement(g, e.Username, int(m.Element))
+	BroadcastAnimateAddElement(g, e.Username, int(m.Element))
 }
 
 func (m *ElementMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {

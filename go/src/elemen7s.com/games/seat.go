@@ -48,6 +48,16 @@ func (seat *Seat) DrawCard(count int) {
 	}
 }
 
+func (seat *Seat) RemoveHandAndElements(gcid int) bool {
+	if card := seat.Hand[gcid]; card == nil {
+		return false
+	} else {
+		seat.Elements.Deactivate(card.Card.Costs)
+		delete(seat.Hand, gcid)
+		return true
+	}
+}
+
 func (seat *Seat) Reactivate() {
 	for _, card := range seat.Alive {
 		card.Awake = true

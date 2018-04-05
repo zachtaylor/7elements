@@ -12,6 +12,7 @@ type EMode interface {
 	OnActivate(*Event, *Game)
 	OnResolve(*Event, *Game)
 	OnReceive(*Event, *Game, *Seat, js.Object)
+	OnSendCatchup(*Event, *Game, *Seat)
 }
 
 type Event struct {
@@ -65,13 +66,7 @@ func (e *Event) Resolve(g *Game) {
 func (e *Event) Receive(g *Game, s *Seat, j js.Object) {
 	e.Lock()
 	defer e.Unlock()
-	if j["resp"] == "pass" {
-		e.RespPass(g, s)
-	} else if j["resp"] == "play" {
-		TryPlay(e, g, s, j, e.EMode.Name() != "main" || s.Username != e.Username)
-	} else {
-		e.EMode.OnReceive(e, g, s, j)
-	}
+	e.EMode.OnReceive(e, g, s, j)
 }
 
 func (e *Event) RespPass(game *Game, seat *Seat) {
@@ -94,11 +89,12 @@ func (e *Event) RespPass(game *Game, seat *Seat) {
 	}
 }
 
-func (e *Event) SendCatchup(g *Game, seat *Seat) {
-	seat.Send(e.Name(), e.Json(g, seat))
+func (e *Event) SendCatchup(g *Game, s *Seat) {
+	s.Send(e.Name(), e.Json(g, s))
+	e.EMode.OnSendCatchup(e, g, s)
 	for username, resp := range e.Resp {
 		if resp == "pass" {
-			AnimatePass(seat, g, username)
+			AnimatePass(s, g, username)
 		}
 	}
 }
