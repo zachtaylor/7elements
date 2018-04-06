@@ -29,12 +29,12 @@ func (mode *TimeWalkerMode) Json(e *games.Event, g *games.Game, s *games.Seat) j
 }
 
 func (mode *TimeWalkerMode) OnActivate(e *games.Event, g *games.Game) {
-	games.AnimateTimeWalkerChoice(g.GetSeat(e.Username), g)
+	games.AnimateNewElementChoice(g.GetSeat(e.Username), g)
 }
 
 func (mode *TimeWalkerMode) OnSendCatchup(e *games.Event, g *games.Game, s *games.Seat) {
 	if e.Username == s.Username {
-		games.AnimateTimeWalkerChoice(s, g)
+		games.AnimateNewElementChoice(s, g)
 	}
 }
 

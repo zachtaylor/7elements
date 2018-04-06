@@ -15,12 +15,13 @@
     <link href="https://fonts.googleapis.com/css?family=Macondo" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link href="index.css" rel="stylesheet">
-    <!-- <link href="templates.html" rel="import"> -->
   </head>
   <body>
     <nav>
       <div id="nav-top">
-        <a onclick="SE.event.fire('nav-drawer')"><img src="/img/banner-white.64px.png"/></a>
+        <a onclick="SE.event.fire('nav-drawer')" style="height:64px;width:256px;">
+          <img src="/img/banner-white.64px.png" style="vertical-align:top;">
+        </a>
         <span id="nav-path" style="color:#fff;"></span>
         <ul id="nav-top-login" class="float-right" style="display:none;">
           <a href="/signup/" style="color:#fff;">Sign Up</a>

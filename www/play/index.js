@@ -562,6 +562,8 @@ $(function() {
 				});
 				SE.event.fire('gc-menu-hide');
 			});
+			$(html).append(button);
+			$(buttons).append(html);
 		}
 
 		$('#gc-menu').fadeIn();

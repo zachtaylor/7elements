@@ -2,43 +2,45 @@
 	<head>
 		<title>Elemen7s Login</title>
 		<script src="/7elements.js"></script>
+		<link href="https://fonts.googleapis.com/css?family=Macondo" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 		<link href="/7elements.css" rel="stylesheet">
 		<script>
 			$(function() {
 				if (window.location.search == "?account") {
-					$("#form-group-username input").addClass("form-error")
+					$("#form-group-username input").addClass("form-error");
 				}
 				if (window.location.search == "?password") {
-					$("#form-group-password input").addClass("form-error")
+					$("#form-group-password input").addClass("form-error");
 				}
-
 				if (window.location.hash) {
-					$("#form-group-username input").addClass("form-success")
-					$("#form-group-username input").val(window.location.hash.slice(1))
-					$("title").html('Elemen7s login'+window.location.hash)
-
-					$("#form-group-password input").focus()
+					$("#form-group-username input").addClass("form-success");
+					$("#form-group-username input").val(window.location.hash.slice(1));
+					$("title").html('Elemen7s login'+window.location.hash);
+					$("#form-group-password input").focus();
 				} else {
-					$("#form-group-username input").focus()
+					$("#form-group-username input").focus();
 				}
 			})
 		</script>
 	</head>
 	<body>
-		<form class="well pos-rel elemen7s-form" action="/api/login" method="POST">
-			<a href="/"><img src="/img/banner-black.24px.png"></a>
-			<span class="float-right elemen7s-font-label disp-iblock"> Need a free account? <a href="/signup/">Click here to signup</a></span>
+		<div class="pos-abs right0 font21 vii-fontc">
+			<div style="padding:27px 21px 0px 0px;">Need a free account? <a href="/signup/">Click here to signup</a></div>
+		</div>
+		<a href="/"><img src="/img/banner-black.64px.png"></a>
+		<form class="vii well pos-rel" action="/api/login" method="POST">
 			<fieldset class="width100">
-				<legend class="elemen7s-font-label" style="text-align:center;">Login</legend>
-				<div class="elemen7s-form-group" id="form-group-username">
-					<span id="sizing-addon-username">username</span>
-					<input type="text" name="username">
+				<legend>Login</legend>
+				<div class="vii-form-group" id="form-group-username">
+					<span id="sizing-addon-username"><b>username</b></span>
+					<input type="text" name="username" class="vii">
 				</div>
-				<div class="elemen7s-form-group" id="form-group-password">
-					<span id="sizing-addon-password">password</span>
-					<input type="password" name="password">
+				<div class="vii-form-group" id="form-group-password">
+					<span id="sizing-addon-password"><b>password</b></span>
+					<input type="password" name="password" class="vii">
 				</div>
-				<button type="submit" class="float-right btn btn-lg btn-success">Login</button>
+				<button type="submit" class="float-right vii vii-blue">Login</button>
 			</fieldset>
 		</form>
 	</body>

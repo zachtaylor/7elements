@@ -20,8 +20,9 @@
 	border-radius:8px;
 }
 .se-card [handle="costs"] img {
-	height:24px;
-	width:24px;
+	height:21px;
+	width:21px;
+	vertical-align:sub;
 }
 .se-card [data-ctrl="name"] {
 	float:right;

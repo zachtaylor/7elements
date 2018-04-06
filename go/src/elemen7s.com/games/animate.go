@@ -97,7 +97,7 @@ func AnimateNoviceSeerChoice(player Player, game *Game, card *Card) {
 	AnimateChoice(player, game, prompt, choices, json)
 }
 
-var timeWalkerChoices = []js.Object{
+var newElementChoices = []js.Object{
 	js.Object{"choice": "1", "display": `<img src="/img/icon/element-1.png">`},
 	js.Object{"choice": "2", "display": `<img src="/img/icon/element-2.png">`},
 	js.Object{"choice": "3", "display": `<img src="/img/icon/element-3.png">`},
@@ -107,8 +107,8 @@ var timeWalkerChoices = []js.Object{
 	js.Object{"choice": "7", "display": `<img src="/img/icon/element-7.png">`},
 }
 
-func AnimateTimeWalkerChoice(player Player, game *Game) {
-	AnimateChoice(player, game, "Create an Element", timeWalkerChoices, js.Object{})
+func AnimateNewElementChoice(player Player, game *Game) {
+	AnimateChoice(player, game, "Create an Element", newElementChoices, js.Object{})
 }
 
 func BroadcastAnimateAlertError(game *Game, text string) {
