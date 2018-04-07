@@ -7,7 +7,7 @@ import (
 
 type PlayMode struct {
 	*Card
-	*Stack
+	Stack  *Event
 	Target interface{}
 }
 
@@ -47,18 +47,18 @@ func (m *PlayMode) OnResolve(e *Event, g *Game) {
 	if m.Card.Card.CardType == vii.CTYPbody || m.Card.Card.CardType == vii.CTYPitem {
 		seat.Alive[m.Card.Id] = m.Card
 		BroadcastAnimateSpawn(g, m.Card)
+		m.Stack.Activate(g)
 	} else if m.Card.Card.CardType == vii.CTYPspell {
 		if power := m.Card.Card.Powers[0]; power == nil {
 			BroadcastAnimateAlertError(g, m.Card.CardText.Name+" does not work yet")
 			log.Warn("play: resolve; card does not work")
 		} else {
+			g.Active = m.Stack
 			g.PowerScript(m.Card.Username, power, m.Target)
 		}
 	} else {
 		log.Warn("play: resolve; cannot resolve cardtype")
 	}
-
-	m.Stack.OnResolve(e, g)
 }
 
 func (m *PlayMode) OnReceive(event *Event, g *Game, s *Seat, j js.Object) {
@@ -75,7 +75,7 @@ func Play(g *Game, s *Seat, c *Card, target interface{}) {
 	e.EMode = &PlayMode{
 		Card:   c,
 		Target: target,
-		Stack:  StackEvent(g.Active),
+		Stack:  g.Active,
 	}
 	g.TimelineJoin(e)
 }

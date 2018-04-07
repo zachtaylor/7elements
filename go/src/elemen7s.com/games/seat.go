@@ -73,7 +73,7 @@ func (s *Seat) Send(name string, json js.Object) {
 	}
 }
 
-func (s *Seat) Json(detailMode bool) js.Object {
+func (s *Seat) Json(showHidden bool) js.Object {
 	json := js.Object{
 		"username": s.Username,
 		"deck":     len(s.Deck.Cards),
@@ -82,7 +82,7 @@ func (s *Seat) Json(detailMode bool) js.Object {
 		"elements": s.Elements,
 		"spent":    len(s.Graveyard),
 	}
-	if detailMode {
+	if showHidden {
 		json["hand"] = s.Hand.Json()
 	} else {
 		json["hand"] = len(s.Hand)

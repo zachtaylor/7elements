@@ -5,14 +5,6 @@ import (
 	"ztaylor.me/js"
 )
 
-func AnimateAddCard(player Player, card *Card) {
-	player.Send("animate", js.Object{
-		"animate": "add card",
-		"gcid":    card.Id,
-		"cardid":  card.Card.Id,
-	})
-}
-
 func AnimateHand(player Player, game *Game, cards Cards) {
 	player.Send("hand", js.Object{
 		"gameid": game.Id,
@@ -35,11 +27,19 @@ func AnimateAttack(player Player, a AttackOptions) {
 	})
 }
 
-func BroadcastAnimateSleep(game *Game, gcid int) {
+func BroadcastAnimateCardUpdate(game *Game, card *Card) {
 	game.Broadcast("animate", js.Object{
-		"animate": "sleep",
+		"animate": "cardupdate",
 		"gameid":  game.Id,
-		"gcid":    gcid,
+		"data":    card.Json(),
+	})
+}
+
+func BroadcastAnimateSeatUpdate(game *Game, seat *Seat) {
+	game.Broadcast("animate", js.Object{
+		"animate": "seatupdate",
+		"gameid":  game.Id,
+		"data":    seat.Json(false),
 	})
 }
 
@@ -123,13 +123,5 @@ func BroadcastAnimateAlertChat(game *Game, username, message string) {
 		"gameid":   game.Id,
 		"username": username,
 		"message":  message,
-	})
-}
-
-func BroadcastAnimateMulligan(game *Game, username string) {
-	game.Broadcast("animate", js.Object{
-		"animate":  "mulligan",
-		"gameid":   game.Id,
-		"username": username,
 	})
 }

@@ -1,7 +1,7 @@
 $(function() {
 	var app = {};
 	var seatsready = Promise.Fake();
-	var username, gameid, deckid = 1, games = {}, hand = {}, decks = [], eventName, canDeclareAttack;
+	var username, gameid, deckid = 1, games = {}, hand = {}, decks = [], eventName;
 
 	SE.widget.controlProperty($('#start-menu')[0], 'timer');
 	SE.widget.controlProperty($('#elements-menu')[0], 'timer');
@@ -34,6 +34,76 @@ $(function() {
 	}
 	app.addHistory = function(s) {
 		$('#game-event-history').append($('<div>'+s+'</div>')[0]);
+	};
+	app.animate = function(data) {
+		if (app.animate[data.animate]) {
+			return app.animate[data.animate](data);
+		}
+		if (data.animate == 'not enough elements') {
+			SE.widget.new('se-alert').then(function(alert) {
+				$(alert).css({display:'none'});
+				alert.message = 'not enough elements';
+				alert.setMode('danger');
+				alert.autoDismissSeconds(2);
+				$('#alert-menu').append(alert);
+				$(alert).slideDown();
+			});
+		} else if (data.animate == 'add element') {
+			seatsready.then(function(seats) {
+				$.each(seats, function(i, seat) {
+					if (seat.username != data.username) return true;
+					seat.addElement(data.element, true);
+					return false;
+				});
+			});
+		} else if (data.animate == 'attack options') {
+			$('#game-menu .se-gc').each(function(_, gc) {
+				if (gc.showClear) gc.showClear();
+				else console.warn('animate attack se-gc does not have showClear method?', gc);
+			});
+			$.each(data.attackoptions, function(gcid, attackTarget) {
+				vii.gamecard.get(gcid).then(function(card) {
+					card.showAttack();
+				});
+			});
+		} else {
+			console.log('websocket animate not recognized', data.animate);
+		};
+	};
+	app.animate.seatupdate = function(data) {
+		seatsready.then(function(seats) {
+			seats[data.data.username].update(data.data);
+		});
+	};
+	app.animate.cardupdate = function(data) {
+		vii.gamecard.get(data.data.gcid).then(function(card) {
+			card.update(data.data);
+		});
+	};
+	app.animate.choice = function(data) {
+		var cmnu = $('#choice-menu')[0];
+		$(cmnu).slideDown();
+		$('[handle="title"]', cmnu)[0].innerHTML = data.prompt;
+		$('[handle="content"]', cmnu).empty();
+		if (data.data.card) {
+			SE.widget.new('se-card', data.data.card.cardid).then(function(card) {
+				$('[handle="content"]', cmnu).append(card);
+			});
+		}
+		$('[handle="footer"]', cmnu).empty();
+		$.each(data.choices, function(i, o) {
+			var choice = o.choice;
+			var btn = $('<button class="vii">' + o.display + '</button>')[0];
+			$(btn).click(function() {
+				SE.websocket.send('game', {
+					gameid:gameid,
+					event:'choice',
+					choice:choice
+				});
+				$(cmnu).slideUp();
+			});
+			$('[handle="footer"]', cmnu).append(btn);
+		});
 	};
 
 	var eventStart = function(data) {
@@ -248,7 +318,6 @@ $(function() {
 		$('#game-menu-meta-stars').empty();
 		$('#game-menu-meta img')[2].src = '/img/icon/combat.1.64px.png';
 		$('#game-menu-meta img')[1].src = '/img/icon/sun.0.64px.png';
-		canDeclareAttack = data.username == username;
 
 		seatsready.then(function(seats) {
 			$.each(seats, function(i, seat) {
@@ -283,10 +352,10 @@ $(function() {
 			$.each(seats, function(i, seat) {
 				if (seat.username == data.username) {
 					seat.timer = data.timer;
-					seat.turnphase = data.turnphase;
+					seat.turnphase = 'respond';
 				} else {
 					seat.timer = 0;
-					seat.turnphase = 'wait';
+					seat.turnphase = 'defend';
 				}
 			});
 
@@ -324,78 +393,6 @@ $(function() {
 			$('#alert-menu').append(alert);
 			$(alert).slideDown();
 		});
-	};
-	app.animate = function(data) {
-		if (data.animate == 'not enough elements') {
-			SE.widget.new('se-alert').then(function(alert) {
-				$(alert).css({display:'none'});
-				alert.message = 'not enough elements';
-				alert.setMode('danger');
-				alert.autoDismissSeconds(2);
-				$('#alert-menu').append(alert);
-				$(alert).slideDown();
-			});
-		} else if (data.animate == 'add card') {
-			SE.widget.new('se-card', data.cardid).then(function(card) {
-				card.gcid = data.gcid;
-				SE.event.fire('add-card-to-hand', card);
-			}, function(err) {
-				console.error('websocket animate add card', err);
-			});
-		} else if (data.animate == 'add element') {
-			seatsready.then(function(seats) {
-				$.each(seats, function(i, seat) {
-					if (seat.username != data.username) return true;
-					seat.addElement(data.element, true);
-					return false;
-				});
-			});
-		} else if (data.animate == 'attack options') {
-			$('.se-gc').each(function(_, gc) {
-				if (gc.showClear) gc.showClear();
-				else console.warn('animate attack se-gc does not have showClear method?', gc);
-			});
-			$.each(data.attackoptions, function(gcid, attackTarget) {
-				vii.gamecard.get(gcid).then(function(card) {
-					card.showAttack();
-				});
-			});
-		} else if (data.animate == 'sleep') {
-			vii.gamecard.get(data.gcid).then(function(card) {
-				card.showAsleep();
-			});
-		} else if (data.animate == 'choice') {
-			var cmnu = $('#choice-menu')[0];
-			$(cmnu).slideDown();
-			$('[handle="title"]', cmnu)[0].innerHTML = data.prompt;
-			$('[handle="content"]', cmnu).empty();
-			if (data.data.card) {
-				SE.widget.new('se-card', data.data.card.cardid).then(function(card) {
-					$('[handle="content"]', cmnu).append(card);
-				});
-			}
-			$('[handle="footer"]', cmnu).empty();
-			$.each(data.choices, function(i, o) {
-				var choice = o.choice;
-				var btn = $('<button class="vii">' + o.display + '</button>')[0];
-				$(btn).click(function() {
-					SE.websocket.send('game', {
-						gameid:gameid,
-						event:'choice',
-						choice:choice
-					});
-					$(cmnu).slideUp();
-				});
-				$('[handle="footer"]', cmnu).append(btn);
-			});
-		} else if (data.animate == 'mulligan') {
-			seatsready.then(function(seats) {
-				seats[data.username].deck -= 3;
-				seats[data.username].spent = 3;
-			});
-		} else {
-			console.log('websocket animate not recognized', data.animate);
-		};
 	};
 	var websocketGameDone = function(data) {
 		$('#game-menu, #elements-menu, #start-menu').slideUp();
@@ -550,7 +547,7 @@ $(function() {
 			$(buttons).append(html);
 		});
 
-		if (canDeclareAttack && gc.username == username) {
+		if (eventName == 'attack' && gc.username == username) {
 			var html = $('<div class="disp-flex"></div>')[0];
 			$(html).append('<span style="flex:1;">Attack</span>');
 			var button = $('<button class="vii"><img src="/img/icon/use.64px.png"></button>')[0];

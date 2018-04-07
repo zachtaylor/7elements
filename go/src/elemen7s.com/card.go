@@ -34,10 +34,8 @@ func (c *Card) JsonWithText(text *CardText) js.Object {
 	}
 }
 
-type CService interface {
+var CardService interface {
 	Start() error
 	GetCard(cardid int) (*Card, error)
 	GetAllCards() map[int]*Card
 }
-
-var CardService CService

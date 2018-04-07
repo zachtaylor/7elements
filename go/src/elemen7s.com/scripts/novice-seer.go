@@ -12,7 +12,7 @@ func init() {
 type NoviceSeerMode struct {
 	destroy bool
 	*games.Card
-	*games.Stack
+	Stack *games.Event
 }
 
 func (mode NoviceSeerMode) Name() string {
@@ -42,10 +42,11 @@ func (mode NoviceSeerMode) OnResolve(e *games.Event, g *games.Game) {
 	seat := g.GetSeat(mode.Card.Username)
 	if mode.destroy {
 		seat.Graveyard[mode.Card.Id] = mode.Card
+		games.BroadcastAnimateSeatUpdate(g, seat)
 	} else {
 		seat.Deck.Prepend(mode.Card)
 	}
-	mode.Stack.OnResolve(e, g)
+	mode.Stack.Activate(g)
 }
 
 func (mode NoviceSeerMode) OnReceive(e *games.Event, g *games.Game, s *games.Seat, json js.Object) {
@@ -73,7 +74,7 @@ func NoviceSeer(g *games.Game, s *games.Seat, target interface{}) {
 	event := games.NewEvent(s.Username)
 	event.EMode = NoviceSeerMode{
 		Card:  s.Deck.Draw(),
-		Stack: games.StackEvent(g.Active),
+		Stack: g.Active,
 	}
 	g.TimelineJoin(event)
 }

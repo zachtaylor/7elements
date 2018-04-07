@@ -6,7 +6,7 @@ import (
 )
 
 type SunriseMode struct {
-	*ElementMode
+	vii.Element
 }
 
 func (m *SunriseMode) Name() string {
@@ -14,7 +14,6 @@ func (m *SunriseMode) Name() string {
 }
 
 func (m *SunriseMode) OnActivate(e *Event, g *Game) {
-	m.ElementMode.OnActivate(e, g)
 }
 
 func (m *SunriseMode) OnSendCatchup(*Event, *Game, *Seat) {
@@ -29,8 +28,7 @@ func (m *SunriseMode) Json(e *Event, g *Game, s *Seat) js.Object {
 }
 
 func (m *SunriseMode) OnResolve(e *Event, g *Game) {
-	m.ElementMode.OnResolve(e, g)
-	if m.ElementMode.Element == vii.ELEMnull {
+	if m.Element == vii.ELEMnull {
 		g.Log().Warn("games.Sunrise: !resolve forfeit")
 		g.Results = &Results{
 			Losers:  []string{g.TurnClock.Username},
@@ -43,18 +41,37 @@ func (m *SunriseMode) OnResolve(e *Event, g *Game) {
 		card := seat.Deck.Draw()
 		seat.Hand[card.Id] = card
 		seat.Reactivate()
-		AnimateAddCard(seat, card)
+		AnimateHand(seat, g, seat.Hand)
+		BroadcastAnimateSeatUpdate(g, seat)
 		Main(g)
 	}
 }
 
 func (m *SunriseMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
-	m.ElementMode.OnReceive(e, g, s, j)
+	log := g.Log().Add("Username", s.Username)
+	if m.Element != vii.ELEMnull {
+		log.Add("SavedEl", m.Element).Add("ElementId", j["elementid"]).Warn("sunrise: choice already saved")
+		return
+	} else if j["event"] == "element" {
+		log.Warn("element: event unrecognized")
+		return
+	} else if s.Username != e.Username {
+		log.Add("ExpectedUsername", e.Username).Warn("sunrise: username rejected")
+	}
+	elementId := j.Ival("elementid")
+	if elementId < 1 || elementId > 7 {
+		log.Add("ElementId", elementId).Warn("sunrise: elementid out of bounds")
+		return
+	}
+	m.Element = vii.Elements[int(elementId)]
+	s.Elements.Append(m.Element)
+	log.Add("Element", m.Element).Info("sunrise: confirm element choice")
+	e.Timeout()
 }
 
 func Sunrise(g *Game) {
 	e := NewEvent(g.TurnClock.Username)
 	e.Target = "sunrise"
-	e.EMode = &SunriseMode{&ElementMode{}}
+	e.EMode = &SunriseMode{}
 	g.TimelineJoin(e)
 }

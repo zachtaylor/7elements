@@ -12,7 +12,7 @@ func init() {
 
 type TimeWalkerMode struct {
 	vii.Element
-	*games.Stack
+	Stack *games.Event
 }
 
 func (mode *TimeWalkerMode) Name() string {
@@ -42,7 +42,7 @@ func (mode *TimeWalkerMode) OnResolve(e *games.Event, g *games.Game) {
 	seat := g.GetSeat(e.Username)
 	seat.Elements.Append(mode.Element)
 	games.BroadcastAnimateAddElement(g, e.Username, int(mode.Element))
-	mode.Stack.OnResolve(e, g)
+	mode.Stack.Activate(g)
 }
 
 func (mode *TimeWalkerMode) OnReceive(e *games.Event, g *games.Game, s *games.Seat, json js.Object) {
@@ -65,7 +65,7 @@ func (mode *TimeWalkerMode) OnReceive(e *games.Event, g *games.Game, s *games.Se
 func TimeWalker(g *games.Game, s *games.Seat, target interface{}) {
 	event := games.NewEvent(s.Username)
 	event.EMode = &TimeWalkerMode{
-		Stack: games.StackEvent(g.Active),
+		Stack: g.Active,
 	}
 	g.TimelineJoin(event)
 }

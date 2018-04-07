@@ -12,7 +12,7 @@ import (
 	"ztaylor.me/log"
 )
 
-const PATCH = 18
+const PATCH = 19
 
 func main() {
 	env.Bootstrap()

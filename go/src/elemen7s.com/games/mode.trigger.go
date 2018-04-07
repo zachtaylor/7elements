@@ -60,9 +60,9 @@ func (m *TriggerMode) OnResolve(e *Event, g *Game) {
 			return
 		}
 		m.Card.Awake = false
-		BroadcastAnimateSleep(g, m.Card.Id)
+		BroadcastAnimateCardUpdate(g, m.Card)
 	}
-	// kill self immediately and silently, causing script to stack on original trigger stack target
+
 	g.Active = m.Stack
 	g.PowerScript(e.Username, m.Power, m.Target)
 }

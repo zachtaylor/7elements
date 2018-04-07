@@ -11,17 +11,17 @@ SE.widget.control('se-app-search', function() {
 
 	me.append = function(card) {
 		me.spinner.then(function(spinner) {
-			$(spinner).append(card);
+			spinner.append(card);
 		});
 	};
 	me.prepend = function(card) {
 		me.spinner.then(function(spinner) {
-			$(spinner).prepend(card);
+			spinner.prepend(card);
 		});
 	};
 	me.empty = function() {
 		me.spinner.then(function(spinner) {
-			$(spinner).empty();
+			spinner.empty();
 		});
 	};
 	me.update = function(data) {

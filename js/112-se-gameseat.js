@@ -46,6 +46,7 @@ SE.widget.control('se-gameseat', function() {
 			$.each(data, function(i, carddata) {
 				vii.gamecard.set(carddata).then(function(gc) {
 					me.addActiveCard(gc);
+					gc.update(carddata);
 				});
 			});
 		});
