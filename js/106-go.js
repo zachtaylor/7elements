@@ -1,3 +1,3 @@
-SE.go = function(f) {
-	window.setTimeout(f, 1);
+SE.go = function(f, t) {
+	window.setTimeout(f, t || 1);
 };

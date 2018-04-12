@@ -102,7 +102,7 @@ func (cards CardService) loadCardCosts() error {
 }
 
 func (cards CardService) loadCardsPowers() error {
-	rows, err := db.Connection.Query("SELECT cardid, id, usesturn, target, script FROM cards_powers")
+	rows, err := db.Connection.Query("SELECT cardid, id, usesturn, trigger, target, script FROM cards_powers")
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (cards CardService) loadCardsPowers() error {
 	for rows.Next() {
 		var cardid, usesturn int
 		power := vii.NewPower()
-		err = rows.Scan(&cardid, &power.Id, &usesturn, &power.Target, &power.Script)
+		err = rows.Scan(&cardid, &power.Id, &usesturn, &power.Trigger, &power.Target, &power.Script)
 		power.UsesTurn = usesturn > 0
 
 		if err != nil {

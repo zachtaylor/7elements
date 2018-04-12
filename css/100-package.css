@@ -42,6 +42,9 @@
 .b {
 	font-weight:bold;
 }
+.maxw100 {
+	max-width:100%;
+}
 input.form-error {
 	border-color:red;
 }

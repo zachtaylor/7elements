@@ -18,9 +18,14 @@ vii.gamecard ={
 			console.warn('vii.gamecard.set data missing gcid', data);
 		}
 		var p = vii.gamecard.get(data.gcid);
-		if (!p.val) {
-			vii.gamecard.new(data).then(p.resolve, p.reject);
-		}
-		return p
+		return new Promise(function(resolve, reject) {
+			if (p.val) {
+				resolve(p.val);
+			}
+			else {
+				p.then(resolve, reject);
+				vii.gamecard.new(data).then(p.resolve, p.reject);
+			}
+		});
 	}
 };

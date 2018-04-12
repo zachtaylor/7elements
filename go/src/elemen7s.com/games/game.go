@@ -13,13 +13,14 @@ import (
 const EventTimeout = 5 * time.Minute
 
 type Game struct {
-	Id       int
-	Cards    map[int]*Card
-	Active   *Event
-	Events   map[int]Event
-	Timeline chan *Event
-	Chat     chat.Channel
-	Seats    map[string]*Seat
+	Id        int
+	Cards     map[int]*Card
+	CardTally *Tally
+	Active    *Event
+	Events    map[int]Event
+	Timeline  chan *Event
+	Chat      chat.Channel
+	Seats     map[string]*Seat
 	*log.Logger
 	*TurnClock
 	*Results
@@ -35,12 +36,13 @@ func New() *Game {
 	<-time.After(time.Second)
 	logger.New().Add("GameId", id).Info("game started")
 	return &Game{
-		Id:       id,
-		Cards:    make(map[int]*Card),
-		Events:   make(map[int]Event),
-		Timeline: make(chan *Event),
-		Chat:     chat.NewChannel(fmt.Sprintf("game#%d", id)),
-		Logger:   logger,
+		Id:        id,
+		Cards:     make(map[int]*Card),
+		CardTally: NewTally(),
+		Events:    make(map[int]Event),
+		Timeline:  make(chan *Event),
+		Chat:      chat.NewChannel(fmt.Sprintf("game#%d", id)),
+		Logger:    logger,
 		// Active:   nil,
 		// TurnClock: nil,
 		Seats: make(map[string]*Seat),
@@ -69,7 +71,9 @@ func (g *Game) RegisterToken(username string, c *Card) {
 	} else if c.IsRegistered() {
 		log.Add("gcid", c.Id).Warn("games.RegisterToken: card is already registered")
 	} else {
-		c.Id = len(g.Cards)
+		c.SkipPast = true
+		c.Username = username
+		c.Id = g.CardTally.Next()
 		g.Cards[c.Id] = c
 		s.Alive[c.Id] = c
 	}
@@ -104,7 +108,7 @@ func (g *Game) Register(deck *decks.Deck, lang string) *Seat {
 
 		for i := 0; i < copies; i++ {
 			c := NewCard(card, text)
-			c.Id = len(g.Cards)
+			c.Id = g.CardTally.Next()
 			c.Username = deck.Username
 			g.Cards[c.Id] = c
 			s.Deck.Append(c)
@@ -157,10 +161,10 @@ func (g *Game) Receive(username string, json js.Object) {
 	}
 }
 
-func (g *Game) PowerScript(username string, power *vii.Power, target interface{}) {
+func (g *Game) PowerScript(seat *Seat, power *vii.Power, target interface{}) {
 	if script := Scripts[power.Script]; script == nil {
 		log.Add("Script", power.Script).Warn("script missing")
-	} else if seat := g.GetSeat(username); seat != nil {
+	} else {
 		script(g, seat, target)
 	}
 }

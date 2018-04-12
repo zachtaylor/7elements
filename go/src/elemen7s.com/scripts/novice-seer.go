@@ -50,8 +50,10 @@ func (mode NoviceSeerMode) OnResolve(e *games.Event, g *games.Game) {
 }
 
 func (mode NoviceSeerMode) OnReceive(e *games.Event, g *games.Game, s *games.Seat, json js.Object) {
+	log := g.Log().Add("Username", s.Username)
+
 	if s.Username != e.Username {
-		g.Log().Add("Username", s.Username).Add("HotSeat", e.Username).Warn("games.NoviceSeerMode: not your choice")
+		log.Add("HotSeat", e.Username).Warn("games.NoviceSeerMode: not your choice")
 		return
 	}
 
@@ -62,10 +64,10 @@ func (mode NoviceSeerMode) OnReceive(e *games.Event, g *games.Game, s *games.Sea
 	case "no":
 		break
 	default:
-		g.Log().Add("Username", s.Username).Add("Choice", json.Sval("choice")).Warn("games.NoviceSeerMode: unrecognized choice")
+		log.Add("Choice", json.Sval("choice")).Warn("games.NoviceSeerMode: unrecognized choice")
 		return
 	}
-	g.Log().Add("Username", s.Username).Add("Destroy", mode.destroy).Info("games.NoviceSeer: confirmed destroy choice")
+	log.Add("Destroy", mode.destroy).Info("games.NoviceSeer: confirmed destroy choice")
 
 	g.TimelineJoin(nil)
 }

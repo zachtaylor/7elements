@@ -64,7 +64,7 @@ func (m *TriggerMode) OnResolve(e *Event, g *Game) {
 	}
 
 	g.Active = m.Stack
-	g.PowerScript(e.Username, m.Power, m.Target)
+	g.PowerScript(g.GetSeat(e.Username), m.Power, m.Target)
 }
 
 func (m *TriggerMode) OnReceive(event *Event, g *Game, s *Seat, j js.Object) {

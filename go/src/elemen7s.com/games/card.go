@@ -12,6 +12,7 @@ type Card struct {
 	Id       int
 	Username string
 	Awake    bool
+	SkipPast bool
 	*vii.Card
 	*vii.CardText
 	*vii.CardBody

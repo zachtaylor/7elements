@@ -9,6 +9,9 @@
 	text-align:initial;
 	transition:0.7s;
 }
+.se-gc [data-ctrl="name"] {
+	padding:7px;
+}
 .se-gc-art {
 	display:block;
 	border-radius:4px;

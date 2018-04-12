@@ -26,16 +26,19 @@ SE.widget.control('se-gc', function(data) {
 	});
 
 	me.showAwake = function() {
+		me.state = 'awake';
 		$(me).css({opacity:1});
 		$(me).css({'border-color':'black'});
 		$('.se-gc-eye', me)[0].src = '/img/icon/awake.png';
 	};
 	me.showAttack = function() {
+		me.state = 'attack';
 		me.banner = 'attack';
 		$(me).css({opacity:1}).css({'border-color':'maroon'});
 		$('.se-gc-eye', me)[0].src = '/img/icon/attack.32px.png';
 	};
 	me.showAsleep = function() {
+		me.state = 'asleep';
 		$(me).css({opacity:0.5});
 		$(me).css({'border-color':'black'});
 		$('.se-gc-eye', me)[0].src = '/img/icon/asleep.png';
@@ -44,8 +47,13 @@ SE.widget.control('se-gc', function(data) {
 		$(me).css({opacity:1}).css({'border-color':'gold'});
 		$('.se-gc-eye', me)[0].src = '/img/icon/star.32px.png';
 	};
+	me.showTarget = function() {
+		me.state = 'target';
+		$(me).css({opacity:1}).css({'border-color':'gold'});
+		$('.se-gc-eye', me)[0].src = '/img/icon/use.32px.png';
+	}
 	me.showClear = function() {
-		me.banner = '';
+		me.state = '';
 		if (me.awake) me.showAwake();
 		else me.showAsleep();
 	};

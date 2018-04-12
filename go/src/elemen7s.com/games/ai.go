@@ -15,7 +15,7 @@ type AI struct {
 }
 
 func ConnectAI(game *Game, seat *Seat) *AI {
-	ai := &AI{7 * time.Second, game, seat}
+	ai := &AI{3 * time.Second, game, seat}
 	seat.Player = ai
 	return ai
 }

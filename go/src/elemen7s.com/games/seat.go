@@ -21,10 +21,10 @@ type Seat struct {
 
 func newSeat() *Seat {
 	return &Seat{
+		Elements:  vii.ElementSet{},
 		Alive:     Cards{},
 		Hand:      Cards{},
 		Graveyard: Cards{},
-		Elements:  vii.ElementSet{},
 	}
 }
 
@@ -97,6 +97,24 @@ func (s *Seat) String() string {
 func (s *Seat) HasAwakeAliveCards() bool {
 	for _, card := range s.Alive {
 		if card.Awake {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Seat) HasAliveCard(gcid int) bool {
+	for _, card := range s.Alive {
+		if card.Id == gcid {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Seat) HasPastCard(gcid int) bool {
+	for _, card := range s.Graveyard {
+		if card.Id == gcid {
 			return true
 		}
 	}

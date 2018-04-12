@@ -13,32 +13,32 @@ func TryPass(game *Game, seat *Seat, json js.Object) {
 	}
 }
 
-func TryPlay(game *Game, seat *Seat, j js.Object, onlySpells bool) {
+func TryPlay(game *Game, seat *Seat, json js.Object, onlySpells bool) {
 	log := game.Log().Add("Username", seat.Username).Add("Elements", seat.Elements.String())
 
-	gcid := j.Ival("gcid")
+	gcid := json.Ival("gcid")
 	if gcid < 1 {
-		log.Error("games.Play: gcid missing")
+		log.Error("games.TryPlay: gcid missing")
 		return
 	}
 
 	log.Add("GCID", gcid)
 	card := game.Cards[gcid]
 	if card == nil {
-		log.Error("games.Play: gcid not found")
+		log.Error("games.TryPlay: gcid not found")
 	} else if card.Username != seat.Username {
-		log.Add("Owner", card.Username).Error("games.Play: card belongs to a different player")
+		log.Add("Owner", card.Username).Error("games.TryPlay: card belongs to a different player")
 	} else if card.Card.CardType != vii.CTYPspell && onlySpells {
 		AnimateAlertError(seat, game, card.CardText.Name, `not "spell" type`)
-		log.Error("games.Trigger: not spell type")
+		log.Error("games.TryPlay: not spell type")
 	} else if !seat.HasCardInHand(gcid) {
 		AnimateAlertError(seat, game, card.CardText.Name, `not in your hand`)
-		log.Error("games.Trigger: play cannot afford")
+		log.Error("games.TryPlay: not in your hand")
 	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
 		AnimateAlertError(seat, game, card.CardText.Name, `not enough elements`)
-		log.Error("games.Trigger: play cannot afford")
+		log.Error("games.TryPlay: cannot afford")
 	} else {
-		Play(game, seat, card, nil)
+		Play(game, seat, card, json["target"])
 	}
 }
 
@@ -63,12 +63,15 @@ func TryTrigger(game *Game, seat *Seat, json js.Object) {
 		log.Error("games.Trigger: gcid not found")
 	} else if power := card.Powers[powerid]; power == nil {
 		log.Error("games.Trigger: powerid not found")
-	} else if !card.Awake {
+	} else if !card.Awake && power.UsesTurn {
+		AnimateAlertError(seat, game, card.CardText.Name, `not awake`)
 		log.Error("games.Trigger: card is asleep")
 	} else if !seat.Elements.GetActive().Test(power.Costs) {
 		AnimateAlertError(seat, game, card.CardText.Name, `not enough elements`)
 		log.Error("games.Trigger: cannot afford")
+	} else if power.Target == "self" {
+		Trigger(game, seat, card, power, card)
 	} else {
-		Trigger(game, seat, card, power, nil)
+		Trigger(game, seat, card, power, json["target"])
 	}
 }

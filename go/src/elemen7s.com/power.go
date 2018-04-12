@@ -6,9 +6,10 @@ import (
 )
 
 type Power struct {
-	Id    int
-	Costs ElementMap
-	Target
+	Id       int
+	Costs    ElementMap
+	Trigger  string
+	Target   string
 	UsesTurn bool
 	Script   string
 }
@@ -33,6 +34,7 @@ func (p *Power) Json() js.Object {
 	return js.Object{
 		"id":       p.Id,
 		"costs":    p.Costs,
+		"trigger":  p.Trigger,
 		"target":   p.Target,
 		"usesturn": p.UsesTurn,
 		"script":   p.Script,

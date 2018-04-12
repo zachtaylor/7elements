@@ -66,16 +66,9 @@ func Insert(username string) error {
 		return errors.New("accountscards missing")
 	}
 
-	for cardId, list := range stack {
+	for _, list := range stack {
 		for _, accountcard := range list {
-			_, err := db.Connection.Exec("INSERT INTO accounts_cards(username, card, register, notes) VALUES (?, ?, ?, ?)",
-				username,
-				cardId,
-				accountcard.Register.Unix(),
-				accountcard.Notes,
-			)
-
-			if err != nil {
+			if err := InsertCard(accountcard); err != nil {
 				return err
 			}
 		}

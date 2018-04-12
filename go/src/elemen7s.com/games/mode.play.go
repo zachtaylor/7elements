@@ -44,20 +44,24 @@ func (m *PlayMode) OnResolve(e *Event, g *Game) {
 		"card":     m.Card.Json(),
 	})
 
+	playPower := m.Card.Card.GetPlayPower()
+
 	if m.Card.Card.CardType == vii.CTYPbody || m.Card.Card.CardType == vii.CTYPitem {
 		seat.Alive[m.Card.Id] = m.Card
 		BroadcastAnimateSpawn(g, m.Card)
 		m.Stack.Activate(g)
 	} else if m.Card.Card.CardType == vii.CTYPspell {
-		if power := m.Card.Card.Powers[0]; power == nil {
+		g.Active = m.Stack
+		seat.Graveyard[m.Card.Id] = m.Card
+
+		if playPower == nil {
 			BroadcastAnimateAlertError(g, m.Card.CardText.Name+" does not work yet")
 			log.Warn("play: resolve; card does not work")
-		} else {
-			g.Active = m.Stack
-			g.PowerScript(m.Card.Username, power, m.Target)
 		}
-	} else {
-		log.Warn("play: resolve; cannot resolve cardtype")
+	}
+
+	if playPower != nil {
+		g.PowerScript(seat, playPower, m.Target)
 	}
 }
 

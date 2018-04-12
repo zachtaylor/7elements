@@ -30,4 +30,6 @@ func CallTheBanners(g *games.Game, s *games.Seat, target interface{}) {
 	for i := 0; i < 3; i++ {
 		g.RegisterToken(s.Username, games.NewCard(ctbCard, ctbCardText))
 	}
+	games.BroadcastAnimateSeatUpdate(g, s)
+	game.Active.Activate(game)
 }

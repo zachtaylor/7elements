@@ -15,7 +15,7 @@ func (m ElementMap) Test(m2 ElementMap) bool {
 
 	for element, count := range m {
 		for i := 0; i < count; i++ {
-			if m[element] > 0 {
+			if m2[element] > 0 {
 				m2[element]--
 			} else {
 				m2[ELEMnull]--

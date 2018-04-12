@@ -41,7 +41,7 @@ func (m *SunriseMode) OnResolve(e *Event, g *Game) {
 		card := seat.Deck.Draw()
 		seat.Hand[card.Id] = card
 		seat.Reactivate()
-		AnimateHand(seat, g, seat.Hand)
+		AnimateHand(g, seat)
 		BroadcastAnimateSeatUpdate(g, seat)
 		Main(g)
 	}

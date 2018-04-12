@@ -54,7 +54,7 @@ func (m StartMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 		e.Resp[s.Username] = "mulligan"
 		s.DiscardHand()
 		s.DrawCard(3)
-		AnimateHand(s, g, s.Hand)
+		AnimateHand(g, s)
 		BroadcastAnimateSeatUpdate(g, s)
 	} else {
 		log.Warn("start: receive unrecognized")

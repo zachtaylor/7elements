@@ -20,8 +20,26 @@ func NewCard() *Card {
 	}
 }
 
+func (c *Card) GetPlayPower() *Power {
+	for _, p := range c.Powers {
+		if p.Trigger == "play" {
+			return p
+		}
+	}
+	return nil
+}
+
+func (c *Card) GetDeathPower() *Power {
+	for _, p := range c.Powers {
+		if p.Trigger == "death" {
+			return p
+		}
+	}
+	return nil
+}
+
 func (c *Card) JsonWithText(text *CardText) js.Object {
-	return js.Object{
+	json := js.Object{
 		"id":          c.Id,
 		"image":       c.Image,
 		"name":        text.Name,
@@ -32,6 +50,12 @@ func (c *Card) JsonWithText(text *CardText) js.Object {
 		"costs":       c.Costs.Copy(),
 		"body":        c.CardBody.Json(),
 	}
+
+	if power := c.GetPlayPower(); power != nil {
+		json["target"] = power.Target
+	}
+
+	return json
 }
 
 var CardService interface {

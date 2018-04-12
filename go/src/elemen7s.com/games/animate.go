@@ -1,14 +1,15 @@
 package games
 
 import (
+	"elemen7s.com"
 	"fmt"
 	"ztaylor.me/js"
 )
 
-func AnimateHand(player Player, game *Game, cards Cards) {
-	player.Send("hand", js.Object{
+func AnimateHand(game *Game, seat *Seat) {
+	seat.Send("hand", js.Object{
 		"gameid": game.Id,
-		"cards":  cards.Json(),
+		"cards":  seat.Hand.Json(),
 	})
 }
 
@@ -93,6 +94,30 @@ func AnimateNoviceSeerChoice(player Player, game *Game, card *Card) {
 	}
 	json := js.Object{
 		"card": card.Json(),
+	}
+	AnimateChoice(player, game, prompt, choices, json)
+}
+
+func AnimateGraveBirthChoice(player Player, game *Game) {
+	prompt := "Create a <b>Body</b> from any player's <b>Past</b>"
+	cards := []js.Object{}
+	choices := []js.Object{}
+	for _, seat := range game.Seats {
+		for _, card := range seat.Graveyard {
+			if card.Card.CardType != vii.CTYPbody {
+				continue
+			}
+
+			cards = append(cards, card.Json())
+			choices = append(choices, js.Object{
+				"choice":  card.Id,
+				"display": card.CardText.Name,
+			})
+		}
+	}
+
+	json := js.Object{
+		"cards": cards,
 	}
 	AnimateChoice(player, game, prompt, choices, json)
 }

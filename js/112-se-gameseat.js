@@ -42,14 +42,41 @@ SE.widget.control('se-gameseat', function() {
 
 	me.resetActiveCards = function(data) {
 		ready.then(function() {
-			$(me.spinner)[0].empty();
+			var currentActiveCards = {};
+			$('.se-gc', me).each(function(_, gc) {
+				currentActiveCards[gc.gcid] = true;
+			});
+
 			$.each(data, function(i, carddata) {
 				vii.gamecard.set(carddata).then(function(gc) {
-					me.addActiveCard(gc);
 					gc.update(carddata);
+					currentActiveCards[gc.gcid] = false;
+					if (!me.testCardIsActive(carddata.gcid)) {
+						me.addActiveCard(gc);
+					}
 				});
 			});
+
+			SE.go(function() {
+				$.each(currentActiveCards, function(gcid, remove) {
+					if (remove) {
+						var gcid = gcid;
+						vii.gamecard.get(gcid).then(function(card) {
+							$(card).remove();
+						});
+					}
+				});
+			}, 1000);
+
 		});
+	};
+	me.testCardIsActive = function(gcid) {
+		for (var i=0;i<me.spinner.li.children.length;i++) {
+			if (me.spinner.li.children[i].data.gcid == gcid) {
+				return true;
+			}
+		}
+		return false;
 	};
 
 	me.update = function(data) {

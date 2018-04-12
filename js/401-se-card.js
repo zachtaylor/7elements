@@ -23,6 +23,7 @@ SE.widget.control('se-card', function(cardid) {
 		me.data = data;
 		me.name = data.name;
 		me.flavor = data.flavor;
+		me.target = data.target;
 		$('.se-card-art', me)[0].src = data.image;
 
 		if (data.body) {
