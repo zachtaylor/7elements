@@ -67,6 +67,14 @@ run-server: go/bin/elemen7s.com
 	@echo -e $(COLOR_GREEN)7elements server starting $$GOPATH/bin/elemen7s.com $(COLOR_OFF)
 	@go/bin/elemen7s.com
 
+useralpha: gopath
+	@echo -e $(COLOR_BWHITE)7elements build server $$GOPATH/src/elemen7s.com/cmd/useralpha $(COLOR_OFF)
+	@go install -v elemen7s.com/cmd/useralpha
+
+run-useralpha: go/bin/useralpha
+	@echo -e $(COLOR_YELLOW)Installing user alpha...$(COLOR_OFF)
+	@go/bin/useralpha
+
 clean:
 	@rm -R log/*.log
 
