@@ -14,6 +14,13 @@ type GameSearch struct {
 }
 
 func NewGameSearch(session *http.Session, deck *decks.Deck) *GameSearch {
+	qlock.Lock()
+	defer qlock.Unlock()
+
+	if HasSearch(session.Username) {
+		return nil
+	}
+
 	return &GameSearch{
 		Session: session,
 		Deck:    deck,

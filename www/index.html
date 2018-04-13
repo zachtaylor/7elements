@@ -5,7 +5,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="icon" sizes="192x192" href="/img/icon/app.192px.png">
-    <meta name="viewport" content="width=device-width;initial-scale=1.0;maximum-scale=1.0;user-scalable=0;"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
     <meta name="theme-color" content="#000000">
     <meta name="msapplication-navbutton-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
@@ -18,30 +18,29 @@
   </head>
   <body>
     <nav>
-      <div id="nav-top">
-        <a onclick="SE.event.fire('nav-drawer')" style="height:64px;width:256px;">
-          <img src="/img/banner-white.64px.png" style="vertical-align:top;">
+      <div id="nav-top" class="height100 width100">
+        <a onclick="SE.event.fire('nav-drawer')">
+          <img autosize src="/img/banner-white.128px.png">
         </a>
-        <span id="nav-path" style="color:#fff;"></span>
+        <span id="nav-path"></span>
         <ul id="nav-top-login" class="float-right" style="display:none;">
           <a href="/signup/" style="color:#fff;">Sign Up</a>
           <a href="/login/">Log In</a>
         </ul>
         <ul id="nav-top-account" class="float-right" style="display:none;">
           <a onclick="SE.event.fire('nav-chat')" style="color:#fff;">
-            <span data-ctrl="account-username"></span>
-            <img src="/img/icon/chat.white.64px.png"/>
+            <img autosize src="/img/icon/alert.128px.png"/>
             <span data-ctrl="messagecount"></span>
           </a>
         </ul>
       </div>
-      <div id="nav-menu">
-        <a onclick="SE.event.fire('nav-home')" style="float:left;"><img id="nav-back" src="/img/icon/home.64px.png" /></a>
-        <span style="text-align:center;z-index:-1;" class="pos-abs width100 top0 left0">
-          <a onclick="SE.event.fire('nav-drawer')"><img src="/img/banner-black.64px.png" /></a>
-        </span>
-        <a onclick="SE.event.fire('nav-settings')" style="float:right;"><img src="/img/icon/settings.64px.png" /></a>
-        <ul style="padding:7px;margin-top:64px;">
+      <nav-drawer class="pos-fix top0 height100 closed">
+        <a onclick="SE.event.fire('nav-drawer')">
+          <img autosize src="/img/banner-black.128px.png">
+        </a>
+        <a onclick="SE.event.fire('nav-settings')" style="float:right;"><img autosize src="/img/icon/settings.128px.png" /></a>
+        <a onclick="SE.event.fire('nav-home')" style="float:right;"><img autosize src="/img/icon/home.128px.png" /></a>
+        <ul>
           <a onclick="SE.event.fire('nav-cards')" style="background-color:royalblue">
             <li>Cards<span class="float-right" data-ctrl="account-cards"></span></li>
           </a>
@@ -61,7 +60,7 @@
             <li>Logout</li>
           </a>
         </ul>
-      </div>
+      </nav-drawer>
       <div id="nav-notifications"></div>
     </nav>
     <div id="content"></div>

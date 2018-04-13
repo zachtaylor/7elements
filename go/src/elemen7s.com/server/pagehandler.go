@@ -11,7 +11,7 @@ import (
 var fileserver = http.FileServer(http.Dir("www"))
 
 var PageHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	log := log.Add("Addr", r.RemoteAddr)
+	log := log.Add("Addr", r.RemoteAddr).Add("UserAgent", r.UserAgent())
 	if host := env.Default("HOST", ""); r.RequestURI == "/" && host != "" && host != r.Host && strings.Index(r.Host, "o") > 0 {
 		log.Add("Hostname", host).Add("RequestHost", r.Host).Warn("page: redirect hostname")
 		http.Redirect(w, r, "https://"+host, 307)

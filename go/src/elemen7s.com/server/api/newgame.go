@@ -37,8 +37,13 @@ func NewGameHandler(r *http.Request) error {
 		game.Register(deck, "en-US")
 		games.Start(game)
 		gameid = game.Id
+	} else if v, ok := <-queue.Start(r.Session, deck); !ok {
+		log.WithFields(log.Fields{
+			"Session": r.Session,
+			"DeckId":  deck.Id,
+		}).Warn("newgame: failed")
 	} else {
-		gameid = <-queue.Start(r.Session, deck)
+		gameid = v
 		log.Add("GameId", gameid).Info("newgame.json")
 	}
 

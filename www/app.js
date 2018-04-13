@@ -3,11 +3,11 @@ $(function() {
 
 	app.drawer = {
 		open: function() {
-			$('#nav-menu').css({left:'0px'});
+			$('nav-drawer').css({left:'0px'});
 			app.drawer.isopen = true;
 		},
 		close: function() {
-			$('#nav-menu').css({left:'-490px'});
+			$('nav-drawer').css({left:'-'+(10+$('nav-drawer').width())+'px'});
 			app.drawer.isopen = false;
 		},
 		toggle: function() {
@@ -76,6 +76,7 @@ $(function() {
 	};
 
 	app.declareview('home');
+	app.declareview('learn');
 	app.declareview('decks');
 	app.declareview('edit');
 	app.declareview('games');
@@ -100,7 +101,6 @@ $(function() {
 		});
 		$('#nav-top-login').hide();
 		$('#nav-top-account').show();
-		$('nav [data-ctrl="account-username"]')[0].innerHTML = app.data.username;
 		$('nav [data-ctrl="account-cards"]')[0].innerHTML = cc;
 		$('nav [data-ctrl="account-decks"]')[0].innerHTML = Object.keys(app.data.decks).length;
 		$('nav [data-ctrl="account-packs"]')[0].innerHTML = app.data.packs;

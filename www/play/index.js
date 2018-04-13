@@ -37,6 +37,7 @@ $(function() {
 	};
 	app.animate = function(data) {
 		if (app.animate[data.animate]) {
+			console.debug('app.animate', data.animate, data);
 			return app.animate[data.animate](data);
 		}
 		if (data.animate == 'not enough elements') {
@@ -91,9 +92,11 @@ $(function() {
 	};
 	app.animate.attack = function(data) {
 		seatsready.then(function(seats) {
-			$('.se-gc', seats[data.username]).each(function(i, gc) {
-				gc.showClear();
-			});
+			if (data.username) {
+				$('.se-gc', seats[data.username].spinner.li).each(function(i, gc) {
+					gc.showClear();
+				});
+			}
 
 			$.each(data.data, function(gcid, defendTarget) {
 				vii.gamecard.get(gcid).then(function(card) {
@@ -143,22 +146,33 @@ $(function() {
 			$('[handle="footer"]', cmnu).append(btn);
 		});
 	};
+	app.target = function(desc, q, f) {
+		$('#game-menu .se-gc').each(function(_, card) {
+			if (q(card)) {
+				card.showTarget();
+			}
+		});
+		app.targeting = {
+			description:desc,
+			assist:q,
+			f:f
+		};
+	},
 	app.animateTarget = function(target, f) {
 		if (target == 'self') {
 			f()
 		} else if (target == 'body') {
-			$('#game-menu .se-gc').each(function(_, card) {
-				if (card.data.body) {
-					card.showTarget();
-				}
-			});
-			app.targeting = {
-				description: 'Target Body',
-				assist: function(v) {
-					return v.data.body;
-				},
-				f: f
-			};
+			app.target('Target Body', function(v) {
+				return v.data.body;
+			}, f);
+		} else if (target == 'item') {
+			app.target('Target Item', function(v) {
+				return v.data.type == 'item';
+			}, f);
+		} else if (target == 'bodyoritem') {
+			app.target('Target Body or Item', function(v) {
+				return v.data.body || v.data.type == 'item';
+			}, f);
 		} else if (target == 'bodyorplayer') {
 			app.animateChoice('Target enemy Player directly?', {}, [{
 				choice:false,
@@ -174,34 +188,6 @@ $(function() {
 					app.animateTarget('body', f);
 				}
 			});
-		} else if (target == 'bodyoritem') {
-			$('#game-menu .se-gc').each(function(_, card) {
-				if (card.data.body || card.data.type == 'item') {
-					card.showTarget();
-				} else {
-					console.warn('wassup fool', card.data.type, card);
-				}
-			});
-			app.targeting = {
-				description: 'Target Body or Item',
-				assist: function(v) {
-					return v.data.body || v.data.type == 'item';
-				},
-				f: f
-			};
-		} else if (target == 'item') {
-			$('#game-menu .se-gc').each(function(_, card) {
-				if (card.data.type == 'item') {
-					card.showTarget();
-				}
-			});
-			app.targeting = {
-				description: 'Target Item',
-				assist: function(v) {
-					return v.data.type == 'item';
-				},
-				f: f
-			};
 		} else {
 			console.warn('what is target: ', target)
 		}
@@ -838,7 +824,9 @@ $(function() {
 
 	// so let's go then
 	vii.ping().then(function(data) {
-		if (!data.username) return app.addHistory('<a href="/login/">login required</a>');
+		if (!data.username) {
+			return app.addHistory('<a href="/login/">login required</a>');
+		}
 		app.data = data;
 
 		var search = window.location.search.substr(1).split('=');

@@ -22,12 +22,34 @@ var queue = make([]*GameSearch, 0)
 var qlock sync.Mutex
 
 func Start(session *http.Session, deck *decks.Deck) chan int {
+	c := make(chan int)
+	go func() {
+		if search := NewGameSearch(session, deck); search == nil {
+			log.Add("Username", session.Username).Add("DeckId", deck.Id).Warn("queue: rate limit")
+		} else {
+			queue = append(queue, search)
+
+			if gameid, ok := <-search.Done; !ok {
+				log.Add("Username", session.Username).Add("DeckId", deck.Id).Warn("queue: finished empty handed")
+			} else {
+				log.Add("Username", session.Username).Add("DeckId", deck.Id).Info("queue: finished")
+				c <- gameid
+			}
+		}
+		close(c)
+	}()
+	return c
+}
+
+func HasSearch(username string) bool {
 	qlock.Lock()
 	defer qlock.Unlock()
-	search := NewGameSearch(session, deck)
-	queue = append(queue, search)
-	log.Add("Username", search.Session.Username).Add("DeckId", deck.Id).Info("queue: start")
-	return search.Done
+	for _, search := range queue {
+		if search.Session.Username == username {
+			return true
+		}
+	}
+	return false
 }
 
 func Remove(session *http.Session) {
@@ -50,15 +72,15 @@ func watch() {
 	qlock.Lock()
 	defer qlock.Unlock()
 
-	for i := 1; len(queue) > 1; i++ {
-		if s1, s2, qlen := queue[0], queue[i], len(queue); TestMatch(queue[0], queue[i]) {
-			i = 0
+	for i := 1; i < len(queue); i++ {
+		if s1, s2, qlen := queue[0], queue[i], len(queue); TestMatch(s1, s2) {
 			queue[0] = queue[qlen-1]
 			queue[i] = queue[qlen-2]
 			queue[qlen-1] = nil
 			queue[qlen-2] = nil
 			queue = queue[:qlen-2]
 			match(s1, s2)
+			return
 		}
 	}
 }
