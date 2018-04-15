@@ -29,12 +29,13 @@
         </ul>
         <ul id="nav-top-account" class="float-right" style="display:none;">
           <a onclick="SE.event.fire('nav-chat')" style="color:#fff;">
+            <span data-ctrl="account-username"></span>
             <img autosize src="/img/icon/alert.128px.png"/>
             <span data-ctrl="messagecount"></span>
           </a>
         </ul>
       </div>
-      <nav-drawer class="pos-fix top0 height100 closed">
+      <div id="nav-drawer" class="pos-fix top0 height100">
         <a onclick="SE.event.fire('nav-drawer')">
           <img autosize src="/img/banner-black.128px.png">
         </a>
@@ -60,7 +61,7 @@
             <li>Logout</li>
           </a>
         </ul>
-      </nav-drawer>
+      </div>
       <div id="nav-notifications"></div>
     </nav>
     <div id="content"></div>
