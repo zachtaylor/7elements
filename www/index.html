@@ -24,13 +24,14 @@
         </a>
         <span id="nav-path"></span>
         <ul id="nav-top-login" class="float-right" style="display:none;">
-          <a href="/signup/" style="color:#fff;">Sign Up</a>
-          <a href="/login/">Log In</a>
+          <a onclick="SE.event.fire('nav-login')">
+            <img autosize src="/img/icon/person.white.128px.png"/>
+          </a>
         </ul>
         <ul id="nav-top-account" class="float-right" style="display:none;">
-          <a onclick="SE.event.fire('nav-chat')" style="color:#fff;">
+          <a onclick="SE.event.fire('nav-chat')">
             <span data-ctrl="account-username"></span>
-            <img autosize src="/img/icon/alert.128px.png"/>
+            <img autosize src="/img/icon/chat.white.128px.png"/>
             <span data-ctrl="messagecount"></span>
           </a>
         </ul>
@@ -63,6 +64,14 @@
         </ul>
       </div>
       <div id="nav-notifications"></div>
+      <div id="nav-chat" class="pos-fix bottom0 width100" style="display:none;">
+        <div id="nav-chat-title">
+          <img autosize src="/img/icon/chat.black.128px.png"/>
+          <span>all</span>
+        </div>
+        <div id="nav-chat-history" class="width100"></div>
+        <input class="vii width100" autosize style="flex:1;"/>
+      </div>
     </nav>
     <div id="content"></div>
     <div id="footer"></div>

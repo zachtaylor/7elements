@@ -21,7 +21,7 @@ nav a:hover {
   cursor:pointer;
 }
 #nav-drawer {
-  z-index:100;
+  z-index:3;
   width:75%;
   left:-75%;
   transition:linear 0.25s;
@@ -43,9 +43,14 @@ nav a:hover {
 #nav-drawer li img {
   padding-right:7px;
 }
+#nav-chat {
+  z-index:2;
+  background:white;
+  box-shadow: 0px -5px 10px;
+}
 @media (min-height:1200px) {
-  img[autosize] {
-    height:128px;
+  [autosize] {
+    height:128px !important;
   }
   #content {
     font-size:92px;
@@ -57,16 +62,13 @@ nav a:hover {
   nav a {
     height:128px;
   }
-  #nav-drawer {
-
-  }
   #nav-drawer li {
     height:128px;
   }
 }
 @media (min-height:800px) and (max-height:1199px) {
-  img[autosize] {
-    height:64px;
+  [autosize] {
+    height:64px !important;
   }
   #content {
     font-size:42px;
@@ -83,8 +85,8 @@ nav a:hover {
   }
 }
 @media (max-height:799px), (max-width:700px) {
-  img[autosize] {
-    height:48px;
+  [autosize] {
+    height:48px !important;
   }
   #content {
     font-size:21px;
@@ -104,8 +106,10 @@ nav a:hover {
   height:64px;
 }
 #nav-top {
-  color:white;
   background:linear-gradient(to bottom, #000, #333);
+}
+#nav-top span {
+  color:white;
 }
 #nav-top-account {
   display:block;
@@ -121,7 +125,7 @@ nav a:hover {
   position:fixed;
   top:64px;
   right:0px;
-  z-index:100;
+  z-index:4;
 }
 #content {
   flex:1;

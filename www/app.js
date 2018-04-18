@@ -1,6 +1,5 @@
 $(function() {
 	var app = {};
-
 	app.drawer = {
 		open: function() {
 			$('#nav-drawer').css({left:'0px'});
@@ -15,9 +14,73 @@ $(function() {
 			else app.drawer.open();
 		}
 	};
+	app.chat = {
+		open: function() {
+			$('#nav-chat').slideDown();
+			$('#nav-chat input').focus();
+			app.chat.isopen = true;
+		},
+		close: function() {
+			$('#nav-chat').slideUp();
+			app.chat.isopen = false;
+		},
+		toggle: function() {
+			if (app.chat.isopen) app.chat.close();
+			else app.chat.open();
+		}
+	};
+	SE.event.on('nav-drawer', function() {
+		app.drawer.toggle();
+	});
+	SE.event.on('nav-chat', function() {
+		if (!app.data) {
+			return console.warn('you must login to access chat');
+		} else if ($('#nav-chat input').val()) {
+			$('#nav-chat input').focus();
+			return;
+		}
+		app.chat.toggle();
+	});
 
+	app.keybind = {
+		appdrawer: 27,
+		chat:13,
+	};
+	app.keybind.on = function(f) {
+		$.each(app.keybind, function(action, key) {
+			f(key, action);
+		});
+		SE.event.on('keybind', function(key, action) {
+			f(key, action);
+		});
+	};
+	app.keybind.set = function(key, action) {
+		if (key != 13 && key != 27) {
+			return console.warn('keybind key error', key);
+		} else if (action != 'appdrawer' && action != 'chat') {
+			return console.warn('keybind unrecognized action', action);
+		}
+		app.keybind[action] = key;
+		SE.event.fire('keybind', key, action);
+	};
 	$('body').keyup(function(e) {
-		if (e.which == 27) SE.event.fire('nav-drawer');
+		if (e.which == app.keybind.appdrawer) SE.event.fire('nav-drawer');
+		if (e.which == app.keybind.chat) SE.event.fire('nav-chat');
+	});
+	$('#nav-chat input').keyup(function(e) {
+		e.stopPropagation();
+		if (e.which == 13) {
+			var message = $(this).val();
+			if (message) {
+				SE.websocket.send('chat', {
+					channel: $('#nav-chat-title span')[0].innerHTML,
+					message: $(this).val()
+				});
+				$(this).val('');
+			} else {
+				app.chat.close();
+			};
+		};
 	});
 
 	$('#content').click(function(e) {
@@ -46,7 +109,7 @@ $(function() {
 		if (app.viewcache[name]) return app.viewcache[name];
 		app.viewcache[name] = new Promise(function(resolve, reject) {
 			console.debug('app.build:',name);
-			SE.widget.new('se-app-'+name).then(function(widget) {
+			SE.widget.new('se-app-'+name, app).then(function(widget) {
 				resolve(widget);
 			}, function() {
 				reject();
@@ -77,6 +140,8 @@ $(function() {
 
 	app.declareview('home');
 	app.declareview('learn');
+	app.declareview('login');
+	app.declareview('signup');
 	app.declareview('decks');
 	app.declareview('edit');
 	app.declareview('games');
@@ -85,7 +150,6 @@ $(function() {
 	app.declareview('cards');
 	app.declareview('settings');
 	app.declareview('packs');
-	app.declareview('chat');
 	app.declareview('patch-notes');
 
 	SE.event.on('/ping', function(data) {
@@ -110,6 +174,7 @@ $(function() {
 		SE.event.fire('nav-'+app.hash());
 	});
 	SE.event.on('/chat', function(data) {
+		$('#nav-top-account img')[0].src='/img/icon/chat.green.128px.png';
 		vii.sound.play('chat');
 		SE.event.fire('/notification', {
 			class:'chat',
@@ -124,12 +189,9 @@ $(function() {
 		});
 	});
 
-	SE.event.on('nav-drawer', function() {
-		app.drawer.toggle();
-	});
-
 	SE.event.on('websocket.close', function() {
 		console.error('websocket closed');
+		$('#nav-top-account img')[0].src='/img/icon/chat.red.128px.png';
 	});
 
 	SE.event.on('nav-reset', function() {

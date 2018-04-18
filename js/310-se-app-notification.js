@@ -4,7 +4,7 @@ SE.widget.control('se-app-notification', function(data) {
 	me.message = data.message;
 
 	if (data.class == 'chat') {
-		$('img', me)[0].src='/img/icon/chat.black.32px.png';
+		$('img', me)[0].src='/img/icon/chat.black.128px.png';
 	} else if (data.class == 'match') {
 		$('img', me)[0].src='/img/icon/attack.32px.png';
 	} else if (data.class == 'error') {
