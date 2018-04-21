@@ -64,13 +64,14 @@
         </ul>
       </div>
       <div id="nav-notifications"></div>
-      <div id="nav-chat" class="pos-fix bottom0 width100" style="display:none;">
-        <div id="nav-chat-title">
-          <img autosize src="/img/icon/chat.black.128px.png"/>
-          <span>all</span>
-        </div>
-        <div id="nav-chat-history" class="width100"></div>
-        <input class="vii width100" autosize style="flex:1;"/>
+      <div id="nav-chat" class="pos-fix bottom0 width100" style="display:none;height:50%;">
+        <ul autosize id="nav-chat-title" class="vii vii-tabs width100">
+          <li style="padding:0px">
+            <a onclick="SE.event.fire('nav-chat')"><img autosize src="/img/icon/chat.black.128px.png"/></a>
+          </li>
+        </ul>
+        <div id="nav-chat-history" class="width100" style="flex:1;overflow:auto;"></div>
+        <input class="vii width100 bottom0" autosize/>
       </div>
     </nav>
     <div id="content"></div>

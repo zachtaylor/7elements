@@ -12,10 +12,10 @@ SE.widget.control('se-app-notification', function(data) {
 	}
 
 	$(me).click(function() {
-		$(me).remove();
+		$(me).slideUp();
 	});
 
 	if (data.timeout) window.setTimeout(function() {
-		$(me).remove();
+		$(me).slideUp();
 	}, data.timeout);
 });

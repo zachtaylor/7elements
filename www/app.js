@@ -1,5 +1,20 @@
 $(function() {
 	var app = {};
+	app.notification = {
+		add:function(c, title, text, timeout) {
+			SE.widget.new('se-app-notification', {
+				class:c,
+				title:title?title+': ':'',
+				message:text,
+				timeout:timeout||7000,
+			}).then(function(notification) {
+				$('#nav-notifications').append(notification);
+			});
+		},
+		err:function(text) {
+			app.notification.add('error', 'Error', text);
+		}
+	};
 	app.drawer = {
 		open: function() {
 			$('#nav-drawer').css({left:'0px'});
@@ -15,6 +30,7 @@ $(function() {
 		}
 	};
 	app.chat = {
+		channels: {},
 		open: function() {
 			$('#nav-chat').slideDown();
 			$('#nav-chat input').focus();
@@ -27,23 +43,48 @@ $(function() {
 		toggle: function() {
 			if (app.chat.isopen) app.chat.close();
 			else app.chat.open();
-		}
+		},
+		channel: function(name) {
+			if (!app.chat.channels[name]) {
+				app.chat.channels[name] = $('<div></div>')[0];
+				$('#nav-chat-title').append('<li channel="'+name+'"><a onclick=\'SE.event.fire("nav-chat-channel", "'+name+'")\'>'+name+'</a></li>');
+			}
+			return app.chat.channels[name];
+		},
+		show:function(name) {
+			var channel = app.chat.channel(name);
+			$('#nav-chat-history').empty();
+			$('#nav-chat-title li').removeClass('active');
+			$('#nav-chat-title li[channel="'+name+'"]').addClass('active');
+			$('#nav-chat-history').append(channel);
+			return channel;
+		},
 	};
 	SE.event.on('nav-drawer', function() {
 		app.drawer.toggle();
 	});
 	SE.event.on('nav-chat', function() {
 		if (!app.data) {
-			return console.warn('you must login to access chat');
+			console.warn('you must login to access chat');
+			app.notification.err('you must login to access chat');
+			return;
 		} else if ($('#nav-chat input').val()) {
 			$('#nav-chat input').focus();
 			return;
 		}
 		app.chat.toggle();
 	});
+	SE.event.on('nav-chat-channel', function(name) {
+		app.chat.show(name);
+	});
+	SE.event.on('chat-join', function(name) {
+		console.warn('chat-join', name);
+		app.chat.show(name);
+	});
+	SE.event.fire('chat-join', 'all');
 
 	app.keybind = {
-		appdrawer: 27,
+		appdrawer:27,
 		chat:13,
 	};
 	app.keybind.on = function(f) {
@@ -73,7 +114,7 @@ $(function() {
 			var message = $(this).val();
 			if (message) {
 				SE.websocket.send('chat', {
-					channel: $('#nav-chat-title span')[0].innerHTML,
+					channel: $('#nav-chat-title li.active').attr('channel'),
 					message: $(this).val()
 				});
 				$(this).val('');
@@ -176,17 +217,11 @@ $(function() {
 	SE.event.on('/chat', function(data) {
 		$('#nav-top-account img')[0].src='/img/icon/chat.green.128px.png';
 		vii.sound.play('chat');
-		SE.event.fire('/notification', {
-			class:'chat',
-			title:data.username,
-			message:data.message,
-			timeout:7000,
-		});
+		$(app.chat.show(data.channel)).append('<div><a onclick="SE.event.fire(\'chat-join\', \''+data.username+'\')"><b>'+data.username+'</b></a>: '+data.message+'</div>');
+		app.notification.add('chat', data.username, data.message);
 	});
 	SE.event.on('/notification', function(data) {
-		SE.widget.new('se-app-notification', data).then(function(notification) {
-			$('#nav-notifications').append(notification);
-		});
+		app.notification.add(data.class, data.username, data.message);
 	});
 
 	SE.event.on('websocket.close', function() {

@@ -3,6 +3,7 @@ package api
 import (
 	"elemen7s.com/chat"
 	"ztaylor.me/http"
+	"ztaylor.me/js"
 	"ztaylor.me/log"
 )
 
@@ -18,8 +19,15 @@ func ChatHandler(r *http.Request) error {
 	} else if channel == "all" {
 		chat.GetChannel("all").AddMessage(chat.NewMessage(r.Session.Username, msg))
 	} else {
+		r.Agent.WriteJson(js.Object{
+			"uri": "/notification",
+			"data": js.Object{
+				"class":    "error",
+				"username": channel,
+				"message":  "Channel not supported yet, sorry!",
+			},
+		})
 		log.Add("Channel", channel).Warn("chat target missing")
 	}
-
 	return nil
 }
