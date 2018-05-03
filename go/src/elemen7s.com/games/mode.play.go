@@ -6,7 +6,7 @@ import (
 )
 
 type PlayMode struct {
-	*Card
+	Card   *vii.GameCard
 	Stack  *Event
 	Target interface{}
 }
@@ -69,7 +69,7 @@ func (m *PlayMode) OnReceive(event *Event, g *Game, s *Seat, j js.Object) {
 	g.Log().Add("Username", s.Username).Add("EventName", j["event"]).Error("play: receive")
 }
 
-func Play(g *Game, s *Seat, c *Card, target interface{}) {
+func Play(g *Game, s *Seat, c *vii.GameCard, target interface{}) {
 	if !s.RemoveHandAndElements(c.Id) {
 		return
 	}

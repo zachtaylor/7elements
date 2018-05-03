@@ -4,7 +4,7 @@ import (
 	"ztaylor.me/js"
 )
 
-type AttackOptions map[int]string
+type AttackOptions map[string]string
 
 type AttackMode AttackOptions
 
@@ -40,8 +40,8 @@ func (a AttackMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 }
 
 func (a AttackMode) attack(e *Event, g *Game, s *Seat, j js.Object) {
-	gcid := j.Ival("gcid")
-	if gcid < 1 {
+	gcid := j.Sval("gcid")
+	if len(gcid) < 1 {
 		g.Log().Error("games.Attack: gcid missing")
 		return
 	}
@@ -52,7 +52,7 @@ func (a AttackMode) attack(e *Event, g *Game, s *Seat, j js.Object) {
 		delete(a, gcid)
 	} else if gc := g.Cards[gcid]; gc == nil {
 		log.Error("games.Attack: gcid not found")
-	} else if !gc.Awake {
+	} else if !gc.IsAwake {
 		log.Warn("games.Attack: card is not awake")
 
 		AnimateAlertError(s, g, gc.CardText.Name, "not awake")

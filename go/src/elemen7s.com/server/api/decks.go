@@ -1,7 +1,7 @@
 package api
 
 import (
-	"elemen7s.com/decks"
+	"elemen7s.com"
 	"ztaylor.me/http"
 	"ztaylor.me/log"
 )
@@ -11,7 +11,7 @@ func DecksHandler(r *http.Request) error {
 		return ErrSessionRequired
 	}
 	log := log.Add("Username", r.Session.Username)
-	if decks, err := decks.Get(r.Session.Username); err != nil {
+	if decks, err := vii.AccountDeckService.Get(r.Session.Username); err != nil {
 		return err
 	} else {
 		r.WriteJson(decks.Json())

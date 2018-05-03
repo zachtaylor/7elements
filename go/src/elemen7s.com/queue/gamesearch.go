@@ -1,19 +1,19 @@
 package queue
 
 import (
-	"elemen7s.com/decks"
+	"elemen7s.com"
 	"time"
 	"ztaylor.me/http"
 )
 
 type GameSearch struct {
 	*http.Session
-	*decks.Deck
+	Deck  *vii.AccountDeck
 	Start time.Time
 	Done  chan int
 }
 
-func NewGameSearch(session *http.Session, deck *decks.Deck) *GameSearch {
+func NewGameSearch(session *http.Session, deck *vii.AccountDeck) *GameSearch {
 	qlock.Lock()
 	defer qlock.Unlock()
 

@@ -2,12 +2,11 @@ package api
 
 import (
 	"bytes"
+	"elemen7s.com"
 	"elemen7s.com/accountscards"
-	"elemen7s.com/decks"
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"time"
 	zhttp "ztaylor.me/http"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
@@ -24,7 +23,7 @@ var DecksIdJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 	}
 
 	log.Add("Username", session.Username)
-	ds, err := decks.Get(session.Username)
+	ds, err := vii.AccountDeckService.Get(session.Username)
 	if err != nil {
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("decks.json")
@@ -72,7 +71,13 @@ var DecksIdJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 			return
 		}
 
+		isResetWinCount := false
+
 		for cardid, count := range data.Cards {
+			if count == deck.Cards[cardid] {
+				continue
+			}
+			isResetWinCount = true
 			if maxCount := len(accountscards[cardid]); maxCount < count {
 				log.Clone().Add("CardId", cardid).Add("RequestCount", count).Add("MaxCount", maxCount).Warn("decks.id.json: post: request more cards than in collection")
 				deck.Cards[cardid] = maxCount
@@ -83,15 +88,16 @@ var DecksIdJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 			}
 		}
 
-		deck.Name = data.Name
-		deck.Register = time.Now()
-
-		if err := decks.Delete(session.Username, deck.Id); err != nil {
-			log.Add("Error", err).Error("mydecks: post: delete old deck")
-			return
-		} else if err := decks.Insert(session.Username, deck.Id); err != nil {
-			log.Add("Error", err).Error("mydecks: post: insert new deck")
-			return
+		if isResetWinCount {
+			if err := vii.AccountDeckService.Update(deck); err != nil {
+				log.Add("Error", err).Error("mydecks: post")
+				return
+			}
+		} else {
+			if err := vii.AccountDeckService.UpdateName(deck.Username, deck.Id, deck.Version); err != nil {
+				log.Add("Error", err).Error("mydecks: post name")
+				return
+			}
 		}
 
 		deck.Json().Write(w)

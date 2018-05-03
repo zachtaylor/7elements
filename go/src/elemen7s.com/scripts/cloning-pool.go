@@ -3,7 +3,6 @@ package scripts
 import (
 	"elemen7s.com"
 	"elemen7s.com/games"
-	"strconv"
 )
 
 const CloningPoolID = "cloning-pool"
@@ -15,24 +14,7 @@ func init() {
 func CloningPool(game *games.Game, seat *games.Seat, target interface{}) {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
-	var gcid int
-	switch v := target.(type) {
-	case string:
-		if t, err := strconv.ParseInt(v, 10, 0); err != nil {
-			log.Add("Error", err).Error(CloningPoolID + ": parse target gcid")
-			return
-		} else {
-			gcid = int(t)
-		}
-	case int:
-		gcid = v
-	case float64:
-		gcid = int(v)
-	default:
-		log.Error(CloningPoolID + ": parse unknown type target gcid")
-		return
-	}
-
+	gcid := CastString(target)
 	card := game.Cards[gcid]
 	if card == nil {
 		log.Add("Error", "gcid not found").Error(CloningPoolID)
@@ -48,7 +30,7 @@ func CloningPool(game *games.Game, seat *games.Seat, target interface{}) {
 		return
 	}
 
-	game.RegisterToken(seat.Username, games.NewCard(card.Card, card.CardText))
+	game.RegisterToken(seat.Username, vii.NewGameCard(card.Card, card.CardText))
 	seat.Life++
 	games.BroadcastAnimateSeatUpdate(game, seat)
 

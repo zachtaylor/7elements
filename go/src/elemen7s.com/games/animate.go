@@ -28,7 +28,7 @@ func AnimateAttack(player Player, a AttackOptions) {
 	})
 }
 
-func BroadcastAnimateCardUpdate(game *Game, card *Card) {
+func BroadcastAnimateCardUpdate(game *Game, card *vii.GameCard) {
 	game.Broadcast("animate", js.Object{
 		"animate": "cardupdate",
 		"gameid":  game.Id,
@@ -53,7 +53,7 @@ func BroadcastAnimateAddElement(game *Game, username string, e int) {
 	})
 }
 
-func BroadcastAnimateSpawn(game *Game, card *Card) {
+func BroadcastAnimateSpawn(game *Game, card *vii.GameCard) {
 	game.Broadcast("spawn", js.Object{
 		"gameid":   game.Id,
 		"username": card.Username,
@@ -80,7 +80,7 @@ func AnimateChoice(player Player, game *Game, prompt string, choices []js.Object
 	})
 }
 
-func AnimateNoviceSeerChoice(player Player, game *Game, card *Card) {
+func AnimateNoviceSeerChoice(player Player, game *Game, card *vii.GameCard) {
 	prompt := fmt.Sprintf("Destroy %s?", card.CardText.Name)
 	choices := []js.Object{
 		js.Object{

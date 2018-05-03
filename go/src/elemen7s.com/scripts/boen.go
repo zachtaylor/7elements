@@ -1,6 +1,7 @@
 package scripts
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/games"
 	"ztaylor.me/log"
 )
@@ -17,7 +18,7 @@ func Boen(game *games.Game, seat *games.Seat, target interface{}) {
 		"Card":     target,
 	})
 
-	if self, ok := target.(*games.Card); !ok {
+	if self, ok := target.(*vii.GameCard); !ok {
 		log.Error(BoenID + `: self target failed`)
 	} else if card := seat.Deck.Draw(); card == nil {
 		log.Error(BoenID + `: deck is empty`)

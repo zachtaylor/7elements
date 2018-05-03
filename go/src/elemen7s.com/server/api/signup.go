@@ -1,8 +1,8 @@
 package api
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/accounts"
-	"elemen7s.com/decks"
 	// "elemen7s.com/emails"
 	// "elemen7s.com/options"
 	"elemen7s.com/server/security"
@@ -70,13 +70,15 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 		Register: time.Now(),
 	}
 
-	decks.Store(username, decks.NewDecks())
-	for _, deck := range decks.Test(username) {
+	for i := 1; i < 4; i++ {
+		deck := vii.NewAccountDeck()
+		deck.Id = i
 		deck.Username = username
-	}
-	if err := decks.Insert(username, 0); err != nil {
-		log.Add("Error", err).Error("/api/signup: grant decks")
-		return
+		deck.Version = ""
+		if err := vii.AccountDeckService.Update(deck); err != nil {
+			log.Add("Error", err).Error("/api/signup: grant decks")
+			return
+		}
 	}
 
 	// if err := emails.SendValidationEmail(account); err != nil {
@@ -87,7 +89,7 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 
 	if err := accounts.Insert(username); err != nil {
 		accounts.Forget(username)
-		decks.Forget(username)
+		vii.AccountDeckService.Forget(username)
 		log.Add("Error", err).Error("/api/signup: account insert")
 		w.WriteHeader(500)
 	} else {

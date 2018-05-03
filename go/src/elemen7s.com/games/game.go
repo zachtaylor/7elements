@@ -3,7 +3,6 @@ package games
 import (
 	"elemen7s.com"
 	"elemen7s.com/chat"
-	"elemen7s.com/decks"
 	"fmt"
 	"time"
 	"ztaylor.me/js"
@@ -13,14 +12,13 @@ import (
 const EventTimeout = 5 * time.Minute
 
 type Game struct {
-	Id        int
-	Cards     map[int]*Card
-	CardTally *Tally
-	Active    *Event
-	Events    map[int]Event
-	Timeline  chan *Event
-	Chat      chat.Channel
-	Seats     map[string]*Seat
+	Id       int
+	Cards    map[string]*vii.GameCard
+	Active   *Event
+	Events   map[int]Event
+	Timeline chan *Event
+	Chat     chat.Channel
+	Seats    map[string]*Seat
 	*log.Logger
 	*TurnClock
 	*Results
@@ -36,13 +34,12 @@ func New() *Game {
 	<-time.After(time.Second)
 	logger.New().Add("GameId", id).Info("game started")
 	return &Game{
-		Id:        id,
-		Cards:     make(map[int]*Card),
-		CardTally: NewTally(),
-		Events:    make(map[int]Event),
-		Timeline:  make(chan *Event),
-		Chat:      chat.NewChannel(fmt.Sprintf("game#%d", id)),
-		Logger:    logger,
+		Id:       id,
+		Cards:    make(map[string]*vii.GameCard),
+		Events:   make(map[int]Event),
+		Timeline: make(chan *Event),
+		Chat:     chat.NewChannel(fmt.Sprintf("game#%d", id)),
+		Logger:   logger,
 		// Active:   nil,
 		// TurnClock: nil,
 		Seats: make(map[string]*Seat),
@@ -52,6 +49,14 @@ func New() *Game {
 
 func (g *Game) Log() log.Log {
 	return g.Logger.New()
+}
+
+func (g *Game) NewCardId() string {
+	key := vii.NewKey()
+	for g.Cards[key] != nil {
+		key = vii.NewKey()
+	}
+	return key
 }
 
 func (g *Game) AddSeat(s *Seat) {
@@ -64,22 +69,22 @@ func (g *Game) AddSeat(s *Seat) {
 	}
 }
 
-func (g *Game) RegisterToken(username string, c *Card) {
+func (g *Game) RegisterToken(username string, c *vii.GameCard) {
 	log := g.Log().Add("Username", username).Add("CardName", c.CardText.Name)
 	if s := g.GetSeat(username); s == nil {
 		log.Warn("games.RegisterToken: seat missing")
 	} else if c.IsRegistered() {
 		log.Add("gcid", c.Id).Warn("games.RegisterToken: card is already registered")
 	} else {
-		c.SkipPast = true
+		c.IsToken = true
 		c.Username = username
-		c.Id = g.CardTally.Next()
+		c.Id = g.NewCardId()
 		g.Cards[c.Id] = c
 		s.Alive[c.Id] = c
 	}
 }
 
-func (g *Game) Register(deck *decks.Deck, lang string) *Seat {
+func (g *Game) Register(deck *vii.AccountDeck, lang string) *Seat {
 	log := g.Log().Add("Username", deck.Username)
 
 	if g.Seats[deck.Username] != nil {
@@ -88,9 +93,11 @@ func (g *Game) Register(deck *decks.Deck, lang string) *Seat {
 	}
 
 	s := newSeat()
+	s.Deck = vii.NewGameDeck()
 	s.Username = deck.Username
-	s.Deck = NewDeck()
-	s.Deck.DeckId = deck.Id
+	s.Deck.Username = deck.Username
+	s.Deck.AccountDeckId = deck.Id
+	s.Deck.AccountDeckVersion = deck.Version
 
 	deckSize := 0
 
@@ -107,8 +114,8 @@ func (g *Game) Register(deck *decks.Deck, lang string) *Seat {
 		}
 
 		for i := 0; i < copies; i++ {
-			c := NewCard(card, text)
-			c.Id = g.CardTally.Next()
+			c := vii.NewGameCard(card, text)
+			c.Id = g.NewCardId()
 			c.Username = deck.Username
 			g.Cards[c.Id] = c
 			s.Deck.Append(c)

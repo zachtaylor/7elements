@@ -2,7 +2,6 @@ package games
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/decks"
 	"time"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
@@ -23,7 +22,7 @@ func ConnectAI(game *Game, seat *Seat) *AI {
 func BuildAIGame() *Game {
 	g := New()
 
-	aideck := decks.New()
+	aideck := vii.NewAccountDeck()
 	aideck.Username = "A.I."
 	aideck.Cards[1] = 3
 	aideck.Cards[2] = 3
@@ -167,18 +166,21 @@ func (ai *AI) EventDefend(data js.Object) {
 }
 
 func (ai *AI) sendPlayEvent() {
-	choices := make([]int, 0)
+	choices := make([]string, 0)
 	elements := ai.Seat.Elements.GetActive()
 	for gcid, gc := range ai.Hand {
+		log := ai.Game.Log().WithFields(log.Fields{
+			"gcid":     gcid,
+			"CardId":   gc.Card.Id,
+			"Cost":     gc.Card.Costs,
+			"Elements": ai.Seat.Elements,
+		})
+
 		if elements.Test(gc.Card.Costs) {
 			choices = append(choices, gcid)
-			ai.Game.Log().WithFields(log.Fields{
-				"CardId":  gc.Card.Id,
-				"GCID":    gcid,
-				"MyEl":    ai.Seat.Elements,
-				"Costs":   gc.Card.Costs,
-				"Choices": choices,
-			}).Debug("ai: choice saved")
+			log.Debug("ai: choice saved")
+		} else {
+			log.Debug("ai: cannot afford")
 		}
 	}
 
@@ -190,7 +192,7 @@ func (ai *AI) sendPlayEvent() {
 		return
 	}
 
-	ai.Game.Log().Add("#Choices", len(choices)).Add("Choice", choices[0]).Info("ai: choose")
+	ai.Game.Log().Add("Choices", choices).Add("Choice", choices[0]).Info("ai: choose")
 	ai.SendGameRequest(js.Object{
 		"event": "play",
 		"gcid":  choices[0],

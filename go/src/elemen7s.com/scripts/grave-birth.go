@@ -13,7 +13,7 @@ func init() {
 }
 
 type GraveBirthMode struct {
-	*games.Card
+	Card  *vii.GameCard
 	Stack *games.Event
 }
 
@@ -54,7 +54,7 @@ func (mode *GraveBirthMode) OnReceive(e *games.Event, g *games.Game, s *games.Se
 		return
 	}
 
-	if gcid := json.Ival("choice"); gcid < 1 {
+	if gcid := json.Sval("choice"); gcid == "" {
 		log.Warn(GraveBirthID + ": choice not found")
 	} else if card := g.Cards[gcid]; card == nil {
 		log.Warn(GraveBirthID + ": gcid not found")
@@ -65,7 +65,7 @@ func (mode *GraveBirthMode) OnReceive(e *games.Event, g *games.Game, s *games.Se
 	} else if !ownerSeat.HasPastCard(gcid) {
 		log.Add("CardOwner", card.Username).Add("Past", ownerSeat.Graveyard.String()).Warn(GraveBirthID + ": card not in past")
 	} else {
-		mode.Card = games.NewCard(card.Card, card.CardText)
+		mode.Card = vii.NewGameCard(card.Card, card.CardText)
 		log.Add("CardId", mode.Card.Card.Id).Info(GraveBirthID + ": confirmed card")
 		g.TimelineJoin(nil)
 	}

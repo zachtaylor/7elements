@@ -10,11 +10,11 @@ import (
 type Seat struct {
 	Username  string
 	Life      int
-	Deck      *Deck
+	Deck      *vii.GameDeck
 	Elements  vii.ElementSet
-	Hand      Cards
-	Alive     Cards
-	Graveyard Cards
+	Hand      vii.GameCards
+	Alive     vii.GameCards
+	Graveyard vii.GameCards
 	Color     string
 	Player
 }
@@ -22,9 +22,9 @@ type Seat struct {
 func newSeat() *Seat {
 	return &Seat{
 		Elements:  vii.ElementSet{},
-		Alive:     Cards{},
-		Hand:      Cards{},
-		Graveyard: Cards{},
+		Alive:     vii.GameCards{},
+		Hand:      vii.GameCards{},
+		Graveyard: vii.GameCards{},
 	}
 }
 
@@ -38,7 +38,7 @@ func (seat *Seat) DiscardHand() {
 	for _, card := range seat.Hand {
 		seat.Graveyard[card.Id] = card
 	}
-	seat.Hand = Cards{}
+	seat.Hand = vii.GameCards{}
 }
 
 func (seat *Seat) DrawCard(count int) {
@@ -48,7 +48,7 @@ func (seat *Seat) DrawCard(count int) {
 	}
 }
 
-func (seat *Seat) RemoveHandAndElements(gcid int) bool {
+func (seat *Seat) RemoveHandAndElements(gcid string) bool {
 	if card := seat.Hand[gcid]; card == nil {
 		return false
 	} else {
@@ -60,7 +60,7 @@ func (seat *Seat) RemoveHandAndElements(gcid int) bool {
 
 func (seat *Seat) Reactivate() {
 	for _, card := range seat.Alive {
-		card.Awake = true
+		card.IsAwake = true
 	}
 	seat.Elements.Reactivate()
 }
@@ -96,14 +96,14 @@ func (s *Seat) String() string {
 
 func (s *Seat) HasAwakeAliveCards() bool {
 	for _, card := range s.Alive {
-		if card.Awake {
+		if card.IsAwake {
 			return true
 		}
 	}
 	return false
 }
 
-func (s *Seat) HasAliveCard(gcid int) bool {
+func (s *Seat) HasAliveCard(gcid string) bool {
 	for _, card := range s.Alive {
 		if card.Id == gcid {
 			return true
@@ -112,7 +112,7 @@ func (s *Seat) HasAliveCard(gcid int) bool {
 	return false
 }
 
-func (s *Seat) HasPastCard(gcid int) bool {
+func (s *Seat) HasPastCard(gcid string) bool {
 	for _, card := range s.Graveyard {
 		if card.Id == gcid {
 			return true
@@ -129,7 +129,7 @@ func (s *Seat) HasCardsInHand() bool {
 	return len(s.Hand) > 0
 }
 
-func (s *Seat) HasCardInHand(gcid int) bool {
+func (s *Seat) HasCardInHand(gcid string) bool {
 	for _, card := range s.Hand {
 		if card.Id == gcid {
 			return true

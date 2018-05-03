@@ -16,8 +16,8 @@ func TryPass(game *Game, seat *Seat, json js.Object) {
 func TryPlay(game *Game, seat *Seat, json js.Object, onlySpells bool) {
 	log := game.Log().Add("Username", seat.Username).Add("Elements", seat.Elements.String())
 
-	gcid := json.Ival("gcid")
-	if gcid < 1 {
+	gcid := json.Sval("gcid")
+	if gcid == "" {
 		log.Error("games.TryPlay: gcid missing")
 		return
 	}
@@ -45,14 +45,14 @@ func TryPlay(game *Game, seat *Seat, json js.Object, onlySpells bool) {
 func TryTrigger(game *Game, seat *Seat, json js.Object) {
 	log := game.Log().Add("Username", seat.Username).Add("Elements", seat.Elements.String())
 
-	gcid := json.Ival("gcid")
-	if gcid < 1 {
+	gcid := json.Sval("gcid")
+	if gcid == "" {
 		log.Error("games.Trigger: gcid missing")
 		return
 	}
 
 	powerid := json.Ival("powerid")
-	if gcid < 1 {
+	if powerid < 1 {
 		log.Error("games.Trigger: powerid missing")
 		return
 	}
@@ -63,7 +63,7 @@ func TryTrigger(game *Game, seat *Seat, json js.Object) {
 		log.Error("games.Trigger: gcid not found")
 	} else if power := card.Powers[powerid]; power == nil {
 		log.Error("games.Trigger: powerid not found")
-	} else if !card.Awake && power.UsesTurn {
+	} else if !card.IsAwake && power.UsesTurn {
 		AnimateAlertError(seat, game, card.CardText.Name, `not awake`)
 		log.Error("games.Trigger: card is asleep")
 	} else if !seat.Elements.GetActive().Test(power.Costs) {

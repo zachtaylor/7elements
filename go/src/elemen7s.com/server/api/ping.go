@@ -1,9 +1,9 @@
 package api
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/accounts"
 	"elemen7s.com/accountscards"
-	"elemen7s.com/decks"
 	"elemen7s.com/games"
 	"fmt"
 	"time"
@@ -24,7 +24,7 @@ func PingHandler(r *http.Request) error {
 		return nil
 	} else if account, err := accounts.Get(r.Username); account == nil {
 		return err
-	} else if decks, err := decks.Get(r.Username); decks == nil {
+	} else if decks, err := vii.AccountDeckService.Get(r.Username); decks == nil {
 		return err
 	} else if accountcards, err := accountscards.Get(r.Username); accountcards == nil {
 		return err

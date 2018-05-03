@@ -1,8 +1,8 @@
 package games
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/accounts"
-	"elemen7s.com/decks"
 	"ztaylor.me/js"
 )
 
@@ -18,7 +18,7 @@ func (m EndMode) OnActivate(e *Event, g *Game) {
 	for _, username := range g.Results.Winners {
 		if seat := g.GetSeat(username); seat == nil {
 			log.Clone().Add("Username", username).Warn("games.End: winning seat missing")
-		} else if err := decks.UpdateAddWin(username, seat.Deck.DeckId); err != nil {
+		} else if err := vii.AccountDeckService.UpdateTallyWinCount(username, seat.Deck.AccountDeckId, seat.Deck.AccountDeckVersion); err != nil {
 			log.Clone().Add("Error", err).Add("Username", username).Error("games.End: winning deck missing")
 		} else if err := accounts.UpdateAddCoins(username, 2); err != nil {
 			log.Clone().Add("Error", err).Add("Username", username).Error("games.End: winning account missing")

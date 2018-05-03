@@ -1,7 +1,7 @@
 package queue
 
 import (
-	"elemen7s.com/decks"
+	"elemen7s.com"
 	"elemen7s.com/games"
 	"sync"
 	"time"
@@ -21,7 +21,7 @@ func init() {
 var queue = make([]*GameSearch, 0)
 var qlock sync.Mutex
 
-func Start(session *http.Session, deck *decks.Deck) chan int {
+func Start(session *http.Session, deck *vii.AccountDeck) chan int {
 	c := make(chan int)
 	go func() {
 		if search := NewGameSearch(session, deck); search == nil {

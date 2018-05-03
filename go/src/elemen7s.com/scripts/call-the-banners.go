@@ -28,7 +28,7 @@ var ctbCardText = &vii.CardText{
 
 func CallTheBanners(g *games.Game, s *games.Seat, target interface{}) {
 	for i := 0; i < 3; i++ {
-		g.RegisterToken(s.Username, games.NewCard(ctbCard, ctbCardText))
+		g.RegisterToken(s.Username, vii.NewGameCard(ctbCard, ctbCardText))
 	}
 	games.BroadcastAnimateSeatUpdate(g, s)
 	g.Active.Activate(g)

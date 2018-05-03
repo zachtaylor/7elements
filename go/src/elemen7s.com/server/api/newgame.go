@@ -1,8 +1,8 @@
 package api
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/accounts"
-	"elemen7s.com/decks"
 	"elemen7s.com/games"
 	"elemen7s.com/queue"
 	"ztaylor.me/http"
@@ -16,7 +16,7 @@ func NewGameHandler(r *http.Request) error {
 		return ErrSessionRequired
 	} else if account, err := accounts.Get(r.Username); account == nil {
 		return err
-	} else if mydecks, err := decks.Get(r.Username); mydecks == nil {
+	} else if mydecks, err := vii.AccountDeckService.Get(r.Username); mydecks == nil {
 		log.Add("Error", err).Error("newgame: decks missing")
 		return err
 	} else if deck := mydecks[r.Data.Ival("deckid")]; deck == nil {

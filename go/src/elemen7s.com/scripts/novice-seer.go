@@ -1,6 +1,7 @@
 package scripts
 
 import (
+	"elemen7s.com"
 	"elemen7s.com/games"
 	"ztaylor.me/js"
 )
@@ -11,8 +12,8 @@ func init() {
 
 type NoviceSeerMode struct {
 	destroy bool
-	*games.Card
-	Stack *games.Event
+	Card    *vii.GameCard
+	Stack   *games.Event
 }
 
 func (mode NoviceSeerMode) Name() string {

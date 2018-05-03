@@ -7,7 +7,7 @@ import (
 )
 
 type TriggerMode struct {
-	*Card
+	Card *vii.GameCard
 	*vii.Power
 	Stack  *Event
 	Target interface{}
@@ -56,10 +56,10 @@ func (m *TriggerMode) OnResolve(e *Event, g *Game) {
 	}).Info("trigger resolve")
 
 	if m.Power.UsesTurn {
-		if !m.Card.Awake {
+		if !m.Card.IsAwake {
 			return
 		}
-		m.Card.Awake = false
+		m.Card.IsAwake = false
 		BroadcastAnimateCardUpdate(g, m.Card)
 	}
 
@@ -71,8 +71,8 @@ func (m *TriggerMode) OnReceive(event *Event, g *Game, s *Seat, j js.Object) {
 	g.Log().Add("Username", s.Username).Add("EventName", j["event"]).Error("trigger: receive")
 }
 
-func Trigger(g *Game, s *Seat, c *Card, p *vii.Power, target interface{}) {
-	if p.UsesTurn && !c.Awake {
+func Trigger(g *Game, s *Seat, c *vii.GameCard, p *vii.Power, target interface{}) {
+	if p.UsesTurn && !c.IsAwake {
 		return
 	} else if !s.Elements.GetActive().Test(p.Costs) {
 		return

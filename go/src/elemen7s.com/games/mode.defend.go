@@ -5,7 +5,7 @@ import (
 	"ztaylor.me/log"
 )
 
-type DefendOptions map[int]int
+type DefendOptions map[string]string
 
 type DefendMode struct {
 	AttackOptions
@@ -70,25 +70,25 @@ func (m *DefendMode) OnReceive(e *Event, g *Game, s *Seat, j js.Object) {
 }
 
 func (m *DefendMode) defend(e *Event, g *Game, s *Seat, j js.Object) {
-	gcid := j.Ival("gcid")
-	if gcid < 1 {
+	gcid := j.Sval("gcid")
+	if gcid == "" {
 		g.Log().Error("games.Defend: gcid missing")
 		return
 	}
 
-	target := j.Ival("target")
-	if target < 1 {
+	target := j.Sval("target")
+	if target != "" {
 		log.Error("games.Defend: receive target")
 		return
 	}
 
 	log := log.Add("Username", s.Username).Add("GameId", g.Id).Add("gcid", gcid).Add("Target", target)
 
-	if m.DefendOptions[gcid] != 0 {
+	if m.DefendOptions[gcid] != "" {
 		delete(m.DefendOptions, gcid)
 	} else if gc := g.Cards[gcid]; gc == nil {
 		log.Error("games.Defend: gcid not found")
-	} else if !gc.Awake {
+	} else if !gc.IsAwake {
 		log.Warn("games.Defend: card is not awake")
 
 		AnimateAlertError(s, g, gc.CardText.Name, "not awake")
