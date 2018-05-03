@@ -50,7 +50,7 @@ nav a:hover {
   background:white;
   box-shadow: 0px -5px 10px;
 }
-@media (min-height:1200px) {
+@media (min-height:1201px) {
   [autosize] {
     height:128px !important;
   }
@@ -58,17 +58,10 @@ nav a:hover {
     font-size:92px;
   }
   nav {
-    height:128px;
     font-size:92px;
   }
-  nav a {
-    height:128px;
-  }
-  #nav-drawer li {
-    height:128px;
-  }
 }
-@media (min-height:800px) and (max-height:1199px) {
+@media (min-height:800px) and (max-height:1200px), (min-width:1601px) {
   [autosize] {
     height:64px !important;
   }
@@ -76,32 +69,39 @@ nav a:hover {
     font-size:42px;
   }
   nav {
-    height:64px;
     font-size:46px;
   }
-  nav a {
-    height:64px;
-  }
-  #nav-drawer li {
-    height:64px;
-  }
 }
-@media (max-height:799px), (max-width:700px) {
+@media (min-height:641px) and (max-height:800px), (min-width:1201px) and (max-width:1600px) {
   [autosize] {
     height:48px !important;
+  }
+  .se-card {
+    height:270px;
+    font-size:15px;
+    width:188px;
   }
   #content {
     font-size:21px;
   }
   nav {
-    height:48px;
     font-size:30px;
   }
-  nav a {
-    height:48px;
+}
+@media (max-height:640px), (max-width:1200px) {
+  [autosize] {
+    height:42px !important;
   }
-  #nav-drawer li {
-    height:48px;
+  .se-card {
+    height:216px;
+    font-size:12px;
+    width:150px;
+  }
+  #content {
+    font-size:16px;
+  }
+  nav {
+    font-size:27px;
   }
 }
 #nav-spacer {
@@ -135,8 +135,6 @@ nav a:hover {
   overflow:auto;
 }
 #footer {
-  flex:1;
-  position:absolute;
   max-height:64px;
   width:100%;
   bottom:0%;

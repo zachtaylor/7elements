@@ -47,7 +47,7 @@ $(function() {
 		channel: function(name) {
 			if (!app.chat.channels[name]) {
 				app.chat.channels[name] = $('<div></div>')[0];
-				$('#nav-chat-title').append('<li channel="'+name+'"><a onclick=\'SE.event.fire("nav-chat-channel", "'+name+'")\'>'+name+'</a></li>');
+				$('#nav-chat-title').append('<li autosize channel="'+name+'"><a onclick=\'SE.event.fire("nav-chat-channel", "'+name+'")\'>'+name+'</a></li>');
 			}
 			return app.chat.channels[name];
 		},
@@ -137,13 +137,6 @@ $(function() {
 		else if (v === "") window.location.hash="";
 		else return window.location.hash.substr(1);
 	};
-
-	$(window).resize(function() {
-		var footerHeight = $('#footer').height();
-		$('#content').css({
-			'max-height':(window.innerHeight-64-footerHeight)+'px'
-		});
-	});
 
 	app.getview = function(name) {
 		app.viewcache = app.viewcache || {};

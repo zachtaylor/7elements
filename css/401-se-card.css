@@ -1,6 +1,7 @@
 .se-card {
-	height:350px;
+	height:360px;
 	width:250px;
+	font-size:20px;
 	position:relative;
 	display:inline-block;
 	border:3px solid black;
@@ -10,35 +11,33 @@
 	overflow:hidden;
 }
 .se-card-title {
+	height:8%;
 	font-family:'Macondo',cursive;
-	font-size:21px;
 	text-align: left;
 	color:black;
 	background:#f7f7f7;
-	height:32px;
-	padding:4px;
+	padding:2px;
 	border-radius:8px;
 }
 .se-card [handle="costs"] img {
-	height:21px;
-	width:21px;
-	vertical-align:sub;
+	height:100%;
+	vertical-align:top;
 }
 .se-card [data-ctrl="name"] {
 	float:right;
 }
 .se-card-art {
+	top:8%;
+	height:50%;
+	max-width: 100%;
 	position:absolute;
-	top:32px;
 	left:-3px;
 	border-radius:8px;
 }
 .se-card-banner {
+	height:8%;
 	font-family:'Open Sans', sans-serif;
-	font-size:21px;
-	line-height:21px;
 	border-radius:8px;
-	height:25px;
 	padding:0px 4px;
 	color: black;
 	background-color: white;
@@ -46,25 +45,18 @@
 .se-card-banner[data-ctrl="type"] {
 	font-family:'Macondo',cursive;
 }
-.se-card [data-ctrl="art"] {
-	top:10%;
-	height:50%;
-}
 .se-card .se-card-powers {
-	top:210px;
-	width:244px;
-	height:108px;
+	height:34%;
+	top:58%;
 	border-radius:8px;
 	padding:0 0 0 4;
-	font-size:21px;
-	line-height:21px;
 	font-family:'Open Sans', sans-serif;
 	text-align: left;
 	background: linear-gradient(to top, #eee, #bbb);
 }
-.se-card .se-card-powers .se-symbol {
-	width:20px;
-	height:20px;
+.se-card .se-symbol {
+	width:10%;
+	height:10%;
 }
 .se-card [data-ctrl="flavor"] {
 	font-family:'Macondo',cursive;

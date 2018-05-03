@@ -57,6 +57,7 @@ SE.widget.control('se-app-edit', function() {
 	me.mod.addCard = function(cardid) {
 		var copiesInDeck = me.data.decks[me.deckid].cards[cardid] || 0;
 		var copiesMod = me.mod.cards[cardid] || 0;
+		me.deckcountmod = '' + (parseInt(me.deckcountmod || 0) + 1);
 		if ((copiesInDeck + copiesMod) >= me.data.cards[cardid].copies) {
 			return console.warn('mod.addCard: count exceeded', me.data.cards[cardid].copies);
 		}
@@ -70,11 +71,11 @@ SE.widget.control('se-app-edit', function() {
 	me.mod.removeCard = function(cardid) {
 		var copiesInDeck = me.data.decks[me.deckid].cards[cardid] || 0;
 		var copiesMod = me.mod.cards[cardid] || 0;
+		me.mod.cards[cardid] = copiesMod - 1;
+		me.deckcountmod = '' + (parseInt(me.deckcountmod || 0) - 1);
 		if ((copiesInDeck + copiesMod) > 1) {
-			me.mod.cards[cardid] = copiesMod - 1;
 			me.mod.updateCardBanner(me.cache.deck[cardid]);
 		}	else {
-			me.mod.cards[cardid] = -copiesInDeck;
 			$(me.cache.deck[cardid]).detach();
 		}
 	};
@@ -145,7 +146,6 @@ SE.widget.control('se-app-edit', function() {
 
 		me.mod.reset();
 
-		var cardCount = Object.keys(me.data.cards).length;
 
 		// update filter activity indicators
 		for (var i=1;i<8;i++) {
@@ -169,11 +169,13 @@ SE.widget.control('se-app-edit', function() {
 			$(me.$cardsbank.children[0]).detach();
 		};
 		var showEmptyBankWarning = true;
-		for (var cardid=1;cardid<=cardCount;cardid++) {
+		var cardSetCount = Object.keys(me.data.cards).length;
+		for (var cardid=1;cardid<=cardSetCount;cardid++) {
 			var cdat = me.data.cards[cardid];
 			if (!cdat.copies) continue;
+			cardCount+= cdat.copies;
+			showEmptyBankWarning = false;
 			if (me.filter.testElement(cdat) && me.filter.testCost(cdat) && me.filter.testType(cdat)) {
-				showEmptyBankWarning = false;
 				me.showBankCard(cardid, cdat.copies);
 			}
 		};
@@ -185,17 +187,18 @@ SE.widget.control('se-app-edit', function() {
 		// deck pane
 		for (; me.$cardsdeck.children.length;) {
 			$(me.$cardsdeck.children[0]).detach();
-		};
+		}
 		var showEmptyDeckWarning = true;
-		for (var cardid=1;cardid<=cardCount;cardid++) {
-			var copies = me.data.decks[me.deckid].cards[cardid];
-			if (copies) {
-				showEmptyDeckWarning = false;
-				me.showDeckCard(cardid, copies);
-			}
-		};
+		var cardCount = 0;
+		$.each(me.data.decks[me.deckid].cards, function(cardid, copies) {
+			showEmptyDeckWarning = false;
+			cardCount += copies;
+			me.showDeckCard(cardid, copies);
+		});
 		if (showEmptyDeckWarning) {
 			$(me.$cardsdeck).append('<h2 style="color:red;">Uh-oh! It appears this deck is empty...</h2>');
+		} else {
+			me.deckcount = ''+cardCount;
 		}
 		// deck pane
 
@@ -204,13 +207,16 @@ SE.widget.control('se-app-edit', function() {
 	};
 
 	me.footer = $('<div></div>');
-	me.nameinput = $('<input class="vii"></input>')[0];
+	me.nameinput = $('<input autosize class="vii"></input>')[0];
 	$(me.nameinput).keyup(function(e) {
-		me.mod.name = $(me.nameinput).val()
-		if (me.mod.name != me.data.decks[me.deckid].name) SE.dirtypage.on();
+		me.mod.name = $(me.nameinput).val();
+		$(me.nameinput).attr('placeholder', me.data.decks[me.deckid].name);
+		if (me.mod.name != me.data.decks[me.deckid].name) {
+			SE.dirtypage.on();
+		}
 	});
 	$(me.footer).append(me.nameinput);
-	me.savebutton = $('<button class="vii vii-green" disabled style="padding:7px;position:absolute;">Saved</button>')[0];
+	me.savebutton = $('<button class="vii vii-green" autosize disabled style="padding:7px;position:absolute;">Saved</button>')[0];
 	$(me.savebutton).click(function() {
 		var dat = {
 			name: me.mod.name || me.data.decks[me.deckid].name,
