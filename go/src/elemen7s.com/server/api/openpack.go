@@ -1,8 +1,8 @@
 package api
 
 import (
-	"elemen7s.com/accounts"
-	"elemen7s.com/accountscards"
+	"elemen7s.com"
+	"elemen7s.com/gencardpack"
 	"net/http"
 	"time"
 	zhttp "ztaylor.me/http"
@@ -31,7 +31,7 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 	}
 
 	log.Add("Username", session.Username)
-	account := accounts.Test(session.Username)
+	account := vii.AccountService.Test(session.Username)
 	if account == nil {
 		w.WriteHeader(500)
 		log.Error("openpack.json: account missing")
@@ -45,15 +45,15 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	account.Packs--
 	startTime := time.Now()
-
-	if err := accounts.UpdatePackCount(account.Username, account.Packs-1); err != nil {
+	if err := vii.AccountService.UpdatePacks(account); err != nil {
 		w.Write([]byte("error opening pack"))
 		log.Add("Error", err).Error("openpack.json: error opening pack")
 		return
 	}
 
-	accountcards, err := accountscards.Get(account.Username)
+	accountcards, err := vii.AccountCardService.Get(account.Username)
 	if err != nil {
 		w.WriteHeader(500)
 		log.Add("Error", err).Error("openpack.json: collection")
@@ -61,10 +61,10 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 	}
 
 	carddata := make([]int, 7)
-	for i, card := range accountscards.NewPack(account.Username) {
+	for i, card := range gencardpack.NewPack(account.Username) {
 		carddata[i] = card.CardId
 
-		if err := accountscards.InsertCard(card); err != nil {
+		if err := vii.AccountCardService.InsertCard(card); err != nil {
 			w.WriteHeader(500)
 			log.Add("Error", err).Error("openpack.json: insert card copy")
 			return
@@ -73,7 +73,7 @@ var OpenPackJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.R
 		if list := accountcards[card.CardId]; list != nil {
 			accountcards[card.CardId] = append(list, card)
 		} else {
-			accountcards[card.CardId] = []*accountscards.AccountCard{card}
+			accountcards[card.CardId] = []*vii.AccountCard{card}
 		}
 	}
 

@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"elemen7s.com"
-	"elemen7s.com/accountscards"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -65,7 +64,7 @@ var DecksIdJsonHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 		}
 
 		log.Add("DeckId", deckid)
-		accountscards, err := accountscards.Get(session.Username)
+		accountscards, err := vii.AccountCardService.Get(session.Username)
 		if accountscards == nil {
 			log.Add("Error", err).Error("decks.id.json: post: cards missing")
 			return

@@ -10,17 +10,18 @@ import (
 )
 
 func CardsHandler(r *http.Request) error {
-	if r.Quest == "/cards.json" {
+	if r.Quest == "/api/cards.json" {
 		r.WriteJson(AllCardsJson(r.Language))
-	} else if len(r.Quest) < 13 {
+	} else if len(r.Quest) < 17 {
 		log.Error("/cards: card id unavailable")
-	} else if cardid, err := strconv.Atoi(r.Quest[7 : len(r.Quest)-5]); err != nil {
+	} else if cardid, err := strconv.Atoi(r.Quest[11 : len(r.Quest)-5]); err != nil {
 		log.Add("Error", err).Error("/api/cards: parse card id")
-	} else if card, _ := vii.CardService.GetCard(cardid); card == nil {
-		log.Error("/cards: card missing")
+	} else if card, err := vii.CardService.GetCard(cardid); card == nil {
+		log.Add("Error", err).Error("/api/cards: card missing")
 	} else if text, err := vii.CardTextService.GetCardText(r.Language, int(cardid)); err != nil {
 		log.Add("Error", err).Error("/api/cards: card text service")
 	} else {
+		log.Add("Card", card.Id).Info("/api/cards")
 		r.WriteJson(card.JsonWithText(text))
 	}
 	return nil

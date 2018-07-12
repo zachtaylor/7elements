@@ -37,6 +37,12 @@ SE.widget.control('se-gc', function(data) {
 		$(me).css({opacity:1}).css({'border-color':'maroon'});
 		$('.se-gc-eye', me)[0].src = '/img/icon/attack.32px.png';
 	};
+	me.showDefend = function() {
+		me.state = 'defend';
+		me.banner = 'defend';
+		$(me).css({opacity:1}).css({'border-color':'royalblue'});
+		$('.se-gc-eye', me)[0].src = '/img/icon/swords.32px.png';
+	};
 	me.showAsleep = function() {
 		me.state = 'asleep';
 		$(me).css({opacity:0.5});

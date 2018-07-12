@@ -1,10 +1,10 @@
-package games
+package engine
 
 import (
 	"elemen7s.com"
 )
 
-func Combat(game *Game, acard *vii.GameCard, dcard *vii.GameCard) {
+func Combat(game *vii.Game, acard *vii.GameCard, dcard *vii.GameCard) {
 	if acard.CardBody == nil || dcard.CardBody == nil {
 		return
 	}
@@ -12,7 +12,7 @@ func Combat(game *Game, acard *vii.GameCard, dcard *vii.GameCard) {
 	Damage(game, dcard, acard.CardBody.Attack)
 }
 
-func Damage(game *Game, card *vii.GameCard, n int) {
+func Damage(game *vii.Game, card *vii.GameCard, n int) {
 	card.CardBody.Health -= n
 	if card.Health < 1 {
 		seat := game.GetSeat(card.Username)

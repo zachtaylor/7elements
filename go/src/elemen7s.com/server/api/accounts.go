@@ -8,6 +8,6 @@ package api
 // )
 
 // func AccountsHandler(r *http.Request) error {
-// 	account, _ := accounts.Get(r.Username)
+// 	account, _ := vii.AccountService.Get(r.Username)
 
 // }

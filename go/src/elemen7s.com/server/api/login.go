@@ -1,7 +1,7 @@
 package api
 
 import (
-	"elemen7s.com/accounts"
+	"elemen7s.com"
 	"elemen7s.com/server/security"
 	"net/http"
 	zhttp "ztaylor.me/http"
@@ -30,7 +30,7 @@ var LoginHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 
 	log.Add("Username", username)
 
-	if account := accounts.Test(username); account != nil {
+	if account := vii.AccountService.Test(username); account != nil {
 		log.Add("SessionId", account.SessionId)
 
 		if session := zhttp.SessionCache(account.SessionId); session == nil {
@@ -45,7 +45,7 @@ var LoginHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	account, err := accounts.Load(username)
+	account, err := vii.AccountService.Load(username)
 	if account == nil {
 		if err != nil {
 			log.Add("Error", err)

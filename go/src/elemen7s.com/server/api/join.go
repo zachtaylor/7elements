@@ -1,23 +1,49 @@
 package api
 
 import (
-	"elemen7s.com/games"
+	"elemen7s.com"
+	"ztaylor.me/events"
 	"ztaylor.me/http"
 	"ztaylor.me/log"
 )
 
+var playerAgents = make(map[string]*vii.GameSeat)
+
+func init() {
+	events.On(http.EVTsocket_close, func(args ...interface{}) {
+		socket := args[0].(*http.Socket)
+		if seat := playerAgents[socket.Name()]; seat != nil {
+			seat.Receiver = nil
+			delete(playerAgents, socket.Name())
+		}
+	})
+}
+
 func JoinHandler(r *http.Request) error {
-	if gameid := r.Data.Ival("gameid"); gameid < 1 {
+	if gameid := r.Data.Sval("gameid"); gameid == "" {
 		return ErrGameIdRequired
-	} else if game := games.Cache.Get(int(gameid)); game == nil {
+	} else if game := vii.GameService.Get(gameid); game == nil {
 		return ErrGameMissing
 	} else if seat := game.GetSeat(r.Username); seat == nil {
-		log.Add("GameId", game.Id).Add("Username", r.Username).Warn("/api/join: not participating in game")
-	} else if seat.Player != nil {
-		log.Add("GameId", game.Id).Add("Username", r.Username).Warn("/api/join: seat already occupied")
+		log.WithFields(log.Fields{
+			"Game":     game,
+			"Username": r.Username,
+		}).Warn("/api/join: not participating in game")
+	} else if seat.Receiver != nil {
+		log.WithFields(log.Fields{
+			"Game": game,
+			"Seat": seat,
+		}).Warn("/api/join: seat already occupied")
+	} else if socket, ok := r.Agent.(*http.Socket); !ok {
+		log.WithFields(log.Fields{
+			"Game":  game,
+			"Seat":  seat,
+			"Agent": r.Agent,
+		}).Warn("/api/join: request agent is not socket")
 	} else {
-		games.ConnectPlayerAgent(seat, r.Agent)
-		game.SendCatchup(seat)
+		playerAgents[socket.Name()] = seat
+		seat.Receiver = &SocketReceiver{socket}
+		go game.SendCatchup(seat.Username)
 	}
 	return nil
 }

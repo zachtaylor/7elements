@@ -2,7 +2,7 @@ package queue
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/engine"
 	"sync"
 	"time"
 	"ztaylor.me/events"
@@ -21,8 +21,8 @@ func init() {
 var queue = make([]*GameSearch, 0)
 var qlock sync.Mutex
 
-func Start(session *http.Session, deck *vii.AccountDeck) chan int {
-	c := make(chan int)
+func Start(session *http.Session, deck *vii.AccountDeck) chan string {
+	c := make(chan string)
 	go func() {
 		if search := NewGameSearch(session, deck); search == nil {
 			log.Add("Username", session.Username).Add("DeckId", deck.Id).Warn("queue: rate limit")
@@ -90,15 +90,14 @@ func TestMatch(s1 *GameSearch, s2 *GameSearch) bool {
 }
 
 func match(s1 *GameSearch, s2 *GameSearch) {
-	game := games.New()
+	game := vii.GameService.New()
+	game.Register(s1.Deck, "en-US")
+	game.Register(s2.Deck, "en-US")
+	go engine.Run(game)
 
-	game.Register(s1.Deck, "en-US") // right here is where to put user language pref
-	game.Register(s2.Deck, "en-US") // for multilanguage cards in the same game
-	games.Start(game)
-
-	s1.Done <- game.Id
+	s1.Done <- game.Key
 	close(s1.Done)
-	s2.Done <- game.Id
+	s2.Done <- game.Key
 	close(s2.Done)
 	events.Fire("GameStart", game)
 }

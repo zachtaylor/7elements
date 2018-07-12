@@ -1,7 +1,7 @@
 package api
 
 import (
-	"elemen7s.com/accounts"
+	"elemen7s.com"
 	"elemen7s.com/server/util"
 	"net/http"
 	"time"
@@ -9,10 +9,10 @@ import (
 	"ztaylor.me/log"
 )
 
-func GrantSession(a *accounts.Account, w http.ResponseWriter, r *http.Request, message string) {
+func GrantSession(a *vii.Account, w http.ResponseWriter, r *http.Request, message string) {
 	a.LastLogin = time.Now()
-	if err := accounts.Store(a); err != nil {
-		log.Add("Error", err).Error("cannot cache account")
+	if err := vii.AccountService.UpdateLogin(a); err != nil {
+		log.Add("Error", err).Error("login failed")
 		return
 	}
 	session := zhttp.GrantSession(a.Username)

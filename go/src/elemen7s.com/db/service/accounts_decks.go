@@ -4,6 +4,7 @@ import (
 	"elemen7s.com"
 	"elemen7s.com/db"
 	"time"
+	"ztaylor.me/keygen"
 )
 
 func init() {
@@ -82,7 +83,7 @@ func (service AccountDeckService) Forget(username string) {
 
 func (service AccountDeckService) Update(deck *vii.AccountDeck) error {
 	for !service.checkUniqueDeckIdVersion(deck.Username, deck.Id, deck.Version) {
-		deck.Version = vii.NewKey()
+		deck.Version = keygen.NewVal()
 	}
 	deck.Wins = 0
 	deck.Register = time.Now()

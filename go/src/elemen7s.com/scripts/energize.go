@@ -2,16 +2,17 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 )
 
 const EnergizeID = "energize"
 
 func init() {
-	games.Scripts[EnergizeID] = Energize
+	engine.Scripts[EnergizeID] = Energize
 }
 
-func Energize(game *games.Game, seat *games.Seat, target interface{}) {
+func Energize(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -27,10 +28,10 @@ func Energize(game *games.Game, seat *games.Seat, target interface{}) {
 	} else {
 		card.IsAwake = true
 		if card.Username != seat.Username {
-			games.BroadcastAnimateCardUpdate(game, card)
+			animate.BroadcastCardUpdate(game, card)
 		}
-		games.BroadcastAnimateSeatUpdate(game, ownerSeat)
-		game.Active.Activate(game)
+		animate.BroadcastSeatUpdate(game, ownerSeat)
 		log.Info(EnergizeID)
 	}
+	return nil
 }

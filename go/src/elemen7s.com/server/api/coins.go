@@ -1,7 +1,7 @@
 package api
 
 import (
-	"elemen7s.com/accounts"
+	"elemen7s.com"
 	"ztaylor.me/http"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
@@ -10,7 +10,7 @@ import (
 func CoinsHandler(r *http.Request) error {
 	if r.Session == nil {
 		return ErrSessionRequired
-	} else if account, err := accounts.Get(r.Username); account == nil {
+	} else if account, err := vii.AccountService.Get(r.Username); account == nil {
 		return err
 	} else {
 		account.Coins += 10

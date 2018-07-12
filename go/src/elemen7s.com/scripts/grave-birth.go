@@ -2,79 +2,86 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 	"ztaylor.me/js"
 )
 
 const GraveBirthID = "grave-birth"
 
 func init() {
-	games.Scripts[GraveBirthID] = GraveBirth
+	engine.Scripts[GraveBirthID] = GraveBirth
 }
 
-type GraveBirthMode struct {
+func GraveBirth(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+	return t.Fork(game, &GraveBirthEvent{
+		Stack: t,
+	})
+}
+
+type GraveBirthEvent struct {
 	Card  *vii.GameCard
-	Stack *games.Event
+	Stack *engine.Timeline
 }
 
-func (mode *GraveBirthMode) Name() string {
+func (event *GraveBirthEvent) Name() string {
 	return "choice"
 }
 
-func (mode *GraveBirthMode) Json(e *games.Event, g *games.Game, s *games.Seat) js.Object {
-	return js.Object{
-		"gameid":   g.Id,
-		"choice":   "Grave Birth",
-		"username": s.Username,
-		"timer":    int(e.Duration.Seconds()),
+func (event *GraveBirthEvent) Priority(game *vii.Game, t *engine.Timeline) bool {
+	return event.Card == nil
+}
+
+func (event *GraveBirthEvent) OnStart(game *vii.Game, t *engine.Timeline) {
+	animate.GraveBirth(game.GetSeat(t.HotSeat), game)
+}
+
+func (event *GraveBirthEvent) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
+	if t.HotSeat == seat.Username {
+		animate.GraveBirth(seat, game)
 	}
 }
 
-func (mode *GraveBirthMode) OnActivate(e *games.Event, g *games.Game) {
-	games.AnimateGraveBirthChoice(g.GetSeat(e.Username), g)
+func (event *GraveBirthEvent) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
+	seat := game.GetSeat(t.HotSeat)
+	card := vii.NewGameCard(event.Card.Card, event.Card.CardText)
+	card.Username = seat.Username
+	card.IsToken = true
+	game.RegisterCard(card)
+	animate.BroadcastSeatUpdate(game, seat)
+	return event.Stack
 }
 
-func (mode *GraveBirthMode) OnSendCatchup(e *games.Event, g *games.Game, s *games.Seat) {
-	if e.Username == s.Username {
-		games.AnimateGraveBirthChoice(s, g)
-	}
-}
+func (event *GraveBirthEvent) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
+	log := game.Log().Add("Username", seat.Username).Add("Choice", json.Val("choice"))
 
-func (mode *GraveBirthMode) OnResolve(e *games.Event, g *games.Game) {
-	g.RegisterToken(e.Username, mode.Card)
-	games.BroadcastAnimateSeatUpdate(g, g.GetSeat(e.Username))
-	mode.Stack.Activate(g)
-}
-
-func (mode *GraveBirthMode) OnReceive(e *games.Event, g *games.Game, s *games.Seat, json js.Object) {
-	log := g.Log().Add("Username", s.Username).Add("Choice", json.Val("choice"))
-
-	if s.Username != e.Username {
-		log.Add("HotSeat", e.Username).Warn(GraveBirthID + ": not your choice")
+	if seat.Username != t.HotSeat {
+		log.Warn(GraveBirthID + ": not your choice")
 		return
 	}
 
 	if gcid := json.Sval("choice"); gcid == "" {
 		log.Warn(GraveBirthID + ": choice not found")
-	} else if card := g.Cards[gcid]; card == nil {
+	} else if card := game.Cards[gcid]; card == nil {
 		log.Warn(GraveBirthID + ": gcid not found")
 	} else if card.Card.CardType != vii.CTYPbody {
 		log.Add("CardType", card.Card.CardType).Warn(GraveBirthID + ": not type body")
-	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
+	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
 		log.Add("CardOwner", card.Username).Warn(GraveBirthID + ": card owner not found")
 	} else if !ownerSeat.HasPastCard(gcid) {
 		log.Add("CardOwner", card.Username).Add("Past", ownerSeat.Graveyard.String()).Warn(GraveBirthID + ": card not in past")
 	} else {
-		mode.Card = vii.NewGameCard(card.Card, card.CardText)
-		log.Add("CardId", mode.Card.Card.Id).Info(GraveBirthID + ": confirmed card")
-		g.TimelineJoin(nil)
+		event.Card = vii.NewGameCard(card.Card, card.CardText)
+		log.Add("CardId", event.Card.Card.Id).Info(GraveBirthID + ": confirmed card")
 	}
 }
 
-func GraveBirth(g *games.Game, s *games.Seat, target interface{}) {
-	event := games.NewEvent(s.Username)
-	event.EMode = &GraveBirthMode{
-		Stack: g.Active,
+func (event *GraveBirthEvent) Json(game *vii.Game, t *engine.Timeline) js.Object {
+	seat := game.GetSeat(t.HotSeat)
+	return js.Object{
+		"gameid":   game,
+		"choice":   "Grave Birth",
+		"username": seat.Username,
+		"timer":    t.Lifetime.Seconds(),
 	}
-	g.TimelineJoin(event)
 }

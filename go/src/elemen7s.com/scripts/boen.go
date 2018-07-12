@@ -2,17 +2,18 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 	"ztaylor.me/log"
 )
 
 const BoenID = "boen"
 
 func init() {
-	games.Scripts[BoenID] = Boen
+	engine.Scripts[BoenID] = Boen
 }
 
-func Boen(game *games.Game, seat *games.Seat, target interface{}) {
+func Boen(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
 	log := game.Log().WithFields(log.Fields{
 		"Username": seat.Username,
 		"Card":     target,
@@ -26,10 +27,10 @@ func Boen(game *games.Game, seat *games.Seat, target interface{}) {
 		self.CardBody.Health++
 		seat.Hand[card.Id] = card
 
-		games.AnimateHand(game, seat)
-		games.BroadcastAnimateSeatUpdate(game, seat)
+		animate.Hand(game, seat)
+		animate.BroadcastSeatUpdate(game, seat)
 	}
 
-	game.Active.Activate(game)
 	log.Info(BoenID)
+	return nil
 }

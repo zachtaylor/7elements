@@ -2,7 +2,6 @@ package vii
 
 import (
 	"fmt"
-	"ztaylor.me/js"
 )
 
 type GameCards map[string]*GameCard
@@ -27,29 +26,8 @@ func NewGameCard(c *Card, t *CardText) *GameCard {
 	}
 }
 
-func (c *GameCard) IsRegistered() bool {
-	return len(c.Id) < 1
-}
-
-func (cards GameCards) Json() js.Object {
-	data := js.Object{}
-	for gcid, c := range cards {
-		data[gcid] = c.Json()
-	}
-	return data
-}
-
-func (c *GameCard) Json() js.Object {
-	return js.Object{
-		"gcid":     c.Id,
-		"cardid":   c.Card.Id,
-		"name":     c.CardText.Name,
-		"username": c.Username,
-		"image":    c.Card.Image,
-		"awake":    c.IsAwake,
-		"powers":   c.Powers.JsonWithText(c.CardText),
-		"body":     c.CardBody.Json(),
-	}
+func (card GameCard) String() string {
+	return card.Id + ":" + card.CardText.Name
 }
 
 func (cards GameCards) String() string {
@@ -60,4 +38,29 @@ func (cards GameCards) String() string {
 		i++
 	}
 	return fmt.Sprintf("games.GameCards%v", collapse)
+}
+
+func (c *GameCard) IsRegistered() bool {
+	return len(c.Id) < 1
+}
+
+func (cards GameCards) Json() Json {
+	data := Json{}
+	for gcid, c := range cards {
+		data[gcid] = c.Json()
+	}
+	return data
+}
+
+func (c *GameCard) Json() Json {
+	return Json{
+		"gcid":     c.Id,
+		"cardid":   c.Card.Id,
+		"name":     c.CardText.Name,
+		"username": c.Username,
+		"image":    c.Card.Image,
+		"awake":    c.IsAwake,
+		"powers":   c.Powers.JsonWithText(c.CardText),
+		"body":     c.CardBody.Json(),
+	}
 }

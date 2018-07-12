@@ -1,17 +1,20 @@
 package api
 
 import (
-	"elemen7s.com/games"
+	"elemen7s.com"
 	"ztaylor.me/http"
 )
 
 func GameHandler(r *http.Request) error {
-	if gameid := r.Data.Ival("gameid"); gameid < 1 {
+	if gameid := r.Data.Sval("gameid"); gameid != "" {
 		return ErrGameIdRequired
-	} else if game := games.Cache.Get(gameid); game == nil {
+	} else if game := vii.GameService.Get(gameid); game == nil {
 		return ErrGameMissing
 	} else {
-		game.Receive(r.Username, r.Data)
+		game.In <- &vii.GameRequest{
+			Username: r.Username,
+			Data:     r.Data,
+		}
 		return nil
 	}
 }

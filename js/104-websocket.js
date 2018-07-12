@@ -1,6 +1,13 @@
 SE.websocket = {
 	websocket: null,
 	promise: null,
+	parse: function(msg) {
+		try {
+			return JSON.parse(msg);
+		} catch (e) {
+			return false;
+		}
+	},
 	open: function() {
 		if (!SE.websocket.promise)
 			SE.websocket.promise = new Promise(function(resolve, reject) {
@@ -10,8 +17,9 @@ SE.websocket = {
 					resolve(SE.websocket.websocket);
 					SE.event.fire('websocket.open');
 				}
-				SE.websocket.websocket.onmessage = function(e) {
-					var data = JSON.parse(e.data);
+				SE.websocket.websocket.onmessage = function(msg) {
+					var data = SE.websocket.parse(msg.data);
+					if (!data) return console.error("websocket.message failed to parse", msg);
 					console.debug('websocket.message', data.uri, data.data);
 					SE.event.fire('websocket.message', data.uri, data.data);
 				};

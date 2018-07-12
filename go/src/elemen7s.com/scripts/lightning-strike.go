@@ -2,16 +2,17 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 )
 
 const LightningStrikeID = "lightning-strike"
 
 func init() {
-	games.Scripts[LightningStrikeID] = LightningStrike
+	engine.Scripts[LightningStrikeID] = LightningStrike
 }
 
-func LightningStrike(game *games.Game, seat *games.Seat, target interface{}) {
+func LightningStrike(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -25,10 +26,11 @@ func LightningStrike(game *games.Game, seat *games.Seat, target interface{}) {
 	} else if card.Card.CardType != vii.CTYPbody {
 		log.Add("CardType", card.Card.CardType).Add("Error", "card not type body").Error(LightningStrikeID)
 	} else {
-		games.Damage(game, card, 3)
-		games.BroadcastAnimateSeatUpdate(game, seat)
-		games.BroadcastAnimateSeatUpdate(game, ownerSeat)
-		game.Active.Activate(game)
+		engine.Damage(game, card, 3)
+		animate.BroadcastSeatUpdate(game, seat)
+		animate.BroadcastSeatUpdate(game, ownerSeat)
+
 		log.Info(LightningStrikeID)
 	}
+	return nil
 }

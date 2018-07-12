@@ -1,9 +1,9 @@
 package games
 
-import (
-	"ztaylor.me/js"
-)
+// import (
+// 	"ztaylor.me/js"
+// )
 
-type Player interface {
-	Send(string, js.Object)
-}
+// type Player interface {
+// 	Send(string, js.Object)
+// }

@@ -105,8 +105,9 @@ $(function() {
 		SE.event.fire('keybind', key, action);
 	};
 	$('body').keyup(function(e) {
-		if (e.which == app.keybind.appdrawer) SE.event.fire('nav-drawer');
-		if (e.which == app.keybind.chat) SE.event.fire('nav-chat');
+		if (e.target != this) {console.warn('keyup targets another element')}
+		else if (e.which == app.keybind.appdrawer) {SE.event.fire('nav-drawer')}
+		else if (e.which == app.keybind.chat) {SE.event.fire('nav-chat')}
 	});
 	$('#nav-chat input').keyup(function(e) {
 		e.stopPropagation();

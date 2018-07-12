@@ -2,16 +2,17 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 )
 
 const HardBargainID = "hard-bargain"
 
 func init() {
-	games.Scripts[HardBargainID] = HardBargain
+	engine.Scripts[HardBargainID] = HardBargain
 }
 
-func HardBargain(game *games.Game, seat *games.Seat, target interface{}) {
+func HardBargain(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -27,9 +28,9 @@ func HardBargain(game *games.Game, seat *games.Seat, target interface{}) {
 	} else {
 		delete(ownerSeat.Alive, gcid)
 		ownerSeat.Graveyard[gcid] = card
-		games.BroadcastAnimateSeatUpdate(game, seat)
-		games.BroadcastAnimateSeatUpdate(game, ownerSeat)
-		game.Active.OnActivate(game.Active, game)
+		// animate.BroadcastSeatUpdate(game, seat)
+		animate.BroadcastSeatUpdate(game, ownerSeat)
 		log.Info(HardBargainID)
 	}
+	return nil
 }

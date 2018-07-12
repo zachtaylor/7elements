@@ -1,9 +1,5 @@
 package vii
 
-import (
-	"ztaylor.me/js"
-)
-
 type Card struct {
 	Id    int
 	Image string
@@ -38,8 +34,8 @@ func (c *Card) GetDeathPower() *Power {
 	return nil
 }
 
-func (c *Card) JsonWithText(text *CardText) js.Object {
-	json := js.Object{
+func (c *Card) JsonWithText(text *CardText) Json {
+	json := Json{
 		"id":          c.Id,
 		"image":       c.Image,
 		"name":        text.Name,

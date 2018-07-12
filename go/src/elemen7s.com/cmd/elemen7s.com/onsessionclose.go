@@ -2,8 +2,6 @@ package main
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/accounts"
-	"elemen7s.com/accountscards"
 	"ztaylor.me/events"
 	"ztaylor.me/log"
 )
@@ -11,8 +9,8 @@ import (
 func init() {
 	events.On("SessionClose", func(args ...interface{}) {
 		username := args[0].(string)
-		accounts.Forget(username)
-		accountscards.Forget(username)
+		vii.AccountService.Forget(username)
+		vii.AccountCardService.Forget(username)
 		vii.AccountDeckService.Forget(username)
 		log.Add("Username", username).Info("account cached data cleared")
 	})

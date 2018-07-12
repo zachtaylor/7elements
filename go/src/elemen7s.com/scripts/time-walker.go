@@ -2,70 +2,72 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 	"ztaylor.me/js"
 )
 
 func init() {
-	games.Scripts["time-walker"] = TimeWalker
+	engine.Scripts["time-walker"] = TimeWalker
 }
 
-type TimeWalkerMode struct {
+func TimeWalker(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+	return t.Fork(game, &TimeWalkerEvent{
+		Stack: t,
+	})
+}
+
+type TimeWalkerEvent struct {
 	vii.Element
-	Stack *games.Event
+	Stack *engine.Timeline
 }
 
-func (mode *TimeWalkerMode) Name() string {
+func (event *TimeWalkerEvent) Name() string {
 	return "choice"
 }
 
-func (mode *TimeWalkerMode) Json(e *games.Event, g *games.Game, s *games.Seat) js.Object {
-	return js.Object{
-		"gameid":   g.Id,
-		"choice":   "Time Walker",
-		"username": s.Username,
-		"timer":    int(e.Duration.Seconds()),
-	}
+func (event *TimeWalkerEvent) Priority(game *vii.Game, t *engine.Timeline) bool {
+	return event.Element == vii.ELEMnull
 }
 
-func (mode *TimeWalkerMode) OnActivate(e *games.Event, g *games.Game) {
-	games.AnimateNewElementChoice(g.GetSeat(e.Username), g)
-}
-
-func (mode *TimeWalkerMode) OnSendCatchup(e *games.Event, g *games.Game, s *games.Seat) {
-	if e.Username == s.Username {
-		games.AnimateNewElementChoice(s, g)
-	}
-}
-
-func (mode *TimeWalkerMode) OnResolve(e *games.Event, g *games.Game) {
-	seat := g.GetSeat(e.Username)
-	seat.Elements.Append(mode.Element)
-	games.BroadcastAnimateAddElement(g, e.Username, int(mode.Element))
-	mode.Stack.Activate(g)
-}
-
-func (mode *TimeWalkerMode) OnReceive(e *games.Event, g *games.Game, s *games.Seat, json js.Object) {
-	if s.Username != e.Username {
-		g.Log().Add("Username", s.Username).Add("HotSeat", e.Username).Warn("games.TimeWalkerMode: not your choice")
+func (event *TimeWalkerEvent) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
+	if seat.Username != t.HotSeat {
+		game.Log().Add("Username", seat.Username).Add("HotSeat", t.HotSeat).Warn("script-timewalker-event: not your choice")
 		return
 	}
 
 	if e := json.Ival("choice"); e < 1 || e > 7 {
-		g.Log().Add("Username", s.Username).Add("Element", e).Warn("games.TimeWalkerMode: invalid element")
+		game.Log().Add("Username", seat.Username).Add("Element", e).Warn("script-timewalker-event: invalid element")
 		return
 	} else {
-		mode.Element = vii.Element(e)
-		g.Log().Add("Username", s.Username).Add("Element", mode.Element).Info("games.TimeWalker: confirmed element")
+		event.Element = vii.Element(e)
+		game.Log().Add("Username", seat.Username).Add("Element", event.Element).Info("script-timewalker-event: confirmed element")
 	}
-
-	g.TimelineJoin(nil)
 }
 
-func TimeWalker(g *games.Game, s *games.Seat, target interface{}) {
-	event := games.NewEvent(s.Username)
-	event.EMode = &TimeWalkerMode{
-		Stack: g.Active,
+func (event *TimeWalkerEvent) OnStart(game *vii.Game, t *engine.Timeline) {
+	animate.NewElementChoice(game.GetSeat(t.HotSeat), game)
+}
+
+func (event *TimeWalkerEvent) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
+	if t.HotSeat == seat.Username {
+		animate.NewElementChoice(game.GetSeat(t.HotSeat), game)
 	}
-	g.TimelineJoin(event)
+}
+
+func (event *TimeWalkerEvent) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
+	seat := game.GetSeat(t.HotSeat)
+	seat.Elements.Append(event.Element)
+	animate.BroadcastAddElement(game, t.HotSeat, int(event.Element))
+	return event.Stack
+}
+
+func (event *TimeWalkerEvent) Json(game *vii.Game, t *engine.Timeline) js.Object {
+	seat := game.GetSeat(t.HotSeat)
+	return js.Object{
+		"gameid":   game,
+		"choice":   "Time Walker",
+		"username": seat.Username,
+		"timer":    t.Lifetime.Seconds(),
+	}
 }

@@ -31,7 +31,8 @@ gopath:
 	@go get -v ztaylor.me/env
 	@go get -v ztaylor.me/events
 	@go get -v ztaylor.me/http
-	@go get -v ztaylor.me/buildir
+	@go get -v ztaylor.me/keygen
+	@go get -v ztaylor.me/vfs
 	@go get -v ztaylor.me/js
 	@go get -v ztaylor.me/log
 
@@ -47,8 +48,9 @@ update:
 	@go get -u -v gopkg.in/gomail.v2
 	@go get -u -v ztaylor.me/env
 	@go get -u -v ztaylor.me/events
+	@go get -u -v ztaylor.me/keygen
 	@go get -u -v ztaylor.me/http
-	@go get -u -v ztaylor.me/buildir
+	@go get -u -v ztaylor.me/vfs
 	@go get -u -v ztaylor.me/js
 	@go get -u -v ztaylor.me/log
 

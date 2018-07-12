@@ -2,70 +2,73 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 	"ztaylor.me/js"
 )
 
 func init() {
-	games.Scripts["new-element"] = NewElement
+	engine.Scripts["new-element"] = NewElement
+}
+
+func NewElement(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+	return t.Fork(game, &NewElementMode{
+		Stack: t,
+	})
 }
 
 type NewElementMode struct {
 	vii.Element
-	Stack *games.Event
+	Stack *engine.Timeline
 }
 
-func (mode *NewElementMode) Name() string {
+func (event *NewElementMode) Name() string {
 	return "choice"
 }
 
-func (mode *NewElementMode) Json(e *games.Event, g *games.Game, s *games.Seat) js.Object {
+func (event *NewElementMode) Priority(game *vii.Game, t *engine.Timeline) bool {
+	return event.Element == vii.ELEMnull
+}
+
+func (event *NewElementMode) Json(game *vii.Game, t *engine.Timeline) js.Object {
+	seat := game.GetSeat(t.HotSeat)
 	return js.Object{
-		"gameid":   g.Id,
+		"gameid":   game,
 		"choice":   "New Element",
-		"username": s.Username,
-		"timer":    int(e.Duration.Seconds()),
+		"username": seat.Username,
+		"timer":    t.Lifetime.Seconds(),
 	}
 }
 
-func (mode *NewElementMode) OnActivate(e *games.Event, g *games.Game) {
-	games.AnimateNewElementChoice(g.GetSeat(e.Username), g)
+func (event *NewElementMode) OnStart(game *vii.Game, t *engine.Timeline) {
+	animate.NewElementChoice(game.GetSeat(t.HotSeat), game)
 }
 
-func (mode *NewElementMode) OnSendCatchup(e *games.Event, g *games.Game, s *games.Seat) {
-	if e.Username == s.Username {
-		games.AnimateNewElementChoice(s, g)
+func (event *NewElementMode) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
+	if t.HotSeat == seat.Username {
+		animate.NewElementChoice(seat, game)
 	}
 }
 
-func (mode *NewElementMode) OnResolve(e *games.Event, g *games.Game) {
-	seat := g.GetSeat(e.Username)
-	seat.Elements.Append(mode.Element)
-	games.BroadcastAnimateAddElement(g, e.Username, int(mode.Element))
-	mode.Stack.Activate(g)
+func (event *NewElementMode) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
+	seat := game.GetSeat(t.HotSeat)
+	seat.Elements.Append(event.Element)
+	animate.BroadcastAddElement(game, t.HotSeat, int(event.Element))
+	return event.Stack
 }
 
-func (mode *NewElementMode) OnReceive(e *games.Event, g *games.Game, s *games.Seat, json js.Object) {
-	if s.Username != e.Username {
-		g.Log().Add("Username", s.Username).Add("HotSeat", e.Username).Warn("games.NewElementMode: not your choice")
+func (event *NewElementMode) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
+	if t.HotSeat != seat.Username {
+		game.Log().Add("Username", seat.Username).Add("HotSeat", t.HotSeat).Warn("gameseat.NewElementMode: not your choice")
 		return
 	}
 
 	if e := json.Ival("choice"); e < 1 || e > 7 {
-		g.Log().Add("Username", s.Username).Add("Element", e).Warn("games.NewElementMode: invalid element")
+		game.Log().Add("Username", seat.Username).Add("Element", e).Warn("gameseat.NewElementMode: invalid element")
 		return
 	} else {
-		mode.Element = vii.Element(e)
-		g.Log().Add("Username", s.Username).Add("Element", mode.Element).Info("games.NewElement: confirmed element")
+		event.Element = vii.Element(e)
+		game.Log().Add("Username", seat.Username).Add("Element", event.Element).Info("gameseat.NewElement: confirmed element")
 	}
 
-	g.TimelineJoin(nil)
-}
-
-func NewElement(g *games.Game, s *games.Seat, target interface{}) {
-	event := games.NewEvent(s.Username)
-	event.EMode = &NewElementMode{
-		Stack: g.Active,
-	}
-	g.TimelineJoin(event)
 }

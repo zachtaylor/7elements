@@ -1,7 +1,7 @@
 package main
 
 import (
-	"elemen7s.com/accountscards"
+	"elemen7s.com"
 	"elemen7s.com/db"
 	"elemen7s.com/decks"
 	"elemen7s.com/server/security"
@@ -40,7 +40,7 @@ func main() {
 	for i := 1; i <= 50; i++ {
 		ti := time.Now()
 		for j := 0; j < 7; j++ {
-			accountscards.InsertCard(&accountscards.AccountCard{
+			vii.AccountCardService.InsertCard(&vii.AccountCard{
 				Username: "alpha",
 				CardId:   i,
 				Register: time.Now(),

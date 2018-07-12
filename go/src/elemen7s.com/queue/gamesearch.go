@@ -10,7 +10,7 @@ type GameSearch struct {
 	*http.Session
 	Deck  *vii.AccountDeck
 	Start time.Time
-	Done  chan int
+	Done  chan string
 }
 
 func NewGameSearch(session *http.Session, deck *vii.AccountDeck) *GameSearch {
@@ -25,6 +25,6 @@ func NewGameSearch(session *http.Session, deck *vii.AccountDeck) *GameSearch {
 		Session: session,
 		Deck:    deck,
 		Start:   time.Now(),
-		Done:    make(chan int),
+		Done:    make(chan string),
 	}
 }

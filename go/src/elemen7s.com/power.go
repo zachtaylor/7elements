@@ -9,8 +9,8 @@ type Power struct {
 	Id       int
 	Costs    ElementMap
 	Trigger  string
-	Target   string
 	UsesTurn bool
+	Target   string
 	Script   string
 }
 

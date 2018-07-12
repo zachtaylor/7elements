@@ -1,8 +1,7 @@
 package api
 
 import (
-	"elemen7s.com/accounts"
-	"elemen7s.com/accountscards"
+	"elemen7s.com"
 	"time"
 	"ztaylor.me/http"
 	"ztaylor.me/js"
@@ -11,9 +10,9 @@ import (
 func MyAccountHandler(r *http.Request) error {
 	if r.Session == nil {
 		return ErrSessionRequired
-	} else if account, err := accounts.Get(r.Username); account == nil {
+	} else if account, err := vii.AccountService.Get(r.Username); account == nil {
 		return err
-	} else if accountcards, err := accountscards.Get(r.Username); err != nil {
+	} else if accountcards, err := vii.AccountCardService.Get(r.Username); err != nil {
 		return err
 	} else {
 		r.WriteJson(js.Object{

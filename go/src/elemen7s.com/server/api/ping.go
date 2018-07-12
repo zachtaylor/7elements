@@ -2,9 +2,6 @@ package api
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/accounts"
-	"elemen7s.com/accountscards"
-	"elemen7s.com/games"
 	"fmt"
 	"time"
 	"ztaylor.me/http"
@@ -14,6 +11,7 @@ import (
 
 func PingHandler(r *http.Request) error {
 	if r.Session == nil {
+		log.Info("/ping")
 		r.WriteJson(js.Object{
 			"uri": "/ping",
 			"data": js.Object{
@@ -21,18 +19,24 @@ func PingHandler(r *http.Request) error {
 				"cards":  AllCardsJson("en-US"),
 			},
 		})
+		log.Info("/ping")
 		return nil
-	} else if account, err := accounts.Get(r.Username); account == nil {
+	} else if account, err := vii.AccountService.Get(r.Username); account == nil {
 		return err
 	} else if decks, err := vii.AccountDeckService.Get(r.Username); decks == nil {
 		return err
-	} else if accountcards, err := accountscards.Get(r.Username); accountcards == nil {
+	} else if accountcards, err := vii.AccountCardService.Get(r.Username); accountcards == nil {
 		return err
 	} else {
 		cardsdata := AllCardsJson("en-US")
 		for cardid, cards := range accountcards {
 			if k := fmt.Sprintf("%d", cardid); cardsdata[k] == nil {
-				log.Add("Key", k).Add("CardId", cardid).Add("Username", r.Username).Add("Copies", len(cards)).Warn("copies of missing card")
+				log.WithFields(log.Fields{
+					"Key":      k,
+					"CardId":   cardid,
+					"Username": r.Username,
+					"Copies":   len(cards),
+				}).Warn("/ping: account contains copies of missing card")
 			} else {
 				cardsdata[k].(js.Object)["copies"] = len(cards)
 			}
@@ -57,12 +61,12 @@ func PingHandler(r *http.Request) error {
 	}
 }
 
-func pingHandlerDataHelperGames(username string) map[int]js.Object {
-	gamesdata := make(map[int]js.Object)
-	for _, gameid := range games.Cache.GetPlayerGames(username) {
-		if game := games.Cache.Get(gameid); game != nil {
-			gamesdata[gameid] = game.StateJson(username)
-		}
+func pingHandlerDataHelperGames(username string) js.Object {
+	gamesdata := js.Object{}
+	games := vii.GameService.GetPlayerGames(username)
+	for _, gameid := range games {
+		game := vii.GameService.Get(gameid)
+		gamesdata[gameid] = game.Json(username)
 	}
 	return gamesdata
 }

@@ -2,82 +2,90 @@ package scripts
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/games"
+	"elemen7s.com/animate"
+	"elemen7s.com/engine"
 	"ztaylor.me/js"
 )
 
+const NoviceSeerId = "novice-seer"
+
 func init() {
-	games.Scripts["novice-seer"] = NoviceSeer
+	engine.Scripts[NoviceSeerId] = NoviceSeer
 }
 
-type NoviceSeerMode struct {
-	destroy bool
+func NoviceSeer(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+	return t.Fork(game, &NoviceSeerEvent{
+		Card:  seat.Deck.Draw(),
+		Stack: t,
+	})
+}
+
+type NoviceSeerEvent struct {
+	Destroy *bool
 	Card    *vii.GameCard
-	Stack   *games.Event
+	Stack   *engine.Timeline
 }
 
-func (mode NoviceSeerMode) Name() string {
+func (event *NoviceSeerEvent) Name() string {
 	return "choice"
 }
 
-func (mode NoviceSeerMode) Json(e *games.Event, g *games.Game, s *games.Seat) js.Object {
-	return js.Object{
-		"gameid":   g.Id,
-		"choice":   "Novice Seer",
-		"username": s.Username,
-		"timer":    int(e.Duration.Seconds()),
+func (event *NoviceSeerEvent) Priority(game *vii.Game, t *engine.Timeline) bool {
+	return event.Destroy == nil
+}
+
+func (event *NoviceSeerEvent) OnStart(game *vii.Game, t *engine.Timeline) {
+	animate.NoviceSeerChoice(game.GetSeat(t.HotSeat), game, event.Card)
+}
+
+func (event *NoviceSeerEvent) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
+	if t.HotSeat == seat.Username {
+		animate.NoviceSeerChoice(seat, game, event.Card)
 	}
 }
 
-func (mode NoviceSeerMode) OnActivate(e *games.Event, g *games.Game) {
-	games.AnimateNoviceSeerChoice(g.GetSeat(e.Username), g, mode.Card)
-}
-
-func (mode NoviceSeerMode) OnSendCatchup(e *games.Event, g *games.Game, s *games.Seat) {
-	if e.Username == s.Username {
-		games.AnimateNoviceSeerChoice(s, g, mode.Card)
+func (event *NoviceSeerEvent) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
+	seat := game.GetSeat(event.Card.Username)
+	if destroy := event.Destroy; destroy != nil && *destroy == true {
+		seat.Graveyard[event.Card.Id] = event.Card
+		animate.BroadcastSeatUpdate(game, seat)
+	} else if destroy != nil {
+		seat.Deck.Prepend(event.Card)
 	}
+	return event.Stack
 }
 
-func (mode NoviceSeerMode) OnResolve(e *games.Event, g *games.Game) {
-	seat := g.GetSeat(mode.Card.Username)
-	if mode.destroy {
-		seat.Graveyard[mode.Card.Id] = mode.Card
-		games.BroadcastAnimateSeatUpdate(g, seat)
-	} else {
-		seat.Deck.Prepend(mode.Card)
-	}
-	mode.Stack.Activate(g)
-}
+func (event *NoviceSeerEvent) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
+	log := game.Log().Add("Username", seat.Username)
 
-func (mode NoviceSeerMode) OnReceive(e *games.Event, g *games.Game, s *games.Seat, json js.Object) {
-	log := g.Log().Add("Username", s.Username)
-
-	if s.Username != e.Username {
-		log.Add("HotSeat", e.Username).Warn("games.NoviceSeerMode: not your choice")
+	if seat.Username != t.HotSeat {
+		log.Add("HotSeat", t.HotSeat).Warn("games.NoviceSeerEvent: not your choice")
 		return
 	}
 
 	switch json.Sval("choice") {
 	case "yes":
-		mode.destroy = true
+		b := true
+		event.Destroy = &b
 		break
 	case "no":
+		b := false
+		event.Destroy = &b
 		break
 	default:
-		log.Add("Choice", json.Sval("choice")).Warn("games.NoviceSeerMode: unrecognized choice")
+		log.Add("Choice", json.Sval("choice")).Warn("games.NoviceSeerEvent: unrecognized choice")
 		return
 	}
-	log.Add("Destroy", mode.destroy).Info("games.NoviceSeer: confirmed destroy choice")
+	log.Add("Destroy", event.Destroy).Info("games.NoviceSeer: confirmed destroy choice")
 
-	g.TimelineJoin(nil)
 }
 
-func NoviceSeer(g *games.Game, s *games.Seat, target interface{}) {
-	event := games.NewEvent(s.Username)
-	event.EMode = NoviceSeerMode{
-		Card:  s.Deck.Draw(),
-		Stack: g.Active,
+func (event *NoviceSeerEvent) Json(game *vii.Game, t *engine.Timeline) js.Object {
+	seat := game.GetSeat(t.HotSeat)
+	return js.Object{
+		"gameid":   game,
+		"choice":   "Novice Seer",
+		"username": seat.Username,
+		"timer":    t.Lifetime.Seconds(),
 	}
-	g.TimelineJoin(event)
 }

@@ -2,6 +2,7 @@ package chat
 
 import (
 	"sync"
+	"ztaylor.me/keygen"
 )
 
 var dispatch = make(map[string]Channel)
@@ -18,4 +19,14 @@ func GetChannel(name string) Channel {
 		mu.Unlock()
 		return c
 	}
+}
+
+func CreateChannel() Channel {
+	mu.Lock()
+	key := "all"
+	for ; dispatch[key] != nil; key = keygen.NewVal() {
+	}
+	dispatch[key] = NewChannel(key)
+	mu.Unlock()
+	return dispatch[key]
 }

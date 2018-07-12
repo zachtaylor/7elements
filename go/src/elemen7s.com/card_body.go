@@ -1,9 +1,5 @@
 package vii
 
-import (
-	"ztaylor.me/js"
-)
-
 type CardBody struct {
 	Attack int
 	Health int
@@ -23,11 +19,11 @@ func (b *CardBody) Copy() *CardBody {
 	}
 }
 
-func (b *CardBody) Json() js.Object {
+func (b *CardBody) Json() Json {
 	if b == nil {
 		return nil
 	}
-	return js.Object{
+	return Json{
 		"attack": b.Attack,
 		"health": b.Health,
 	}

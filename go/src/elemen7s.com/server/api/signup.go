@@ -2,7 +2,6 @@ package api
 
 import (
 	"elemen7s.com"
-	"elemen7s.com/accounts"
 	// "elemen7s.com/emails"
 	// "elemen7s.com/options"
 	"elemen7s.com/server/security"
@@ -38,11 +37,11 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 
 	log.Add("Username", username).Add("Email", email)
 
-	if accounts.Test(username) != nil {
+	if vii.AccountService.Test(username) != nil {
 		http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
 		log.Error("signup: duplicate is online right")
 		return
-	} else if account, _ := accounts.Load(username); account != nil {
+	} else if account, _ := vii.AccountService.Load(username); account != nil {
 		http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
 		log.Add("Error", err).Error("signup: duplicate exists")
 		return
@@ -60,7 +59,7 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 		acceptLanguage = "en-US"
 	}
 
-	account := &accounts.Account{
+	account := &vii.Account{
 		Username: username,
 		Email:    email,
 		Password: password1,
@@ -87,8 +86,8 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 
 	GrantSession(account, w, r, "Signup success!")
 
-	if err := accounts.Insert(username); err != nil {
-		accounts.Forget(username)
+	if err := vii.AccountService.Insert(account); err != nil {
+		vii.AccountService.Forget(username)
 		vii.AccountDeckService.Forget(username)
 		log.Add("Error", err).Error("/api/signup: account insert")
 		w.WriteHeader(500)

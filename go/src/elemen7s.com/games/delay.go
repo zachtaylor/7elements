@@ -1,10 +1,10 @@
 package games
 
-import "time"
+// import "time"
 
-func delay(d time.Duration, f func()) {
-	go (func() {
-		<-time.After(d)
-		f()
-	})()
-}
+// func delay(d time.Duration, f func()) {
+// 	go (func() {
+// 		<-time.After(d)
+// 		f()
+// 	})()
+// }

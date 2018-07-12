@@ -3,7 +3,6 @@ package vii
 import (
 	"strconv"
 	"time"
-	"ztaylor.me/js"
 )
 
 type AccountDeck struct {
@@ -31,8 +30,8 @@ func (deck *AccountDeck) Count() int {
 	return total
 }
 
-func (deck *AccountDeck) Json() js.Object {
-	return js.Object{
+func (deck *AccountDeck) Json() Json {
+	return Json{
 		"id":       deck.Id,
 		"version":  deck.Version,
 		"name":     deck.Name,
@@ -45,8 +44,8 @@ func (deck *AccountDeck) Json() js.Object {
 
 type AccountDecks []*AccountDeck
 
-func (decks AccountDecks) Json() js.Object {
-	data := js.Object{}
+func (decks AccountDecks) Json() Json {
+	data := Json{}
 	for _, deck := range decks {
 		data[strconv.Itoa(deck.Id)] = deck.Json()
 	}
