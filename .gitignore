@@ -1,11 +1,6 @@
 # git ignore file
 
 .env
-elemen7s.db
-log/
-go/src/github.com/
-go/src/golang.org/
-go/src/gopkg.in/
-go/src/ztaylor.me/
-go/pkg/
-go/bin/
+cmd/elemen7s.com/.env
+cmd/elemen7s.com/elemen7s.com
+cmd/elemen7s.com/elemen7s.com.exe

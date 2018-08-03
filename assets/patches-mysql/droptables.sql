@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS `cards_bodies`;
+DROP TABLE IF EXISTS `accounts_decks`;
+DROP TABLE IF EXISTS `accounts_cards`;
+DROP TABLE IF EXISTS `patch`;
+DROP TABLE IF EXISTS `cards_element_costs`;
+DROP TABLE IF EXISTS `accounts_decks_items`;
+DROP TABLE IF EXISTS `cards_bodies`;
+DROP TABLE IF EXISTS `cards_powers`;
+DROP TABLE IF EXISTS `cards_powers_costs`;
+DROP TABLE IF EXISTS `cards_powers_texts`;
+DROP TABLE IF EXISTS `cards_text`;
+DROP TABLE IF EXISTS `cards`;
+DROP TABLE IF EXISTS `decks_items`;
+DROP TABLE IF EXISTS `accounts`;
+DROP TABLE IF EXISTS `httptrack`;
+DROP TABLE IF EXISTS `decks`;
