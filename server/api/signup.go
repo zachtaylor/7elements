@@ -25,7 +25,7 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	session, err := zhttp.ReadRequestCookie(r)
 	if session != nil {
 		http.Redirect(w, r, "/", 307)
-		log.Add("SessionId", session.Id).Info("signup: request has valid session cookie")
+		log.Add("SessionId", session.ID).Info("signup: request has valid session cookie")
 		return
 	} else if err != nil {
 		log.Clone().Add("Error", err).Warn("signup: ignoring cookie...")

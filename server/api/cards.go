@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/zachtaylor/7elements"
@@ -12,7 +11,7 @@ import (
 
 func CardsHandler(r *http.Request) error {
 	if r.Quest == "/api/cards.json" {
-		r.WriteJson(AllCardsJson(r.Language))
+		r.Write([]byte(js.String(AllCardsJson())))
 	} else if len(r.Quest) < 17 {
 		log.Error("/cards: card id unavailable")
 	} else if cardid, err := strconv.Atoi(r.Quest[11 : len(r.Quest)-5]); err != nil {
@@ -28,14 +27,10 @@ func CardsHandler(r *http.Request) error {
 	return nil
 }
 
-func AllCardsJson(lang string) js.Object {
-	j := js.Object{}
-	for cardid, card := range vii.CardService.GetAllCards() {
-		if text, err := vii.CardTextService.GetCardText(lang, cardid); text == nil {
-			log.Add("Error", err).Add("CardId", cardid).Error("/api/cards: card text service")
-		} else {
-			j[fmt.Sprintf("%d", cardid)] = card.JsonWithText(text)
-		}
+func AllCardsJson() []js.Object {
+	j := make([]js.Object, 0)
+	for _, card := range vii.CardService.GetAll() {
+		j = append(j, card.Json())
 	}
 	return j
 }

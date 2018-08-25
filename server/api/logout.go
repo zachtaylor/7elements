@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+
 	zhttp "ztaylor.me/http"
 	"ztaylor.me/log"
 )
@@ -11,7 +12,7 @@ var LogoutHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 
 	if session, err := zhttp.ReadRequestCookie(r); session != nil {
 		log.Debug("/api/logout")
-		zhttp.RevokeSession(session.Username)
+		zhttp.SessionService.Revoke(session.ID)
 	} else {
 		log.Add("Error", err).Warn("/api/logout: cookie missing")
 	}
