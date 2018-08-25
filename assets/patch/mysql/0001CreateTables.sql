@@ -1,11 +1,9 @@
 CREATE TABLE accounts (
 	username VARCHAR(24) UNIQUE PRIMARY KEY NOT NULL,
 	email VARCHAR(255),
-	password VARCHAR(255),
+	password TINYBLOB,
 	skill INT,
 	coins INT,
-	packs INT,
-	language VARCHAR(255),
 	register INT,
 	lastlogin INT) ENGINE=InnoDB;
 CREATE TABLE accounts_cards(

@@ -15,15 +15,16 @@ func MyAccountHandler(r *http.Request) error {
 		return err
 	} else if accountcards, err := vii.AccountCardService.Get(r.Username); err != nil {
 		return err
+	} else if accountdecks, err := vii.AccountDeckService.Get(r.Username); err != nil {
+		return err
 	} else {
 		r.WriteJson(js.Object{
-			"username":     r.Username,
-			"language":     account.Language,
-			"email":        account.Email,
-			"session-life": r.Expire.Sub(time.Now()).String(),
-			"coins":        account.Coins,
-			"packs":        account.Packs,
-			"cards":        accountcards.Json(),
+			"username":    r.Username,
+			"email":       account.Email,
+			"sessionlife": r.Expire.Sub(time.Now()).String(),
+			"coins":       account.Coins,
+			"cards":       accountcards.Json(),
+			"decks":       accountdecks.Json(),
 		})
 		return nil
 	}

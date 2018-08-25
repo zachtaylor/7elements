@@ -54,19 +54,12 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	acceptLanguage := r.Header.Get("Accept-Language")
-	acceptLanguage = acceptLanguage[0:5]
-	if acceptLanguage == "" {
-		acceptLanguage = "en-US"
-	}
-
 	account := &vii.Account{
 		Username: username,
 		Email:    email,
 		Password: password1,
 		Skill:    1000,
 		Coins:    7,
-		Language: acceptLanguage,
 		Register: time.Now(),
 	}
 

@@ -39,14 +39,14 @@ func (cache AccountService) Get(username string) (*vii.Account, error) {
 
 func (cache AccountService) Load(username string) (*vii.Account, error) {
 	row := conn.QueryRow(
-		"SELECT username, email, password, skill, coins, packs, language, register, lastlogin FROM accounts WHERE username=?",
+		"SELECT username, email, password, skill, coins, register, lastlogin FROM accounts WHERE username=?",
 		username,
 	)
 
 	account := vii.NewAccount()
 	var registerbuff, lastloginbuff int64
 
-	if err := row.Scan(&account.Username, &account.Email, &account.Password, &account.Skill, &account.Coins, &account.Packs, &account.Language, &registerbuff, &lastloginbuff); err != nil {
+	if err := row.Scan(&account.Username, &account.Email, &account.Password, &account.Skill, &account.Coins, &registerbuff, &lastloginbuff); err != nil {
 		return nil, err
 	} else {
 		account.Register = time.Unix(registerbuff, 0)
@@ -58,23 +58,16 @@ func (cache AccountService) Load(username string) (*vii.Account, error) {
 
 func (cache AccountService) Insert(account *vii.Account) error {
 	_, err := conn.Exec(
-		"INSERT INTO accounts (username, email, password, skill, coins, packs, language, register, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO accounts (username, email, password, skill, coins, register, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		account.Username,
 		account.Email,
 		account.Password,
 		account.Skill,
 		account.Coins,
-		account.Packs,
-		account.Language,
 		account.Register.Unix(),
 		account.LastLogin.Unix(),
 	)
 
-	return err
-}
-
-func (_ AccountService) UpdatePacks(account *vii.Account) error {
-	_, err := conn.Exec("UPDATE accounts SET packs=? WHERE username=?", account.Packs, account.Username)
 	return err
 }
 
