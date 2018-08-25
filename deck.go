@@ -1,12 +1,10 @@
 package vii
 
-import "strconv"
-
 // Deck is a system premade deck
 type Deck struct {
 	ID    int
 	Name  string
-	Wins  int
+	Level int
 	Color string
 	Cards map[int]int
 }
@@ -29,7 +27,7 @@ func (deck *Deck) Json() Json {
 	return Json{
 		"id":    deck.ID,
 		"name":  deck.Name,
-		"wins":  deck.Wins,
+		"level": deck.Level,
 		"color": deck.Color,
 		"cards": deck.Cards,
 	}
@@ -37,10 +35,10 @@ func (deck *Deck) Json() Json {
 
 type Decks map[int]*Deck
 
-func (decks Decks) Json() Json {
-	data := Json{}
+func (decks Decks) Json() []Json {
+	data := make([]Json, 0)
 	for _, deck := range decks {
-		data[strconv.Itoa(deck.ID)] = deck.Json()
+		data = append(data, deck.Json())
 	}
 	return data
 }

@@ -2,14 +2,17 @@ package vii
 
 import (
 	"fmt"
+
 	"ztaylor.me/js"
 )
 
 type Power struct {
 	Id       int
-	Costs    ElementMap
+	Text     string
 	Trigger  string
 	UsesTurn bool
+	UsesKill bool
+	Costs    ElementMap
 	Target   string
 	Script   string
 }
@@ -26,6 +29,7 @@ func (p Power) Copy() *Power {
 		Costs:    p.Costs.Copy(),
 		Target:   p.Target,
 		UsesTurn: p.UsesTurn,
+		UsesKill: p.UsesKill,
 		Script:   p.Script,
 	}
 }
@@ -33,18 +37,13 @@ func (p Power) Copy() *Power {
 func (p *Power) Json() js.Object {
 	return js.Object{
 		"id":       p.Id,
+		"text":     p.Text,
 		"costs":    p.Costs,
 		"trigger":  p.Trigger,
 		"target":   p.Target,
 		"usesturn": p.UsesTurn,
-		"script":   p.Script,
+		"useskill": p.UsesKill,
 	}
-}
-
-func (p *Power) JsonWithText(text *CardText) js.Object {
-	json := p.Json()
-	json["description"] = text.Powers[p.Id]
-	return json
 }
 
 type Powers map[int]*Power
@@ -65,14 +64,6 @@ func (powers Powers) Json() js.Object {
 	json := js.Object{}
 	for id, p := range powers {
 		json[fmt.Sprint(id)] = p.Json()
-	}
-	return json
-}
-
-func (powers Powers) JsonWithText(text *CardText) js.Object {
-	json := js.Object{}
-	for id, p := range powers {
-		json[fmt.Sprint(id)] = p.JsonWithText(text)
 	}
 	return json
 }

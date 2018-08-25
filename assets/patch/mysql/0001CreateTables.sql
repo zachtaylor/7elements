@@ -83,7 +83,7 @@ CREATE TABLE cards_powers_costs (
 CREATE TABLE decks (
 	id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	name VARCHAR(255),
-	wins INT,
+	level INT,
 	color VARCHAR(255)) ENGINE=InnoDB;
 CREATE TABLE decks_items (
 	deckid INT,
@@ -98,4 +98,22 @@ CREATE TABLE httptrack (
 	addr VARCHAR(255),
 	heat INT,
 	t INT
+) ENGINE=InnoDB;
+CREATE TABLE packs (
+	id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	name VARCHAR(255),
+	size INT,
+	cost INT,
+	image VARCHAR(255)
+) ENGINE=InnoDB;
+CREATE TABLE packs_cards (
+	packid INT,
+	cardid INT,
+	weight INT,
+	CONSTRAINT FOREIGN KEY (packid)	REFERENCES packs(id)
+		ON DELETE CASCADE
+		ON UPDATE RESTRICT,
+	CONSTRAINT FOREIGN KEY (cardid)	REFERENCES cards(id)
+		ON DELETE CASCADE
+		ON UPDATE RESTRICT
 ) ENGINE=InnoDB;

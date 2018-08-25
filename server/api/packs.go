@@ -8,15 +8,15 @@ import (
 	"ztaylor.me/js"
 )
 
-func DecksHandler(r *http.Request) error {
-	decks, err := vii.DeckService.GetAll()
+func PacksHandler(r *http.Request) error {
+	packs, err := vii.PackService.GetAll()
 	if err != nil {
 		return err
 	}
 
 	j := js.Object{}
-	for deckid, deck := range decks {
-		j[fmt.Sprintf("%d", deckid)] = deck.Json()
+	for packid, pack := range packs {
+		j[fmt.Sprintf("%d", packid)] = pack.Json()
 	}
 	r.WriteJson(j)
 	return nil

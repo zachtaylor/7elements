@@ -1,47 +1,47 @@
 package db
 
 import (
+	"time"
+
 	"github.com/zachtaylor/7elements"
+	"ztaylor.me/log"
 )
 
 func init() {
-	vii.DeckService = DeckService{}
+	vii.DeckService = &DeckService{}
 }
 
 type DeckService struct {
 	vii.Decks
 }
 
-func (service DeckService) Start() error {
-	decks, err := service.reloadDecks()
-	if err != nil {
-		return err
-	}
-	deckscards, err := service.reloadDecksCards()
-	if err != nil {
-		return err
-	}
-
-	for deckid, cards := range deckscards {
-		if deck := decks[deckid]; deck != nil {
-			deck.Cards = cards
+func (service *DeckService) Start() {
+	tStart := time.Now()
+	if decks, err := service.reloadDecks(); err != nil {
+		log.Add("Error", err).Error("db/decks: select decks")
+	} else if deckscards, err := service.reloadDecksCards(); err != nil {
+		log.Add("Error", err).Error("db/decks: select decks_items")
+	} else {
+		for deckid, cards := range deckscards {
+			if deck := decks[deckid]; deck != nil {
+				deck.Cards = cards
+			}
 		}
+		service.Decks = decks
+		log.Add("Time", time.Now().Sub(tStart)).Add("Decks", len(service.Decks)).Debug("db/decks: started")
 	}
-
-	service.Decks = decks
-	return nil
 }
 
-func (service DeckService) reloadDecks() (vii.Decks, error) {
+func (service *DeckService) reloadDecks() (vii.Decks, error) {
 	decks := make(vii.Decks)
-	rows, err := conn.Query("SELECT id, name, wins, color FROM decks")
+	rows, err := conn.Query("SELECT id, name, level, color FROM decks")
 	if err != nil {
 		return decks, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		deck := &vii.Deck{}
-		if err = rows.Scan(&deck.ID, &deck.Name, &deck.Wins, &deck.Color); err == nil {
+		if err = rows.Scan(&deck.ID, &deck.Name, &deck.Level, &deck.Color); err == nil {
 			decks[deck.ID] = deck
 		} else {
 			break
@@ -49,7 +49,7 @@ func (service DeckService) reloadDecks() (vii.Decks, error) {
 	}
 	return decks, err
 }
-func (service DeckService) reloadDecksCards() (map[int]map[int]int, error) {
+func (service *DeckService) reloadDecksCards() (map[int]map[int]int, error) {
 	deckscards := make(map[int]map[int]int)
 	rows, err := conn.Query("SELECT deckid, cardid, amount FROM decks_items")
 	if err != nil {
@@ -70,14 +70,14 @@ func (service DeckService) reloadDecksCards() (map[int]map[int]int, error) {
 	return deckscards, err
 }
 
-func (service DeckService) GetAll() (vii.Decks, error) {
+func (service *DeckService) GetAll() (vii.Decks, error) {
 	if service.Decks == nil {
 		service.Start()
 	}
 	return service.Decks, nil
 }
 
-func (service DeckService) Get(id int) (*vii.Deck, error) {
+func (service *DeckService) Get(id int) (*vii.Deck, error) {
 	decks, err := service.GetAll()
 	if decks == nil {
 		return nil, err
