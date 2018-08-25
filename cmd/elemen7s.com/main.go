@@ -8,7 +8,7 @@ import (
 	"ztaylor.me/log"
 )
 
-const PATCH = 1
+const PATCH = 2
 
 func main() {
 	log.SetLevel(env.Default("LOG_LEVEL", "info"))
