@@ -13,7 +13,7 @@ func (cardtype CardType) String() string {
 	case CTYPspell:
 		return "spell"
 	case CTYPbody:
-		return "body"
+		return "being"
 	case CTYPitem:
 		return "item"
 	default:

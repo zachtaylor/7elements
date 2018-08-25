@@ -1,0 +1,9 @@
+<h1>{{deck.name}}</h1>
+<div>
+  <span>Cards:</span>
+  <span *ngFor="let cardid of deck.cards | mapKeys; let i=index">
+    <span *ngIf="i!=0">, </span>
+    <span>{{globalService.getCard(cardid).name}}</span>
+  </span>
+</div>
+<a [routerLink]="['/decks', deck.id]">Click here to view detail</a>

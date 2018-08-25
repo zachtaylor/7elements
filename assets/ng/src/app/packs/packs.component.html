@@ -1,0 +1,16 @@
+<ng-container *ngIf="{data: userService.data$ | async} as async">
+  <article title="Purchase packs of cards">
+    <h3>Your coins: {{async.data?.coins}}</h3>
+  </article>
+</ng-container>
+<article *ngFor="let pack of globalService.data?.packs" title="{{pack.name}}">
+  <h2>Price of this pack: {{pack.cost}} coins</h2>
+  <br/>
+  <h2>Size of this pack: {{pack.size}} cards</h2>
+  <br/>
+  <h2>Cards in this pack</h2>
+  <ng-container *ngFor="let cardid of pack.cards; let i = index">
+    <ng-container *ngIf="i!=0">, </ng-container>
+    {{globalService.getCard(cardid).name}}
+  </ng-container>
+</article>

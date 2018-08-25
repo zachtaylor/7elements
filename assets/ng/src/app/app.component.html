@@ -1,0 +1,23 @@
+<nav autosize>
+  <div class="float-l"><a [routerLink]="['/']">
+    <img autosize src="/img/banner-white.128px.png">
+  </a></div>
+  <div autosize style="display:inline-block;" class="float-l">
+    <span>{{breadcrumbService.path}}</span>
+  </div>
+  <div *ngIf="{data: userService.data$ | async} as async" class="float-r">
+    <a *ngIf="async.data" autosize [routerLink]="['/myaccount']">{{async.data?.username}}</a>
+    <a *ngIf="!async.data" autosize [routerLink]="['/login']">Login</a>
+  </div>
+</nav>
+<div autosize></div> <!--fix nav position:fixed spacing-->
+<div style="position:absolute;right:4px;" *ngIf="messageService.messages.length">
+  <button class="clear" (click)="messageService.clear()">clear</button>
+  <div *ngFor='let message of messageService.messages; let i = index'>
+    <span>{{message}}</span>
+    <button (Click)="messageService.remove(i)"><img src="/img/icon/x.20px.png"></button>
+  </div>
+</div>
+<div style="min-height:100%;max-height:100%;background:#777777;overflow:auto">
+  <router-outlet></router-outlet>
+</div>

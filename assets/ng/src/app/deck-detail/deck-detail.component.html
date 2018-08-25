@@ -1,0 +1,4 @@
+<h2>{{deck?.name}}</h2>
+<app-card-detail *ngFor="let cardid of deck?.cards | mapKeys" [card]="globalService.getCard(cardid)">
+  <span>{{deck?.cards[cardid]}}</span>
+</app-card-detail>

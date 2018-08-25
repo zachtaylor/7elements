@@ -1,0 +1,23 @@
+<div style="height:24px">
+  <div class="float-l" style="padding:1px;">
+    <span *ngFor="let ceid of card?.costs | mapKeys">
+      <app-icon *ngFor="let i of card?.costs[ceid] | count" src="/img/icon/element-{{ceid}}.png"></app-icon>
+    </span>
+  </div>
+  <span class="card-label font-crsv float-r">{{card?.name}}</span>
+</div>
+<img style="height:178px;padding-left:1px;" [src]="card?.image">
+<div>
+  <span class="card-label">{{card?.type}}</span>
+  <span *ngIf="card.body" class="float-r">
+    <span>{{card.body.attack}}</span>
+    <img src="/img/icon/attack.20px.png">
+    <span>{{card.body.health}}</span>
+    <img src="/img/icon/life.20px.png">
+  </span>
+</div>
+<ng-container *ngFor="let power of card?.powers| mapValues">
+  <div [innerHTML]="power.text | keepHtml"></div>
+</ng-container>
+<div class="footer font-crsv" style="font-size:13px">{{card?.text}}</div>
+<ng-content></ng-content>

@@ -1,0 +1,17 @@
+:host {
+  padding-left:7%;
+  padding-right:7%;
+  padding-top:21px;
+  padding-bottom:21px;
+}
+.paper {
+  background:white;
+  box-shadow: 2px 2px 5px;
+}
+.title {
+  font-size:36px;
+  padding:6px;
+}
+.body {
+  padding:21px;
+}

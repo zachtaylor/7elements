@@ -1,0 +1,13 @@
+<article title="Current Free-to-Play Decks">
+  <app-deck-summary *ngFor="let deck of globalService.data?.decks | mapValues" [deck]="deck">
+  </app-deck-summary>
+</article>
+<ng-container *ngIf="{data: userService.data$ | async} as async">
+  <article *ngIf="async.data" title="Your Decks">
+    <app-deck-summary *ngFor="let deck of async.data?.decks | mapValues" [deck]="deck">
+    </app-deck-summary>
+  </article>
+  <article *ngIf="!async.data" title="Your Decks">
+    <div>Login to create your own decks!</div>
+  </article>
+</ng-container>

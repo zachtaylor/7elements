@@ -1,0 +1,13 @@
+<ng-container *ngIf="{data: userService.data$ | async} as async">
+  <article title="Account Details">
+    <div autosize>You have {{async.data?.coins}} coins</div>
+    <div autosize>You have {{async.data?.cards.length}} cards</div>
+    <div autosize>You have {{async.data?.decks.length}} decks</div>
+  </article>
+  <article title="Your Cards">
+    <app-card-detail *ngFor="let cardid of async.data?.cards | mapKeys" [card]="globalService.getCard(cardid)"></app-card-detail>
+  </article>
+  <article title="Your Decks">
+    <app-deck-summary *ngFor="let deckid of async.data?.cards | mapKeys" [deck]="globalService.getDeck(deckid)"></app-deck-summary>
+  </article>
+</ng-container>

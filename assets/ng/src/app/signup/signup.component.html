@@ -1,0 +1,31 @@
+<article>
+  <div class="font21 vii-fontc width100" style="text-align:center;">
+    <div style="padding:27px 21px 0px 0px;">Already have an account? <a [routerLink]="['/login']">Click here to login</a></div>
+  </div>
+  <form class="vii well pos-rel" action="/api/signup" method="POST">
+    <fieldset class="width100">
+      <legend>Signup</legend>
+      <div class="vii-form-detail float-right">Your username must be unique</div>
+      <div class="vii-form-group" id="form-group-username">
+        <span><b>username</b></span>
+        <input type="text" name="username" class="vii">
+      </div>
+      <div class="vii-form-detail float-right">Your e-mail is optional at this point</div>
+      <div class="vii-form-group" id="form-group-email">
+        <span ><b>e-mail</b></span>
+        <input type="email" name="email" class="vii">
+      </div>
+      <div class="vii-form-detail float-right">Your account password has no length or specific requirements</div>
+      <div class="vii-form-group" id="form-group-password1">
+        <span><b>password</b></span>
+        <input type="password" name="password1" class="vii">
+      </div>
+      <div class="vii-form-detail float-right">Your account password must match above</div>
+      <div class="vii-form-group" id="form-group-password2">
+        <span><b>password</b></span>
+        <input type="password" name="password2" class="vii">
+      </div>
+      <button type="submit" class="float-right vii vii-green">Signup</button>
+    </fieldset>
+  </form>
+</article>

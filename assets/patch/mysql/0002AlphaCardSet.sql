@@ -109,15 +109,15 @@ INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	scri
 	VALUES (14, 1, "play", "", 0, 0, "memorialize", "Create a Body which is a copy of a card in any players' Past");
 
 INSERT INTO packs (id, name, size, cost, image)
-	VALUES (1, "Alpha Bodies Pack (1)", 1, 3, "/img/pack/1.jpg");
+	VALUES (1, "Alpha Beings Pack (1)", 1, 3, "/img/pack/1.jpg");
 INSERT INTO packs_cards (packid, cardid, weight)
 	VALUES (1, 1, 1), (1, 2, 1), (1, 3, 1), (1, 4, 1), (1, 5, 1), (1, 6, 1), (1, 7, 1);
 INSERT INTO packs (id, name, size, cost, image)
-	VALUES (2, "Alpha Bodies Pack (3)", 3, 5, "/img/pack/2.jpg");
+	VALUES (2, "Alpha Beings Pack (3)", 3, 5, "/img/pack/2.jpg");
 INSERT INTO packs_cards (packid, cardid, weight)
 	VALUES (2, 1, 1), (2, 2, 1), (2, 3, 1), (2, 4, 1), (2, 5, 1), (2, 6, 1), (2, 7, 1);
 INSERT INTO packs (id, name, size, cost, image)
-	VALUES (3, "Alpha Bodies Pack (5)", 5, 7, "/img/pack/3.jpg");
+	VALUES (3, "Alpha Beings Pack (5)", 5, 7, "/img/pack/3.jpg");
 INSERT INTO packs_cards (packid, cardid, weight)
 	VALUES (3, 1, 1), (3, 2, 1), (3, 3, 1), (3, 4, 1), (3, 5, 1), (3, 6, 1), (3, 7, 1);
 INSERT INTO packs (id, name, size, cost, image)
