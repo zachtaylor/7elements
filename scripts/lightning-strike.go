@@ -23,8 +23,8 @@ func LightningStrike(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, tar
 		log.Add("Error", "card owner not found").Error(LightningStrikeID)
 	} else if !ownerSeat.HasAliveCard(gcid) {
 		log.Add("Error", "card not in play").Error(LightningStrikeID)
-	} else if card.Card.CardType != vii.CTYPbody {
-		log.Add("CardType", card.Card.CardType).Add("Error", "card not type body").Error(LightningStrikeID)
+	} else if card.Card.Type != vii.CTYPbody {
+		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(LightningStrikeID)
 	} else {
 		engine.Damage(game, card, 3)
 		animate.BroadcastSeatUpdate(game, seat)

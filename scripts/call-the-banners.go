@@ -11,25 +11,21 @@ func init() {
 }
 
 var ctbCard = &vii.Card{
-	Image:    "/img/cards/zealot-0.jpg",
-	CardType: vii.CTYPbody,
-	Costs:    vii.ElementMap{},
-	Powers:   vii.NewPowers(),
-	CardBody: &vii.CardBody{
+	Type:  vii.CTYPbody,
+	Image: "/img/cards/zealot-0.jpg",
+	Name:  "Bannerman",
+	Text:  "At your call",
+	Costs: vii.ElementMap{},
+	Body: &vii.CardBody{
 		Attack: 2,
 		Health: 2,
 	},
-}
-
-var ctbCardText = &vii.CardText{
-	Name:   "Bannerman",
-	Powers: make(map[int]string),
-	Flavor: "At your call",
+	Powers: vii.NewPowers(),
 }
 
 func CallTheBanners(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
 	for i := 0; i < 3; i++ {
-		card := vii.NewGameCard(ctbCard, ctbCardText)
+		card := vii.NewGameCard(ctbCard)
 		card.Username = seat.Username
 		card.IsToken = true
 		game.RegisterCard(card)

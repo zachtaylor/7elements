@@ -26,8 +26,8 @@ func Handrails(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target in
 	} else if !ownerSeat.HasAliveCard(gcid) {
 		log.Add("Error", "card not in play").Error(HandrailsID)
 		return nil
-	} else if card.Card.CardType != vii.CTYPbody {
-		log.Add("CardType", card.Card.CardType).Add("Error", "card not type body").Error(HandrailsID)
+	} else if card.Card.Type != vii.CTYPbody {
+		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(HandrailsID)
 		return nil
 	}
 

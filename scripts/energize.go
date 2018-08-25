@@ -23,8 +23,8 @@ func Energize(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target int
 		log.Add("Error", "card owner not found").Error(EnergizeID)
 	} else if !ownerSeat.HasAliveCard(gcid) {
 		log.Add("Error", "card not in play").Error(EnergizeID)
-	} else if card.Card.CardType != vii.CTYPbody && card.Card.CardType != vii.CTYPitem {
-		log.Add("CardType", card.Card.CardType).Add("Error", "card not type bodyoritem").Error(EnergizeID)
+	} else if card.Card.Type != vii.CTYPbody && card.Card.Type != vii.CTYPitem {
+		log.Add("CardType", card.Card.Type).Add("Error", "card not type bodyoritem").Error(EnergizeID)
 	} else {
 		card.IsAwake = true
 		if card.Username != seat.Username {

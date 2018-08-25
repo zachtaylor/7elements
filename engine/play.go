@@ -66,15 +66,15 @@ func (event *PlayEvent) OnStop(game *vii.Game, t *Timeline) *Timeline {
 
 	playPower := event.Card.Card.GetPlayPower()
 	if playPower == nil {
-		animate.Error(game, game, event.Card.CardText.Name, "card does not work yet")
+		animate.Error(game, game, event.Card.Name, "card does not work yet")
 		log.Warn("engine-play: resolve; card does not work")
 		return event.Stack
 	}
 
-	if event.Card.Card.CardType == vii.CTYPbody || event.Card.Card.CardType == vii.CTYPitem {
+	if event.Card.Card.Type == vii.CTYPbody || event.Card.Card.Type == vii.CTYPitem {
 		seat.Alive[event.Card.Id] = event.Card
 		animate.Spawn(game, event.Card)
-	} else if event.Card.Card.CardType == vii.CTYPspell {
+	} else if event.Card.Card.Type == vii.CTYPspell {
 		seat.Graveyard[event.Card.Id] = event.Card
 	}
 

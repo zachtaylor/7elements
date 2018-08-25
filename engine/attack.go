@@ -50,7 +50,7 @@ func (event AttackEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat
 	} else if !gc.IsAwake {
 		log.Warn("games.Attack: card is not awake")
 
-		animate.Error(seat, game, gc.CardText.Name, "not awake")
+		animate.Error(seat, game, gc.Card.Name, "not awake")
 	} else {
 		for _, s2 := range game.Seats {
 			if s2 != seat {

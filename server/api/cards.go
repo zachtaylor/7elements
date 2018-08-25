@@ -16,13 +16,11 @@ func CardsHandler(r *http.Request) error {
 		log.Error("/cards: card id unavailable")
 	} else if cardid, err := strconv.Atoi(r.Quest[11 : len(r.Quest)-5]); err != nil {
 		log.Add("Error", err).Error("/api/cards: parse card id")
-	} else if card, err := vii.CardService.GetCard(cardid); card == nil {
+	} else if card, err := vii.CardService.Get(cardid); card == nil {
 		log.Add("Error", err).Error("/api/cards: card missing")
-	} else if text, err := vii.CardTextService.GetCardText(r.Language, int(cardid)); err != nil {
-		log.Add("Error", err).Error("/api/cards: card text service")
 	} else {
 		log.Add("Card", card.Id).Info("/api/cards")
-		r.WriteJson(card.JsonWithText(text))
+		r.WriteJson(card.Json())
 	}
 	return nil
 }

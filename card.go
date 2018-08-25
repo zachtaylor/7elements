@@ -1,12 +1,14 @@
 package vii
 
 type Card struct {
-	Id    int
-	Image string
-	CardType
-	Costs ElementMap
-	*CardBody
-	Powers
+	Id     int
+	Name   string
+	Text   string
+	Type   CardType
+	Image  string
+	Costs  ElementMap
+	Body   *CardBody
+	Powers Powers
 }
 
 func NewCard() *Card {
@@ -34,17 +36,16 @@ func (c *Card) GetDeathPower() *Power {
 	return nil
 }
 
-func (c *Card) JsonWithText(text *CardText) Json {
+func (c *Card) Json() Json {
 	json := Json{
-		"id":          c.Id,
-		"image":       c.Image,
-		"name":        text.Name,
-		"type":        c.CardType.String(),
-		"description": text.Description,
-		"powers":      c.Powers.JsonWithText(text),
-		"flavor":      text.Flavor,
-		"costs":       c.Costs.Copy(),
-		"body":        c.CardBody.Json(),
+		"id":     c.Id,
+		"image":  c.Image,
+		"name":   c.Name,
+		"text":   c.Text,
+		"type":   c.Type.String(),
+		"powers": c.Powers.Json(),
+		"costs":  c.Costs.Copy(),
+		"body":   c.Body.Json(),
 	}
 
 	if power := c.GetPlayPower(); power != nil {
@@ -56,6 +57,6 @@ func (c *Card) JsonWithText(text *CardText) Json {
 
 var CardService interface {
 	Start() error
-	GetCard(cardid int) (*Card, error)
-	GetAllCards() map[int]*Card
+	Get(cardid int) (*Card, error)
+	GetAll() map[int]*Card
 }

@@ -44,7 +44,7 @@ func (event *GraveBirthEvent) OnReconnect(game *vii.Game, t *engine.Timeline, se
 
 func (event *GraveBirthEvent) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
 	seat := game.GetSeat(t.HotSeat)
-	card := vii.NewGameCard(event.Card.Card, event.Card.CardText)
+	card := vii.NewGameCard(event.Card.Card)
 	card.Username = seat.Username
 	card.IsToken = true
 	game.RegisterCard(card)
@@ -64,14 +64,14 @@ func (event *GraveBirthEvent) Receive(game *vii.Game, t *engine.Timeline, seat *
 		log.Warn(GraveBirthID + ": choice not found")
 	} else if card := game.Cards[gcid]; card == nil {
 		log.Warn(GraveBirthID + ": gcid not found")
-	} else if card.Card.CardType != vii.CTYPbody {
-		log.Add("CardType", card.Card.CardType).Warn(GraveBirthID + ": not type body")
+	} else if card.Card.Type != vii.CTYPbody {
+		log.Add("CardType", card.Card.Type).Warn(GraveBirthID + ": not type body")
 	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
 		log.Add("CardOwner", card.Username).Warn(GraveBirthID + ": card owner not found")
 	} else if !ownerSeat.HasPastCard(gcid) {
 		log.Add("CardOwner", card.Username).Add("Past", ownerSeat.Graveyard.String()).Warn(GraveBirthID + ": card not in past")
 	} else {
-		event.Card = vii.NewGameCard(card.Card, card.CardText)
+		event.Card = vii.NewGameCard(card.Card)
 		log.Add("CardId", event.Card.Card.Id).Info(GraveBirthID + ": confirmed card")
 	}
 }

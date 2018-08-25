@@ -76,19 +76,14 @@ func (game *Game) Register(deck *AccountDeck, lang string) *GameSeat {
 	deckSize := 0
 
 	for cardid, copies := range deck.Cards {
-		card, _ := CardService.GetCard(cardid)
+		card, _ := CardService.Get(cardid)
 		if card == nil {
 			log.Clone().Add("CardId", cardid).Warn("register: card missing")
 			return nil
 		}
-		text, err := CardTextService.GetCardText(lang, cardid)
-		if text == nil {
-			log.Clone().Add("CardId", cardid).Add("Error", err).Warn("register: text missing")
-			return nil
-		}
 
 		for i := 0; i < copies; i++ {
-			card := NewGameCard(card, text)
+			card := NewGameCard(card)
 			card.Username = deck.Username
 			game.RegisterCard(card)
 			game.Cards[card.Id] = card
@@ -131,7 +126,7 @@ func (game *Game) Json(name string) Json {
 	return Json{
 		"gameid":   game.Key,
 		"life":     seat.Life,
-		"hand":     len(seat.Hand),
+		"hand":     seat.Hand.Json(),
 		"opponent": game.GetOpponentSeat(name).Username,
 	}
 }

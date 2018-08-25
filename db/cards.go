@@ -14,17 +14,20 @@ func init() {
 
 type CardService map[int]*vii.Card
 
-func (cards CardService) GetCard(id int) (*vii.Card, error) {
+func (cards CardService) Get(id int) (*vii.Card, error) {
 	return cards[id], nil
 }
 
-func (cards CardService) GetAllCards() map[int]*vii.Card {
+func (cards CardService) GetAll() map[int]*vii.Card {
+	if len(cards) == 0 {
+		cards.Start()
+	}
 	return map[int]*vii.Card(cards)
 }
 
 func (cards CardService) Start() error {
 	// select all cards
-	rows, err := conn.Query("SELECT id, type, image FROM cards")
+	rows, err := conn.Query("SELECT id, type, name, text, image FROM cards")
 	if err != nil {
 		rows.Close()
 		return err
@@ -71,7 +74,7 @@ func (cards CardService) loadCardBodies() error {
 			return errors.New(fmt.Sprintf("cards: body matching missing card#%v", cardid))
 		}
 
-		cards[cardid].CardBody = body
+		cards[cardid].Body = body
 	}
 
 	return nil
@@ -103,17 +106,18 @@ func (cards CardService) loadCardCosts() error {
 }
 
 func (cards CardService) loadCardsPowers() error {
-	rows, err := conn.Query("SELECT cardid, id, usesturn, xtrigger, target, script FROM cards_powers")
+	rows, err := conn.Query("SELECT cardid, id, usesturn, useskill, xtrigger, target, script, text FROM cards_powers")
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var cardid, usesturn int
+		var cardid, usesturn, useskill int
 		power := vii.NewPower()
-		err = rows.Scan(&cardid, &power.Id, &usesturn, &power.Trigger, &power.Target, &power.Script)
+		err = rows.Scan(&cardid, &power.Id, &usesturn, &useskill, &power.Trigger, &power.Target, &power.Script, &power.Text)
 		power.UsesTurn = usesturn > 0
+		power.UsesKill = useskill > 0
 
 		if err != nil {
 			return err
@@ -158,7 +162,7 @@ func (cards CardService) scanCard(scanner db.Scanner) (*vii.Card, error) {
 	card := vii.NewCard()
 	var cardtypebuff int
 
-	err := scanner.Scan(&card.Id, &cardtypebuff, &card.Image)
+	err := scanner.Scan(&card.Id, &cardtypebuff, &card.Name, &card.Text, &card.Image)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +170,7 @@ func (cards CardService) scanCard(scanner db.Scanner) (*vii.Card, error) {
 	if ctype := vii.CardType(cardtypebuff); ctype.String() == "error" {
 		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", cardtypebuff))
 	} else {
-		card.CardType = ctype
+		card.Type = ctype
 	}
 
 	return card, nil

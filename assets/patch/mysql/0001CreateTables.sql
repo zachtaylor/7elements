@@ -37,8 +37,10 @@ CREATE TABLE accounts_decks_items (
 		ON DELETE CASCADE
 		ON UPDATE RESTRICT
 ) ENGINE=InnoDB;
-CREATE TABLE cards(
+CREATE TABLE cards (
 	id INT PRIMARY KEY NOT NULL,
+	name VARCHAR(255),
+	text VARCHAR(255),
 	type INT,
 	image VARCHAR(255)
 ) ENGINE=InnoDB;
@@ -61,9 +63,11 @@ CREATE TABLE cards_element_costs(
 CREATE TABLE cards_powers (
 	cardid INT,
 	id INT,
+	text VARCHAR(255),
 	xtrigger VARCHAR(255),
 	target VARCHAR(255),
 	usesturn INT,
+	useskill INT,
 	script VARCHAR(255),
 	CONSTRAINT FOREIGN KEY (cardid)	REFERENCES cards(id)
 		ON DELETE CASCADE
@@ -78,21 +82,6 @@ CREATE TABLE cards_powers_costs (
 		ON DELETE CASCADE
 		ON UPDATE RESTRICT
 ) ENGINE=InnoDB;
-CREATE TABLE cards_powers_texts (
-	cardid INT,
-	powerid INT,
-	language VARCHAR(255),
-	description VARCHAR(255),
-	CONSTRAINT FOREIGN KEY (cardid)	REFERENCES cards(id)
-		ON DELETE CASCADE
-		ON UPDATE RESTRICT
-) ENGINE=InnoDB;
-CREATE TABLE cards_text (
-	cardid INT,
-	language VARCHAR(255),
-	name VARCHAR(255),
-	description VARCHAR(255),
-	flavor VARCHAR(255)) ENGINE=InnoDB;
 CREATE TABLE decks (
 	id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	name VARCHAR(255),

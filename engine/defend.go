@@ -69,7 +69,7 @@ func (event *DefendEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSea
 	} else if !gc.IsAwake {
 		log.Warn("engine-defend: card is not awake")
 
-		animate.Error(seat, game, gc.CardText.Name, "not awake")
+		animate.Error(seat, game, gc.Card.Name, "not awake")
 	} else {
 		event.DefendOptions[gcid] = target
 	}

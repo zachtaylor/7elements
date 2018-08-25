@@ -61,7 +61,7 @@ func (event *TriggerEvent) OnStop(game *vii.Game, t *Timeline) *Timeline {
 		"Username":  seat.Username,
 		"gcid":      event.Card.Id,
 		"CardId":    event.Card.Card.Id,
-		"Name":      event.Card.CardText.Name,
+		"Name":      event.Card.Name,
 		"PowerId":   event.Power.Id,
 		"UsesTurn":  event.Power.UsesTurn,
 		"StackMode": event.Stack.Name(),

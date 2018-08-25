@@ -26,12 +26,12 @@ func CloningPool(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target 
 	} else if !ownerSeat.HasAliveCard(gcid) {
 		log.Add("Error", "card not in play").Error(CloningPoolID)
 		return nil
-	} else if card.Card.CardType != vii.CTYPbody {
-		log.Add("CardType", card.Card.CardType).Add("Error", "card not type body").Error(CloningPoolID)
+	} else if card.Card.Type != vii.CTYPbody {
+		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(CloningPoolID)
 		return nil
 	}
 
-	clone := vii.NewGameCard(card.Card, card.CardText)
+	clone := vii.NewGameCard(card.Card)
 	clone.Username = seat.Username
 	game.RegisterCard(clone)
 	seat.Life++

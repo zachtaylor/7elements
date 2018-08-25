@@ -25,17 +25,6 @@ func main() {
 		return
 	}
 
-	if err := vii.CardService.Start(); err != nil {
-		log.Add("Error", err).Error("cannot load card cache, aborting...")
-		return
-	} else if vii.CardTextService == nil {
-		log.Error("vii.CardTextService must not be nil")
-		return
-	} else if err := vii.CardTextService.Start(); err != nil {
-		log.Add("Error", err).Error("cannot load card texts cache, aborting...")
-		return
-	}
-
 	if env.Name() == "dev" {
 		// http.SessionLifetime = 1 * time.Minute
 		server.Start(":" + env.Default("PORT", "80"))

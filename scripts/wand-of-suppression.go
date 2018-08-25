@@ -26,8 +26,8 @@ func WandOfSuppression(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, t
 	} else if !ownerSeat.HasAliveCard(gcid) {
 		log.Add("Error", "card not in play").Error(WandOfSuppressionID)
 		return nil
-	} else if card.Card.CardType != vii.CTYPbody {
-		log.Add("CardType", card.Card.CardType).Add("Error", "card not type body").Error(WandOfSuppressionID)
+	} else if card.Card.Type != vii.CTYPbody {
+		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(WandOfSuppressionID)
 		return nil
 	}
 

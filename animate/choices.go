@@ -22,7 +22,7 @@ func NewElementChoice(w vii.Receiver, game *vii.Game) {
 }
 
 func NoviceSeerChoice(w vii.Receiver, game *vii.Game, card *vii.GameCard) {
-	prompt := fmt.Sprintf("Destroy %s?", card.CardText.Name)
+	prompt := fmt.Sprintf("Destroy %s?", card.Name)
 	choices := []js.Object{
 		js.Object{
 			"choice":  "no",
@@ -45,14 +45,14 @@ func GraveBirth(w vii.Receiver, game *vii.Game) {
 	choices := []js.Object{}
 	for _, seat := range game.Seats {
 		for _, card := range seat.Graveyard {
-			if card.Card.CardType != vii.CTYPbody {
+			if card.Card.Type != vii.CTYPbody {
 				continue
 			}
 
 			cards = append(cards, card.Json())
 			choices = append(choices, js.Object{
 				"choice":  card.Id,
-				"display": card.CardText.Name,
+				"display": card.Name,
 			})
 		}
 	}

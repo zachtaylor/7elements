@@ -22,7 +22,7 @@ func SummonersPortal(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, tar
 
 	if card == nil {
 		log.Error(SummonersPortalID + `: card is nil`)
-	} else if card.Card.CardType == vii.CTYPbody || card.Card.CardType == vii.CTYPitem {
+	} else if card.Card.Type == vii.CTYPbody || card.Card.Type == vii.CTYPitem {
 		seat.Alive[card.Id] = card
 		animate.Spawn(game, card)
 

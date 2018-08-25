@@ -23,8 +23,8 @@ func HardBargain(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target 
 		log.Add("Error", "card owner not found").Error(HardBargainID)
 	} else if !ownerSeat.HasAliveCard(gcid) {
 		log.Add("Error", "card not in play").Error(HardBargainID)
-	} else if card.Card.CardType != vii.CTYPitem {
-		log.Add("CardType", card.Card.CardType).Add("Error", "card not type item").Error(HardBargainID)
+	} else if card.Card.Type != vii.CTYPitem {
+		log.Add("CardType", card.Card.Type).Add("Error", "card not type item").Error(HardBargainID)
 	} else {
 		delete(ownerSeat.Alive, gcid)
 		ownerSeat.Graveyard[gcid] = card
