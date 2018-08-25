@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/keygen"
 	"ztaylor.me/log"
 )

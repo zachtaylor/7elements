@@ -1,5 +1,5 @@
 // Package notify provides a simple cache to place user notices
-package notify // import "github.com/zachtaylor/7tcg/notify"
+package notify // import "github.com/zachtaylor/7elements/notify"
 
 import (
 	"sync"

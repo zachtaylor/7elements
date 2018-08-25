@@ -1,16 +1,16 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg"
-	// "github.com/zachtaylor/7tcg/emails"
-	// "github.com/zachtaylor/7tcg/options"
 	"net/http"
 	"time"
 
-	"github.com/zachtaylor/7tcg/server/security"
+	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/server/security"
 	"ztaylor.me/events"
 	zhttp "ztaylor.me/http"
 	"ztaylor.me/log"
+	// "github.com/zachtaylor/7elements/emails"
+	// "github.com/zachtaylor/7elements/options"
 )
 
 var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

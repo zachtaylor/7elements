@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/zachtaylor/7tcg"
-	"github.com/zachtaylor/7tcg/engine"
+	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/engine"
 	"ztaylor.me/events"
 	"ztaylor.me/http"
 	"ztaylor.me/log"

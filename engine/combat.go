@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 )
 
 func Combat(game *vii.Game, acard *vii.GameCard, dcard *vii.GameCard) {

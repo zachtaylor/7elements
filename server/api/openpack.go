@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg"
-	"github.com/zachtaylor/7tcg/gencardpack"
 	"net/http"
 	"time"
+
+	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/gencardpack"
 	zhttp "ztaylor.me/http"
 	"ztaylor.me/js"
 	"ztaylor.me/log"

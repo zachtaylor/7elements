@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/zachtaylor/7tcg/server/api"
+	"github.com/zachtaylor/7elements/server/api"
 	"ztaylor.me/env"
 	"ztaylor.me/http"
 	"ztaylor.me/vfs"

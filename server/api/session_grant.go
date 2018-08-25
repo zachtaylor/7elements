@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg"
-	"github.com/zachtaylor/7tcg/server/util"
 	"net/http"
 	"time"
+
+	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/server/util"
 	zhttp "ztaylor.me/http"
 	"ztaylor.me/log"
 )

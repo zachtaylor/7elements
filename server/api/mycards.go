@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	"fmt"
 	"ztaylor.me/http"
 	"ztaylor.me/js"

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg/chat"
+	"github.com/zachtaylor/7elements/chat"
 	"ztaylor.me/http"
 	"ztaylor.me/js"
 	"ztaylor.me/log"

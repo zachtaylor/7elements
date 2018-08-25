@@ -1,8 +1,8 @@
 // Package animate provides macros to send ui-control messages
-package animate // import "github.com/zachtaylor/7tcg/animate"
+package animate // import "github.com/zachtaylor/7elements/animate"
 
 import (
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/js"
 )
 

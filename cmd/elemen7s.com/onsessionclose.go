@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/events"
 	"ztaylor.me/log"
 )

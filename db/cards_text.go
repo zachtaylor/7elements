@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 )
 
 func init() {

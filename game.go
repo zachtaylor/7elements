@@ -1,7 +1,7 @@
 package vii
 
 import (
-	"github.com/zachtaylor/7tcg/chat"
+	"github.com/zachtaylor/7elements/chat"
 	"ztaylor.me/keygen"
 	"ztaylor.me/log"
 )

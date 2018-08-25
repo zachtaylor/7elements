@@ -1,10 +1,9 @@
 package main
 
 import (
-	"github.com/zachtaylor/7tcg"
-	"github.com/zachtaylor/7tcg/db"
-	_ "github.com/zachtaylor/7tcg/scripts"
-	"github.com/zachtaylor/7tcg/server"
+	"github.com/zachtaylor/7elements/db"
+	_ "github.com/zachtaylor/7elements/scripts"
+	"github.com/zachtaylor/7elements/server"
 	"ztaylor.me/env"
 	"ztaylor.me/log"
 )

@@ -3,7 +3,7 @@ package ai
 import (
 	"time"
 
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
 )

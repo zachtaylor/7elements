@@ -1,8 +1,9 @@
 package animate
 
 import (
-	"github.com/zachtaylor/7tcg"
 	"fmt"
+
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/js"
 )
 

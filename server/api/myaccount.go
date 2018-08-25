@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg"
 	"time"
+
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/http"
 	"ztaylor.me/js"
 )

@@ -1,7 +1,7 @@
 package api
 
 // import (
-// 	"github.com/zachtaylor/7tcg/accounts"
+// 	"github.com/zachtaylor/7elements/accounts"
 // 	"ztaylor.me/http"
 // 	"ztaylor.me/js"
 // 	"ztaylor.me/log"

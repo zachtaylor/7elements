@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	zhttp "ztaylor.me/http"
 	"ztaylor.me/js"
 	"ztaylor.me/log"

@@ -1,7 +1,7 @@
 package games
 
 import (
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	"time"
 	"ztaylor.me/js"
 	"ztaylor.me/log"

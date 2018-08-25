@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/log"
 )
 

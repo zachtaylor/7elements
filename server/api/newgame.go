@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg"
-	"github.com/zachtaylor/7tcg/engine"
-	"github.com/zachtaylor/7tcg/engine/ai"
-	"github.com/zachtaylor/7tcg/queue"
+	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/engine/ai"
+	"github.com/zachtaylor/7elements/queue"
 	"ztaylor.me/http"
 	"ztaylor.me/js"
 	"ztaylor.me/log"

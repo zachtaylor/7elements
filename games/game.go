@@ -1,7 +1,7 @@
 package games
 
 // import (
-// 	"github.com/zachtaylor/7tcg/chat"
+// 	"github.com/zachtaylor/7elements/chat"
 // 	"fmt"
 // 	"time"
 // 	"ztaylor.me/js"

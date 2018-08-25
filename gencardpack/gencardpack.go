@@ -1,9 +1,10 @@
 package gencardpack
 
 import (
-	"github.com/zachtaylor/7tcg"
-	"github.com/cznic/mathutil"
 	"time"
+
+	"github.com/cznic/mathutil"
+	"github.com/zachtaylor/7elements"
 )
 
 var rand [7]*mathutil.FC32

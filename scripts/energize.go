@@ -1,9 +1,9 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7tcg"
-	"github.com/zachtaylor/7tcg/animate"
-	"github.com/zachtaylor/7tcg/engine"
+	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/animate"
+	"github.com/zachtaylor/7elements/engine"
 )
 
 const EnergizeID = "energize"

@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/zachtaylor/7tcg"
+	"github.com/zachtaylor/7elements"
 )
 
 type ScriptFunc = func(*vii.Game, *Timeline, *vii.GameSeat, interface{}) *Timeline

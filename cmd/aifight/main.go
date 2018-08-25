@@ -2,15 +2,16 @@ package main
 
 import (
 	"bufio"
-	"github.com/zachtaylor/7tcg/cards"
-	"github.com/zachtaylor/7tcg/cards/texts"
-	"github.com/zachtaylor/7tcg/db"
-	"github.com/zachtaylor/7tcg/decks"
-	"github.com/zachtaylor/7tcg/games"
-	"github.com/zachtaylor/7tcg/options"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/zachtaylor/7elements/cards"
+	"github.com/zachtaylor/7elements/cards/texts"
+	"github.com/zachtaylor/7elements/db"
+	"github.com/zachtaylor/7elements/decks"
+	"github.com/zachtaylor/7elements/games"
+	"github.com/zachtaylor/7elements/options"
 	"ztaylor.me/log"
 )
 

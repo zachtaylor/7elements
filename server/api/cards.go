@@ -1,9 +1,10 @@
 package api
 
 import (
-	"github.com/zachtaylor/7tcg"
 	"fmt"
 	"strconv"
+
+	"github.com/zachtaylor/7elements"
 	"ztaylor.me/http"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
