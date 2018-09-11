@@ -21,6 +21,24 @@ export type Deck = {
   cards : Map<number, number>
 }
 
+export type MyAccount = {
+  username : string
+  email : string
+  sessionlife: string
+  coins : number
+  cards : Map<number, number>
+  decks : Array<Deck>
+  games : Array<Game>
+}
+
+export type PingData = {
+  // version : number
+  // update : string
+  cards : Array<Card>
+  decks : Array<Deck>
+  online : number
+}
+
 export type Power = {
   id : number
   text : string

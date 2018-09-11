@@ -1,14 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
-import { Card, Deck } from './api'
-
-type PingData = {
-  // version : number
-  // update : string
-  cards : Array<Card>
-  decks : Array<Deck>
-  online : number
-}
+import { PingData } from './api'
 
 @Injectable({
   providedIn: 'root'

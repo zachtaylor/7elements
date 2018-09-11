@@ -1,18 +1,8 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { CookieService } from 'ngx-cookie-service'
-import { Deck } from './api';
+import { MyAccount } from './api';
 import { BehaviorSubject } from 'rxjs';
-
-type MyAccount = {
-  username : string
-  email : string
-  sessionlife: string
-  coins : number
-  cards : Map<number, number>
-  decks : Array<Deck>
-  games : Array<number>
-}
 
 @Injectable({
   providedIn: `root`
