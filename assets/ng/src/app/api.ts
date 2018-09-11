@@ -17,6 +17,7 @@ export type Deck = {
   name : string
   username : string
   level : number
+  wins : number
   color : string
   cards : Map<number, number>
 }
