@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { UserService } from '../user.service'
-import { GlobalService } from '../global.service';
+import { PingService } from '../ping.service'
 
 @Component({
   selector: 'app-packs',
@@ -9,7 +9,7 @@ import { GlobalService } from '../global.service';
 })
 export class PacksComponent implements OnInit {
 
-  constructor(public globalService : GlobalService, public userService : UserService) {
+  constructor(public pingService : PingService, public userService : UserService) {
   }
 
   ngOnInit() {

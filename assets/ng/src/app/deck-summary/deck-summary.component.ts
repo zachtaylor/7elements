@@ -1,6 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Deck } from '../api';
-import { GlobalService } from '../global.service';
+import { Component, OnInit, Input } from '@angular/core'
+import { Deck } from '../api'
+import { PingService } from '../ping.service'
 
 @Component({
   selector: 'app-deck-summary',
@@ -10,7 +10,7 @@ import { GlobalService } from '../global.service';
 export class DeckSummaryComponent implements OnInit {
   @Input() deck : Deck
 
-  constructor(public globalService : GlobalService) {
+  constructor(public pingService : PingService) {
   }
 
   ngOnInit() {

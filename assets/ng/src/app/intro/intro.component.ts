@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { GlobalService } from '../global.service';
+import { Component, OnInit } from '@angular/core'
+import { PingService } from '../ping.service'
 
 @Component({
   selector: 'app-intro',
@@ -8,8 +8,10 @@ import { GlobalService } from '../global.service';
 })
 export class IntroComponent implements OnInit {
 
-  constructor(public globalService: GlobalService) { }
+  constructor(public pingService : PingService) {
+  }
 
   ngOnInit() {
   }
+
 }

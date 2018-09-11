@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { GlobalService } from '../global.service';
+import { Component, OnInit, OnDestroy } from '@angular/core'
+import { ActivatedRoute } from '@angular/router'
+import { PingService } from '../ping.service'
 
 @Component({
   selector: 'app-decks.id',
@@ -11,7 +11,7 @@ export class DecksIdComponent implements OnInit {
   id: number;
   private sub: any;
 
-  constructor(private route: ActivatedRoute, public globalService : GlobalService) { }
+  constructor(private route: ActivatedRoute, public pingService : PingService) { }
 
   ngOnInit() {
     this.sub = this.route.params.subscribe(params => {

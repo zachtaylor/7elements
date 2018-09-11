@@ -1,3 +1,5 @@
 <article title="All Available Cards">
-  <app-card-detail *ngFor="let card of globalService.data?.cards" [card]="card"></app-card-detail>
+  <ng-container *ngIf="pingService.data$ | async as ping">
+    <app-card-detail *ngFor="let card of ping?.cards" [card]="card"></app-card-detail>
+  </ng-container>
 </article>

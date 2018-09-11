@@ -1,3 +1,5 @@
 <article title="Deck Details">
-  <app-deck-detail [deck]="globalService.getDeck(id)"></app-deck-detail>
+  <ng-container *ngIf="pingService.data$ | async as ping">
+      <app-deck-detail [deck]="pingService.getDeck(ping, id)"></app-deck-detail>
+  </ng-container>
 </article>

@@ -5,12 +5,11 @@
   <div autosize style="display:inline-block;" class="float-l">
     <span>{{breadcrumbService.path}}</span>
   </div>
-  <div *ngIf="{data: userService.data$ | async} as async" class="float-r">
-    <a *ngIf="async.data" autosize [routerLink]="['/myaccount']">{{async.data?.username}}</a>
-    <a *ngIf="!async.data" autosize [routerLink]="['/login']">Login</a>
+  <div class="float-r">
+    <a *ngIf="userService.data$ | async as user" autosize [routerLink]="['/myaccount']">{{user.username}}</a>
+    <a *ngIf="userService.isLoggedOut()" autosize [routerLink]="['/login']">Login</a>
   </div>
 </nav>
-<div autosize></div> <!--fix nav position:fixed spacing-->
 <div style="position:absolute;right:4px;" *ngIf="messageService.messages.length">
   <button class="clear" (click)="messageService.clear()">clear</button>
   <div *ngFor='let message of messageService.messages; let i = index'>
@@ -18,6 +17,7 @@
     <button (Click)="messageService.remove(i)"><img src="/img/icon/x.20px.png"></button>
   </div>
 </div>
-<div style="min-height:100%;max-height:100%;background:#777777;overflow:auto">
+<div style="position:absolute;height:100%;width:100%;background:#777777;overflow:auto">
+  <div autosize></div> <!-- fix padding for navbar height -->
   <router-outlet></router-outlet>
 </div>
