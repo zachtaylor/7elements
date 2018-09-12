@@ -18,6 +18,12 @@ func MyAccountHandler(r *http.Request) error {
 	} else if accountdecks, err := vii.AccountDeckService.Get(r.Username); err != nil {
 		return err
 	} else {
+		games := make([]js.Object, 0)
+		for _, gameid := range vii.GameService.GetPlayerGames(r.Username) {
+			if game := vii.GameService.Get(gameid); game != nil {
+				games = append(games, game.Json(r.Username))
+			}
+		}
 		r.WriteJson(js.Object{
 			"username":    r.Username,
 			"email":       account.Email,
@@ -25,6 +31,7 @@ func MyAccountHandler(r *http.Request) error {
 			"coins":       account.Coins,
 			"cards":       accountcards.Json(),
 			"decks":       accountdecks.Json(),
+			"games":       games,
 		})
 		return nil
 	}

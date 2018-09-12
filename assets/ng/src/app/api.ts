@@ -22,6 +22,13 @@ export type Deck = {
   cards : Map<number, number>
 }
 
+export type Game = {
+  id : string
+  hand : Array<Card>
+  elements : Array<number>
+  opponents : Array<string>
+}
+
 export type MyAccount = {
   username : string
   email : string

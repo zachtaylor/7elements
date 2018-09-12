@@ -1,3 +1,23 @@
-<p>
-  games works!
-</p>
+<ng-container *ngIf="userService.data$ | async as user">
+  <ng-container *ngIf="pingService.data$ | async as ping">
+    <article *ngIf="user" title="Start a new game">
+      <h2>Your selected deck</h2>
+      <form>
+        <input type="checkbox" [checked]="deckP2P" (change)="deckP2P = !deckP2P">
+        <button (click)="deckRight($event)">--&gt;</button>
+        <button (click)="deckLeft($event)">&lt;--</button>
+      </form>
+      <br/>
+      <app-deck-summary [deck]="getDeck(deckID, deckP2P, user, ping)"></app-deck-summary>
+      <br/>
+      <button (click)="startVsAiGame(deckID, deckP2P)">Play VS AI</button>
+      <button (click)="startVsHumanQueue()">Play VS Human</button>
+    </article>
+    <article *ngIf="user" title="Your active games">
+      <!-- <app-game-summary *ngFor="let game of user?.games" [game]="game"></app-game-summary> -->
+    </article>
+  </ng-container>
+</ng-container>
+<article *ngIf="userService.isLoggedOut()" title="Start a new game">
+  Please login to create a game!
+</article>

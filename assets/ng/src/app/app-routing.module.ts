@@ -10,6 +10,7 @@ import { DecksComponent } from './decks/decks.component';
 import { DecksIdComponent } from './decks.id/decks.id.component';
 import { IndexComponent } from './index/index.component';
 import { PacksComponent } from './packs/packs.component';
+import { GamesComponent } from './games/games.component';
 
 const routes: Routes = [
   { path: 'intro', component: IntroComponent },
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'decks', component: DecksComponent },
   { path: 'decks/:id', component: DecksIdComponent },
   { path: 'packs', component: PacksComponent },
+  { path: 'games', component: GamesComponent },
   { path: '', component: IndexComponent },
   { path: '*',
     redirectTo: '/',
