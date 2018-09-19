@@ -6,20 +6,17 @@ import (
 	"ztaylor.me/log"
 )
 
-// DB_TABLE is name of env var
-const DB_TABLE = "DB_TABLE"
-
 var conn *db.DB
 
-func Patch() (int, error) {
+// ConnPatch connects using db.OpenEnv and returns the patch id
+func ConnPatch() (int, error) {
 	if conn == nil {
-		tableName := env.Get(DB_TABLE)
 		var err error
-		conn, err = db.Open(tableName)
+		conn, err = db.OpenEnv()
 		if err != nil {
-			log.Add(DB_TABLE, tableName).Add(db.DB_HOST, env.Get(db.DB_HOST)).Error(err)
+			log.Add(db.DB_TABLE, env.Get(db.DB_TABLE)).Add(db.DB_HOST, env.Get(db.DB_HOST)).Add("Error", err).Error("db: openenv failed")
 		} else {
-			log.Add(DB_TABLE, tableName).Add(db.DB_HOST, env.Get(db.DB_HOST)).Debug("loaded db from env")
+			log.Add(db.DB_TABLE, env.Get(db.DB_TABLE)).Add(db.DB_HOST, env.Get(db.DB_HOST)).Debug("db: openenv")
 		}
 	}
 	return db.Patch(conn)

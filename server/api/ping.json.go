@@ -1,13 +1,15 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/zachtaylor/7elements"
-	"ztaylor.me/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
 )
 
-func PingHandler(r *http.Request) error {
+func PingHandler(w http.ResponseWriter, r *http.Request) {
 	decks, err := vii.DeckService.GetAll()
 	if err != nil {
 		log.Add("Error", err).Warn("api/ping.json: deckservice getall failed")
@@ -18,14 +20,12 @@ func PingHandler(r *http.Request) error {
 		log.Add("Error", err).Warn("api/ping.json: packservice getall failed")
 	}
 
-	r.WriteJson(js.Object{
+	w.Write([]byte(js.Object{
 		"cards":  AllCardsJson(),
 		"packs":  packs.Json(),
 		"decks":  decks.Json(),
-		"online": http.SessionService.Count(),
-	})
-
-	return nil
+		"online": sessions.Service.Count(),
+	}.String()))
 }
 
 // func pingHandlerDataHelperGames(username string) js.Object {

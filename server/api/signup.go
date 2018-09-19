@@ -7,7 +7,7 @@ import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/server/security"
 	"ztaylor.me/events"
-	zhttp "ztaylor.me/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 	// "github.com/zachtaylor/7elements/emails"
 	// "github.com/zachtaylor/7elements/options"
@@ -22,13 +22,11 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	session, err := zhttp.ReadRequestCookie(r)
+	session := sessions.ReadCookie(r)
 	if session != nil {
 		http.Redirect(w, r, "/", 307)
 		log.Add("SessionId", session.ID).Info("signup: request has valid session cookie")
 		return
-	} else if err != nil {
-		log.Clone().Add("Error", err).Warn("signup: ignoring cookie...")
 	}
 
 	username := r.FormValue("username")
@@ -63,14 +61,14 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 		Register: time.Now(),
 	}
 
-	if err = vii.AccountService.Insert(account); err != nil {
+	if err := vii.AccountService.Insert(account); err != nil {
 		http.Redirect(w, r, "/signup/?error="+email+"&username="+username, 500)
 		log.Add("Error", err).Error("/api/signup: account insert")
 		w.WriteHeader(500)
 		return
-	} else {
-		events.Fire("Signup", username)
 	}
+
+	events.Fire("Signup", username)
 
 	for i := 1; i < 4; i++ {
 		deck := vii.NewAccountDeck()
@@ -86,6 +84,6 @@ var SignupHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	// 	log.Clone().Add("mail-user", options.String("mail-user")).Add("mail-pass", options.String("mail-pass")).Add("mail-host", options.String("mail-host")).Add("Error", err).Error("/api/signup: send validation email")
 	// }
 
-	GrantSession(account, w, r, "Signup success!")
+	GrantSession(w, r, account, "Signup success!")
 	log.Info("/api/signup")
 })

@@ -1,38 +1,41 @@
 package api
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/zachtaylor/7elements"
-	"ztaylor.me/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/js"
+	"ztaylor.me/log"
 )
 
-func MyAccountHandler(r *http.Request) error {
-	if r.Session == nil {
-		return ErrSessionRequired
-	} else if account, err := vii.AccountService.Get(r.Username); account == nil {
-		return err
-	} else if accountcards, err := vii.AccountCardService.Get(r.Username); err != nil {
-		return err
-	} else if accountdecks, err := vii.AccountDeckService.Get(r.Username); err != nil {
-		return err
+func MyAccountHandler(w http.ResponseWriter, r *http.Request) {
+	if session := sessions.ReadCookie(r); session == nil {
+		log.WithFields(log.Fields{
+			"RemoteAddr": r.RemoteAddr,
+		}).Warn("api/myaccount: session required")
+	} else if account, err := vii.AccountService.Get(session.Name); err != nil {
+		log.Add("Error", err).Add("Name", session.Name).Error("api/myaccount: account missing")
+	} else if accountcards, err := vii.AccountCardService.Get(session.Name); err != nil {
+		log.Add("Error", err).Add("Name", session.Name).Error("api/myaccount: accountcards missing")
+	} else if accountdecks, err := vii.AccountDeckService.Get(session.Name); err != nil {
+		log.Add("Error", err).Add("Name", session.Name).Error("api/myaccount: accountdecks missing")
 	} else {
 		games := make([]js.Object, 0)
-		for _, gameid := range vii.GameService.GetPlayerGames(r.Username) {
+		for _, gameid := range vii.GameService.GetPlayerGames(session.Name) {
 			if game := vii.GameService.Get(gameid); game != nil {
-				games = append(games, game.Json(r.Username))
+				games = append(games, game.Json(session.Name))
 			}
 		}
-		r.WriteJson(js.Object{
-			"username":    r.Username,
+		w.Write([]byte(js.Object{
+			"username":    session.Name,
 			"email":       account.Email,
-			"sessionlife": r.Expire.Sub(time.Now()).String(),
+			"sessionlife": session.Expire.Sub(time.Now()).String(),
 			"coins":       account.Coins,
 			"cards":       accountcards.Json(),
 			"decks":       accountdecks.Json(),
 			"games":       games,
-		})
-		return nil
+		}.String()))
 	}
 }

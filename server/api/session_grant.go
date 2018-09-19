@@ -6,18 +6,18 @@ import (
 
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/server/util"
-	zhttp "ztaylor.me/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
-func GrantSession(a *vii.Account, w http.ResponseWriter, r *http.Request, message string) {
+func GrantSession(w http.ResponseWriter, r *http.Request, a *vii.Account, message string) {
 	a.LastLogin = time.Now()
 	if err := vii.AccountService.UpdateLogin(a); err != nil {
-		log.Add("Error", err).Error("api/session_grant: failed")
+		log.Add("Error", err).Error("api/session_grant")
 		return
 	}
-	session := zhttp.SessionService.Grant(a.Username)
-	a.SessionId = session.ID
-	session.WriteCookie(w)
+	session := sessions.Service.Grant(a.Username)
+	a.SessionID = session.ID
+	sessions.WriteCookie(w, session)
 	serverutil.WriteRedirectHome(w, message)
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/server/security"
-	zhttp "ztaylor.me/http"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
@@ -18,12 +18,10 @@ var LoginHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if session, err := zhttp.ReadRequestCookie(r); session != nil {
+	if session := sessions.ReadCookie(r); session != nil {
 		http.Redirect(w, r, "/", 307)
-		log.Add("SessionId", session.ID).Info("login: request already has valid session cookie")
+		log.Add("SessionID", session.ID).Info("login: request already has valid session cookie")
 		return
-	} else if err != nil {
-		log.Clone().Add("Error", err).Warn("login: ignoring cookie...")
 	}
 
 	username := r.FormValue("username")
@@ -32,13 +30,13 @@ var LoginHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 	log.Add("Username", username)
 
 	if account := vii.AccountService.Test(username); account != nil {
-		log.Add("SessionId", account.SessionId)
+		log.Add("SessionID", account.SessionID)
 
 		if account.Password != password {
 			log.Warn("login: password does not match")
 		} else {
-			log.Add("SessionId", account.SessionId).Info("login: account is hot")
-			GrantSession(account, w, r, "Login Re-Accepted!")
+			log.Add("SessionID", account.SessionID).Info("login: account is hot")
+			GrantSession(w, r, account, "Login Re-Accepted!")
 		}
 
 		return
@@ -60,5 +58,5 @@ var LoginHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	GrantSession(account, w, r, "Login Success!")
+	GrantSession(w, r, account, "Login Success!")
 })

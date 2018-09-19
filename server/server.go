@@ -1,7 +1,13 @@
 package server // import "github.com/zachtaylor/7elements/server"
 
 import (
-	"ztaylor.me/http"
+	"net/http"
+
+	"ztaylor.me/http/mux"
 )
 
-var Server = http.NewRouter()
+func New(fs http.FileSystem) *mux.Mux {
+	mux := mux.NewMux()
+	Routes(mux, fs)
+	return mux
+}

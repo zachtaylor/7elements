@@ -1,38 +1,34 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/zachtaylor/7elements/server/api"
-	"ztaylor.me/env"
-	"ztaylor.me/http"
+	"ztaylor.me/http/handler"
+	"ztaylor.me/http/mux"
 )
 
-func init() {
-	Server.MapLit(`/api/ping.json`, api.PingHandler)
-	Server.MapLit(`/api/decks.json`, api.DecksHandler)
+// Routes applies the routes of this server to a Mux
+func Routes(router *mux.Mux, fs http.FileSystem) {
+	router.MapLit(`/api/ping.json`, http.HandlerFunc(api.PingHandler))
+	router.MapLit(`/api/myaccount.json`, http.HandlerFunc(api.MyAccountHandler))
+	router.MapLit(`/api/login`, api.LoginHandler)
+	router.MapLit(`/api/signup`, api.SignupHandler)
+	router.MapLit(`/api/logout`, api.LogoutHandler)
+
+	// Server.MapLit(`/api/newgame.json`, api.NewGameHandler)
 	// Server.MapLit(`/api/packs.json`, api.PacksHandler)
 	// Server.MapRawLit(`/api/openpack.json`, api.OpenPackJsonHandler)
+	// Server.MapLit(`/chat`, api.ChatHandler)
+	// Server.MapLit(`/join`, api.JoinHandler)
+	// Server.MapLit(`/game`, api.GameHandler)
+	// Server.MapRgx(`/api/cards.*\.json`, api.CardsHandler)
+	// Server.MapRawLit(`/api/websocket`, http.SocketHandler)
 
-	Server.MapLit(`/chat`, api.ChatHandler)
-	Server.MapLit(`/newgame`, api.NewGameHandler)
-	Server.MapLit(`/join`, api.JoinHandler)
-	Server.MapLit(`/game`, api.GameHandler)
+	// Server.MapRawRgx(`/api/decks/.*\.json`, api.DecksIdJsonHandler)
 
-	Server.MapLit(`/api/coins`, api.CoinsHandler)
-	Server.MapLit(`/api/myaccount.json`, api.MyAccountHandler)
-	Server.MapLit(`/api/mycards.json`, api.MyCardsHandler)
-	Server.MapLit(`/api/mydecks.json`, api.MyDecksHandler)
-
-	Server.MapRgx(`/api/cards.*\.json`, api.CardsHandler)
-
-	Server.MapRawLit(`/api/websocket`, http.SocketHandler)
-	Server.MapRawLit(`/api/login`, api.LoginHandler)
-	Server.MapRawLit(`/api/signup`, api.SignupHandler)
-	Server.MapRawLit(`/api/logout`, api.LogoutHandler)
-
-	imgHandler := http.StripPrefix("/img/", http.FileServer(http.Dir(env.Default("IMG_PATH", "img/"))))
-	Server.MapRawRgx(`.*\.png`, imgHandler)
-	Server.MapRawRgx(`.*\.jpg`, imgHandler)
-
-	Server.MapRawRgx(`/api/decks/.*\.json`, api.DecksIdJsonHandler)
-	Server.MapRawRgx(`.*`, PageHandler)
+	router.Map(mux.MatcherSPA, handler.Index(fs))
+	fsHandler := http.FileServer(fs)
+	router.MapRgx(`/img/`, handler.AddPrefix("/assets", fsHandler))
+	router.MapRgx(`.`, fsHandler)
 }

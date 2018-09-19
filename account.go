@@ -10,7 +10,7 @@ type Account struct {
 	Skill     int
 	Register  time.Time
 	LastLogin time.Time
-	SessionId uint
+	SessionID string
 }
 
 func NewAccount() *Account {

@@ -1,23 +1,23 @@
 package api
 
-import (
-	"fmt"
+// import (
+// 	"fmt"
 
-	"github.com/zachtaylor/7elements"
-	"ztaylor.me/http"
-	"ztaylor.me/js"
-)
+// 	"github.com/zachtaylor/7elements"
+// 	"ztaylor.me/http"
+// 	"ztaylor.me/js"
+// )
 
-func PacksHandler(r *http.Request) error {
-	packs, err := vii.PackService.GetAll()
-	if err != nil {
-		return err
-	}
+// func PacksHandler(r *http.Quest) error {
+// 	packs, err := vii.PackService.GetAll()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	j := js.Object{}
-	for packid, pack := range packs {
-		j[fmt.Sprintf("%d", packid)] = pack.Json()
-	}
-	r.WriteJson(j)
-	return nil
-}
+// 	j := js.Object{}
+// 	for packid, pack := range packs {
+// 		j[fmt.Sprintf("%d", packid)] = pack.Json()
+// 	}
+// 	r.WriteJson(j)
+// 	return nil
+// }

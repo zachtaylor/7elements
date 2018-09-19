@@ -1,7 +1,6 @@
 package vii
 
 import (
-	"github.com/zachtaylor/7elements/chat"
 	"ztaylor.me/keygen"
 	"ztaylor.me/log"
 )
@@ -12,7 +11,6 @@ type Game struct {
 	Settings *GameSettings
 	Results  *GameResults
 	In       chan *GameRequest
-	Chat     chat.Channel
 	Seats    map[string]*GameSeat
 	*log.Logger
 }
