@@ -10,7 +10,7 @@ import (
 	"ztaylor.me/log"
 )
 
-const PATCH = 2
+const Patch = 2
 
 func main() {
 	log.SetLevel(env.Default("LOG_LEVEL", "info"))
@@ -21,19 +21,19 @@ func main() {
 		log.StartRoller(logPath)
 	}
 
-	if patch, err := db.ConnPatch(); err != nil {
+	if patch, err := db.OpenEnv(); err != nil {
 		log.Add("Error", err).Add("Patch", patch).Error("patch error")
 		return
-	} else if patch != PATCH {
-		log.Add("Expected", PATCH).Add("Found", patch).Error("patch mismatch")
+	} else if patch != Patch {
+		log.Add("Expected", Patch).Add("Found", patch).Error("patch mismatch")
 		return
 	}
 
 	if env.Name() == "dev" {
 		// http.SessionLifetime = 1 * time.Minute
-		server.Start(fs, ":"+env.Default("PORT", "80"))
+		server.Start(fs, env.Get("DB_PWSALT"), ":"+env.Default("PORT", "80"))
 	} else if env.Name() == "pro" {
-		server.StartTLS(fs, "7elements.cert", "7elements.key")
+		server.StartTLS(fs, env.Get("DB_PWSALT"), "7elements.cert", "7elements.key")
 	} else {
 		log.Error("7elements failed to launch, env error")
 	}

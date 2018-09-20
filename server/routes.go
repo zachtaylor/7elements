@@ -9,11 +9,11 @@ import (
 )
 
 // Routes applies the routes of this server to a Mux
-func Routes(router *mux.Mux, fs http.FileSystem) {
+func Routes(router *mux.Mux, fs http.FileSystem, dbsalt string) {
 	router.MapLit(`/api/ping.json`, http.HandlerFunc(api.PingHandler))
 	router.MapLit(`/api/myaccount.json`, http.HandlerFunc(api.MyAccountHandler))
-	router.MapLit(`/api/login`, api.LoginHandler)
-	router.MapLit(`/api/signup`, api.SignupHandler)
+	router.MapLit(`/api/login`, api.LoginHandler(dbsalt))
+	router.MapLit(`/api/signup`, api.SignupHandler(dbsalt))
 	router.MapLit(`/api/logout`, api.LogoutHandler)
 
 	// Server.MapLit(`/api/newgame.json`, api.NewGameHandler)

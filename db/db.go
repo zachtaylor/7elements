@@ -2,6 +2,5 @@ package db
 
 import "ztaylor.me/db"
 
-var OpenEnv = db.OpenEnv
-
+// Patch = db.Patch
 var Patch = db.Patch

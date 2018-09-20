@@ -6,8 +6,8 @@ import (
 	"ztaylor.me/http/mux"
 )
 
-func New(fs http.FileSystem) *mux.Mux {
+func New(fs http.FileSystem, dbsalt string) *mux.Mux {
 	mux := mux.NewMux()
-	Routes(mux, fs)
+	Routes(mux, fs, dbsalt)
 	return mux
 }

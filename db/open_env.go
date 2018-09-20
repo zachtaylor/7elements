@@ -8,8 +8,8 @@ import (
 
 var conn *db.DB
 
-// ConnPatch connects using db.OpenEnv and returns the patch id
-func ConnPatch() (int, error) {
+// OpenEnv connects using db.OpenEnv and returns the patch id
+func OpenEnv() (int, error) {
 	if conn == nil {
 		var err error
 		conn, err = db.OpenEnv()
@@ -19,5 +19,5 @@ func ConnPatch() (int, error) {
 			log.Add(db.DB_TABLE, env.Get(db.DB_TABLE)).Add(db.DB_HOST, env.Get(db.DB_HOST)).Debug("db: openenv")
 		}
 	}
-	return db.Patch(conn)
+	return Patch(conn)
 }
