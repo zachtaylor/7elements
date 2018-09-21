@@ -35,7 +35,6 @@ func (service *GameService) New() *vii.Game {
 
 func (service *GameService) Add(game *vii.Game) {
 	tStart := time.Now()
-	log.Warn("engine-service: add")
 	service.Lock()
 	for ; service.Games[game.Key] != nil; game.Key = service.keygen() {
 	}
@@ -44,7 +43,7 @@ func (service *GameService) Add(game *vii.Game) {
 	log.WithFields(log.Fields{
 		"Key":  game.Key,
 		"Time": time.Now().Sub(tStart),
-	}).Info("engine-service: game added")
+	}).Info("engine/game_service: game added")
 }
 
 func (service *GameService) keygen() string {
@@ -52,11 +51,7 @@ func (service *GameService) keygen() string {
 		if stat, err := os.Stat("log/game/" + key + ".log"); err == nil {
 			log.WithFields(log.Fields{
 				"Stat": stat,
-			}).Warn("engine-service: proposed key has log file")
-		} else if service.Games[key] != nil {
-			log.WithFields(log.Fields{
-				"Stat": stat,
-			}).Warn("engine-service: proposed key has log file")
+			}).Warn("engine/game_service: proposed key already exists")
 		} else {
 			return key
 		}
