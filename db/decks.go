@@ -34,7 +34,7 @@ func (service *DeckService) Start() {
 
 func (service *DeckService) reloadDecks() (vii.Decks, error) {
 	decks := make(vii.Decks)
-	rows, err := conn.Query("SELECT id, name, level, color FROM decks")
+	rows, err := Conn.Query("SELECT id, name, level, color FROM decks")
 	if err != nil {
 		return decks, err
 	}
@@ -51,7 +51,7 @@ func (service *DeckService) reloadDecks() (vii.Decks, error) {
 }
 func (service *DeckService) reloadDecksCards() (map[int]map[int]int, error) {
 	deckscards := make(map[int]map[int]int)
-	rows, err := conn.Query("SELECT deckid, cardid, amount FROM decks_items")
+	rows, err := Conn.Query("SELECT deckid, cardid, amount FROM decks_items")
 	if err != nil {
 		return deckscards, err
 	}

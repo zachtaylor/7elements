@@ -34,7 +34,7 @@ func (service *PackService) Start() error {
 
 func (service *PackService) reloadPacks() (vii.Packs, error) {
 	packs := make(vii.Packs)
-	rows, err := conn.Query(`SELECT id, name, size, cost, image FROM packs`)
+	rows, err := Conn.Query(`SELECT id, name, size, cost, image FROM packs`)
 	if err != nil {
 		return packs, err
 	}
@@ -52,7 +52,7 @@ func (service *PackService) reloadPacks() (vii.Packs, error) {
 
 func (service *PackService) reloadPacksCards() ([]*vii.PackChance, error) {
 	packscards := make([]*vii.PackChance, 0)
-	rows, err := conn.Query(`SELECT packid, cardid, weight FROM packs_cards`)
+	rows, err := Conn.Query(`SELECT packid, cardid, weight FROM packs_cards`)
 	if err != nil {
 		return packscards, err
 	}

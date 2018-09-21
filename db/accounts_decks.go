@@ -25,7 +25,7 @@ func (service AccountDeckService) Get(username string) (vii.AccountDecks, error)
 }
 
 func (service AccountDeckService) Load(username string) (vii.AccountDecks, error) {
-	rows, err := conn.Query(
+	rows, err := Conn.Query(
 		"SELECT username, id, name, wins, color, max(register) FROM accounts_decks WHERE username=? GROUP BY id",
 		username,
 	)
@@ -51,7 +51,7 @@ func (service AccountDeckService) Load(username string) (vii.AccountDecks, error
 	rows.Close()
 
 	for _, deck := range decks {
-		rows, err = conn.Query("SELECT cardid, amount FROM accounts_decks_items WHERE username=? AND id=?",
+		rows, err = Conn.Query("SELECT cardid, amount FROM accounts_decks_items WHERE username=? AND id=?",
 			username,
 			deck.ID,
 		)
@@ -96,7 +96,7 @@ func (service AccountDeckService) Update(deck *vii.AccountDeck) error {
 }
 
 func (_ AccountDeckService) Insert(deck *vii.AccountDeck) error {
-	_, err := conn.Exec("INSERT INTO accounts_decks (username, name, id, wins, register, color) VALUES (?, ?, ?, ?, ?, ?)",
+	_, err := Conn.Exec("INSERT INTO accounts_decks (username, name, id, wins, register, color) VALUES (?, ?, ?, ?, ?, ?)",
 		deck.Username,
 		deck.Name,
 		deck.ID,
@@ -109,7 +109,7 @@ func (_ AccountDeckService) Insert(deck *vii.AccountDeck) error {
 	}
 
 	for cardId, amount := range deck.Cards {
-		_, err := conn.Exec("INSERT INTO accounts_decks_items(username, id, cardid, amount) VALUES (?, ?, ?, ?)",
+		_, err := Conn.Exec("INSERT INTO accounts_decks_items(username, id, cardid, amount) VALUES (?, ?, ?, ?)",
 			deck.Username,
 			deck.ID,
 			cardId,
@@ -125,7 +125,7 @@ func (_ AccountDeckService) Insert(deck *vii.AccountDeck) error {
 }
 
 func (_ AccountDeckService) UpdateName(username string, id int, name string) error {
-	res, err := conn.Exec(
+	res, err := Conn.Exec(
 		"UPDATE accounts_decks SET name=? WHERE username=? AND id=?;",
 		name,
 		username,
@@ -142,7 +142,7 @@ func (_ AccountDeckService) UpdateName(username string, id int, name string) err
 }
 
 func (_ AccountDeckService) UpdateTallyWinCount(username string, id int) error {
-	res, err := conn.Exec(
+	res, err := Conn.Exec(
 		"UPDATE accounts SET wins=wins+1 WHERE username=? AND id=?",
 		username,
 		id,
@@ -158,7 +158,7 @@ func (_ AccountDeckService) UpdateTallyWinCount(username string, id int) error {
 }
 
 func (service AccountDeckService) Delete(username string, deckid int) error {
-	_, err := conn.Exec("DELETE FROM accounts_decks WHERE username=? AND id=?",
+	_, err := Conn.Exec("DELETE FROM accounts_decks WHERE username=? AND id=?",
 		username,
 		deckid,
 	)
@@ -166,7 +166,7 @@ func (service AccountDeckService) Delete(username string, deckid int) error {
 		log.Add("Error", err).Error("cannot delete accounts_decks")
 		return err
 	}
-	_, err = conn.Exec("DELETE FROM accounts_decks_items WHERE username=? AND id=?",
+	_, err = Conn.Exec("DELETE FROM accounts_decks_items WHERE username=? AND id=?",
 		username,
 		deckid,
 	)

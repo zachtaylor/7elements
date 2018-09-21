@@ -33,7 +33,7 @@ func (service AccountCardService) Get(username string) (vii.AccountsCards, error
 }
 
 func (service AccountCardService) Load(username string) (vii.AccountsCards, error) {
-	rows, err := conn.Query("SELECT username, card, register, notes FROM accounts_cards WHERE username=?",
+	rows, err := Conn.Query("SELECT username, card, register, notes FROM accounts_cards WHERE username=?",
 		username,
 	)
 
@@ -83,7 +83,7 @@ func (service AccountCardService) Insert(username string) error {
 }
 
 func (service AccountCardService) InsertCard(card *vii.AccountCard) error {
-	_, err := conn.Exec("INSERT INTO accounts_cards(username, card, register, notes) VALUES (?, ?, ?, ?)",
+	_, err := Conn.Exec("INSERT INTO accounts_cards(username, card, register, notes) VALUES (?, ?, ?, ?)",
 		card.Username,
 		card.CardId,
 		card.Register.Unix(),
@@ -93,7 +93,7 @@ func (service AccountCardService) InsertCard(card *vii.AccountCard) error {
 }
 
 func (service AccountCardService) Delete(username string) error {
-	_, err := conn.Exec("DELETE FROM accounts_cards WHERE username=?",
+	_, err := Conn.Exec("DELETE FROM accounts_cards WHERE username=?",
 		username,
 	)
 

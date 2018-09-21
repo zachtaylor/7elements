@@ -13,7 +13,7 @@ func init() {
 type HttpTrackService int
 
 func (s HttpTrackService) GetAccountAddrs(name string) ([]*httptrack.LoginDetails, error) {
-	rows, err := conn.Query("SELECT name, addr, t FROM httptrack WHERE name=?",
+	rows, err := Conn.Query("SELECT name, addr, t FROM httptrack WHERE name=?",
 		name,
 	)
 	if err != nil {
@@ -37,7 +37,7 @@ func (s HttpTrackService) GetAccountAddrs(name string) ([]*httptrack.LoginDetail
 }
 
 func (s HttpTrackService) UpdateQuery(data *httptrack.LoginDetails) error {
-	if res, err := conn.Exec(
+	if res, err := Conn.Exec(
 		"UPDATE httptrack SET heat = heat + 1, t=? WHERE name=? AND addr=?",
 		data.Time.Unix(),
 		data.Name,
@@ -52,7 +52,7 @@ func (s HttpTrackService) UpdateQuery(data *httptrack.LoginDetails) error {
 }
 
 func (s HttpTrackService) InsertQuery(data *httptrack.LoginDetails) error {
-	if _, err := conn.Exec(
+	if _, err := Conn.Exec(
 		"INSERT INTO httptrack (name, addr, heat, t) VALUES (?, ?, 0, ?)",
 		data.Name,
 		data.Addr,

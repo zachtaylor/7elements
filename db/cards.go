@@ -27,7 +27,7 @@ func (cards CardService) GetAll() map[int]*vii.Card {
 
 func (cards CardService) Start() error {
 	// select all cards
-	rows, err := conn.Query("SELECT id, type, name, text, image FROM cards")
+	rows, err := Conn.Query("SELECT id, type, name, text, image FROM cards")
 	if err != nil {
 		rows.Close()
 		return err
@@ -57,7 +57,7 @@ func (cards CardService) Start() error {
 }
 
 func (cards CardService) loadCardBodies() error {
-	rows, err := conn.Query("SELECT cardid, attack, health FROM cards_bodies")
+	rows, err := Conn.Query("SELECT cardid, attack, health FROM cards_bodies")
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (cards CardService) loadCardBodies() error {
 }
 
 func (cards CardService) loadCardCosts() error {
-	rows, err := conn.Query("SELECT cardid, element, count FROM cards_element_costs")
+	rows, err := Conn.Query("SELECT cardid, element, count FROM cards_element_costs")
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (cards CardService) loadCardCosts() error {
 }
 
 func (cards CardService) loadCardsPowers() error {
-	rows, err := conn.Query("SELECT cardid, id, usesturn, useskill, xtrigger, target, script, text FROM cards_powers")
+	rows, err := Conn.Query("SELECT cardid, id, usesturn, useskill, xtrigger, target, script, text FROM cards_powers")
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (cards CardService) loadCardsPowers() error {
 }
 
 func (cards CardService) loadCardsPowersCosts() error {
-	rows, err := conn.Query("SELECT cardid, powerid, element, count FROM cards_powers_costs")
+	rows, err := Conn.Query("SELECT cardid, powerid, element, count FROM cards_powers_costs")
 	if err != nil {
 		return err
 	}

@@ -38,7 +38,7 @@ func (cache AccountService) Get(username string) (*vii.Account, error) {
 }
 
 func (cache AccountService) Load(username string) (*vii.Account, error) {
-	row := conn.QueryRow(
+	row := Conn.QueryRow(
 		"SELECT username, email, password, skill, coins, register, lastlogin FROM accounts WHERE username=?",
 		username,
 	)
@@ -57,7 +57,7 @@ func (cache AccountService) Load(username string) (*vii.Account, error) {
 }
 
 func (cache AccountService) Insert(account *vii.Account) error {
-	_, err := conn.Exec(
+	_, err := Conn.Exec(
 		"INSERT INTO accounts (username, email, password, skill, coins, register, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		account.Username,
 		account.Email,
@@ -72,12 +72,12 @@ func (cache AccountService) Insert(account *vii.Account) error {
 }
 
 func (_ AccountService) UpdateCoins(account *vii.Account) error {
-	_, err := conn.Exec("UPDATE accounts SET coins=? WHERE username=?", account.Coins, account.Username)
+	_, err := Conn.Exec("UPDATE accounts SET coins=? WHERE username=?", account.Coins, account.Username)
 	return err
 }
 
 func (_ AccountService) UpdateLogin(account *vii.Account) error {
-	_, err := conn.Exec(
+	_, err := Conn.Exec(
 		"UPDATE accounts SET lastlogin=? WHERE username=?",
 		account.LastLogin.Unix(),
 		account.Username,
@@ -86,7 +86,7 @@ func (_ AccountService) UpdateLogin(account *vii.Account) error {
 }
 
 func (_ AccountService) UpdatePassword(account *vii.Account) error {
-	_, err := conn.Exec(
+	_, err := Conn.Exec(
 		"UPDATE accounts SET password=? WHERE username=?",
 		account.Password,
 		account.Username,
@@ -95,6 +95,6 @@ func (_ AccountService) UpdatePassword(account *vii.Account) error {
 }
 
 func (_ AccountService) Delete(username string) error {
-	_, err := conn.Exec("DELETE FROM accounts WHERE username=?", username)
+	_, err := Conn.Exec("DELETE FROM accounts WHERE username=?", username)
 	return err
 }
