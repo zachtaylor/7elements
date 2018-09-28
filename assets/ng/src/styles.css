@@ -72,3 +72,18 @@ img {
 .vii-form-detail {
 	font-size:12px;
 }
+/* vii class */
+button.vii {
+	padding:21px;
+	font-size:18px;
+	line-height:24px;
+  font-family:Macondo;
+}
+button.vii-blue {
+	border-color:green;
+	color:darkgreen;
+}
+button.vii-green {
+	border-color:blue;
+	color:darkblue;
+}
