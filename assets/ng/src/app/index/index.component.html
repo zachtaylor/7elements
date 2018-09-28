@@ -20,7 +20,7 @@
   <br/>
   <h3>Patch Date: 2018-08-24</h3>
   <br/>
-  <h3>People online right now: {{(pingService.data$ | async)?.online}}</h3>
+  <h3>People online right now: {{(conn.ping$ | async)?.online}}</h3>
 </article>
 <article title="First time">
   Click here for an introduction <a routerLink="/intro">/intro</a>

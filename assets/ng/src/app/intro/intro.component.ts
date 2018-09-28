@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core'
-import { PingService } from '../ping.service'
 
 @Component({
   selector: 'app-intro',
@@ -8,7 +7,7 @@ import { PingService } from '../ping.service'
 })
 export class IntroComponent implements OnInit {
 
-  constructor(public pingService : PingService) {
+  constructor() {
   }
 
   ngOnInit() {

@@ -1,9 +1,9 @@
-<ng-container *ngIf="userService.data$ | async as user">
+<ng-container *ngIf="conn.myaccount$ | async as myaccount">
   <article title="Purchase packs of cards">
-    <h3>Your coins: {{user?.coins}}</h3>
+    <h3>Your coins: {{myaccount?.coins}}</h3>
   </article>
 </ng-container>
-<ng-container *ngIf="pingService.data$ | async as ping">
+<ng-container *ngIf="conn.ping$ | async as ping">
   <article *ngFor="let pack of ping?.packs" title="{{pack.name}}">
     <h2>Price of this pack: {{pack.cost}} coins</h2>
     <br/>
@@ -11,7 +11,7 @@
     <br/>
     <h2>Cards in this pack</h2>
     <ng-container *ngFor="let cardid of pack.cards; let i = index">
-      <ng-container *ngIf="i!=0">, </ng-container>{{pingService.getCard(ping, cardid).name}}
+      <ng-container *ngIf="i!=0">, </ng-container>{{conn.getCard(ping, cardid).name}}
     </ng-container>
   </article>
 </ng-container>

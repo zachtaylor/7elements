@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core'
-import { Deck, MyAccount, PingData } from '../api'
-import { UserService } from '../user.service'
-import { PingService } from '../ping.service'
+import { MyAccount, PingData } from '../api'
+import { ConnService } from '../conn.service'
 import { CookieService } from 'ngx-cookie-service'
 import { HttpClient } from '@angular/common/http'
 
@@ -11,38 +10,45 @@ import { HttpClient } from '@angular/common/http'
   styleUrls: ['./games.component.css']
 })
 export class GamesComponent implements OnInit {
-  deckID = 0
-  deckP2P = true
+  deckID = 1
+  deckP2P = false
 
-  constructor(public userService : UserService, public pingService : PingService, private http : HttpClient, private cookieService : CookieService) {
+  constructor(public conn : ConnService, private http : HttpClient, private cookieService : CookieService) {
   }
 
   ngOnInit() {
-    this.deckID = parseInt(this.cookieService.get('DeckID'))
+    let deckID = parseInt(this.cookieService.get('DeckID'))
+    if (deckID) {
+      this.deckID = deckID
+    }
     this.deckP2P = parseInt(this.cookieService.get('DeckP2P')) > 0
   }
 
   getDeck(deckid : number, deckp2p : boolean, user : MyAccount, ping : PingData) {
-    if (user) {
-      if (deckp2p) {
-        for (var i=0; i<user.decks.length; i++) {
-          var deck = user.decks[i]
-          if (deck && deck.id == deckid) {
-            return deck
-          }
-        }
-      } else {
-        for (var i=0; i<ping.decks.length; i++) {
-          var deck = ping.decks[i]
-          if (deck && deck.id == deckid) {
-            return deck
-          }
+    if (!ping) {
+      return null
+    } else if (!user) {
+      return null
+    } else if (deckp2p) {
+      for (var i=0; i<user.decks.length; i++) {
+        var deck = user.decks[i]
+        if (deck && deck.id == deckid) {
+          return deck
         }
       }
-    } else if (user && ping) {
-      return ping.decks[0]
+    } else {
+      for (var i=0; i<ping.decks.length; i++) {
+        var deck = ping.decks[i]
+        if (deck && deck.id == deckid) {
+          return deck
+        }
+      }
     }
     return null
+  }
+
+  changeDeckP2P() {
+    this.deckP2P = !this.deckP2P
   }
 
   startVsAiGame() {
@@ -50,12 +56,16 @@ export class GamesComponent implements OnInit {
     console.log('start vs ai')
   }
 
-  deckLeft(event : any) {
-    console.log('deck left', event)
+  deckLeft() {
+    if (this.deckID > 1) {
+      this.deckID--;
+    }
   }
 
-  deckRight(event : any) {
-    console.log('deck right', event)
+  deckRight() {
+    if (this.deckID < 3) {
+      this.deckID++;
+    }
   }
 
   startVsHumanQueue() {

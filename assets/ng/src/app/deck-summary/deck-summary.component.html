@@ -1,12 +1,12 @@
 <a *ngIf="deck?.id && !deck?.username" [routerLink]="['/decks', deck?.id]" class="float-r">Click here to view detail</a>
 <a *ngIf="deck?.id && deck?.username" [routerLink]="['/mydecks', deck?.id]" class="float-r">Click here to view detail</a>
-<ng-container *ngIf="pingService.data$ | async as ping">
+<ng-container *ngIf="conn.ping$ | async as ping">
   <h1>{{deck?.name}}</h1>
   <div>
     <span>Cards:</span>
     <span *ngFor="let cardid of deck?.cards | mapKeys; let i=index">
       <span *ngIf="i!=0">, </span>
-      <span>{{pingService.getCard(ping, cardid).name}}</span>
+      <span>{{conn.getCard(ping, cardid).name}}</span>
     </span>
   </div>
 </ng-container>

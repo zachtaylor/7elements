@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { Deck, PingData } from '../api'
-import { PingService } from '../ping.service'
+import { Deck } from '../api'
+import { ConnService } from '../conn.service'
 
 @Component({
   selector: 'app-deck-detail',
@@ -10,7 +10,7 @@ import { PingService } from '../ping.service'
 export class DeckDetailComponent implements OnInit {
   @Input() deck : Deck
 
-  constructor(public pingService : PingService) {
+  constructor(public conn : ConnService) {
   }
 
   ngOnInit() {

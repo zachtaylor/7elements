@@ -6,8 +6,8 @@
     <span>{{breadcrumbService.path}}</span>
   </div>
   <div class="float-r">
-    <a *ngIf="userService.data$ | async as user" autosize [routerLink]="['/myaccount']">{{user.username}}</a>
-    <a *ngIf="userService.isLoggedOut()" autosize [routerLink]="['/login']">Login</a>
+    <a *ngIf="conn.myaccount$ | async as myaccount" autosize [routerLink]="['/myaccount']">{{myaccount.username}}</a>
+    <a *ngIf="conn.isLoggedOut()" autosize [routerLink]="['/login']">Login</a>
   </div>
 </nav>
 <div style="position:absolute;right:4px;" *ngIf="messageService.messages.length">

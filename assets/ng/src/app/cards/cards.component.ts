@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { PingService } from '../ping.service'
+import { ConnService } from '../conn.service'
 
 @Component({
   selector: 'app-cards',
@@ -8,7 +8,7 @@ import { PingService } from '../ping.service'
 })
 export class CardsComponent implements OnInit {
 
-  constructor(public pingService : PingService) {
+  constructor(public conn : ConnService) {
   }
 
   ngOnInit() {

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { UserService } from '../user.service'
-import { PingService } from '../ping.service'
+import { ConnService } from '../conn.service'
 
 @Component({
   selector: 'app-packs',
@@ -9,7 +8,7 @@ import { PingService } from '../ping.service'
 })
 export class PacksComponent implements OnInit {
 
-  constructor(public pingService : PingService, public userService : UserService) {
+  constructor(public conn : ConnService) {
   }
 
   ngOnInit() {

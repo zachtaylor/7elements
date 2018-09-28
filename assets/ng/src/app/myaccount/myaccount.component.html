@@ -1,15 +1,15 @@
-<ng-container *ngIf="pingService.data$ | async as ping">
-  <ng-container *ngIf="userService.data$ | async as user">
+<ng-container *ngIf="conn.ping$ | async as ping">
+  <ng-container *ngIf="conn.myaccount$ | async as myaccount">
     <article title="Account Details">
-      <div autosize>You have {{user?.coins}} coins</div>
-      <div autosize>You have {{user?.cards.length}} cards</div>
-      <div autosize>You have {{user?.decks.length}} decks</div>
+      <div autosize>You have {{myaccount?.coins}} coins</div>
+      <div autosize>You have {{myaccount?.cards.length}} cards</div>
+      <div autosize>You have {{myaccount?.decks.length}} decks</div>
     </article>
     <article title="Your Cards">
-      <app-card-detail *ngFor="let cardid of user?.cards | mapKeys" [card]="pingService.getCard(ping, cardid)"></app-card-detail>
+      <app-card-detail *ngFor="let cardid of myaccount?.cards | mapKeys" [card]="conn.getCard(ping, cardid)"></app-card-detail>
     </article>
     <article title="Your Decks">
-      <app-deck-summary *ngFor="let deckid of user?.cards | mapKeys" [deck]="pingService.getDeck(ping, deckid)"></app-deck-summary>
+      <app-deck-summary *ngFor="let deckid of myaccount?.cards | mapKeys" [deck]="conn.getDeck(ping, deckid)"></app-deck-summary>
     </article>
   </ng-container>
 </ng-container>

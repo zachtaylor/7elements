@@ -16,9 +16,9 @@ func GrantSession(w http.ResponseWriter, r *http.Request, a *vii.Account, messag
 		log.Add("Error", err).Error("api/session_grant")
 		return
 	}
-	log.Add("Account", a.Username).Add("SessionID", a.SessionID).Info("api/session_grant")
 	session := sessions.Service.Grant(a.Username)
 	a.SessionID = session.ID
+	log.Add("Account", a.Username).Add("SessionID", a.SessionID).Info("api/session_grant")
 	sessions.WriteCookie(w, session)
 	serverutil.WriteRedirectHome(w, message)
 }

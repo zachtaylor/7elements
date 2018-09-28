@@ -1,13 +1,13 @@
 <article title="Current Free-to-Play Decks">
-  <ng-container *ngIf="pingService.data$ | async as ping">
+  <ng-container *ngIf="conn.ping$ | async as ping">
     <app-deck-summary *ngFor="let deck of ping?.decks | mapValues" [deck]="deck"></app-deck-summary>
   </ng-container>
 </article>
-<ng-container *ngIf="userService.data$ | async as user">
-  <article *ngIf="user" title="Your Decks">
-    <app-deck-summary *ngFor="let deck of user?.decks | mapValues" [deck]="deck"></app-deck-summary>
+<ng-container *ngIf="conn.myaccount$ | async as myaccount">
+  <article *ngIf="myaccount" title="Your Decks">
+    <app-deck-summary *ngFor="let deck of myaccount?.decks | mapValues" [deck]="deck"></app-deck-summary>
   </article>
 </ng-container>
-<article *ngIf="userService.isLoggedOut()" title="Your Decks">
+<article *ngIf="conn.isLoggedOut()" title="Your Decks">
   <div>Login to create your own decks!</div>
 </article>
