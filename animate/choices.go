@@ -17,11 +17,11 @@ var newElementChoices = []js.Object{
 	js.Object{"choice": "7", "display": `<img src="/img/icon/element-7.png">`},
 }
 
-func NewElementChoice(w vii.Receiver, game *vii.Game) {
+func NewElementChoice(w vii.JsonWriter, game *vii.Game) {
 	Choice(w, game, "Create an Element", newElementChoices, js.Object{})
 }
 
-func NoviceSeerChoice(w vii.Receiver, game *vii.Game, card *vii.GameCard) {
+func NoviceSeerChoice(w vii.JsonWriter, game *vii.Game, card *vii.GameCard) {
 	prompt := fmt.Sprintf("Destroy %s?", card.Name)
 	choices := []js.Object{
 		js.Object{
@@ -39,7 +39,7 @@ func NoviceSeerChoice(w vii.Receiver, game *vii.Game, card *vii.GameCard) {
 	Choice(w, game, prompt, choices, json)
 }
 
-func GraveBirth(w vii.Receiver, game *vii.Game) {
+func GraveBirth(w vii.JsonWriter, game *vii.Game) {
 	prompt := "Create a <b>Body</b> from any player's <b>Past</b>"
 	cards := []js.Object{}
 	choices := []js.Object{}

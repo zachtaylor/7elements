@@ -1,9 +1,6 @@
 package vii
 
-import (
-	"fmt"
-	"ztaylor.me/log"
-)
+import "fmt"
 
 type GameSeat struct {
 	GameKey   string
@@ -15,7 +12,7 @@ type GameSeat struct {
 	Alive     GameCards
 	Graveyard GameCards
 	Color     string
-	Receiver
+	Receiver  JsonWriter
 }
 
 type Receiver interface {
@@ -59,19 +56,10 @@ func (seat *GameSeat) Reactivate() {
 	seat.Elements.Reactivate()
 }
 
-func (seat *GameSeat) Send(name string, json Json) {
+func (seat *GameSeat) WriteJson(json Json) {
 	if player := seat.Receiver; player != nil {
-		player.Send(name, json)
-	} else {
-		log.Add("Username", seat.Username).Add("Name", name).Warn("player not in seat")
+		player.WriteJson(json)
 	}
-}
-
-func (seat *GameSeat) SendHand() {
-	seat.Send("hand", Json{
-		"gameid": seat.GameKey,
-		"cards":  seat.Hand.Json(),
-	})
 }
 
 func (seat *GameSeat) Json(showHidden bool) Json {

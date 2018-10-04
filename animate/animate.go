@@ -1,4 +1,3 @@
-// Package animate provides macros to send ui-control messages
 package animate // import "github.com/zachtaylor/7elements/animate"
 
 import (
@@ -6,52 +5,32 @@ import (
 	"ztaylor.me/js"
 )
 
-func Pass(w vii.Receiver, game *vii.Game, username string, target string) {
-	w.Send("pass", js.Object{
-		"gameid":   game,
+func Build(uri string, data js.Object) js.Object {
+	return js.Object{
+		"uri":  uri,
+		"data": data,
+	}
+}
+
+func Chat(w vii.JsonWriter, username, channel, message string) {
+	w.WriteJson(Build("chat", js.Object{
 		"username": username,
-		"target":   target,
-	})
+		"channel":  channel,
+		"message":  message,
+	}))
 }
 
-func Chat(w vii.Receiver, game *vii.Game, username string, message string) {
-	w.Send("chat", js.Object{
-		"gameid":   game,
+func ChatJoin(w vii.JsonWriter, username, channel string, messages []js.Object) {
+	w.WriteJson(Build("/chat/join", js.Object{
 		"username": username,
-		"message":  message,
-	})
+		"channel":  channel,
+		"messages": messages,
+	}))
 }
 
-func Choice(w vii.Receiver, game *vii.Game, prompt string, choices []js.Object, data js.Object) {
-	w.Send("animate", js.Object{
-		"animate": "choice",
-		"gameid":  game,
-		"prompt":  prompt,
-		"choices": choices,
-		"data":    data,
-	})
-}
-
-func Hand(game *vii.Game, seat *vii.GameSeat) {
-	seat.Send("hand", js.Object{
-		"gameid": game,
-		"cards":  seat.Hand.Json(),
-	})
-}
-
-func Spawn(game *vii.Game, card *vii.GameCard) {
-	game.Send("spawn", js.Object{
-		"gameid":   game,
-		"username": card.Username,
-		"card":     card.Json(),
-	})
-}
-
-func Error(w vii.Receiver, game *vii.Game, source string, message string) {
-	w.Send("alert", js.Object{
-		"class":    "error",
-		"gameid":   game,
-		"username": source,
-		"message":  message,
-	})
+func Error(w vii.JsonWriter, source, message string) {
+	w.WriteJson(Build("/error", js.Object{
+		"source":  source,
+		"message": message,
+	}))
 }

@@ -1,0 +1,29 @@
+<ng-container *ngIf="conn.getChat(channel) | async as chat">
+<div class="w100 flx1 flxr">
+  <div class="dinl flx1">
+    <ul>
+      <h2>Open Chats</h2>
+      <a *ngFor="let openChat of openChats" (click)="clickChannel(openChat)">
+        <li class="channelName" [ngClass]="{active: openChat == channel}">{{openChat}}</li>
+      </a>
+    </ul>
+    <div (click)="clickNewChat()" style="border:2px solid black;border-radius:5px;padding:21px;">
+      <h3>New Chat</h3>
+      <div class="font-crsv" style="color:green">Click here to join a new chat channel</div>
+    </div>
+  </div>
+  <div class="dinl" style="overflow:auto;flex:4;">
+    <a *ngFor="let msg of chat.messages">
+      <li *ngIf="msg" class="chatLine">
+        <span class="chatLineTime">{{msg.time}}</span>
+        <span class="chatLineUsername font-crsv" [ngClass]="{admin: msg.username=='zach', self: msg.username==chat.username}">{{msg.username}}</span>
+        <span class="chatLineMessage">{{msg.message}}</span>
+      </li>
+    </a>
+  </div>
+</div>
+<div *ngIf="channel" class="vii-form-group" style="margin-bottom:0px;">
+  <span class="font-crsv" autosize><b>{{chat.username}}</b></span>
+  <input type="text" class="vii flx1" placeholder="send message" #inputChat (keyup.enter)="sendChat(inputChat)">
+</div>
+</ng-container>

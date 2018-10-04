@@ -9,23 +9,25 @@ import (
 	"ztaylor.me/log"
 )
 
-func PingHandler(w http.ResponseWriter, r *http.Request) {
-	decks, err := vii.DeckService.GetAll()
-	if err != nil {
-		log.Add("Error", err).Warn("api/ping.json: deckservice getall failed")
-	}
+func PingHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		decks, err := vii.DeckService.GetAll()
+		if err != nil {
+			log.Add("Error", err).Warn("api/ping.json: deckservice getall failed")
+		}
 
-	packs, err := vii.PackService.GetAll()
-	if err != nil {
-		log.Add("Error", err).Warn("api/ping.json: packservice getall failed")
-	}
+		packs, err := vii.PackService.GetAll()
+		if err != nil {
+			log.Add("Error", err).Warn("api/ping.json: packservice getall failed")
+		}
 
-	w.Write([]byte(js.Object{
-		"cards":  AllCardsJson(),
-		"packs":  packs.Json(),
-		"decks":  decks.Json(),
-		"online": sessions.Service.Count(),
-	}.String()))
+		w.Write([]byte(js.Object{
+			"cards":  AllCardsJson(),
+			"packs":  packs.Json(),
+			"decks":  decks.Json(),
+			"online": sessions.Service.Count(),
+		}.String()))
+	})
 }
 
 // func pingHandlerDataHelperGames(username string) js.Object {

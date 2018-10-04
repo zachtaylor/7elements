@@ -28,10 +28,16 @@
 	padding:0px;
 	box-sizing:border-box;
 }
+html {
+	height:100%;
+}
 body {
 	user-select:none;
 	background: #f7f7f7;
 	font-family:'Open Sans',Monaco,monospace;
+	height:100%;
+	width:100%;
+	overflow:auto;
 }
 img {
 	vertical-align:text-bottom;
@@ -58,7 +64,7 @@ img {
 }
 .vii-form-group span {
 	display:table-cell;
-	padding: 7px;
+	padding:7px;
 	width:200px;
 	text-align:center;
 }
@@ -86,4 +92,46 @@ button.vii-blue {
 button.vii-green {
 	border-color:blue;
 	color:darkblue;
+}
+/* 4 letter words */
+.dblk {
+	display:block;
+}
+.dinl {
+  display:inline-block;
+}
+.flxc {
+	display:flex;
+	flex-direction:column;
+}
+.flxr {
+	display:flex;
+	flex-direction:row;
+}
+.flx1 {
+	flex:1;
+}
+.fltl {
+  float:left;
+}
+.fltr {
+  float:right;
+}
+.posa {
+	position:absolute;
+}
+.posr {
+	position:relative;
+}
+.posf {
+	position:fixed;
+}
+.bot0 {
+	bottom:0%;
+}
+.w100 {
+	width:100%;
+}
+.h100 {
+	height:100%;
 }

@@ -1,23 +1,23 @@
 <nav autosize>
-  <div class="float-l"><a [routerLink]="['/']">
+  <div class="fltl"><a [routerLink]="['/']">
     <img autosize src="/img/banner-white.128px.png">
   </a></div>
   <div autosize style="display:inline-block;" class="float-l">
     <span>{{breadcrumbService.path}}</span>
   </div>
-  <div class="float-r">
+  <div class="fltr">
     <a *ngIf="conn.myaccount$ | async as myaccount" autosize [routerLink]="['/myaccount']">{{myaccount.username}}</a>
     <a *ngIf="conn.isLoggedOut()" autosize [routerLink]="['/login']">Login</a>
   </div>
 </nav>
-<div style="position:absolute;right:4px;" *ngIf="messageService.messages.length">
+<div class="posa" style="right:4px;" *ngIf="messageService.messages.length">
   <button class="clear" (click)="messageService.clear()">clear</button>
   <div *ngFor='let message of messageService.messages; let i = index'>
     <span>{{message}}</span>
     <button (Click)="messageService.remove(i)"><img src="/img/icon/x.20px.png"></button>
   </div>
 </div>
-<div style="position:absolute;height:100%;width:100%;background:#777777;overflow:auto">
+<div class="posr h100 w100 flxc" style="background:#777777;">
   <div autosize></div> <!-- fix padding for navbar height -->
   <router-outlet></router-outlet>
 </div>

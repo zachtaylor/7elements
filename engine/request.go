@@ -22,7 +22,7 @@ func Request(game *vii.Game, t *Timeline, username string, json js.Object) *Time
 		RequestReconnect(game, t, seat)
 		break
 	case "chat":
-		animate.BroadcastChat(game, username, json.Sval("message"))
+		animate.Chat(game, username, "game#"+game.Key, json.Sval("message"))
 		break
 	case t.Name():
 		RequestTimeline(game, t, seat, json)
@@ -56,7 +56,7 @@ func RequestReconnect(game *vii.Game, t *Timeline, seat *vii.GameSeat) {
 	}
 	json["seats"] = seatdata
 
-	seat.Send("game", json)
+	seat.WriteJson(animate.Build("/game", json))
 	t.OnReconnect(game, seat)
 	game.Log().Add("Seat", seat).Info("/api/join: socket join")
 }
@@ -96,13 +96,13 @@ func RequestPlay(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object
 	} else if card.Username != seat.Username {
 		log.Add("Owner", card.Username).Error("games.RequestPlay: card belongs to a different player")
 	} else if card.Card.Type != vii.CTYPspell && onlySpells {
-		animate.Error(seat, game, card.Card.Name, `not "spell" type`)
+		animate.GameError(seat, game, card.Card.Name, `not "spell" type`)
 		log.Error("games.RequestPlay: not spell type")
 	} else if !seat.HasCardInHand(gcid) {
-		animate.Error(seat, game, card.Card.Name, `not in your hand`)
+		animate.GameError(seat, game, card.Card.Name, `not in your hand`)
 		log.Error("games.RequestPlay: not in your hand")
 	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
-		animate.Error(seat, game, card.Card.Name, `not enough elements`)
+		animate.GameError(seat, game, card.Card.Name, `not enough elements`)
 		log.Error("games.RequestPlay: cannot afford")
 	} else {
 		seat.Elements.Deactivate(card.Card.Costs)
@@ -136,10 +136,10 @@ func RequestTrigger(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Obj
 	} else if power := card.Powers[powerid]; power == nil {
 		log.Error("try-trigger: powerid not found")
 	} else if !card.IsAwake && power.UsesTurn {
-		animate.Error(seat, game, card.Card.Name, `not awake`)
+		animate.GameError(seat, game, card.Card.Name, `not awake`)
 		log.Error("try-trigger: card is asleep")
 	} else if !seat.Elements.GetActive().Test(power.Costs) {
-		animate.Error(seat, game, card.Card.Name, `not enough elements`)
+		animate.GameError(seat, game, card.Card.Name, `not enough elements`)
 		log.Add("Costs", power.Costs).Error("try-trigger: cannot afford")
 	} else {
 		seat.Elements.Deactivate(power.Costs)

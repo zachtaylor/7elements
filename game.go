@@ -104,9 +104,9 @@ func (game *Game) RegisterCard(card *GameCard) {
 	game.Cards[card.Id] = card
 }
 
-func (game *Game) Send(name string, json Json) {
+func (game *Game) WriteJson(json Json) {
 	for _, seat := range game.Seats {
-		seat.Send(name, json)
+		seat.WriteJson(json)
 	}
 }
 

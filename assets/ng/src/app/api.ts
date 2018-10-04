@@ -1,4 +1,4 @@
-export type Card = {
+export class Card {
   id : number
   name : string
   text : string
@@ -12,7 +12,24 @@ export type Card = {
   powers : Map<number, Power>
 }
 
-export type Deck = {
+export class Chat {
+  name : string
+  username : string
+  messages : Array<ChatMessage>
+
+  constructor() {
+    this.messages = new Array<ChatMessage>();
+  }
+}
+
+export class ChatMessage {
+  channel : string
+  username : string
+  message : string
+  time : string
+}
+
+export class Deck {
   id : number
   name : string
   username : string
@@ -22,14 +39,14 @@ export type Deck = {
   cards : Map<number, number>
 }
 
-export type Game = {
+export class Game {
   id : string
   hand : Array<Card>
   elements : Array<number>
   opponents : Array<string>
 }
 
-export type MyAccount = {
+export class MyAccount {
   username : string
   email : string
   sessionlife: string
@@ -39,15 +56,13 @@ export type MyAccount = {
   games : Array<Game>
 }
 
-export type PingData = {
-  // version : number
-  // update : string
+export class PingData {
   cards : Array<Card>
   decks : Array<Deck>
   online : number
 }
 
-export type Power = {
+export class Power {
   id : number
   text : string
   costs : Map<number, number>

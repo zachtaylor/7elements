@@ -69,12 +69,12 @@ func (event *DefendEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSea
 	} else if !gc.IsAwake {
 		log.Warn("engine-defend: card is not awake")
 
-		animate.Error(seat, game, gc.Card.Name, "not awake")
+		animate.GameError(seat, game, gc.Card.Name, "not awake")
 	} else {
 		event.DefendOptions[gcid] = target
 	}
 
-	seat.Send(event.Name(), event.Json(game, t))
+	seat.WriteJson(animate.Build("/game/"+event.Name(), event.Json(game, t)))
 }
 
 func (event *DefendEvent) OnReconnect(*vii.Game, *Timeline, *vii.GameSeat) {

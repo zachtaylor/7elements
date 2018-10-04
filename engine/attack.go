@@ -50,7 +50,7 @@ func (event AttackEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat
 	} else if !gc.IsAwake {
 		log.Warn("games.Attack: card is not awake")
 
-		animate.Error(seat, game, gc.Card.Name, "not awake")
+		animate.GameError(seat, game, gc.Card.Name, "not awake")
 	} else {
 		for _, s2 := range game.Seats {
 			if s2 != seat {
@@ -59,10 +59,10 @@ func (event AttackEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat
 		}
 	}
 
-	seat.Send("animate", js.Object{
+	seat.WriteJson(animate.Build("/animate", js.Object{
 		"animate":       "attack options",
 		"attackoptions": event,
-	})
+	}))
 }
 
 func (event AttackEvent) OnReconnect(*vii.Game, *Timeline, *vii.GameSeat) {

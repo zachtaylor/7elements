@@ -40,7 +40,7 @@ func (event *StartEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat
 		t.Reacts[seat.Username] = "mulligan"
 		seat.DiscardHand()
 		seat.DrawCard(3)
-		seat.SendHand()
+		animate.Hand(game, seat)
 		animate.BroadcastSeatUpdate(game, seat)
 	} else {
 		log.Warn("engine-start: receive unrecognized")

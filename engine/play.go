@@ -58,15 +58,15 @@ func (event *PlayEvent) OnStop(game *vii.Game, t *Timeline) *Timeline {
 		"Hand": seat.Hand,
 	})
 
-	game.Send("resolve", js.Object{
+	game.WriteJson(animate.Build("/game/resolve", js.Object{
 		"gameid":   game,
 		"username": seat.Username,
 		"card":     event.Card.Json(),
-	})
+	}))
 
 	playPower := event.Card.Card.GetPlayPower()
 	if playPower == nil {
-		animate.Error(game, game, event.Card.Name, "card does not work yet")
+		animate.GameError(game, game, event.Card.Name, "card does not work yet")
 		log.Warn("engine-play: resolve; card does not work")
 		return event.Stack
 	}

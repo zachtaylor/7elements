@@ -22,6 +22,7 @@ import { CardsComponent } from './cards/cards.component';
 import { IndexComponent } from './index/index.component';
 import { PacksComponent } from './packs/packs.component';
 import { GamesComponent } from './games/games.component';
+import { ChatsComponent } from './chats/chats.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { GamesComponent } from './games/games.component';
     CardsComponent,
     IndexComponent,
     PacksComponent,
-    GamesComponent
+    GamesComponent,
+    ChatsComponent
   ],
   imports: [
     BrowserModule,
