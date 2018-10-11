@@ -56,6 +56,12 @@ export class MyAccount {
   games : Array<Game>
 }
 
+export class Notification {
+  level : string
+  source : string
+  message : string
+}
+
 export class PingData {
   cards : Array<Card>
   decks : Array<Deck>

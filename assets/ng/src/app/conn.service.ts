@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core'
 import { BehaviorSubject } from 'rxjs'
-import { Chat, ChatMessage, MyAccount, PingData } from './api'
-import { HttpClient } from '@angular/common/http'
+import { Chat, ChatMessage, Game, MyAccount, Notification, PingData } from './api'
+import { HttpClient, HttpParams } from '@angular/common/http'
 import { CookieService } from 'ngx-cookie-service'
-import { ChatsComponent } from './chats/chats.component';
 
 
 @Injectable({
@@ -11,7 +10,9 @@ import { ChatsComponent } from './chats/chats.component';
 })
 export class ConnService {
   chats = new Map<string, BehaviorSubject<Chat>>()
+  games = new Map<string, BehaviorSubject<Game>>()
   myaccount$ = new BehaviorSubject<MyAccount>(null)
+  notifications$ = new BehaviorSubject<Array<Notification>>([])
   ping$ = new BehaviorSubject<PingData>(null)
 
   private ws: WebSocket
@@ -57,6 +58,20 @@ export class ConnService {
     return !this.myaccount$.value
   }
 
+  addNotification(level : string, source : string, message : string) {
+    let next = this.notifications$.getValue()
+    let not = new Notification()
+    not.level = level
+    not.source = source
+    not.message = message
+    next.push(not)
+    this.notifications$.next(next)
+  }
+
+  clearNotifications() {
+    this.notifications$.next([])
+  }
+
   getCard(ping : PingData, cardid : number) {
     let cards = ping.cards
     for (let i=0; i<cards.length; i++) {
@@ -86,6 +101,29 @@ export class ConnService {
     return this.chats[channel]
   }
 
+  getGame(key : string) : BehaviorSubject<Game> {
+    if (!this.games[key]) {
+      this.games[key] = new BehaviorSubject<Game>(null)
+    }
+    return this.games[key]
+  }
+
+  newGame(ai : boolean, usep2p : boolean, deckid : number) {
+    let path = '/api/newgame.json'
+    if (ai) path += '?ai=true'
+    this.http.get(path, {
+      params:new HttpParams({
+        fromObject:{
+          "ai":ai.toString(),
+          "deckid":deckid.toString(),
+          "usep2p":usep2p.toString(),
+        }
+      })
+    }).subscribe(match => {
+      console.log('new game', match)
+    })
+  }
+
   sendWS(uri : string, obj : object) {
     this.ws.send(JSON.stringify({
       "uri":uri,
@@ -103,13 +141,19 @@ export class ConnService {
   }
 
   serveWS(uri : string, data : object) {
-    if (uri=='/chat') {
+    if (uri=='/error') {
+      this.serveError(data)
+    } else if (uri=='/chat') {
       this.serveChat(data)
     } else if (uri=='/chat/join') {
       this.serveChatJoin(data)
     } else {
       console.debug('ws serve: ', uri, data)
     }
+  }
+
+  serveError(data : any) {
+    this.addNotification('error', data.source, data.message)
   }
 
   serveChat(data : any) {

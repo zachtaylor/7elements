@@ -10,11 +10,11 @@
     <a *ngIf="conn.isLoggedOut()" autosize [routerLink]="['/login']">Login</a>
   </div>
 </nav>
-<div class="posa" style="right:4px;" *ngIf="messageService.messages.length">
-  <button class="clear" (click)="messageService.clear()">clear</button>
-  <div *ngFor='let message of messageService.messages; let i = index'>
+<div class="posa" style="right:4px;" *ngIf="conn.notifications$ | async as nots">
+  <button class="clear" (click)="conn.clearNotifications()">clear</button>
+  <div *ngFor='let not of nots; let i = index'>
     <span>{{message}}</span>
-    <button (Click)="messageService.remove(i)"><img src="/img/icon/x.20px.png"></button>
+    <button><img src="/img/icon/x.20px.png"></button>
   </div>
 </div>
 <div class="posr h100 w100 flxc" style="background:#777777;">
