@@ -12,7 +12,7 @@ func init() {
 	engine.Scripts[WandOfSuppressionID] = WandOfSuppression
 }
 
-func WandOfSuppression(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func WandOfSuppression(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -32,8 +32,8 @@ func WandOfSuppression(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, t
 	}
 
 	card.IsAwake = false
-	animate.BroadcastCardUpdate(game, card)
-	animate.BroadcastSeatUpdate(game, seat)
+	animate.GameCard(game, card)
+	animate.GameSeat(game, seat)
 
 	log.Info(WandOfSuppressionID)
 	return nil

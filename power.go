@@ -26,6 +26,7 @@ func NewPower() *Power {
 func (p Power) Copy() *Power {
 	return &Power{
 		Id:       p.Id,
+		Text:     p.Text,
 		Costs:    p.Costs.Copy(),
 		Target:   p.Target,
 		UsesTurn: p.UsesTurn,

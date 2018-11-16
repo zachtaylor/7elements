@@ -11,64 +11,61 @@ func init() {
 	engine.Scripts["new-element"] = NewElement
 }
 
-func NewElement(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
-	return t.Fork(game, &NewElementMode{
-		Stack: t,
-	})
+func NewElement(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+	return &NewElementMode{
+		Stack: game.State.Event,
+	}
 }
 
 type NewElementMode struct {
 	vii.Element
-	Stack *engine.Timeline
+	Stack vii.GameEvent
 }
 
 func (event *NewElementMode) Name() string {
 	return "choice"
 }
 
-func (event *NewElementMode) Priority(game *vii.Game, t *engine.Timeline) bool {
+func (event *NewElementMode) Priority(game *vii.Game) bool {
 	return event.Element == vii.ELEMnull
 }
 
-func (event *NewElementMode) Json(game *vii.Game, t *engine.Timeline) js.Object {
-	seat := game.GetSeat(t.HotSeat)
-	return js.Object{
-		"gameid":   game,
-		"choice":   "New Element",
-		"username": seat.Username,
-		"timer":    t.Lifetime.Seconds(),
-	}
+func (event *NewElementMode) OnStart(game *vii.Game) {
+	animate.NewElementChoice(game.GetSeat(game.State.Seat), game)
 }
 
-func (event *NewElementMode) OnStart(game *vii.Game, t *engine.Timeline) {
-	animate.NewElementChoice(game.GetSeat(t.HotSeat), game)
-}
-
-func (event *NewElementMode) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
-	if t.HotSeat == seat.Username {
+func (event *NewElementMode) OnReconnect(game *vii.Game, seat *vii.GameSeat) {
+	if game.State.Seat == seat.Username {
 		animate.NewElementChoice(seat, game)
 	}
 }
 
-func (event *NewElementMode) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
-	seat := game.GetSeat(t.HotSeat)
+func (event *NewElementMode) NextEvent(game *vii.Game) vii.GameEvent {
+	seat := game.GetSeat(game.State.Seat)
 	seat.Elements.Append(event.Element)
-	animate.BroadcastAddElement(game, t.HotSeat, int(event.Element))
+	animate.GameElement(game, game.State.Seat, int(event.Element))
 	return event.Stack
 }
 
-func (event *NewElementMode) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
-	if t.HotSeat != seat.Username {
-		game.Log().Add("Username", seat.Username).Add("HotSeat", t.HotSeat).Warn("gameseat.NewElementMode: not your choice")
+func (event *NewElementMode) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
+	if game.State.Seat != seat.Username {
+		game.Log().Add("Username", seat.Username).Add("HotSeat", game.State.Seat).Warn("gameseat.NewElementMode: not your choice")
 		return
 	}
 
 	if e := json.Ival("choice"); e < 1 || e > 7 {
 		game.Log().Add("Username", seat.Username).Add("Element", e).Warn("gameseat.NewElementMode: invalid element")
-		return
 	} else {
 		event.Element = vii.Element(e)
 		game.Log().Add("Username", seat.Username).Add("Element", event.Element).Info("gameseat.NewElement: confirmed element")
 	}
+}
 
+func (event *NewElementMode) Json(game *vii.Game) js.Object {
+	return js.Object{
+		"gameid":   game.Key,
+		"choice":   "New Element",
+		"username": game.State.Seat,
+		"timer":    game.State.Timer.Seconds(),
+	}
 }

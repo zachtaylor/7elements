@@ -12,7 +12,7 @@ func init() {
 	engine.Scripts[CloningPoolID] = CloningPool
 }
 
-func CloningPool(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func CloningPool(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -35,7 +35,7 @@ func CloningPool(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target 
 	clone.Username = seat.Username
 	game.RegisterCard(clone)
 	seat.Life++
-	animate.BroadcastSeatUpdate(game, seat)
+	animate.GameSeat(game, seat)
 
 	log.Info(CloningPoolID)
 	return nil

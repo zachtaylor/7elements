@@ -11,21 +11,21 @@ type GameCard struct {
 	Username string
 	IsAwake  bool
 	IsToken  bool
-	*Card
-	*CardBody
+	Card     *Card
+	Body     *CardBody
 	Powers
 }
 
 func NewGameCard(c *Card) *GameCard {
 	return &GameCard{
-		Card:     c,
-		CardBody: c.Body.Copy(),
-		Powers:   c.Powers.Copy(),
+		Card:   c,
+		Body:   c.Body.Copy(),
+		Powers: c.Powers.Copy(),
 	}
 }
 
 func (card GameCard) String() string {
-	return card.Id + ":" + card.Name
+	return card.Id + ":" + card.Card.Name
 }
 
 func (cards GameCards) String() string {
@@ -54,12 +54,13 @@ func (c *GameCard) Json() Json {
 	return Json{
 		"gcid":     c.Id,
 		"cardid":   c.Card.Id,
-		"name":     c.Name,
-		"text":     c.Text,
+		"name":     c.Card.Name,
+		"costs":    c.Card.Costs,
+		"text":     c.Card.Text,
 		"username": c.Username,
 		"image":    c.Card.Image,
 		"awake":    c.IsAwake,
 		"powers":   c.Powers.Json(),
-		"body":     c.CardBody.Json(),
+		"body":     c.Body.Json(),
 	}
 }

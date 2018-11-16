@@ -12,7 +12,7 @@ func init() {
 	engine.Scripts[LightningStrikeID] = LightningStrike
 }
 
-func LightningStrike(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func LightningStrike(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -27,8 +27,8 @@ func LightningStrike(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, tar
 		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(LightningStrikeID)
 	} else {
 		engine.Damage(game, card, 3)
-		animate.BroadcastSeatUpdate(game, seat)
-		animate.BroadcastSeatUpdate(game, ownerSeat)
+		animate.GameSeat(game, seat)
+		animate.GameSeat(game, ownerSeat)
 
 		log.Info(LightningStrikeID)
 	}

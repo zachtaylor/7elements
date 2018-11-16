@@ -21,6 +21,19 @@ func NewAccountDeck() *AccountDeck {
 	}
 }
 
+func NewAccountDeckWith(deck *Deck, username string) *AccountDeck {
+	ad := NewAccountDeck()
+	ad.ID = -deck.ID
+	ad.Name = deck.Name
+	ad.Username = username
+	ad.Register = time.Now()
+	ad.Cards = make(map[int]int)
+	for k, v := range deck.Cards {
+		ad.Cards[k] = v
+	}
+	return ad
+}
+
 func (deck *AccountDeck) Count() int {
 	total := 0
 	for _, count := range deck.Cards {

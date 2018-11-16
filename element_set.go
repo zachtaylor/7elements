@@ -2,6 +2,8 @@ package vii
 
 import (
 	"strings"
+
+	"ztaylor.me/cast"
 )
 
 type ElementSet map[Element][]bool
@@ -65,6 +67,14 @@ func (set ElementSet) Deactivate(emp ElementMap) {
 			}
 		}
 	}
+}
+
+func (set ElementSet) Json() Json {
+	json := Json{}
+	for e, stack := range set {
+		json[cast.String(int(e))] = stack
+	}
+	return json
 }
 
 func (set ElementSet) String() string {

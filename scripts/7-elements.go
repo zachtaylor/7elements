@@ -9,10 +9,6 @@ func init() {
 	engine.Scripts["7-elements"] = Elemen7s
 }
 
-func Elemen7s(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
-	game.Results = &vii.GameResults{
-		Winner: seat.Username,
-		Loser:  game.GetOpponentSeat(seat.Username).Username,
-	}
-	return nil
+func Elemen7s(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+	return engine.End(game, seat.Username, game.GetOpponentSeat(seat.Username).Username)
 }

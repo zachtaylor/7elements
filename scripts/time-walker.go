@@ -11,28 +11,28 @@ func init() {
 	engine.Scripts["time-walker"] = TimeWalker
 }
 
-func TimeWalker(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
-	return t.Fork(game, &TimeWalkerEvent{
-		Stack: t,
-	})
+func TimeWalker(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+	return &TimeWalkerEvent{
+		Stack: game.State.Event,
+	}
 }
 
 type TimeWalkerEvent struct {
 	vii.Element
-	Stack *engine.Timeline
+	Stack vii.GameEvent
 }
 
 func (event *TimeWalkerEvent) Name() string {
 	return "choice"
 }
 
-func (event *TimeWalkerEvent) Priority(game *vii.Game, t *engine.Timeline) bool {
+func (event *TimeWalkerEvent) Priority(game *vii.Game) bool {
 	return event.Element == vii.ELEMnull
 }
 
-func (event *TimeWalkerEvent) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
-	if seat.Username != t.HotSeat {
-		game.Log().Add("Username", seat.Username).Add("HotSeat", t.HotSeat).Warn("script-timewalker-event: not your choice")
+func (event *TimeWalkerEvent) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
+	if seat.Username != game.State.Seat {
+		game.Log().Add("Username", seat.Username).Add("HotSeat", game.State.Seat).Warn("script-timewalker-event: not your choice")
 		return
 	}
 
@@ -45,29 +45,28 @@ func (event *TimeWalkerEvent) Receive(game *vii.Game, t *engine.Timeline, seat *
 	}
 }
 
-func (event *TimeWalkerEvent) OnStart(game *vii.Game, t *engine.Timeline) {
-	animate.NewElementChoice(game.GetSeat(t.HotSeat), game)
+func (event *TimeWalkerEvent) OnStart(game *vii.Game) {
+	animate.NewElementChoice(game.GetSeat(game.State.Seat), game)
 }
 
-func (event *TimeWalkerEvent) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
-	if t.HotSeat == seat.Username {
-		animate.NewElementChoice(game.GetSeat(t.HotSeat), game)
+func (event *TimeWalkerEvent) OnReconnect(game *vii.Game, seat *vii.GameSeat) {
+	if game.State.Seat == seat.Username {
+		animate.NewElementChoice(game.GetSeat(game.State.Seat), game)
 	}
 }
 
-func (event *TimeWalkerEvent) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
-	seat := game.GetSeat(t.HotSeat)
+func (event *TimeWalkerEvent) NextEvent(game *vii.Game) vii.GameEvent {
+	seat := game.GetSeat(game.State.Seat)
 	seat.Elements.Append(event.Element)
-	animate.BroadcastAddElement(game, t.HotSeat, int(event.Element))
+	animate.GameElement(game, game.State.Seat, int(event.Element))
 	return event.Stack
 }
 
-func (event *TimeWalkerEvent) Json(game *vii.Game, t *engine.Timeline) js.Object {
-	seat := game.GetSeat(t.HotSeat)
+func (event *TimeWalkerEvent) Json(game *vii.Game) js.Object {
 	return js.Object{
-		"gameid":   game,
+		"gameid":   game.Key,
 		"choice":   "Time Walker",
-		"username": seat.Username,
-		"timer":    t.Lifetime.Seconds(),
+		"username": game.State.Seat,
+		"timer":    game.State.Timer.Seconds(),
 	}
 }

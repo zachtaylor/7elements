@@ -12,15 +12,15 @@ func init() {
 	engine.Scripts[IfritID] = Ifrit
 }
 
-func Ifrit(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func Ifrit(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	if target == "player" {
 		for _, s := range game.Seats {
 			if seat.Username != seat.Username {
 				seat.Life--
-				animate.BroadcastSeatUpdate(game, s)
-				animate.BroadcastSeatUpdate(game, seat)
+				animate.GameSeat(game, s)
+				animate.GameSeat(game, seat)
 
 				log.Add("Seat", s).Info(IfritID)
 				return nil
@@ -45,7 +45,7 @@ func Ifrit(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interf
 	}
 
 	engine.Damage(game, card, 1)
-	animate.BroadcastSeatUpdate(game, game.GetSeat(card.Username))
+	animate.GameSeat(game, game.GetSeat(card.Username))
 	log.Info(IfritID)
 	return nil
 }

@@ -13,12 +13,12 @@ import (
 func Routes(router *mux.Mux, fs http.FileSystem, dbsalt string) {
 	router.MapLit(`/api/ping.json`, api.PingHandler())
 	router.MapLit(`/api/myaccount.json`, api.MyAccountHandler())
+	router.MapLit(`/api/newgame.json`, api.NewGameHandler())
 	router.MapLit(`/api/login`, api.LoginHandler(dbsalt))
 	router.MapLit(`/api/signup`, api.SignupHandler(dbsalt))
 	router.MapLit(`/api/logout`, api.LogoutHandler)
 	router.MapLit(`/api/websocket`, NewWebsocketHandler())
 
-	// Server.MapLit(`/api/newgame.json`, api.NewGameHandler)
 	// Server.MapLit(`/api/packs.json`, api.PacksHandler)
 	// Server.MapRawLit(`/api/openpack.json`, api.OpenPackJsonHandler)
 	// Server.MapLit(`/chat`, api.ChatHandler)
@@ -38,6 +38,8 @@ func NewWebsocketHandler() http.Handler {
 	mux := ws.NewMux()
 	mux.MapLit("/chat", api.WSChat())
 	mux.MapLit("/chat/join", api.WSChatJoin())
+	mux.MapLit("/game", api.WSGame())
+	mux.MapLit("/game/join", api.WSGameJoin())
 
 	return ws.UpgradeHandler(mux)
 }

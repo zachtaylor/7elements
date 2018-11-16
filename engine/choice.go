@@ -14,7 +14,7 @@ package engine
 // 	return "choice"
 // }
 
-// func (mode ChoiceMode) Json(e *Event, g *vii.Game, s *vii.GameSeat) js.Object {
+// func (mode ChoiceMode) Json(e *Event, g * Game, s * GameSeat) js.Object {
 // 	return js.Object{
 // 		"gameid":   g.Id,
 // 		"username": s.Username,
@@ -22,16 +22,16 @@ package engine
 // 	}
 // }
 
-// func (mode ChoiceMode) OnActivate(*Event, *vii.Game) {
+// func (mode ChoiceMode) OnActivate(*Event, * Game) {
 // }
 
-// func (mode ChoiceMode) OnSendCatchup(*Event, *vii.Game, *vii.GameSeat) {
+// func (mode ChoiceMode) OnSendCatchup(*Event, * Game, * GameSeat) {
 // }
 
-// func (mode ChoiceMode) OnResolve(*Event, *vii.Game) {
+// func (mode ChoiceMode) OnResolve(*Event, * Game) {
 // }
 
-// func (mode ChoiceMode) OnReceive(e *Event, g *vii.Game, s *vii.GameSeat, json js.Object) {
+// func (mode ChoiceMode) OnReceive(e *Event, g * Game, s * GameSeat, json js.Object) {
 // 	if s.Username != e.Username {
 // 		g.Log().Add("Username", s.Username).Add("HotSeat", e.Username).Warn("games.ChoiceMode: not your choice")
 // 		return

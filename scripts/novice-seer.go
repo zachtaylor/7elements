@@ -13,53 +13,53 @@ func init() {
 	engine.Scripts[NoviceSeerId] = NoviceSeer
 }
 
-func NoviceSeer(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
-	return t.Fork(game, &NoviceSeerEvent{
+func NoviceSeer(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+	return &NoviceSeerEvent{
 		Card:  seat.Deck.Draw(),
-		Stack: t,
-	})
+		Stack: game.State.Event,
+	}
 }
 
 type NoviceSeerEvent struct {
 	Destroy *bool
 	Card    *vii.GameCard
-	Stack   *engine.Timeline
+	Stack   vii.GameEvent
 }
 
 func (event *NoviceSeerEvent) Name() string {
 	return "choice"
 }
 
-func (event *NoviceSeerEvent) Priority(game *vii.Game, t *engine.Timeline) bool {
+func (event *NoviceSeerEvent) Priority(game *vii.Game) bool {
 	return event.Destroy == nil
 }
 
-func (event *NoviceSeerEvent) OnStart(game *vii.Game, t *engine.Timeline) {
-	animate.NoviceSeerChoice(game.GetSeat(t.HotSeat), game, event.Card)
+func (event *NoviceSeerEvent) OnStart(game *vii.Game) {
+	animate.NoviceSeerChoice(game.GetSeat(game.State.Seat), game, event.Card)
 }
 
-func (event *NoviceSeerEvent) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
-	if t.HotSeat == seat.Username {
+func (event *NoviceSeerEvent) OnReconnect(game *vii.Game, seat *vii.GameSeat) {
+	if game.State.Seat == seat.Username {
 		animate.NoviceSeerChoice(seat, game, event.Card)
 	}
 }
 
-func (event *NoviceSeerEvent) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
+func (event *NoviceSeerEvent) NextEvent(game *vii.Game) vii.GameEvent {
 	seat := game.GetSeat(event.Card.Username)
 	if destroy := event.Destroy; destroy != nil && *destroy == true {
 		seat.Graveyard[event.Card.Id] = event.Card
-		animate.BroadcastSeatUpdate(game, seat)
+		animate.GameSeat(game, seat)
 	} else if destroy != nil {
 		seat.Deck.Prepend(event.Card)
 	}
 	return event.Stack
 }
 
-func (event *NoviceSeerEvent) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
+func (event *NoviceSeerEvent) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
 	log := game.Log().Add("Username", seat.Username)
 
-	if seat.Username != t.HotSeat {
-		log.Add("HotSeat", t.HotSeat).Warn("games.NoviceSeerEvent: not your choice")
+	if seat.Username != game.State.Seat {
+		log.Add("HotSeat", game.State.Seat).Warn("games.NoviceSeerEvent: not your choice")
 		return
 	}
 
@@ -80,12 +80,11 @@ func (event *NoviceSeerEvent) Receive(game *vii.Game, t *engine.Timeline, seat *
 
 }
 
-func (event *NoviceSeerEvent) Json(game *vii.Game, t *engine.Timeline) js.Object {
-	seat := game.GetSeat(t.HotSeat)
+func (event *NoviceSeerEvent) Json(game *vii.Game) js.Object {
 	return js.Object{
-		"gameid":   game,
+		"gameid": game.Key,
 		"choice":   "Novice Seer",
-		"username": seat.Username,
-		"timer":    t.Lifetime.Seconds(),
+		"username": game.State.Seat,
+		"timer":    game.State.Timer.Seconds(),
 	}
 }

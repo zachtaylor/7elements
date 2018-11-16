@@ -13,7 +13,7 @@ func init() {
 	engine.Scripts[BoenID] = Boen
 }
 
-func Boen(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func Boen(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().WithFields(log.Fields{
 		"Username": seat.Username,
 		"Card":     target,
@@ -24,11 +24,11 @@ func Boen(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interfa
 	} else if card := seat.Deck.Draw(); card == nil {
 		log.Error(BoenID + `: deck is empty`)
 	} else {
-		self.CardBody.Health++
+		self.Body.Health++
 		seat.Hand[card.Id] = card
 
-		animate.Hand(game, seat)
-		animate.BroadcastSeatUpdate(game, seat)
+		animate.GameHand(game, seat)
+		animate.GameSeat(game, seat)
 	}
 
 	log.Info(BoenID)

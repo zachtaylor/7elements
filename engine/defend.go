@@ -7,13 +7,8 @@ import (
 	"ztaylor.me/log"
 )
 
-func Defend(game *vii.Game, past *Timeline, a AttackEvent) Event {
-	if tname := past.Name(); tname != "attack" {
-		game.Log().Add("Timeline", tname).Error("defend can only follow attack")
-		return nil
-	}
+func Defend(game *vii.Game, a AttackEvent) vii.GameEvent {
 	game.Log().Info("defend")
-
 	return &DefendEvent{a, DefendOptions{}}
 }
 
@@ -28,12 +23,12 @@ func (event *DefendEvent) Name() string {
 	return "defend"
 }
 
-func (event *DefendEvent) Priority(game *vii.Game, t *Timeline) bool {
-	return t.HasPause() || t.Reacts[t.HotSeat] != "pass"
+func (event *DefendEvent) Priority(game *vii.Game) bool {
+	return len(game.State.Reacts) < len(game.Seats)
 }
 
-func (event *DefendEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object) {
-	if seat.Username != t.HotSeat {
+func (event *DefendEvent) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
+	if seat.Username != game.State.Seat {
 		game.Log().WithFields(log.Fields{
 			"Seat":  seat,
 			"Event": json["event"],
@@ -74,49 +69,46 @@ func (event *DefendEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSea
 		event.DefendOptions[gcid] = target
 	}
 
-	seat.WriteJson(animate.Build("/game/"+event.Name(), event.Json(game, t)))
+	seat.WriteJson(animate.Build("/game/"+event.Name(), game.State.Event.Json(game)))
 }
 
-func (event *DefendEvent) OnReconnect(*vii.Game, *Timeline, *vii.GameSeat) {
+func (event *DefendEvent) OnReconnect(*vii.Game, *vii.GameSeat) {
 }
 
-func (event *DefendEvent) OnStart(*vii.Game, *Timeline) {
+func (event *DefendEvent) OnStart(*vii.Game) {
 }
 
-func (event *DefendEvent) OnStop(game *vii.Game, t *Timeline) *Timeline {
+func (event *DefendEvent) NextEvent(game *vii.Game) vii.GameEvent {
 	for gcid, name := range event.AttackEvent {
 		seat := game.GetSeat(name)
 		acard := game.Cards[gcid]
 		isBlocked := false
-		for gcid_d1, gcid_d2 := range event.DefendOptions {
-			if gcid == gcid_d2 {
+		for dcarddid, dcardaid := range event.DefendOptions {
+			if gcid == dcardaid {
 				isBlocked = true
-				dcard := game.Cards[gcid_d1]
+				dcard := game.Cards[dcarddid]
 				Combat(game, acard, dcard)
 			}
 		}
 		if !isBlocked {
-			if seat.Life > acard.Attack {
-				seat.Life -= acard.Attack
+			if seat.Life > acard.Body.Attack {
+				seat.Life -= acard.Body.Attack
 			} else {
 				seat.Life = 0
-				game.Results = &vii.GameResults{
-					Loser:  seat.Username,
-					Winner: game.GetOpponentSeat(seat.Username).Username,
-				}
+				return End(game, acard.Username, seat.Username)
 			}
 		}
 	}
 
-	return t.Fork(game, Sunset(game, t))
+	return Main(game)
 }
 
-func (event *DefendEvent) Json(game *vii.Game, t *Timeline) js.Object {
+func (event *DefendEvent) Json(game *vii.Game) vii.Json {
 	return js.Object{
-		"gameid":   game,
-		"username": t.HotSeat,
-		"timer":    t.Lifetime.Seconds(),
-		"attacks":  event.AttackEvent.Json(game, t),
+		"gameid":   game.Key,
+		"username": game.State.Seat,
+		"timer":    game.State.Timer.Seconds(),
+		"attacks":  event.AttackEvent.Json(game),
 		"defends":  event.DefendOptions,
 	}
 }

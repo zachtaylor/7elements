@@ -4,45 +4,44 @@ import (
 	"fmt"
 
 	"github.com/zachtaylor/7elements"
-	"ztaylor.me/js"
 )
 
-var newElementChoices = []js.Object{
-	js.Object{"choice": "1", "display": `<img src="/img/icon/element-1.png">`},
-	js.Object{"choice": "2", "display": `<img src="/img/icon/element-2.png">`},
-	js.Object{"choice": "3", "display": `<img src="/img/icon/element-3.png">`},
-	js.Object{"choice": "4", "display": `<img src="/img/icon/element-4.png">`},
-	js.Object{"choice": "5", "display": `<img src="/img/icon/element-5.png">`},
-	js.Object{"choice": "6", "display": `<img src="/img/icon/element-6.png">`},
-	js.Object{"choice": "7", "display": `<img src="/img/icon/element-7.png">`},
+var newElementChoices = []Json{
+	Json{"choice": "1", "display": `<img src="/img/icon/element-1.png">`},
+	Json{"choice": "2", "display": `<img src="/img/icon/element-2.png">`},
+	Json{"choice": "3", "display": `<img src="/img/icon/element-3.png">`},
+	Json{"choice": "4", "display": `<img src="/img/icon/element-4.png">`},
+	Json{"choice": "5", "display": `<img src="/img/icon/element-5.png">`},
+	Json{"choice": "6", "display": `<img src="/img/icon/element-6.png">`},
+	Json{"choice": "7", "display": `<img src="/img/icon/element-7.png">`},
 }
 
-func NewElementChoice(w vii.JsonWriter, game *vii.Game) {
-	Choice(w, game, "Create an Element", newElementChoices, js.Object{})
+func NewElementChoice(w JsonWriter, game *vii.Game) {
+	Choice(w, game, "Create an Element", newElementChoices, Json{})
 }
 
-func NoviceSeerChoice(w vii.JsonWriter, game *vii.Game, card *vii.GameCard) {
-	prompt := fmt.Sprintf("Destroy %s?", card.Name)
-	choices := []js.Object{
-		js.Object{
+func NoviceSeerChoice(w JsonWriter, game *vii.Game, card *vii.GameCard) {
+	prompt := fmt.Sprintf("Destroy %s?", card.Card.Name)
+	choices := []Json{
+		Json{
 			"choice":  "no",
 			"display": "no",
 		},
-		js.Object{
+		Json{
 			"choice":  "yes",
 			"display": "yes",
 		},
 	}
-	json := js.Object{
+	json := Json{
 		"card": card.Json(),
 	}
 	Choice(w, game, prompt, choices, json)
 }
 
-func GraveBirth(w vii.JsonWriter, game *vii.Game) {
+func GraveBirth(w JsonWriter, game *vii.Game) {
 	prompt := "Create a <b>Body</b> from any player's <b>Past</b>"
-	cards := []js.Object{}
-	choices := []js.Object{}
+	cards := []Json{}
+	choices := []Json{}
 	for _, seat := range game.Seats {
 		for _, card := range seat.Graveyard {
 			if card.Card.Type != vii.CTYPbody {
@@ -50,14 +49,14 @@ func GraveBirth(w vii.JsonWriter, game *vii.Game) {
 			}
 
 			cards = append(cards, card.Json())
-			choices = append(choices, js.Object{
+			choices = append(choices, Json{
 				"choice":  card.Id,
-				"display": card.Name,
+				"display": card.Card.Name,
 			})
 		}
 	}
 
-	json := js.Object{
+	json := Json{
 		"cards": cards,
 	}
 	Choice(w, game, prompt, choices, json)

@@ -12,7 +12,7 @@ func init() {
 	engine.Scripts[HardBargainID] = HardBargain
 }
 
-func HardBargain(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func HardBargain(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -28,8 +28,8 @@ func HardBargain(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target 
 	} else {
 		delete(ownerSeat.Alive, gcid)
 		ownerSeat.Graveyard[gcid] = card
-		// animate.BroadcastSeatUpdate(game, seat)
-		animate.BroadcastSeatUpdate(game, ownerSeat)
+		// animate.GameSeat(game, seat)
+		animate.GameSeat(game, ownerSeat)
 		log.Info(HardBargainID)
 	}
 	return nil

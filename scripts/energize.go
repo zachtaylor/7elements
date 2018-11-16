@@ -12,7 +12,7 @@ func init() {
 	engine.Scripts[EnergizeID] = Energize
 }
 
-func Energize(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func Energize(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -28,9 +28,9 @@ func Energize(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target int
 	} else {
 		card.IsAwake = true
 		if card.Username != seat.Username {
-			animate.BroadcastCardUpdate(game, card)
+			animate.GameCard(game, card)
 		}
-		animate.BroadcastSeatUpdate(game, ownerSeat)
+		animate.GameSeat(game, ownerSeat)
 		log.Info(EnergizeID)
 	}
 	return nil

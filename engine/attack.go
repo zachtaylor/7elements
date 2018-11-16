@@ -7,13 +7,8 @@ import (
 	"ztaylor.me/log"
 )
 
-func Attack(game *vii.Game, past *Timeline) Event {
-	if tname := past.Name(); tname != "main" {
-		game.Log().Add("Timeline", tname).Error("attack can only follow main")
-		return nil
-	}
+func Attack(game *vii.Game) vii.GameEvent {
 	game.Log().Info("attack")
-
 	return AttackEvent{}
 }
 
@@ -23,12 +18,8 @@ func (event AttackEvent) Name() string {
 	return "attack"
 }
 
-func (event AttackEvent) Priority(game *vii.Game, t *Timeline) bool {
-	return t.HasPause() || t.Reacts[t.HotSeat] != "pass"
-}
-
-func (event AttackEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object) {
-	if seat.Username != t.HotSeat {
+func (event AttackEvent) Receive(game *vii.Game, seat *vii.GameSeat, json vii.Json) {
+	if seat.Username != game.State.Seat {
 		game.Log().WithFields(log.Fields{
 			"Seat":  seat,
 			"Event": json["event"],
@@ -65,18 +56,18 @@ func (event AttackEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat
 	}))
 }
 
-func (event AttackEvent) OnReconnect(*vii.Game, *Timeline, *vii.GameSeat) {
+func (event AttackEvent) OnReconnect(*vii.Game, *vii.GameSeat) {
 }
 
-func (event AttackEvent) OnStart(*vii.Game, *Timeline) {
+func (event AttackEvent) OnStart(*vii.Game) {
 }
 
-func (event AttackEvent) OnStop(game *vii.Game, t *Timeline) *Timeline {
-	return t.Fork(game, Defend(game, t, event))
+func (event AttackEvent) NextEvent(game *vii.Game) vii.GameEvent {
+	return Defend(game, event)
 }
 
-func (event AttackEvent) Json(game *vii.Game, t *Timeline) js.Object {
-	json := js.Object{}
+func (event AttackEvent) Json(game *vii.Game) vii.Json {
+	json := vii.Json{}
 	for k, v := range event {
 		json[k] = v
 	}

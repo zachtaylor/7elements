@@ -12,11 +12,7 @@ type GameSeat struct {
 	Alive     GameCards
 	Graveyard GameCards
 	Color     string
-	Receiver  JsonWriter
-}
-
-type Receiver interface {
-	Send(string, Json)
+	receiver  JsonWriter
 }
 
 func (game *Game) NewSeat() *GameSeat {
@@ -29,10 +25,11 @@ func (game *Game) NewSeat() *GameSeat {
 	}
 }
 
-func (seat *GameSeat) Start() {
-	seat.Life = 7
-	seat.Deck.Shuffle()
-	seat.DrawCard(3)
+func (seat *GameSeat) DrawCard(count int) {
+	for i := 0; i < count && len(seat.Deck.Cards) > 0; i++ {
+		card := seat.Deck.Draw()
+		seat.Hand[card.Id] = card
+	}
 }
 
 func (seat *GameSeat) DiscardHand() {
@@ -42,13 +39,6 @@ func (seat *GameSeat) DiscardHand() {
 	seat.Hand = GameCards{}
 }
 
-func (seat *GameSeat) DrawCard(count int) {
-	for i := 0; i < count && len(seat.Deck.Cards) > 0; i++ {
-		card := seat.Deck.Draw()
-		seat.Hand[card.Id] = card
-	}
-}
-
 func (seat *GameSeat) Reactivate() {
 	for _, card := range seat.Alive {
 		card.IsAwake = true
@@ -56,8 +46,22 @@ func (seat *GameSeat) Reactivate() {
 	seat.Elements.Reactivate()
 }
 
+func (seat *GameSeat) Login(game *Game, player JsonWriter) {
+	seat.receiver = player
+	game.In <- &GameRequest{
+		Username: seat.Username,
+		Data: Json{
+			"event": "reconnect",
+		},
+	}
+}
+
+func (seat *GameSeat) Logout() {
+	seat.receiver = nil
+}
+
 func (seat *GameSeat) WriteJson(json Json) {
-	if player := seat.Receiver; player != nil {
+	if player := seat.receiver; player != nil {
 		player.WriteJson(json)
 	}
 }
@@ -69,7 +73,8 @@ func (seat *GameSeat) Json(showHidden bool) Json {
 		"life":     seat.Life,
 		"active":   seat.Alive.Json(),
 		"elements": seat.Elements,
-		"spent":    len(seat.Graveyard),
+		"past":     len(seat.Graveyard),
+		"future":   len(seat.Deck.Cards),
 	}
 	if showHidden {
 		json["hand"] = seat.Hand.Json()

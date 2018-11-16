@@ -9,10 +9,10 @@ import (
 var Conn *db.DB
 
 // OpenEnv connects using db.OpenEnv and returns the patch id
-func OpenEnv() (int, error) {
+func OpenEnv(env env.Provider) (int, error) {
 	if Conn == nil {
 		var err error
-		Conn, err = db.OpenEnv()
+		Conn, err = db.OpenEnv(env)
 		if err != nil {
 			log.Add(db.DB_TABLE, env.Get(db.DB_TABLE)).Add(db.DB_HOST, env.Get(db.DB_HOST)).Add("Error", err).Error("db: openenv failed")
 		} else {

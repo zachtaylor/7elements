@@ -12,7 +12,7 @@ func init() {
 	engine.Scripts[HandrailsID] = Handrails
 }
 
-func Handrails(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func Handrails(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -32,8 +32,8 @@ func Handrails(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target in
 	}
 
 	card.IsAwake = true
-	animate.BroadcastCardUpdate(game, card)
-	animate.BroadcastSeatUpdate(game, seat)
+	animate.GameCard(game, card)
+	animate.GameSeat(game, seat)
 	log.Info(HandrailsID)
 	return nil
 }

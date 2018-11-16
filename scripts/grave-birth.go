@@ -13,49 +13,49 @@ func init() {
 	engine.Scripts[GraveBirthID] = GraveBirth
 }
 
-func GraveBirth(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
-	return t.Fork(game, &GraveBirthEvent{
-		Stack: t,
-	})
+func GraveBirth(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+	return &GraveBirthEvent{
+		Stack: game.State.Event,
+	}
 }
 
 type GraveBirthEvent struct {
 	Card  *vii.GameCard
-	Stack *engine.Timeline
+	Stack vii.GameEvent
 }
 
 func (event *GraveBirthEvent) Name() string {
 	return "choice"
 }
 
-func (event *GraveBirthEvent) Priority(game *vii.Game, t *engine.Timeline) bool {
+func (event *GraveBirthEvent) Priority(game *vii.Game) bool {
 	return event.Card == nil
 }
 
-func (event *GraveBirthEvent) OnStart(game *vii.Game, t *engine.Timeline) {
-	animate.GraveBirth(game.GetSeat(t.HotSeat), game)
+func (event *GraveBirthEvent) OnStart(game *vii.Game) {
+	seat := game.GetSeat(game.State.Seat)
+	animate.GraveBirth(seat, game)
 }
 
-func (event *GraveBirthEvent) OnReconnect(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat) {
-	if t.HotSeat == seat.Username {
+func (event *GraveBirthEvent) OnReconnect(game *vii.Game, seat *vii.GameSeat) {
+	if game.State.Seat == seat.Username {
 		animate.GraveBirth(seat, game)
 	}
 }
 
-func (event *GraveBirthEvent) OnStop(game *vii.Game, t *engine.Timeline) *engine.Timeline {
-	seat := game.GetSeat(t.HotSeat)
+func (event *GraveBirthEvent) NextEvent(game *vii.Game) vii.GameEvent {
 	card := vii.NewGameCard(event.Card.Card)
-	card.Username = seat.Username
+	card.Username = game.State.Seat
 	card.IsToken = true
 	game.RegisterCard(card)
-	animate.BroadcastSeatUpdate(game, seat)
+	animate.GameSeat(game, game.GetSeat(game.State.Seat))
 	return event.Stack
 }
 
-func (event *GraveBirthEvent) Receive(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, json js.Object) {
+func (event *GraveBirthEvent) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
 	log := game.Log().Add("Username", seat.Username).Add("Choice", json.Val("choice"))
 
-	if seat.Username != t.HotSeat {
+	if seat.Username != game.State.Seat {
 		log.Warn(GraveBirthID + ": not your choice")
 		return
 	}
@@ -76,12 +76,11 @@ func (event *GraveBirthEvent) Receive(game *vii.Game, t *engine.Timeline, seat *
 	}
 }
 
-func (event *GraveBirthEvent) Json(game *vii.Game, t *engine.Timeline) js.Object {
-	seat := game.GetSeat(t.HotSeat)
+func (event *GraveBirthEvent) Json(game *vii.Game) js.Object {
 	return js.Object{
-		"gameid":   game,
+		"gameid":   game.Key,
 		"choice":   "Grave Birth",
-		"username": seat.Username,
-		"timer":    t.Lifetime.Seconds(),
+		"username": game.State.Seat,
+		"timer":    game.State.Timer.Seconds(),
 	}
 }

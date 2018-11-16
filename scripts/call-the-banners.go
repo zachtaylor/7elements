@@ -23,13 +23,13 @@ var ctbCard = &vii.Card{
 	Powers: vii.NewPowers(),
 }
 
-func CallTheBanners(game *vii.Game, t *engine.Timeline, seat *vii.GameSeat, target interface{}) *engine.Timeline {
+func CallTheBanners(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
 	for i := 0; i < 3; i++ {
 		card := vii.NewGameCard(ctbCard)
 		card.Username = seat.Username
 		card.IsToken = true
 		game.RegisterCard(card)
 	}
-	animate.BroadcastSeatUpdate(game, seat)
+	animate.GameSeat(game, seat)
 	return nil
 }

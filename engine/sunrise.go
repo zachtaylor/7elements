@@ -7,12 +7,8 @@ import (
 	"ztaylor.me/log"
 )
 
-func Sunrise(game *vii.Game, past *Timeline, hotseat string) Event {
-	if tname := past.Name(); tname != "start" && tname != "sunset" {
-		game.Log().Add("Timeline", tname).Error("sunrise can only follow start or sunset")
-		return nil
-	}
-	game.Log().Info("sunrise")
+func Sunrise(game *vii.Game, hotseat string) vii.GameEvent {
+	game.Log().Info("Sunrise")
 	return new(SunriseEvent)
 }
 
@@ -24,11 +20,11 @@ func (event *SunriseEvent) Name() string {
 	return "sunrise"
 }
 
-func (event *SunriseEvent) Priority(game *vii.Game, t *Timeline) bool {
+func (event *SunriseEvent) Priority(game *vii.Game) bool {
 	return event.Element == vii.ELEMnull
 }
 
-func (event *SunriseEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object) {
+func (event *SunriseEvent) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
 	log := game.Log().WithFields(log.Fields{
 		"Seat": seat,
 	})
@@ -38,8 +34,8 @@ func (event *SunriseEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSe
 	} else if json["event"] == "element" {
 		log.Add("Event", json["event"]).Warn("element: event unrecognized")
 		return
-	} else if seat.Username != t.HotSeat {
-		log.Add("Expectt.HotSeat", t.HotSeat).Warn("sunrise: username rejected")
+	} else if seat.Username != game.State.Seat {
+		log.Add("Expectgame.State.Seat", game.State.Seat).Warn("sunrise: username rejected")
 	}
 	elementId := json.Ival("elementid")
 	if elementId < 1 || elementId > 7 {
@@ -51,34 +47,32 @@ func (event *SunriseEvent) Receive(game *vii.Game, t *Timeline, seat *vii.GameSe
 	log.Add("Element", event.Element).Info("sunrise: confirm element choice")
 }
 
-func (event *SunriseEvent) OnStart(game *vii.Game, t *Timeline) {
+func (event *SunriseEvent) OnStart(game *vii.Game) {
 }
 
-func (event *SunriseEvent) OnReconnect(*vii.Game, *Timeline, *vii.GameSeat) {
+func (event *SunriseEvent) OnReconnect(*vii.Game, *vii.GameSeat) {
 }
 
-func (event *SunriseEvent) OnStop(game *vii.Game, t *Timeline) *Timeline {
+func (event *SunriseEvent) NextEvent(game *vii.Game) vii.GameEvent {
 	if event.Element == vii.ELEMnull {
-		game.Log().Warn("games.Sunrise: !resolve forfeit")
-		game.Results = &vii.GameResults{
-			Loser: t.HotSeat,
-		}
-	} else if seat := game.GetSeat(t.HotSeat); seat == nil {
+		game.Log().Warn("sunrise: forfeit!")
+		return End(game, "", game.State.Seat) // only lose, no win
+	} else if seat := game.GetSeat(game.State.Seat); seat == nil {
 		game.Log().Warn("sunrise: !resolve seat missing")
 	} else {
 		card := seat.Deck.Draw()
 		seat.Hand[card.Id] = card
 		seat.Reactivate()
-		animate.Hand(game, seat)
-		animate.BroadcastSeatUpdate(game, seat)
+		animate.GameHand(game, seat)
+		animate.GameSeat(game, seat)
 	}
-	return t.Fork(game, Main(game, t))
+	return Main(game)
 }
 
-func (event *SunriseEvent) Json(game *vii.Game, t *Timeline) js.Object {
+func (event *SunriseEvent) Json(game *vii.Game) js.Object {
 	return js.Object{
-		"gameid":   game,
-		"timer":    t.Lifetime.Seconds(),
-		"username": t.HotSeat,
+		"gameid": game.Key,
+		"timer":    game.State.Timer.Seconds(),
+		"username": game.State.Seat,
 	}
 }

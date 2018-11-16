@@ -1,20 +1,18 @@
 package engine
 
-import (
-	"github.com/zachtaylor/7elements"
-)
+import "github.com/zachtaylor/7elements"
 
 func Combat(game *vii.Game, acard *vii.GameCard, dcard *vii.GameCard) {
-	if acard.CardBody == nil || dcard.CardBody == nil {
+	if acard.Body == nil || dcard.Body == nil {
 		return
 	}
-	Damage(game, acard, dcard.CardBody.Attack)
-	Damage(game, dcard, acard.CardBody.Attack)
+	Damage(game, acard, dcard.Body.Attack)
+	Damage(game, dcard, acard.Body.Attack)
 }
 
 func Damage(game *vii.Game, card *vii.GameCard, n int) {
-	card.CardBody.Health -= n
-	if card.Health < 1 {
+	card.Body.Health -= n
+	if card.Body.Health < 1 {
 		seat := game.GetSeat(card.Username)
 		delete(seat.Alive, card.Id)
 

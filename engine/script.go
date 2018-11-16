@@ -4,15 +4,15 @@ import (
 	"github.com/zachtaylor/7elements"
 )
 
-type ScriptFunc = func(*vii.Game, *Timeline, *vii.GameSeat, interface{}) *Timeline
+type ScriptFunc = func(*vii.Game, *vii.GameSeat, interface{}) vii.GameEvent
 
 var Scripts = make(map[string]ScriptFunc)
 
-func Script(game *vii.Game, t *Timeline, seat *vii.GameSeat, power *vii.Power, target interface{}) *Timeline {
+func Script(game *vii.Game, seat *vii.GameSeat, power *vii.Power, target interface{}) vii.GameEvent {
 	if script := Scripts[power.Script]; script == nil {
 		game.Log().Add("Script", power.Script).Warn("script missing")
 		return nil
 	} else {
-		return script(game, t, seat, target)
+		return script(game, seat, target)
 	}
 }

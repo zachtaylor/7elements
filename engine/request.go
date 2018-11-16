@@ -7,77 +7,54 @@ import (
 	"ztaylor.me/log"
 )
 
-func Request(game *vii.Game, t *Timeline, username string, json js.Object) *Timeline {
-	seat := game.GetSeat(username)
-	if seat == nil {
-		return nil
-	}
-
+func Request(game *vii.Game, seat *vii.GameSeat, json js.Object) vii.GameEvent {
 	switch event := json["event"]; event {
-	case "play":
-		return RequestPlay(game, t, seat, json, t.Name() != "main" || username != t.HotSeat)
-	case "trigger":
-		return RequestTrigger(game, t, seat, json)
 	case "reconnect":
-		RequestReconnect(game, t, seat)
-		break
+		return RequestReconnect(game, seat)
+	case "play":
+		return RequestPlay(game, seat, json, game.State.EventName() != "main" || seat.Username != game.State.Seat)
+	case "trigger":
+		return RequestTrigger(game, seat, json)
 	case "chat":
-		animate.Chat(game, username, "game#"+game.Key, json.Sval("message"))
+		animate.Chat(game, seat.Username, "game#"+game.Key, json.Sval("message"))
 		break
-	case t.Name():
-		RequestTimeline(game, t, seat, json)
-		break
+	case game.State.EventName():
+		return RequestGameState(game, seat, json)
 	default:
 		game.Log().WithFields(log.Fields{
-			"Seat":     seat,
-			"Timeline": t,
+			"Seat":         seat,
+			"RequestEvent": event,
+			"GameState":    game.State.EventName(),
 		}).Warn("receive: out of sync")
 	}
 	return nil
 }
 
-func RequestReconnect(game *vii.Game, t *Timeline, seat *vii.GameSeat) {
-	json := seat.Json(true)
-	opponentsdata := make([]string, 0)
-	for _, seat2 := range game.Seats {
-		if seat2.Username != seat.Username {
-			opponentsdata = append(opponentsdata, seat2.Username)
-		}
-	}
-	json["opponents"] = opponentsdata
-
-	json["gameid"] = game.Key
-	json["timer"] = t.Lifetime.Seconds()
-	json["mode"] = t.Name()
-
-	seatdata := js.Object{}
-	for _, seat := range game.Seats {
-		seatdata[seat.Username] = seat.Json(false)
-	}
-	json["seats"] = seatdata
-
-	seat.WriteJson(animate.Build("/game", json))
-	t.OnReconnect(game, seat)
-	game.Log().Add("Seat", seat).Info("/api/join: socket join")
+func RequestReconnect(game *vii.Game, seat *vii.GameSeat) vii.GameEvent {
+	seat.WriteJson(animate.Build("/game", game.Json(seat.Username)))
+	animate.GameState(game)
+	game.Log().Add("Seat", seat).Info("player reconnect")
+	game.State.Event.OnReconnect(game, seat)
+	return nil
 }
 
-func RequestPass(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object) {
-	if json.Sval("mode") != t.Name() {
+func RequestPass(game *vii.Game, seat *vii.GameSeat, json vii.Json) {
+	if json.Sval("mode") != game.State.EventName() {
 		game.Log().WithFields(log.Fields{
 			"Username":    seat.Username,
-			"Timeline":    t,
+			"Timeline":    game.State.EventName(),
 			"RequestMode": json.Val("mode"),
 		}).Warn("try pass out of sync")
 	}
 
-	if _, ok := t.Reacts[seat.Username]; ok {
+	if _, ok := game.State.Reacts[seat.Username]; ok {
 		game.Log().Add("Player", seat).Warn("pass: already recorded")
 	} else {
-		t.Reacts[seat.Username] = "pass"
+		game.State.Reacts[seat.Username] = "pass"
 	}
 }
 
-func RequestPlay(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object, onlySpells bool) *Timeline {
+func RequestPlay(game *vii.Game, seat *vii.GameSeat, json js.Object, onlySpells bool) vii.GameEvent {
 	log := game.Log().WithFields(log.Fields{
 		"Username": seat.Username,
 		"Elements": seat.Elements,
@@ -85,33 +62,33 @@ func RequestPlay(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object
 
 	gcid := json.Sval("gcid")
 	if gcid == "" {
-		log.Error("games.RequestPlay: gcid missing")
+		log.Error("RequestPlay: gcid missing")
 		return nil
 	}
 	log.Add("GCID", gcid)
 
 	card := game.Cards[gcid]
 	if card == nil {
-		log.Error("games.RequestPlay: gcid not found")
+		log.Error("RequestPlay: gcid not found")
 	} else if card.Username != seat.Username {
-		log.Add("Owner", card.Username).Error("games.RequestPlay: card belongs to a different player")
+		log.Add("Owner", card.Username).Error("RequestPlay: card belongs to a different player")
 	} else if card.Card.Type != vii.CTYPspell && onlySpells {
 		animate.GameError(seat, game, card.Card.Name, `not "spell" type`)
-		log.Error("games.RequestPlay: not spell type")
+		log.Error("RequestPlay: not spell type")
 	} else if !seat.HasCardInHand(gcid) {
 		animate.GameError(seat, game, card.Card.Name, `not in your hand`)
-		log.Error("games.RequestPlay: not in your hand")
+		log.Error("RequestPlay: not in your hand")
 	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
 		animate.GameError(seat, game, card.Card.Name, `not enough elements`)
-		log.Error("games.RequestPlay: cannot afford")
+		log.Error("RequestPlay: cannot afford")
 	} else {
 		seat.Elements.Deactivate(card.Card.Costs)
-		return t.Fork(game, Play(game, t, seat, card, json["target"]))
+		return Play(game, seat, card, json["target"])
 	}
 	return nil
 }
 
-func RequestTrigger(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object) *Timeline {
+func RequestTrigger(game *vii.Game, seat *vii.GameSeat, json js.Object) vii.GameEvent {
 	log := game.Log().WithFields(log.Fields{
 		"Username": seat.Username,
 		"Elements": seat.Elements,
@@ -145,19 +122,21 @@ func RequestTrigger(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Obj
 		seat.Elements.Deactivate(power.Costs)
 		card.IsAwake = card.IsAwake && !power.UsesTurn
 		if power.Target == "self" {
-			return t.Fork(game, Trigger(game, t, seat, card, power, card))
+			return Trigger(game, seat, card, power, card)
 		} else {
-			return t.Fork(game, Trigger(game, t, seat, card, power, json["target"]))
+			return Trigger(game, seat, card, power, json["target"])
 		}
 	}
 	return nil
 }
 
-func RequestTimeline(game *vii.Game, t *Timeline, seat *vii.GameSeat, json js.Object) {
-	defer func() {
-		if err := recover(); err != nil {
-			game.Log().Add("Error", err).Error("")
-		}
-	}()
-	t.Receive(game, seat, json)
+func RequestGameState(game *vii.Game, seat *vii.GameSeat, json js.Object) vii.GameEvent {
+	game.Log().Protect(func() {
+		game.State.Event.Receive(game, seat, json)
+	})
+
+	if !(len(game.State.Reacts) < len(game.Seats)) {
+		game.State.Timer = 1
+	}
+	return nil
 }

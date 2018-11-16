@@ -20,7 +20,7 @@ func LoginHandler(dbsalt string) http.Handler {
 
 		if session := sessions.ReadCookie(r); session != nil {
 			http.Redirect(w, r, "/", 307)
-			log.Add("SessionID", session.ID).Info("login: request already has valid session cookie")
+			log.Add("SessionID", session.ID()).Info("login: request already has valid session cookie")
 			return
 		}
 

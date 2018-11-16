@@ -14,7 +14,7 @@ var LogoutHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 
 	if session := sessions.ReadCookie(r); session != nil {
 		log.Debug(tagLogout)
-		sessions.Service.Revoke(session.ID)
+		session.Revoke()
 	} else {
 		log.Warn(tagLogout, ": cookie missing")
 	}
