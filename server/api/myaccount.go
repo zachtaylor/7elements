@@ -29,7 +29,7 @@ func MyAccountHandler() http.Handler {
 				}
 			}
 			w.Write([]byte(js.Object{
-				"username": session.Name,
+				"username": session.Name(),
 				"email":    account.Email,
 				"coins":    account.Coins,
 				"cards":    accountcards.Json(),
