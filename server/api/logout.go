@@ -12,7 +12,7 @@ const tagLogout = "/api/logout"
 var LogoutHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log := log.Add("Addr", r.RemoteAddr)
 
-	if session := sessions.ReadCookie(r); session != nil {
+	if session := sessions.FromRequestCookie(r); session != nil {
 		log.Debug(tagLogout)
 		session.Revoke()
 	} else {

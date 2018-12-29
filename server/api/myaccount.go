@@ -11,7 +11,7 @@ import (
 
 func MyAccountHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if session := sessions.ReadCookie(r); session == nil {
+		if session := sessions.FromRequestCookie(r); session == nil {
 			log.WithFields(log.Fields{
 				"RemoteAddr": r.RemoteAddr,
 			}).Warn("api/myaccount: session required")

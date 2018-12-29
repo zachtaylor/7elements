@@ -12,7 +12,7 @@ import (
 
 func NewGameHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session := sessions.ReadCookie(r)
+		session := sessions.FromRequestCookie(r)
 		if session == nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			log.WithFields(log.Fields{

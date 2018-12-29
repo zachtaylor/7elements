@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/zachtaylor/7elements/server/api"
-	"ztaylor.me/http/handler"
+	"ztaylor.me/http/handlers"
 	"ztaylor.me/http/mux"
 	"ztaylor.me/http/ws"
 )
@@ -28,9 +28,9 @@ func Routes(router *mux.Mux, fs http.FileSystem, dbsalt string) {
 
 	// Server.MapRawRgx(`/api/decks/.*\.json`, api.DecksIdJsonHandler)
 
-	router.Map(mux.MatcherSPA, handler.Index(fs))
+	router.Map(mux.MatcherSPA, handlers.Index(fs))
 	fsHandler := http.FileServer(fs)
-	router.MapRgx(`/img/`, handler.AddPrefix("/assets", fsHandler))
+	router.MapRgx(`/img/`, handlers.AddPrefix("/assets", fsHandler))
 	router.MapRgx(`.`, fsHandler)
 }
 

@@ -22,7 +22,7 @@ func SignupHandler(dbsalt string) http.Handler {
 			return
 		}
 
-		session := sessions.ReadCookie(r)
+		session := sessions.FromRequestCookie(r)
 		if session != nil {
 			http.Redirect(w, r, "/", 307)
 			log.Add("SessionId", session.ID).Info("signup: request has valid session cookie")
