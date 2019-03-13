@@ -9,7 +9,7 @@ import (
 	"ztaylor.me/log"
 )
 
-func PingHandler() http.Handler {
+func PingHandler(sessions *sessions.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		decks, err := vii.DeckService.GetAll()
 		if err != nil {
@@ -25,16 +25,16 @@ func PingHandler() http.Handler {
 			"cards":  AllCardsJson(),
 			"packs":  packs.Json(),
 			"decks":  decks.Json(),
-			"online": sessions.Service.Count(),
+			"online": sessions.Count(),
 		}.String()))
 	})
 }
 
 // func pingHandlerDataHelperGames(username string) js.Object {
 // 	gamesdata := js.Object{}
-// 	games := vii.GameService.GetPlayerGames(username)
+// 	games := game.Service.GetPlayerGames(username)
 // 	for _, gameid := range games {
-// 		game := vii.GameService.Get(gameid)
+// 		game := game.Service.Get(gameid)
 // 		gamesdata[gameid] = game.Json(username)
 // 	}
 // 	return gamesdata

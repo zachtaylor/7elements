@@ -3,69 +3,87 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 	"ztaylor.me/js"
+	"ztaylor.me/log"
 )
 
 func init() {
 	engine.Scripts["new-element"] = NewElement
 }
 
-func NewElement(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
-	return &NewElementMode{
-		Stack: game.State.Event,
+func NewElement(game *game.T, seat *game.Seat, target interface{}) game.Event {
+	return &NewElementEvent{
+		Stack: game.State,
 	}
 }
 
-type NewElementMode struct {
-	vii.Element
-	Stack vii.GameEvent
+type NewElementEvent struct {
+	Stack   *game.State
+	Element vii.Element
 }
 
-func (event *NewElementMode) Name() string {
+func (event *NewElementEvent) Name() string {
 	return "choice"
 }
 
-func (event *NewElementMode) Priority(game *vii.Game) bool {
-	return event.Element == vii.ELEMnull
-}
-
-func (event *NewElementMode) OnStart(game *vii.Game) {
+// OnActivate implements game.ActivateEventer
+func (event *NewElementEvent) OnActivate(game *game.T) {
 	animate.NewElementChoice(game.GetSeat(game.State.Seat), game)
 }
 
-func (event *NewElementMode) OnReconnect(game *vii.Game, seat *vii.GameSeat) {
+// OnConnect implements game.ConnectEventer
+func (event *NewElementEvent) OnConnect(game *game.T, seat *game.Seat) {
 	if game.State.Seat == seat.Username {
 		animate.NewElementChoice(seat, game)
 	}
 }
 
-func (event *NewElementMode) NextEvent(game *vii.Game) vii.GameEvent {
-	seat := game.GetSeat(game.State.Seat)
-	seat.Elements.Append(event.Element)
-	animate.GameElement(game, game.State.Seat, int(event.Element))
+// Finish implements game.FinishEventer
+func (event *NewElementEvent) Finish(game *game.T) {
+	if event.Element == vii.ELEMnull {
+		game.Log().Warn("scripts/new-element: event: finish: no element")
+	} else {
+		game.Logger.WithFields(log.Fields{
+			"Element": event.Element,
+		}).Debug("scripts/new-element: event: finish")
+		game.GetSeat(game.State.Seat).Elements.Append(event.Element)
+		animate.GameElement(game, game.State.Seat, int(event.Element))
+	}
+}
+
+// GetStack implements game.StackEventer
+func (event *NewElementEvent) GetStack(g *game.T) *game.State {
 	return event.Stack
 }
 
-func (event *NewElementMode) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
-	if game.State.Seat != seat.Username {
-		game.Log().Add("Username", seat.Username).Add("HotSeat", game.State.Seat).Warn("gameseat.NewElementMode: not your choice")
-		return
-	}
+// GetNext implements game.StackEventer
+func (event *NewElementEvent) GetNext(game *game.T) *game.State {
+	return nil
+}
 
-	if e := json.Ival("choice"); e < 1 || e > 7 {
-		game.Log().Add("Username", seat.Username).Add("Element", e).Warn("gameseat.NewElementMode: invalid element")
-	} else {
-		event.Element = vii.Element(e)
-		game.Log().Add("Username", seat.Username).Add("Element", event.Element).Info("gameseat.NewElement: confirmed element")
+func (event *NewElementEvent) Json(game *game.T) js.Object {
+	return js.Object{
+		"choice": "New Element",
 	}
 }
 
-func (event *NewElementMode) Json(game *vii.Game) js.Object {
-	return js.Object{
-		"gameid":   game.Key,
-		"choice":   "New Element",
-		"username": game.State.Seat,
-		"timer":    game.State.Timer.Seconds(),
+func (event *NewElementEvent) Request(game *game.T, seat *game.Seat, json js.Object) {
+	if game.State.Seat != seat.Username {
+		game.Log().WithFields(log.Fields{
+			"Username": seat.Username,
+			"Seat":     game.State.Seat,
+		}).Warn("scripts/new-element: not your choice")
+	} else if e := json.Ival("choice"); e < 1 || e > 7 {
+		game.Log().WithFields(log.Fields{
+			"choice": e,
+		}).Warn("scripts/new-element: invalid element")
+	} else {
+		event.Element = vii.Element(e)
+		game.Log().WithFields(log.Fields{
+			"choice": e,
+		}).Info("scripts/new-element: confirmed element")
+		game.State.Reacts[seat.Username] = "confirm"
 	}
 }

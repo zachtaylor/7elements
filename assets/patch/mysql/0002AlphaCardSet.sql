@@ -10,32 +10,32 @@ INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	scri
 INSERT INTO cards (id, type, name, text, image)
 	VALUES (2, 2, "Ifrit", "", "/img/card/2.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
-	VALUES (2, 5, 1);
+	VALUES (2, 2, 1);
 INSERT INTO cards_bodies (cardid, attack, health)
 	VALUES(2, 1, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
 	VALUES (2, 1, "", "bodyorplayer", 1, 0, "ifrit", "<b>use</b>: Deal 1 damage to Target Being or Player");
 
 INSERT INTO cards (id, type, name, text, image)
-	VALUES (3, 2, "Vine Spirit", "", "/img/card/3.jpg");
+	VALUES (3, 2, "Zealot", "So where is the party?", "/img/card/4.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (3, 3, 1);
 INSERT INTO cards_bodies (cardid, attack, health)
-	VALUES(3, 1, 1);
-INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
-	VALUES (3, 1, "", "", 1, 0, "vine-spirit", "<b>use</b>: Draw a card");
+	VALUES(3, 2, 2);
 
 INSERT INTO cards (id, type, name, text, image)
-	VALUES (4, 2, "Zealot", "So where is the party?", "/img/card/4.jpg");
+	VALUES (4, 2, "Vine Spirit", "", "/img/card/3.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (4, 4, 1);
 INSERT INTO cards_bodies (cardid, attack, health)
-	VALUES(4, 2, 2);
+	VALUES(4, 1, 1);
+INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
+	VALUES (4, 1, "", "", 1, 0, "vine-spirit", "<b>use</b>: Draw a card");
 
 INSERT INTO cards (id, type, name, text, image)
 	VALUES (5, 2, "Water Dancer", "", "/img/card/5.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
-	VALUES (5, 2, 1);
+	VALUES (5, 5, 1);
 INSERT INTO cards_bodies (cardid, attack, health)
 	VALUES(5, 0, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
@@ -57,7 +57,7 @@ INSERT INTO cards_element_costs (cardid, element, count)
 INSERT INTO cards_bodies (cardid, attack, health)
 	VALUES(7, 0, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
-	VALUES (7, 1, "", "", 0, 1, "nightmare-ader", "<b>kill</b>: Create a Body which is a copy of a card in any players' Past");
+	VALUES (7, 1, "", "", 0, 1, "nightmare-ader", "<b>kill</b>: Create a Being which is a copy of a Being Card in any players' Past");
 
 INSERT INTO cards (id, type, name, text, image)
 	VALUES (8, 1, "New Element", "Prepare for tomorrow", "/img/card/8.jpg");
@@ -69,30 +69,30 @@ INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	scri
 INSERT INTO cards (id, type, name, text, image)
 	VALUES (9, 1, "Burn", "Burn...", "/img/card/9.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
-	VALUES (9, 5, 1);
+	VALUES (9, 2, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
 	VALUES (9, 1, "play", "body", 0, 0, "burn", "Deal 2 damage to Target Being");
 
 INSERT INTO cards (id, type, name, text, image)
-	VALUES (10, 1, "Inspire Growth", "The best defense is a strong offense", "/img/card/10.jpg");
+	VALUES (10, 1, "Energize", "Now is the time!", "img/card/11.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (10, 3, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
-	VALUES (10, 1, "play", "", 0, 0, "inspire-growth", "Target Being gains +2 Attack");
+	VALUES (10, 1, "play", "", 0, 0, "energize", "Target Being or Item becomes Awake");
 
 INSERT INTO cards (id, type, name, text, image)
-	VALUES (11, 1, "Energize", "Now is the time!", "img/card/11.jpg");
+	VALUES (11, 1, "Inspire Growth", "The best defense is a strong offense", "/img/card/10.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (11, 4, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
-	VALUES (11, 1, "play", "", 0, 0, "energize", 'Add <app-icon src="/img/icon/element-4.png"></app-icon><app-icon src="/img/icon/element-4.png"></app-icon> to your Karma until Sunset');
+	VALUES (11, 1, "play", "", 0, 0, "inspire-growth", "Target Being gains +2 Attack");
 
 INSERT INTO cards (id, type, name, text, image)
 	VALUES (12, 1, "Bend Will", "It's a trap!", "/img/card/12.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
-	VALUES (12, 2, 1);
+	VALUES (12, 5, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
-	VALUES (12, 1, "play", "bodyoritem", 0, 0, "bend-will", "Choose one<br/>-Target Being or Item becomes Asleep<br/>-Target Being or Item becomes Awake");
+	VALUES (12, 1, "play", "bodyoritem", 0, 0, "bend-will", "Choose one<br/>-Target Being becomes Asleep<br/>-Target Being becomes Awake");
 
 INSERT INTO cards (id, type, name, text, image)
 	VALUES (13, 1, "Grace", "Is that better?", "/img/card/13.jpg");
@@ -106,7 +106,7 @@ INSERT INTO cards (id, type, name, text, image)
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (14, 7, 1);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)
-	VALUES (14, 1, "play", "", 0, 0, "memorialize", "Create a Body which is a copy of a card in any players' Past");
+	VALUES (14, 1, "play", "", 0, 0, "memorialize", "Create a Being which is a copy of a Being Card in any players' Past");
 
 INSERT INTO packs (id, name, size, cost, image)
 	VALUES (1, "Alpha Beings Pack (1)", 1, 3, "/img/pack/1.jpg");

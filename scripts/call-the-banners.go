@@ -3,7 +3,8 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 )
 
 func init() {
@@ -16,20 +17,20 @@ var ctbCard = &vii.Card{
 	Name:  "Bannerman",
 	Text:  "At your call",
 	Costs: vii.ElementMap{},
-	Body: &vii.CardBody{
+	Body: &vii.Body{
 		Attack: 2,
 		Health: 2,
 	},
 	Powers: vii.NewPowers(),
 }
 
-func CallTheBanners(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+func CallTheBanners(g *game.T, seat *game.Seat, target interface{}) game.Event {
 	for i := 0; i < 3; i++ {
-		card := vii.NewGameCard(ctbCard)
+		card := game.NewCard(ctbCard)
 		card.Username = seat.Username
 		card.IsToken = true
-		game.RegisterCard(card)
+		g.RegisterCard(card)
 	}
-	animate.GameSeat(game, seat)
+	animate.GameSeat(g, seat)
 	return nil
 }

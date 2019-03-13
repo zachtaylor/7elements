@@ -3,7 +3,8 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 )
 
 const WandOfSuppressionID = "wand-of-suppression"
@@ -12,7 +13,7 @@ func init() {
 	engine.Scripts[WandOfSuppressionID] = WandOfSuppression
 }
 
-func WandOfSuppression(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+func WandOfSuppression(game *game.T, seat *game.Seat, target interface{}) game.Event {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
@@ -23,7 +24,7 @@ func WandOfSuppression(game *vii.Game, seat *vii.GameSeat, target interface{}) v
 	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
 		log.Add("Error", "card owner not found").Error(WandOfSuppressionID)
 		return nil
-	} else if !ownerSeat.HasAliveCard(gcid) {
+	} else if !ownerSeat.HasPresentCard(gcid) {
 		log.Add("Error", "card not in play").Error(WandOfSuppressionID)
 		return nil
 	} else if card.Card.Type != vii.CTYPbody {

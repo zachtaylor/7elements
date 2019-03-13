@@ -62,6 +62,9 @@ func (p Powers) Copy() Powers {
 }
 
 func (powers Powers) Json() js.Object {
+	if powers == nil {
+		return nil
+	}
 	json := js.Object{}
 	for id, p := range powers {
 		json[fmt.Sprint(id)] = p.Json()

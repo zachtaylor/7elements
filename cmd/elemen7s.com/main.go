@@ -34,11 +34,11 @@ func main() {
 	}
 
 	if envName := env.Get("ENV"); envName == "dev" {
-		go sessions.Service.Watch(1 * time.Minute)
-		server.Start(fs, env.Get("DB_PWSALT"), ":"+env.Default("PORT", "80"))
+		sessions := sessions.NewService(1 * time.Hour)
+		server.Start(fs, sessions, env.Get("DB_PWSALT"), ":"+env.Default("PORT", "80"))
 	} else if envName == "pro" {
-		go sessions.Service.Watch(6 * time.Hour)
-		server.StartTLS(fs, env.Get("DB_PWSALT"), "7elements.cert", "7elements.key")
+		sessions := sessions.NewService(6 * time.Hour)
+		server.StartTLS(fs, sessions, env.Get("DB_PWSALT"), "7elements.cert", "7elements.key")
 	} else {
 		log.Error("7elements failed to launch, env error")
 	}

@@ -2,77 +2,77 @@ package animate
 
 import (
 	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/game"
 )
 
-func GameState(game *vii.Game) {
-	game.WriteJson(Build("/game/state", Json{
-		"gameid": game.Key,
-		"event":  game.State.EventName(),
-		"timer":  int(game.State.Timer.Seconds()),
-		"reacts": game.State.Reacts,
-		"data":   game.State.Event.Json(game),
-	}))
+func GameState(game *game.T) {
+	game.WriteJson(Build("/game/state", game.State.Json(game)))
 }
 
-func GameSeat(game *vii.Game, seat *vii.GameSeat) {
+func GameReconnect(game *game.T, seat *game.Seat) {
+	seat.WriteJson(Build("/game", game.Json(seat.Username)))
+}
+
+func GameSeat(game *game.T, seat *game.Seat) {
 	json := seat.Json(false)
-	json["gameid"] = game.Key
+	json["gameid"] = game.ID()
 	game.WriteJson(Build("/game/seat", json))
 }
 
-func GameReact(game *vii.Game, username string) {
+func GameReact(game *game.T, username string) {
 	game.WriteJson(Build("/game/react", Json{
-		"gameid":   game.Key,
+		"gameid":   game.ID(),
+		"stateid":  game.State.ID(),
 		"event":    game.State.EventName(),
 		"username": username,
 		"react":    game.State.Reacts[username],
 	}))
 }
 
-func GameCard(game *vii.Game, card *vii.GameCard) {
-	game.WriteJson(Build("/game/react", Json{
-		"gameid":   game.Key,
+func GameCard(game *game.T, card *game.Card) {
+	game.WriteJson(Build("/game/card", Json{
+		"gameid":   game.ID(),
 		"username": card.Username,
 		"card":     card.Json(),
 	}))
 }
 
-func GameHand(game *vii.Game, seat *vii.GameSeat) {
+func GameHand(game *game.T, seat *game.Seat) {
 	seat.WriteJson(Build("/game/hand", Json{
-		"gameid": game.Key,
+		"gameid": game.ID(),
 		"cards":  seat.Hand.Json(),
 	}))
 }
 
-func GameSpawn(game *vii.Game, card *vii.GameCard) {
+func GameSpawn(game *game.T, card *game.Card) {
 	game.WriteJson(Build("/game/spawn", Json{
-		"gameid":   game.Key,
+		"gameid":   game.ID(),
 		"username": card.Username,
 		"card":     card.Json(),
 	}))
 }
 
-func GameElement(game *vii.Game, username string, e int) {
+func GameElement(game *game.T, username string, e int) {
 	game.WriteJson(Build("/game/element", vii.Json{
-		"gameid":   game.Key,
+		"gameid":   game.ID(),
 		"username": username,
 		"element":  e,
 	}))
 }
 
-func Choice(w vii.JsonWriter, game *vii.Game, prompt string, choices []Json, data Json) {
+func Choice(w vii.JsonWriter, game *game.T, prompt string, choices []Json, data Json) {
 	w.WriteJson(Build("/game/choice", Json{
 		"animate": "choice",
-		"gameid":  game.Key,
+		"gameid":  game.ID(),
 		"prompt":  prompt,
 		"choices": choices,
 		"data":    data,
 	}))
 }
 
-func GameError(w vii.JsonWriter, g *vii.Game, source, message string) {
+func GameError(w vii.JsonWriter, g *game.T, source, message string) {
 	w.WriteJson(Build("/game/error", Json{
-		"gameid":  g.Key,
+		"gameid":  g.ID(),
 		"source":  source,
 		"message": message,
 	}))

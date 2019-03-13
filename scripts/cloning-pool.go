@@ -3,7 +3,8 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 )
 
 const CloningPoolID = "cloning-pool"
@@ -12,18 +13,18 @@ func init() {
 	engine.Scripts[CloningPoolID] = CloningPool
 }
 
-func CloningPool(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
-	log := game.Log().Add("Target", target).Add("Username", seat.Username)
+func CloningPool(g *game.T, seat *game.Seat, target interface{}) game.Event {
+	log := g.Log().Add("Target", target).Add("Username", seat.Username)
 
 	gcid := CastString(target)
-	card := game.Cards[gcid]
+	card := g.Cards[gcid]
 	if card == nil {
 		log.Add("Error", "gcid not found").Error(CloningPoolID)
 		return nil
-	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
+	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
 		log.Add("Error", "card owner not found").Error(CloningPoolID)
 		return nil
-	} else if !ownerSeat.HasAliveCard(gcid) {
+	} else if !ownerSeat.HasPresentCard(gcid) {
 		log.Add("Error", "card not in play").Error(CloningPoolID)
 		return nil
 	} else if card.Card.Type != vii.CTYPbody {
@@ -31,11 +32,11 @@ func CloningPool(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.Gam
 		return nil
 	}
 
-	clone := vii.NewGameCard(card.Card)
+	clone := game.NewCard(card.Card)
 	clone.Username = seat.Username
-	game.RegisterCard(clone)
+	g.RegisterCard(clone)
 	seat.Life++
-	animate.GameSeat(game, seat)
+	animate.GameSeat(g, seat)
 
 	log.Info(CloningPoolID)
 	return nil

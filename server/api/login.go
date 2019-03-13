@@ -8,7 +8,7 @@ import (
 	"ztaylor.me/log"
 )
 
-func LoginHandler(dbsalt string) http.Handler {
+func LoginHandler(sessions *sessions.Service, dbsalt string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := log.Add("Addr", r.RemoteAddr)
 
@@ -18,7 +18,7 @@ func LoginHandler(dbsalt string) http.Handler {
 			return
 		}
 
-		if session := sessions.FromRequestCookie(r); session != nil {
+		if session := sessions.ReadRequestCookie(r); session != nil {
 			http.Redirect(w, r, "/", 307)
 			log.Add("SessionID", session.ID()).Info("login: request already has valid session cookie")
 			return
@@ -36,7 +36,7 @@ func LoginHandler(dbsalt string) http.Handler {
 				log.Warn("login: password does not match")
 			} else {
 				log.Add("SessionID", account.SessionID).Info("login: account is hot")
-				GrantSession(w, r, account, "Login Re-Accepted!")
+				GrantSession(w, r, sessions, account, "Login Re-Accepted!")
 			}
 
 			return
@@ -58,6 +58,6 @@ func LoginHandler(dbsalt string) http.Handler {
 			return
 		}
 
-		GrantSession(w, r, account, "Login Success!")
+		GrantSession(w, r, sessions, account, "Login Success!")
 	})
 }

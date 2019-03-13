@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/game"
 	"ztaylor.me/http/ws"
 	"ztaylor.me/log"
 )
@@ -18,7 +18,7 @@ func WSGameJoin() ws.Handler {
 			return
 		}
 
-		game := vii.GameService.Get(gameid)
+		game := game.Service.Get(gameid)
 
 		if game == nil {
 			log.WithFields(log.Fields{
@@ -38,13 +38,13 @@ func WSGameJoin() ws.Handler {
 			return
 		}
 
-		go seat.Login(game, socket)
+		seat.Login(game, socket)
 		log.WithFields(log.Fields{
 			"User":   m.User,
 			"GameID": gameid,
 		}).Info("game.join")
 		<-socket.Done()
-		seat.Logout()
+		seat.Logout(game)
 		log.WithFields(log.Fields{
 			"User":   m.User,
 			"GameID": gameid,

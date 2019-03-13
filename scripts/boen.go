@@ -1,9 +1,9 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 	"ztaylor.me/log"
 )
 
@@ -13,13 +13,13 @@ func init() {
 	engine.Scripts[BoenID] = Boen
 }
 
-func Boen(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
-	log := game.Log().WithFields(log.Fields{
+func Boen(g *game.T, seat *game.Seat, target interface{}) game.Event {
+	log := g.Log().WithFields(log.Fields{
 		"Username": seat.Username,
 		"Card":     target,
 	})
 
-	if self, ok := target.(*vii.GameCard); !ok {
+	if self, ok := target.(*game.Card); !ok {
 		log.Error(BoenID + `: self target failed`)
 	} else if card := seat.Deck.Draw(); card == nil {
 		log.Error(BoenID + `: deck is empty`)
@@ -27,8 +27,8 @@ func Boen(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent 
 		self.Body.Health++
 		seat.Hand[card.Id] = card
 
-		animate.GameHand(game, seat)
-		animate.GameSeat(game, seat)
+		animate.GameHand(g, seat)
+		animate.GameSeat(g, seat)
 	}
 
 	log.Info(BoenID)

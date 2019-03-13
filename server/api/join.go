@@ -22,7 +22,7 @@ package api
 // func JoinHandler(r *http.Quest) error {
 // 	if gameid := r.Data.Sval("gameid"); gameid == "" {
 // 		return ErrGameIdRequired
-// 	} else if game := vii.GameService.Get(gameid); game == nil {
+// 	} else if game := game.Service.Get(gameid); game == nil {
 // 		return ErrGameMissing
 // 	} else if seat := game.GetSeat(r.Username); seat == nil {
 // 		log.WithFields(log.Fields{

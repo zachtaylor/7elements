@@ -3,8 +3,8 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
-	"ztaylor.me/js"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 )
 
 const NoviceSeerId = "novice-seer"
@@ -13,78 +13,78 @@ func init() {
 	engine.Scripts[NoviceSeerId] = NoviceSeer
 }
 
-func NoviceSeer(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+func NoviceSeer(game *game.T, seat *game.Seat, target interface{}) game.Event {
 	return &NoviceSeerEvent{
+		Stack: game.State,
 		Card:  seat.Deck.Draw(),
-		Stack: game.State.Event,
 	}
 }
 
 type NoviceSeerEvent struct {
-	Destroy *bool
-	Card    *vii.GameCard
-	Stack   vii.GameEvent
+	Stack   *game.State
+	Card    *game.Card
+	Destroy bool
 }
 
 func (event *NoviceSeerEvent) Name() string {
 	return "choice"
 }
 
-func (event *NoviceSeerEvent) Priority(game *vii.Game) bool {
-	return event.Destroy == nil
-}
-
-func (event *NoviceSeerEvent) OnStart(game *vii.Game) {
+// OnActivate implements game.ActivateEventer
+func (event *NoviceSeerEvent) OnActivate(game *game.T) {
 	animate.NoviceSeerChoice(game.GetSeat(game.State.Seat), game, event.Card)
 }
 
-func (event *NoviceSeerEvent) OnReconnect(game *vii.Game, seat *vii.GameSeat) {
+// OnConnect implements game.ConnectEventer
+func (event *NoviceSeerEvent) OnConnect(game *game.T, seat *game.Seat) {
 	if game.State.Seat == seat.Username {
 		animate.NoviceSeerChoice(seat, game, event.Card)
 	}
 }
 
-func (event *NoviceSeerEvent) NextEvent(game *vii.Game) vii.GameEvent {
-	seat := game.GetSeat(event.Card.Username)
-	if destroy := event.Destroy; destroy != nil && *destroy == true {
-		seat.Graveyard[event.Card.Id] = event.Card
+// Finish implements game.FinishEventer
+func (event *NoviceSeerEvent) Finish(game *game.T) {
+	seat := game.GetSeat(game.State.Seat)
+	if event.Destroy {
+		seat.Past[event.Card.Id] = event.Card
 		animate.GameSeat(game, seat)
-	} else if destroy != nil {
+	} else {
 		seat.Deck.Prepend(event.Card)
 	}
+}
+
+// GetStack implements game.StackEventer
+func (event *NoviceSeerEvent) GetStack(g *game.T) *game.State {
 	return event.Stack
 }
 
-func (event *NoviceSeerEvent) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
+// GetNext implements game.StackEventer
+func (event *NoviceSeerEvent) GetNext(game *game.T) *game.State {
+	return nil
+}
+
+func (event *NoviceSeerEvent) Json(game *game.T) vii.Json {
+	return vii.Json{
+		"choice": "Novice Seer",
+	}
+}
+
+func (event *NoviceSeerEvent) Request(game *game.T, seat *game.Seat, json vii.Json) {
 	log := game.Log().Add("Username", seat.Username)
 
 	if seat.Username != game.State.Seat {
-		log.Add("HotSeat", game.State.Seat).Warn("games.NoviceSeerEvent: not your choice")
+		log.Add("HotSeat", game.State.Seat).Warn("scripts/novice-seer: not your choice")
 		return
 	}
 
 	switch json.Sval("choice") {
 	case "yes":
-		b := true
-		event.Destroy = &b
-		break
+		event.Destroy = true
+		fallthrough
 	case "no":
-		b := false
-		event.Destroy = &b
-		break
+		log.Add("Choice", json.Sval("choice")).Debug("scripts/novice-seer: confirm")
+		game.State.Reacts[seat.Username] = "confirm"
 	default:
-		log.Add("Choice", json.Sval("choice")).Warn("games.NoviceSeerEvent: unrecognized choice")
-		return
-	}
-	log.Add("Destroy", event.Destroy).Info("games.NoviceSeer: confirmed destroy choice")
-
-}
-
-func (event *NoviceSeerEvent) Json(game *vii.Game) js.Object {
-	return js.Object{
-		"gameid": game.Key,
-		"choice":   "Novice Seer",
-		"username": game.State.Seat,
-		"timer":    game.State.Timer.Seconds(),
+		log.Add("Choice", json.Sval("choice")).Warn("scripts/novice-seer: unrecognized choice")
 	}
 }

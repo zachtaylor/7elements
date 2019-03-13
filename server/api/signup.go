@@ -12,7 +12,7 @@ import (
 	// "github.com/zachtaylor/7elements/options"
 )
 
-func SignupHandler(dbsalt string) http.Handler {
+func SignupHandler(sessions *sessions.Service, dbsalt string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := log.Add("Addr", r.RemoteAddr)
 
@@ -22,7 +22,7 @@ func SignupHandler(dbsalt string) http.Handler {
 			return
 		}
 
-		session := sessions.FromRequestCookie(r)
+		session := sessions.ReadRequestCookie(r)
 		if session != nil {
 			http.Redirect(w, r, "/", 307)
 			log.Add("SessionId", session.ID).Info("signup: request has valid session cookie")
@@ -84,7 +84,7 @@ func SignupHandler(dbsalt string) http.Handler {
 		// 	log.Clone().Add("mail-user", options.String("mail-user")).Add("mail-pass", options.String("mail-pass")).Add("mail-host", options.String("mail-host")).Add("Error", err).Error("/api/signup: send validation email")
 		// }
 
-		GrantSession(w, r, account, "Signup success!")
+		GrantSession(w, r, sessions, account, "Signup success!")
 		log.Info("/api/signup")
 	})
 }

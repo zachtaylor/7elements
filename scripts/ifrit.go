@@ -3,7 +3,8 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 )
 
 const IfritID = "ifrit"
@@ -12,7 +13,7 @@ func init() {
 	engine.Scripts[IfritID] = Ifrit
 }
 
-func Ifrit(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+func Ifrit(game *game.T, seat *game.Seat, target interface{}) game.Event {
 	log := game.Log().Add("Target", target).Add("Username", seat.Username)
 
 	if target == "player" {
@@ -36,8 +37,8 @@ func Ifrit(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent
 	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
 		log.Add("Error", "card owner not found").Error(IfritID)
 		return nil
-	} else if !ownerSeat.HasAliveCard(gcid) {
-		log.Add("Error", "card not in play").Error(IfritID)
+	} else if !ownerSeat.HasPresentCard(gcid) {
+		log.Add("Error", "card not in present").Error(IfritID)
 		return nil
 	} else if card.Card.Type != vii.CTYPbody {
 		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(IfritID)

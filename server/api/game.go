@@ -8,10 +8,10 @@ package api
 // func GameHandler(r *http.Quest) error {
 // 	if gameid := r.Data.Sval("gameid"); gameid != "" {
 // 		return ErrGameIdRequired
-// 	} else if game := vii.GameService.Get(gameid); game == nil {
+// 	} else if game := game.Service.Get(gameid); game == nil {
 // 		return ErrGameMissing
 // 	} else {
-// 		game.In <- &vii.GameRequest{
+// 		game.In <- &game.Request{
 // 			Username: r.Username,
 // 			Data:     r.Data,
 // 		}

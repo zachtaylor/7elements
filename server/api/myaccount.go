@@ -4,14 +4,15 @@ import (
 	"net/http"
 
 	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/game"
 	"ztaylor.me/http/sessions"
 	"ztaylor.me/js"
 	"ztaylor.me/log"
 )
 
-func MyAccountHandler() http.Handler {
+func MyAccountHandler(sessions *sessions.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if session := sessions.FromRequestCookie(r); session == nil {
+		if session := sessions.ReadRequestCookie(r); session == nil {
 			log.WithFields(log.Fields{
 				"RemoteAddr": r.RemoteAddr,
 			}).Warn("api/myaccount: session required")
@@ -23,8 +24,8 @@ func MyAccountHandler() http.Handler {
 			log.Add("Error", err).Add("Name", session.Name()).Error("api/myaccount: accountdecks missing")
 		} else {
 			games := make(map[string]js.Object)
-			for _, gameid := range vii.GameService.GetPlayerGames(session.Name()) {
-				if game := vii.GameService.Get(gameid); game != nil {
+			for _, gameid := range game.Service.GetPlayerGames(session.Name()) {
+				if game := game.Service.Get(gameid); game != nil {
 					games[gameid] = game.Json(session.Name())
 				}
 			}

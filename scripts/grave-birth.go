@@ -3,7 +3,8 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/animate"
-	"github.com/zachtaylor/7elements/engine"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
 	"ztaylor.me/js"
 )
 
@@ -13,74 +14,80 @@ func init() {
 	engine.Scripts[GraveBirthID] = GraveBirth
 }
 
-func GraveBirth(game *vii.Game, seat *vii.GameSeat, target interface{}) vii.GameEvent {
+func GraveBirth(game *game.T, seat *game.Seat, target interface{}) game.Event {
 	return &GraveBirthEvent{
-		Stack: game.State.Event,
+		Stack: game.State,
 	}
 }
 
 type GraveBirthEvent struct {
-	Card  *vii.GameCard
-	Stack vii.GameEvent
+	Stack *game.State
+	Card  *game.Card
 }
 
 func (event *GraveBirthEvent) Name() string {
 	return "choice"
 }
 
-func (event *GraveBirthEvent) Priority(game *vii.Game) bool {
-	return event.Card == nil
-}
-
-func (event *GraveBirthEvent) OnStart(game *vii.Game) {
+// OnActivate implements game.ActivateEventer
+func (event *GraveBirthEvent) OnActivate(game *game.T) {
 	seat := game.GetSeat(game.State.Seat)
 	animate.GraveBirth(seat, game)
 }
 
-func (event *GraveBirthEvent) OnReconnect(game *vii.Game, seat *vii.GameSeat) {
+// OnConnect implements game.ConnectEventer
+func (event *GraveBirthEvent) OnConnect(game *game.T, seat *game.Seat) {
 	if game.State.Seat == seat.Username {
 		animate.GraveBirth(seat, game)
 	}
 }
 
-func (event *GraveBirthEvent) NextEvent(game *vii.Game) vii.GameEvent {
-	card := vii.NewGameCard(event.Card.Card)
-	card.Username = game.State.Seat
+// Finish implements game.FinishEventer
+func (event *GraveBirthEvent) Finish(g *game.T) {
+	card := game.NewCard(event.Card.Card)
+	card.Username = g.State.Seat
 	card.IsToken = true
-	game.RegisterCard(card)
-	animate.GameSeat(game, game.GetSeat(game.State.Seat))
+	g.RegisterCard(card)
+	animate.GameSeat(g, g.GetSeat(g.State.Seat))
+}
+
+// GetStack implements game.StackEventer
+func (event *GraveBirthEvent) GetStack(g *game.T) *game.State {
 	return event.Stack
 }
 
-func (event *GraveBirthEvent) Receive(game *vii.Game, seat *vii.GameSeat, json js.Object) {
-	log := game.Log().Add("Username", seat.Username).Add("Choice", json.Val("choice"))
+// GetNext implements game.StackEventer
+func (event *GraveBirthEvent) GetNext(g *game.T) *game.State {
+	return nil
+}
 
-	if seat.Username != game.State.Seat {
+func (event *GraveBirthEvent) Json(game *game.T) js.Object {
+	return js.Object{
+		"choice": "Grave Birth",
+	}
+}
+
+func (event *GraveBirthEvent) Request(g *game.T, seat *game.Seat, json js.Object) {
+	log := g.Log().Add("Username", seat.Username).Add("Choice", json.Val("choice"))
+
+	if seat.Username != g.State.Seat {
 		log.Warn(GraveBirthID + ": not your choice")
 		return
 	}
 
 	if gcid := json.Sval("choice"); gcid == "" {
 		log.Warn(GraveBirthID + ": choice not found")
-	} else if card := game.Cards[gcid]; card == nil {
+	} else if card := g.Cards[gcid]; card == nil {
 		log.Warn(GraveBirthID + ": gcid not found")
 	} else if card.Card.Type != vii.CTYPbody {
 		log.Add("CardType", card.Card.Type).Warn(GraveBirthID + ": not type body")
-	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
+	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
 		log.Add("CardOwner", card.Username).Warn(GraveBirthID + ": card owner not found")
 	} else if !ownerSeat.HasPastCard(gcid) {
-		log.Add("CardOwner", card.Username).Add("Past", ownerSeat.Graveyard.String()).Warn(GraveBirthID + ": card not in past")
+		log.Add("CardOwner", card.Username).Add("Past", ownerSeat.Past.String()).Warn(GraveBirthID + ": card not in past")
 	} else {
-		event.Card = vii.NewGameCard(card.Card)
 		log.Add("CardId", event.Card.Card.Id).Info(GraveBirthID + ": confirmed card")
-	}
-}
-
-func (event *GraveBirthEvent) Json(game *vii.Game) js.Object {
-	return js.Object{
-		"gameid":   game.Key,
-		"choice":   "Grave Birth",
-		"username": game.State.Seat,
-		"timer":    game.State.Timer.Seconds(),
+		event.Card = game.NewCard(card.Card)
+		g.State.Reacts[seat.Username] = "confirm"
 	}
 }

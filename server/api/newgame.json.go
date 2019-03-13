@@ -4,15 +4,17 @@ import (
 	"net/http"
 
 	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/engine/ai"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/ai"
+	"github.com/zachtaylor/7elements/game/engine"
 	"ztaylor.me/cast"
 	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
-func NewGameHandler() http.Handler {
+func NewGameHandler(sessions *sessions.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session := sessions.FromRequestCookie(r)
+		session := sessions.ReadRequestCookie(r)
 		if session == nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			log.WithFields(log.Fields{
@@ -31,22 +33,22 @@ func NewGameHandler() http.Handler {
 		}
 
 		var deck *vii.AccountDeck
-		if _deckid, ok := r.URL.Query()["deckid"]; !ok || len(_deckid) < 1 {
+		if _deckid := r.URL.Query().Get("deckid"); len(_deckid) < 1 {
 			w.WriteHeader(http.StatusBadRequest)
-			log.Add("Error", err).Warn("api/newgame: deckid missing")
+			log.Add("Query", r.URL.Query().Encode()).Warn("api/newgame: deckid missing")
 			return
-		} else if deckid := cast.Int(_deckid[0]); deckid < 1 {
+		} else if deckid := cast.Int(_deckid); deckid < 1 {
 			w.WriteHeader(http.StatusBadRequest)
 			log.WithFields(log.Fields{
 				"DeckID": _deckid,
 				"Error":  err,
 			}).Warn("api/newgame: deckid missing")
 			return
-		} else if _usep2p, ok := r.URL.Query()["usep2p"]; !ok || len(_usep2p) < 1 {
+		} else if usep2p := r.URL.Query().Get("usep2p"); len(usep2p) < 1 {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Add("Error", err).Warn("api/newgame: usep2p missing")
 			return
-		} else if usep2p := _usep2p[0]; usep2p == "true" {
+		} else if usep2p == "true" {
 			if mydecks, err := vii.AccountDeckService.Get(session.Name()); mydecks == nil {
 				log.Add("Error", err).Error("api/newgame: decks missing")
 			} else if d := mydecks[deckid]; deck == nil {
@@ -76,21 +78,23 @@ func NewGameHandler() http.Handler {
 			}
 		}
 
-		var game *vii.Game
-		if _ai, ok := r.URL.Query()["deckid"]; !ok || len(_ai) < 1 {
+		// todo: bool(Query().Get("ai")) -> Query().Get("op") == "ai"
+
+		var g *game.T
+		if _ai := r.URL.Query().Get("ai"); len(_ai) < 1 {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Add("Error", err).Warn("api/newgame: ai missing")
 			return
-		} else if useai := cast.Bool(_ai[0]); useai {
-			game = vii.GameService.New()
-			game.Register(deck)
-			ai.Register(game)
-			vii.GameService.Watch(game)
+		} else if useai := cast.Bool(_ai); useai {
+			g = game.Service.New()
+			g.Register(deck)
+			ai.Register(g)
+			engine.Watch(g)
 			log.WithFields(log.Fields{
-				"GameId":   game,
+				"GameID":   g.ID(),
 				"Username": session.Name,
 			}).Info("api/newgame: created game vs ai")
-		} else if search := vii.GameService.StartPlayerSearch(deck); search == nil {
+		} else if search := game.Service.StartPlayerSearch(deck); search == nil {
 			log.WithFields(log.Fields{
 				"Session": session,
 				"DeckId":  deck.ID,
@@ -101,11 +105,11 @@ func NewGameHandler() http.Handler {
 				"GameId":  gameid,
 			}).Warn("api/newgame: search failed")
 		} else {
-			game = vii.GameService.Get(gameid)
+			g = game.Service.Get(gameid)
 		}
 
-		if game != nil {
-			w.Write([]byte(game.Json(session.Name()).String()))
+		if g != nil {
+			w.Write([]byte(g.Json(session.Name()).String()))
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("internal server error"))

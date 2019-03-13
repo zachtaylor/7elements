@@ -4,18 +4,19 @@ import (
 	"net/http"
 
 	"ztaylor.me/http/handlers"
+	"ztaylor.me/http/sessions"
 	"ztaylor.me/log"
 )
 
-func Start(fs http.FileSystem, dbsalt string, port string) {
-	server := New(fs, dbsalt)
+func Start(fs http.FileSystem, sessions *sessions.Service, dbsalt string, port string) {
+	server := Server(fs, sessions, dbsalt)
 	log.Add("port", port).Info("elemen7s server started!")
-	server.ListenAndServe(port)
+	http.ListenAndServe(port, server)
 }
 
-func StartTLS(fs http.FileSystem, dbsalt string, cert string, key string) {
-	server := New(fs, dbsalt)
+func StartTLS(fs http.FileSystem, sessions *sessions.Service, dbsalt string, cert string, key string) {
+	server := Server(fs, sessions, dbsalt)
 	log.Info("elemen7s server started!")
 	go http.ListenAndServe(":80", handlers.RedirectHTTPS)
-	server.ListenAndServeTLS(cert, key)
+	http.ListenAndServeTLS(":443", cert, key, server)
 }

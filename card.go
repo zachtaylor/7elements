@@ -7,7 +7,7 @@ type Card struct {
 	Type   CardType
 	Image  string
 	Costs  ElementMap
-	Body   *CardBody
+	Body   *Body
 	Powers Powers
 }
 

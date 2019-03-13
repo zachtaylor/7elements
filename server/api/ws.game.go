@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/game"
 	"ztaylor.me/http/ws"
 	"ztaylor.me/log"
 )
@@ -14,23 +14,30 @@ func WSGame() ws.Handler {
 			log.WithFields(log.Fields{
 				"User": m.User,
 				"Data": m.Data,
-			}).Warn("game.event: id missing")
+			}).Warn("api/ws/game: gameid missing")
 			return
 		}
 
-		game := vii.GameService.Get(gameid)
+		g := game.Service.Get(gameid)
 
-		if game == nil {
+		if g == nil {
 			log.WithFields(log.Fields{
 				"User":   m.User,
 				"GameID": gameid,
-			}).Warn("game.event: game missing")
+			}).Warn("api/ws/game: game missing")
 			return
 		}
 
-		game.In <- &vii.GameRequest{
-			Username: m.User,
-			Data:     m.Data,
+		uri := m.Data.Sval("uri")
+
+		if uri == "" {
+			log.WithFields(log.Fields{
+				"User": m.User,
+				"Data": m.Data,
+			}).Warn("api/ws/game: stateid missing")
+			return
 		}
+
+		g.Request(m.User, uri, m.Data)
 	})
 }
