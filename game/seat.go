@@ -3,7 +3,8 @@ package game
 import (
 	"fmt"
 
-	"github.com/zachtaylor/7elements"
+	vii "github.com/zachtaylor/7elements"
+	"ztaylor.me/cast"
 )
 
 type Seat struct {
@@ -15,7 +16,7 @@ type Seat struct {
 	Present  Cards
 	Past     Cards
 	Color    string
-	receiver vii.JsonWriter
+	Receiver vii.JSONWriter
 }
 
 func (game *T) NewSeat() *Seat {
@@ -48,42 +49,11 @@ func (seat *Seat) Reactivate() {
 	seat.Elements.Reactivate()
 }
 
-func (seat *Seat) Login(game *T, player vii.JsonWriter) {
-	seat.receiver = player
-	game.Request(seat.Username, "connect", nil)
-}
-
-func (seat *Seat) Logout(game *T) {
-	seat.receiver = nil
-	game.Request(seat.Username, "disconnect", nil)
-}
-
-func (seat *Seat) WriteJson(json vii.Json) {
-	if player := seat.receiver; player != nil {
-		player.WriteJson(json)
+// Send sends data to player agent if available
+func (seat *Seat) Send(json cast.JSON) {
+	if r := seat.Receiver; r != nil {
+		r.WriteJSON(json)
 	}
-}
-
-func (seat *Seat) Json(showHidden bool) vii.Json {
-	json := vii.Json{
-		"username": seat.Username,
-		"deck":     len(seat.Deck.Cards),
-		"life":     seat.Life,
-		"active":   seat.Present.Json(),
-		"elements": seat.Elements,
-		"past":     len(seat.Past),
-		"future":   len(seat.Deck.Cards),
-	}
-	if showHidden {
-		json["hand"] = seat.Hand.Json()
-	} else {
-		json["hand"] = len(seat.Hand)
-	}
-	return json
-}
-
-func (seat *Seat) String() string {
-	return fmt.Sprintf("vii.Seat{Name:%v, ♥:%v, Deck:%v}", seat.Username, seat.Life, len(seat.Deck.Cards))
 }
 
 func (seat *Seat) HasAwakePresentCards() bool {
@@ -128,4 +98,33 @@ func (seat *Seat) HasCardInHand(gcid string) bool {
 		}
 	}
 	return false
+}
+
+func (seat *Seat) String() string {
+	return fmt.Sprintf("vii.Seat{%s}", seat.Print())
+}
+
+// Print returns a detailed compressed string representation
+func (seat *Seat) Print() string {
+	return fmt.Sprintf("%s ☼:%s ◘:%d ♥:%d ♣:%d",
+		seat.Username,
+		seat.Elements.String(),
+		len(seat.Deck.Cards),
+		seat.Life,
+		len(seat.Hand),
+	)
+}
+
+// JSON returns JSON representation of a game seat
+func (seat *Seat) JSON() cast.JSON {
+	return cast.JSON{
+		"username": seat.Username,
+		"deck":     len(seat.Deck.Cards),
+		"life":     seat.Life,
+		"active":   seat.Present.JSON(),
+		"hand":     len(seat.Hand),
+		"elements": seat.Elements,
+		"past":     seat.Past.JSON(),
+		"future":   len(seat.Deck.Cards),
+	}
 }

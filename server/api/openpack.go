@@ -54,30 +54,6 @@ package api
 // 		return
 // 	}
 
-// 	accountcards, err := vii.AccountCardService.Get(account.Username)
-// 	if err != nil {
-// 		w.WriteHeader(500)
-// 		log.Add("Error", err).Error("openpack.json: collection")
-// 		return
-// 	}
-
-// 	carddata := make([]int, 7)
-// 	for i, card := range gencardpack.NewPack(account.Username) {
-// 		carddata[i] = card.CardId
-
-// 		if err := vii.AccountCardService.InsertCard(card); err != nil {
-// 			w.WriteHeader(500)
-// 			log.Add("Error", err).Error("openpack.json: insert card copy")
-// 			return
-// 		}
-
-// 		if list := accountcards[card.CardId]; list != nil {
-// 			accountcards[card.CardId] = append(list, card)
-// 		} else {
-// 			accountcards[card.CardId] = []*vii.AccountCard{card}
-// 		}
-// 	}
-
 // 	js.Object{
 // 		"cards": carddata,
 // 	}.Write(w)

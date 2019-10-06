@@ -1,0 +1,29 @@
+body {
+	--ui:32px;
+  --pad:4px;
+  font-size:18px;
+}
+[adaptive] {
+  height:var(--ui);
+}
+.svg {
+  height:var(--ui);
+}
+[adapt~="0"] {
+  height:var(--ui);
+}
+[adapt~="1"] {
+  height:calc(var(--ui) * 3 / 4);
+}
+[adapt~="2"] {
+  height:calc(var(--ui) / 2);
+}
+.fnt0 {
+  font-size:calc(var(--ui) - 5px - var(--pad));
+}
+.fnt1 {
+  font-size:calc(var(--pad) * -2 + var(--ui) - 7px);
+}
+.fnt2 {
+  font-size:calc(var(--ui) / 2 - (var(--pad) / 2) - 4px);
+}

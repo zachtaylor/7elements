@@ -23,7 +23,12 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles/adaptive.css",
+              "src/styles/base.css",
+              "src/styles/fonts.css",
+              "src/styles/forms.css",
+              "src/styles/animations.css",
+              "src/styles/4-letter-style.css"
             ],
             "scripts": []
           },

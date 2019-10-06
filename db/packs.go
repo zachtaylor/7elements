@@ -1,23 +1,27 @@
 package db
 
 import (
-	"github.com/zachtaylor/7elements"
+	vii "github.com/zachtaylor/7elements"
+	"ztaylor.me/db"
 )
 
-func init() {
-	vii.PackService = &PackService{}
+func NewPackService(db *db.DB) vii.PackService {
+	return &PackService{
+		conn: db,
+	}
 }
 
 type PackService struct {
-	Packs map[int]*vii.Pack
+	conn  *db.DB
+	cache vii.Packs
 }
 
-func (service *PackService) Start() error {
-	packs, err := service.reloadPacks()
+func (ps *PackService) Start() error {
+	packs, err := ps.reloadPacks()
 	if err != nil {
 		return err
 	}
-	packscards, err := service.reloadPacksCards()
+	packscards, err := ps.reloadPacksCards()
 	if err != nil {
 		return err
 	}
@@ -28,13 +32,13 @@ func (service *PackService) Start() error {
 		}
 	}
 
-	service.Packs = packs
+	ps.cache = packs
 	return nil
 }
 
-func (service *PackService) reloadPacks() (vii.Packs, error) {
+func (ps *PackService) reloadPacks() (vii.Packs, error) {
 	packs := make(vii.Packs)
-	rows, err := Conn.Query(`SELECT id, name, size, cost, image FROM packs`)
+	rows, err := ps.conn.Query(`SELECT id, name, size, cost, image FROM packs`)
 	if err != nil {
 		return packs, err
 	}
@@ -50,9 +54,9 @@ func (service *PackService) reloadPacks() (vii.Packs, error) {
 	return packs, err
 }
 
-func (service *PackService) reloadPacksCards() ([]*vii.PackChance, error) {
+func (ps *PackService) reloadPacksCards() ([]*vii.PackChance, error) {
 	packscards := make([]*vii.PackChance, 0)
-	rows, err := Conn.Query(`SELECT packid, cardid, weight FROM packs_cards`)
+	rows, err := ps.conn.Query(`SELECT packid, cardid, weight FROM packs_cards`)
 	if err != nil {
 		return packscards, err
 	}
@@ -68,17 +72,17 @@ func (service *PackService) reloadPacksCards() ([]*vii.PackChance, error) {
 	return packscards, err
 }
 
-func (service *PackService) Get(id int) (*vii.Pack, error) {
-	packs, err := service.GetAll()
+func (ps *PackService) Get(id int) (*vii.Pack, error) {
+	packs, err := ps.GetAll()
 	if packs == nil {
 		return nil, err
 	}
 	return packs[id], err
 }
 
-func (service *PackService) GetAll() (vii.Packs, error) {
-	if service.Packs == nil {
-		service.Start()
+func (ps *PackService) GetAll() (vii.Packs, error) {
+	if ps.cache == nil {
+		ps.Start()
 	}
-	return service.Packs, nil
+	return ps.cache, nil
 }

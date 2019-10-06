@@ -1,23 +1,12 @@
 package db
 
-import (
-	"ztaylor.me/db"
-	"ztaylor.me/env"
-	"ztaylor.me/log"
-)
-
-var Conn *db.DB
-
-// OpenEnv connects using db.OpenEnv and returns the patch id
-func OpenEnv(env env.Provider) (int, error) {
-	if Conn == nil {
-		var err error
-		Conn, err = db.OpenEnv(env)
-		if err != nil {
-			log.Add(db.DB_TABLE, env.Get(db.DB_TABLE)).Add(db.DB_HOST, env.Get(db.DB_HOST)).Add("Error", err).Error("db: openenv failed")
-		} else {
-			log.Add(db.DB_TABLE, env.Get(db.DB_TABLE)).Add(db.DB_HOST, env.Get(db.DB_HOST)).Debug("db: openenv")
-		}
-	}
-	return Patch(Conn)
-}
+// OpenEnv connects using db.OpenEnv and returns the conn and patch id
+// func OpenEnv(env env.Service) (*db.DB, int, error) {
+// 	conn, err := db.OpenEnv(env)
+// 	if conn == nil {
+// 		log.StdOutService(log.LevelInfo).New().Warn("failed to open env")
+// 		return conn, -1, err
+// 	}
+// 	patch, err := Patch(conn)
+// 	return conn, patch, err
+// }

@@ -1,52 +1,60 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/animate"
+	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine"
+	"github.com/zachtaylor/7elements/game/event"
+	"ztaylor.me/cast"
+	"ztaylor.me/log"
 )
 
 const IfritID = "ifrit"
 
 func init() {
-	engine.Scripts[IfritID] = Ifrit
+	game.Scripts[IfritID] = Ifrit
 }
 
-func Ifrit(game *game.T, seat *game.Seat, target interface{}) game.Event {
-	log := game.Log().Add("Target", target).Add("Username", seat.Username)
+func Ifrit(g *game.T, seat *game.Seat, target interface{}) []game.Event {
+	log := g.Log().With(log.Fields{
+		"Target":   target,
+		"Username": seat.Username,
+	}).Tag("scripts/ifrit")
 
-	if target == "player" {
-		for _, s := range game.Seats {
-			if seat.Username != seat.Username {
-				seat.Life--
-				animate.GameSeat(game, s)
-				animate.GameSeat(game, seat)
-
-				log.Add("Seat", s).Info(IfritID)
-				return nil
+	opponent := g.GetOpponentSeat(seat.Username)
+	if target == opponent.Username {
+		opponent.Life--
+		g.SendAll(game.BuildSeatUpdate(opponent))
+		if opponent.Life < 0 {
+			return []game.Event{
+				event.NewEndEvent(seat.Username, opponent.Username),
 			}
 		}
+		return nil
+	} else if target == seat.Username {
+		seat.Life--
+		g.SendAll(game.BuildSeatUpdate(seat))
+		if opponent.Life < 0 {
+			return []game.Event{
+				event.NewEndEvent(opponent.Username, seat.Username),
+			}
+		}
+		return nil
 	}
 
-	gcid := CastString(target)
-	card := game.Cards[gcid]
+	gcid := cast.String(target)
+	card := g.Cards[gcid]
 	if card == nil {
-		log.Add("Error", "gcid not found").Error(IfritID)
-		return nil
-	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
-		log.Add("Error", "card owner not found").Error(IfritID)
-		return nil
+		log.Error("gcid not found")
+	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
+		log.Error("card owner not found")
 	} else if !ownerSeat.HasPresentCard(gcid) {
-		log.Add("Error", "card not in present").Error(IfritID)
-		return nil
+		log.Error("card not in present")
 	} else if card.Card.Type != vii.CTYPbody {
-		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(IfritID)
-		return nil
+		log.Add("CardType", card.Card.Type).Error("card not type body")
+	} else {
+		log.Info("confirm")
+		return game.TriggerDamage(g, card, 1)
 	}
 
-	engine.Damage(game, card, 1)
-	animate.GameSeat(game, game.GetSeat(card.Username))
-	log.Info(IfritID)
 	return nil
 }

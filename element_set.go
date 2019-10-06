@@ -6,6 +6,7 @@ import (
 	"ztaylor.me/cast"
 )
 
+// ElementSet is AKA "Karma", set of (in?)active elements
 type ElementSet map[Element][]bool
 
 func (set ElementSet) GetActive() ElementMap {
@@ -34,34 +35,30 @@ func (set ElementSet) Reactivate() {
 
 func (set ElementSet) Deactivate(emp ElementMap) {
 	emp = emp.Copy()
-
 	for e, count := range emp {
-		if e == ELEMnull {
+		if e == ELEMnil {
 			continue
 		}
-
 		for i, active := range set[e] {
 			if active && count > 0 {
 				set[e][i] = false
 				count--
 			}
 		}
-
 		if count != 0 {
 			panic("game elements deactivate missing element: " + e.Char())
 		}
 	}
 
-	for e := ELEMwhite; emp[ELEMnull] > 0; e++ {
+	for e := ELEMwhite; emp[ELEMnil] > 0; e++ {
 		if e > ELEMblack {
 			panic("game elements deactivate missing generic")
 		}
-
 		for i, active := range set[e] {
 			if active {
 				set[e][i] = false
-				emp[ELEMnull]--
-				if emp[ELEMnull] < 1 {
+				emp[ELEMnil]--
+				if emp[ELEMnil] < 1 {
 					break
 				}
 			}
@@ -69,10 +66,10 @@ func (set ElementSet) Deactivate(emp ElementMap) {
 	}
 }
 
-func (set ElementSet) Json() Json {
-	json := Json{}
+func (set ElementSet) JSON() cast.JSON {
+	json := cast.JSON{}
 	for e, stack := range set {
-		json[cast.String(int(e))] = stack
+		json[cast.StringI(int(e))] = stack
 	}
 	return json
 }

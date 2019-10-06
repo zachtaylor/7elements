@@ -1,27 +1,27 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/animate"
+	vii "github.com/zachtaylor/7elements"
+
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine"
+	"ztaylor.me/cast"
 )
 
 const WandOfSuppressionID = "wand-of-suppression"
 
 func init() {
-	engine.Scripts[WandOfSuppressionID] = WandOfSuppression
+	game.Scripts[WandOfSuppressionID] = WandOfSuppression
 }
 
-func WandOfSuppression(game *game.T, seat *game.Seat, target interface{}) game.Event {
-	log := game.Log().Add("Target", target).Add("Username", seat.Username)
+func WandOfSuppression(g *game.T, seat *game.Seat, target interface{}) []game.Event {
+	log := g.Log().Add("Target", target).Add("Username", seat.Username)
 
-	gcid := CastString(target)
-	card := game.Cards[gcid]
+	gcid := cast.String(target)
+	card := g.Cards[gcid]
 	if card == nil {
 		log.Add("Error", "gcid not found").Error(WandOfSuppressionID)
 		return nil
-	} else if ownerSeat := game.GetSeat(card.Username); ownerSeat == nil {
+	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
 		log.Add("Error", "card owner not found").Error(WandOfSuppressionID)
 		return nil
 	} else if !ownerSeat.HasPresentCard(gcid) {
@@ -33,8 +33,8 @@ func WandOfSuppression(game *game.T, seat *game.Seat, target interface{}) game.E
 	}
 
 	card.IsAwake = false
-	animate.GameCard(game, card)
-	animate.GameSeat(game, seat)
+	g.SendAll(game.BuildCardUpdate(card))
+	g.SendAll(game.BuildSeatUpdate(seat))
 
 	log.Info(WandOfSuppressionID)
 	return nil

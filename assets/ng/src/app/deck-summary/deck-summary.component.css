@@ -1,6 +1,14 @@
 :host {
+  position:relative;
   border:2px solid black;
-  border-radius:3px;
-  overflow:auto;
-  width:100%;
+  border-radius:7px;
+  display:inline-block;
+  margin:var(--pad);
+}
+:host.active {
+  animation:rainbowbox 7s infinite;
+}
+.deck-cover {
+  width:360px;
+  height:250px;
 }

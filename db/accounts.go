@@ -3,42 +3,49 @@ package db
 import (
 	"time"
 
-	"github.com/zachtaylor/7elements"
+	vii "github.com/zachtaylor/7elements"
+	"ztaylor.me/db"
 )
 
-type AccountService map[string]*vii.Account
-
-func init() {
-	vii.AccountService = make(AccountService)
+type AccountService struct {
+	conn  *db.DB
+	cache map[string]*vii.Account
 }
 
-func (cache AccountService) Test(username string) *vii.Account {
-	return cache[username]
+func NewAccountService(db *db.DB) vii.AccountService {
+	return &AccountService{
+		conn:  db,
+		cache: make(map[string]*vii.Account),
+	}
 }
 
-func (cache AccountService) Cache(a *vii.Account) {
-	cache[a.Username] = a
+func (as *AccountService) Test(username string) *vii.Account {
+	return as.cache[username]
 }
 
-func (cache AccountService) Forget(username string) {
-	delete(cache, username)
+func (as *AccountService) Cache(a *vii.Account) {
+	as.cache[a.Username] = a
 }
 
-func (cache AccountService) Get(username string) (*vii.Account, error) {
-	if account := cache.Test(username); account != nil {
+func (as *AccountService) Forget(username string) {
+	delete(as.cache, username)
+}
+
+func (as *AccountService) Find(username string) (*vii.Account, error) {
+	if account := as.Test(username); account != nil {
 		return account, nil
 	}
 
-	if account, err := cache.Load(username); account == nil {
+	if account, err := as.Get(username); account == nil {
 		return nil, err
 	} else {
-		cache[username] = account
+		as.cache[username] = account
 		return account, nil
 	}
 }
 
-func (cache AccountService) Load(username string) (*vii.Account, error) {
-	row := Conn.QueryRow(
+func (as *AccountService) Get(username string) (*vii.Account, error) {
+	row := as.conn.QueryRow(
 		"SELECT username, email, password, skill, coins, register, lastlogin FROM accounts WHERE username=?",
 		username,
 	)
@@ -56,8 +63,19 @@ func (cache AccountService) Load(username string) (*vii.Account, error) {
 	return account, nil
 }
 
-func (cache AccountService) Insert(account *vii.Account) error {
-	_, err := Conn.Exec(
+func (as *AccountService) GetCount() (int, error) {
+	row := as.conn.QueryRow("SELECT COUNT(*) FROM accounts")
+
+	var ibuf int
+
+	if err := row.Scan(&ibuf); err != nil {
+		return -1, err
+	}
+	return ibuf, nil
+}
+
+func (as *AccountService) Insert(account *vii.Account) error {
+	_, err := as.conn.Exec(
 		"INSERT INTO accounts (username, email, password, skill, coins, register, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		account.Username,
 		account.Email,
@@ -71,13 +89,13 @@ func (cache AccountService) Insert(account *vii.Account) error {
 	return err
 }
 
-func (_ AccountService) UpdateCoins(account *vii.Account) error {
-	_, err := Conn.Exec("UPDATE accounts SET coins=? WHERE username=?", account.Coins, account.Username)
+func (as AccountService) UpdateCoins(account *vii.Account) error {
+	_, err := as.conn.Exec("UPDATE accounts SET coins=? WHERE username=?", account.Coins, account.Username)
 	return err
 }
 
-func (_ AccountService) UpdateLogin(account *vii.Account) error {
-	_, err := Conn.Exec(
+func (as AccountService) UpdateLogin(account *vii.Account) error {
+	_, err := as.conn.Exec(
 		"UPDATE accounts SET lastlogin=? WHERE username=?",
 		account.LastLogin.Unix(),
 		account.Username,
@@ -85,8 +103,8 @@ func (_ AccountService) UpdateLogin(account *vii.Account) error {
 	return err
 }
 
-func (_ AccountService) UpdatePassword(account *vii.Account) error {
-	_, err := Conn.Exec(
+func (as AccountService) UpdatePassword(account *vii.Account) error {
+	_, err := as.conn.Exec(
 		"UPDATE accounts SET password=? WHERE username=?",
 		account.Password,
 		account.Username,
@@ -94,7 +112,7 @@ func (_ AccountService) UpdatePassword(account *vii.Account) error {
 	return err
 }
 
-func (_ AccountService) Delete(username string) error {
-	_, err := Conn.Exec("DELETE FROM accounts WHERE username=?", username)
+func (as AccountService) Delete(username string) error {
+	_, err := as.conn.Exec("DELETE FROM accounts WHERE username=?", username)
 	return err
 }

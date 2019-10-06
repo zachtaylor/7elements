@@ -1,14 +1,13 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/animate"
+	vii "github.com/zachtaylor/7elements"
+
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine"
 )
 
 func init() {
-	engine.Scripts["call-the-banners"] = CallTheBanners
+	game.Scripts["call-the-banners"] = CallTheBanners
 }
 
 var ctbCard = &vii.Card{
@@ -24,13 +23,12 @@ var ctbCard = &vii.Card{
 	Powers: vii.NewPowers(),
 }
 
-func CallTheBanners(g *game.T, seat *game.Seat, target interface{}) game.Event {
+func CallTheBanners(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 	for i := 0; i < 3; i++ {
 		card := game.NewCard(ctbCard)
 		card.Username = seat.Username
-		card.IsToken = true
 		g.RegisterCard(card)
 	}
-	animate.GameSeat(g, seat)
+	g.SendAll(game.BuildSeatUpdate(seat))
 	return nil
 }

@@ -1,9 +1,9 @@
 package vii
 
 import (
-	"fmt"
 	"time"
-	"ztaylor.me/js"
+
+	"ztaylor.me/cast"
 )
 
 type AccountCard struct {
@@ -13,21 +13,25 @@ type AccountCard struct {
 	Notes    string
 }
 
-type AccountsCards map[int][]*AccountCard
+func (card *AccountCard) String() string {
+	return "{" + card.Username + ":" + cast.StringI(card.CardId) + "}"
+}
 
-func (stack AccountsCards) Json() js.Object {
-	j := js.Object{}
+type AccountCards map[int][]*AccountCard
+
+func (stack AccountCards) JSON() cast.JSON {
+	j := cast.JSON{}
 	for cardId, list := range stack {
-		j[fmt.Sprintf("%d", cardId)] = len(list)
+		j[cast.StringI(cardId)] = len(list)
 	}
 	return j
 }
 
-var AccountCardService interface {
-	Test(username string) AccountsCards
+type AccountCardService interface {
+	Test(username string) AccountCards
 	Forget(username string)
-	Get(username string) (AccountsCards, error)
-	Load(username string) (AccountsCards, error)
+	Find(username string) (AccountCards, error)
+	Get(username string) (AccountCards, error)
 	Insert(username string) error
 	InsertCard(card *AccountCard) error
 	Delete(username string) error

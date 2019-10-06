@@ -1,30 +1,35 @@
-<article title="7 Elements Online">
-  <div style="display:flex;flex-direction:row;">
-    <div class="qlink"><a routerLink="/cards">
-      <img>
-      Cards
-    </a></div>
-    <div class="qlink"><a routerLink="/packs">
-      <img>
-      Packs
-    </a></div>
-    <div class="qlink"><a routerLink="/decks">
-      <img>
-      Decks
-    </a></div>
-    <div class="qlink"><a routerLink="/games">
-      <img>
-      Games
-    </a></div>
-  </div>
-  <br/>
-  <h3>Patch Date: 2018-08-24</h3>
-  <br/>
-  <h3>People online right now: {{(conn.ping$ | async)?.online}}</h3>
+<br/><br/>
+<article>
+  <article-header>7 Elements Online</article-header>
+  <article-body>
+    Patch Date: 2019-10-07 (database reset)
+    <br/><br/>
+    <a routerLink="/updates">Click here</a> for patch notes
+  </article-body>
 </article>
-<article title="First time">
-  Click here for an introduction <a routerLink="/intro">/intro</a>
+<br/><br/>
+<br/><br/>
+<article *ngIf="conn.ping$ | async as ping">
+  <article-header>People online right now</article-header>
+  <article-body>
+    {{ping.online}} / {{conn.global$.value.users}}
+  </article-body>
 </article>
-<article title="Returning players">
-  Visit the chat room <a routerLink="/chats">/chats</a>
+<br/><br/>
+<br/><br/>
+<article>
+  <article-header>Introduction</article-header>
+  <article-body>
+    <a routerLink="/intro">Click here</a> to learn how to play
+  </article-body>
 </article>
+<br/><br/>
+<br/><br/>
+<article>
+    <article-header>Chat Room</article-header>
+  <article-body>
+    <a routerLink="/chats">Click here</a> to visit the chat room
+  </article-body>
+</article>
+<br/><br/>
+<br/><br/>

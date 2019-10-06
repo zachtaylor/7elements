@@ -1,5 +1,6 @@
-<article title="Deck Details">
-  <ng-container *ngIf="conn.ping$ | async as ping">
-      <app-deck-detail [deck]="conn.getDeck(ping, id)"></app-deck-detail>
-  </ng-container>
+<article>
+  <article-header>Deck Details</article-header>
+  <article-body>
+    <app-deck-detail [deck]="conn.getDeck(id)"></app-deck-detail>
+  </article-body>
 </article>

@@ -1,8 +1,9 @@
 package vii
 
 import (
-	"strconv"
 	"time"
+
+	"ztaylor.me/cast"
 )
 
 type AccountDeck struct {
@@ -12,7 +13,7 @@ type AccountDeck struct {
 	Register time.Time
 	Cards    map[int]int
 	Wins     int
-	Color    string
+	CoverID  int
 }
 
 func NewAccountDeck() *AccountDeck {
@@ -42,31 +43,34 @@ func (deck *AccountDeck) Count() int {
 	return total
 }
 
-func (deck *AccountDeck) Json() Json {
-	return Json{
+func (deck *AccountDeck) JSON() cast.JSON {
+	cardsJSON := cast.JSON{}
+	for cardid, count := range deck.Cards {
+		cardsJSON[cast.StringI(cardid)] = count
+	}
+	return cast.JSON{
 		"id":       deck.ID,
 		"name":     deck.Name,
 		"username": deck.Username,
-		"cards":    deck.Cards,
+		"cards":    cardsJSON,
 		"wins":     deck.Wins,
-		"color":    deck.Color,
+		"cover":    "/img/card/" + cast.StringI(deck.CoverID) + ".jpg",
 	}
 }
 
 type AccountDecks []*AccountDeck
 
-func (decks AccountDecks) Json() Json {
-	data := Json{}
+func (decks AccountDecks) JSON() cast.JSON {
+	data := cast.JSON{}
 	for _, deck := range decks {
-		data[strconv.Itoa(deck.ID)] = deck.Json()
+		data[cast.StringI(deck.ID)] = deck.JSON()
 	}
 	return data
 }
 
-var AccountDeckService interface {
-	Get(username string) (AccountDecks, error)
+type AccountDeckService interface {
+	Find(username string) (AccountDecks, error)
 	Forget(username string)
 	Update(deck *AccountDeck) error
 	UpdateName(username string, id int, name string) error
-	UpdateTallyWinCount(username string, deckid int) error
 }

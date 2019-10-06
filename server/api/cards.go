@@ -1,15 +1,10 @@
 package api
 
-import "ztaylor.me/js"
+// 	"strconv"
 
-import (
-	// 	"strconv"
-
-	"github.com/zachtaylor/7elements"
-	// 	"ztaylor.me/http"
-	// 	"ztaylor.me/js"
-	// 	"ztaylor.me/log"
-)
+// 	"ztaylor.me/http"
+// 	"ztaylor.me/js"
+// 	"ztaylor.me/log"
 
 // func CardsHandler(r *http.Quest) error {
 // 	if r.Quest == "/api/cards.json" {
@@ -26,11 +21,3 @@ import (
 // 	}
 // 	return nil
 // }
-
-func AllCardsJson() []js.Object {
-	j := make([]js.Object, 0)
-	for _, card := range vii.CardService.GetAll() {
-		j = append(j, card.Json())
-	}
-	return j
-}

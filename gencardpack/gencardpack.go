@@ -1,44 +1,39 @@
 package gencardpack
 
-// import (
-// 	"time"
+import (
+	"time"
 
-// 	"github.com/cznic/mathutil"
-// 	"github.com/zachtaylor/7elements"
-// )
+	"github.com/cznic/mathutil"
+	vii "github.com/zachtaylor/7elements"
+)
 
-// var rand [7]*mathutil.FC32
+var rand, _ = mathutil.NewFC32(1, 98, true)
 
-// func init() {
-// 	var seeds = []int64{1, 2, 3, 4, 5, 6, 7}
-// 	for i := 0; i < len(rand); i++ {
-// 		rand[i], _ = mathutil.NewFC32(1, 50, true)
-// 		rand[i].Seed(seeds[i])
-// 	}
-// }
+func NewPack(rt *vii.Runtime, username string, pack *vii.Pack) []*vii.AccountCard {
+	cards := make([]*vii.AccountCard, pack.Size)
+	register := time.Now()
+	packDelta := len(pack.Cards)
 
-// func NewPack(username string) []*vii.AccountCard {
-// 	pack := make([]*vii.AccountCard, 7)
-// 	register := time.Now()
+	for i := 0; i < pack.Size; i++ {
+		cardid := 0
+		for ok := true; ok; ok = checkInPack(cards, cardid) {
+			cardid = pack.Cards[int(rand.Next())%packDelta].CardID
+		}
+		cards[i] = &vii.AccountCard{
+			Username: username,
+			CardId:   cardid,
+			Register: register,
+		}
+	}
 
-// 	for i, cardRandomFC32 := range rand {
-// 		cardid := int(cardRandomFC32.Next())
-// 		for ; checkInPack(pack, cardid); cardid = int(cardRandomFC32.Next()) {
-// 		}
-// 		pack[i] = &vii.AccountCard{
-// 			Username: username,
-// 			CardId:   cardid,
-// 			Register: register,
-// 		}
-// 	}
-// 	return pack
-// }
+	return cards
+}
 
-// func checkInPack(pack []*vii.AccountCard, id int) bool {
-// 	for _, card := range pack {
-// 		if card != nil && card.CardId == id {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
+func checkInPack(pack []*vii.AccountCard, id int) bool {
+	for _, card := range pack {
+		if card != nil && card.CardId == id {
+			return true
+		}
+	}
+	return false
+}

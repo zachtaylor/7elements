@@ -20,7 +20,7 @@ CREATE TABLE accounts_decks (
 	id INT,
 	name VARCHAR(255),
 	wins INT,
-	color VARCHAR(255),
+	cover INT,
 	register INT,
 	CONSTRAINT FOREIGN KEY (username)	REFERENCES accounts(username)
 		ON DELETE CASCADE
@@ -84,7 +84,7 @@ CREATE TABLE decks (
 	id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	name VARCHAR(255),
 	level INT,
-	color VARCHAR(255)) ENGINE=InnoDB;
+	cover VARCHAR(255)) ENGINE=InnoDB;
 CREATE TABLE decks_items (
 	deckid INT,
 	cardid INT,

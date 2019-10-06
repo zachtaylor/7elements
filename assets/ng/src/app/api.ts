@@ -35,15 +35,60 @@ export class Deck {
   username : string
   level : number
   wins : number
-  color : string
+  cover : string
   cards : Map<number, number>
 }
 
 export class Game {
   id : string
-  hand : Array<Card>
-  elements : Array<number>
-  opponents : Array<string>
+  life : number
+  hand : Array<GameCard>
+  events : Array<String>
+  state : GameState
+  username : string
+  opponent : string
+  elements : Map<number, Array<boolean>>
+  seats : Map<string, GameSeat>
+
+  constructor() {
+    this.elements = new Map<number, Array<boolean>>()
+    this.seats = new Map<string, GameSeat>()
+  }
+}
+
+export class GameState {
+  id : string
+  name : string
+  data : any
+  seat : string
+  timer : number
+  reacts : Map<string, string>
+}
+
+export class GameSeat {
+  username : string
+  elements : Map<number, Array<boolean>>
+  active : Map<string, GameCard>
+  hand : number
+  past : Map<string, GameCard>
+  future : number
+  life : number
+  color : string
+}
+
+export class GameCard {
+  gcid : string
+  cardid : number
+  name : string
+  text : string
+  username : string
+  image : string
+  awake : boolean
+  powers : Array<Power>
+  body? : {
+    attack : number
+    health : number
+  }
 }
 
 export class MyAccount {
@@ -53,7 +98,7 @@ export class MyAccount {
   coins : number
   cards : Map<number, number>
   decks : Array<Deck>
-  games : Array<Game>
+  gameid : number
 }
 
 export class Notification {
@@ -63,9 +108,14 @@ export class Notification {
 }
 
 export class PingData {
+  online : number
+}
+
+export class GlobalData {
   cards : Array<Card>
   decks : Array<Deck>
-  online : number
+  packs : Array<any>
+  users : number
 }
 
 export class Power {
@@ -76,4 +126,22 @@ export class Power {
   usesturn : boolean
   useskill : boolean
   target : string
+}
+
+export class Settings {
+  deck : {
+    id : number
+    account : boolean
+  }
+  game : {
+    hand : boolean
+    zoom : GameCard
+    target : Target
+  }
+}
+
+export class Target {
+  display : string
+  helper : string
+  send : any
 }

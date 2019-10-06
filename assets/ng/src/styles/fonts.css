@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=Macondo|Open+Sans');
+.fnta { /* Font A is 'Open Sans' */
+  font-family:'Open Sans';
+}
+.fntb { /* Font B is 'Macondo' */
+  font-family:'Macondo';
+}
+
+/* [ui-font~="s"] {
+  font-family:'Macondo';
+} */

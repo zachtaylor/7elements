@@ -1,39 +1,34 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/animate"
+	vii "github.com/zachtaylor/7elements"
+
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine"
 	"ztaylor.me/log"
 )
 
 const SummonersPortalID = "summoners-portal"
 
 func init() {
-	engine.Scripts[SummonersPortalID] = SummonersPortal
+	game.Scripts[SummonersPortalID] = SummonersPortal
 }
 
-func SummonersPortal(game *game.T, seat *game.Seat, target interface{}) game.Event {
+func SummonersPortal(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 	card := seat.Deck.Draw()
-	log := game.Log().WithFields(log.Fields{
+	log := g.Log().With(log.Fields{
 		"Username": seat.Username,
 		"Card":     card,
-	})
+	}).Tag("/scripts/" + SummonersPortalID)
 
 	if card == nil {
-		log.Error(SummonersPortalID + `: card is nil`)
+		log.Error(`card is nil`)
 	} else if card.Card.Type == vii.CTYPbody || card.Card.Type == vii.CTYPitem {
 		seat.Present[card.Id] = card
-		animate.GameSpawn(game, card)
-
-		if power := card.Card.GetPlayPower(); power != nil {
-			engine.Script(game, seat, power, target)
-		}
+		g.SendAll(game.BuildSpawnUpdate(g, card))
 	} else {
 		log.Add("BurnedCard", true)
 		seat.Past[card.Id] = card
-		animate.GameSeat(game, seat)
+		g.SendAll(game.BuildSeatUpdate(seat))
 	}
 	log.Info(SummonersPortalID)
 	return nil

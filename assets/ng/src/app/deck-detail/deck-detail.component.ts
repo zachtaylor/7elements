@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { Deck } from '../api'
+import { Deck, GlobalData, Card } from '../api'
 import { ConnService } from '../conn.service'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-deck-detail',
@@ -16,4 +17,6 @@ export class DeckDetailComponent implements OnInit {
   ngOnInit() {
   }
 
+  ngOnDestroy() {
+  }
 }

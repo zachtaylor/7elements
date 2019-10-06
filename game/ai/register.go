@@ -4,21 +4,16 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/log"
+	vii "github.com/zachtaylor/7elements"
 )
 
-func Register(game *game.T) {
+// GetAccountDeck creates a deck for the AI to play
+func GetAccountDeck(service vii.DeckService) *vii.AccountDeck {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	decks, err := vii.DeckService.GetAll()
+	decks, err := service.GetAll()
 	if err != nil {
-		log.Add("Error", err).Error("ai/register: decks")
-		return
+		return nil
 	}
 	i := (r.Int() % len(decks)) + 1
-	deck := vii.NewAccountDeckWith(decks[i], "A.I.")
-	seat := game.Register(deck)
-	ConnectAI(game, seat)
-	log.Add("Deck", deck.Name).Info("ai/register: decks")
+	return vii.NewAccountDeckWith(decks[i], Username)
 }

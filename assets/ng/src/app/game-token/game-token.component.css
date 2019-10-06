@@ -1,0 +1,17 @@
+:host {
+  display:inline-block;
+  border:2px solid black;
+  padding:2px;
+  margin-left:2px;
+  border-radius:7px;
+  background-color:whitesmoke;
+}
+:host.triggered {
+  animation:rainbowbox 7s infinite;
+}
+.card-art {
+  height:124px;
+}
+span.name {
+  font-size:21px;
+}

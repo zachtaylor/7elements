@@ -1,10 +1,6 @@
 package vii
 
-import (
-	"fmt"
-
-	"ztaylor.me/js"
-)
+import "ztaylor.me/cast"
 
 type Power struct {
 	Id       int
@@ -23,10 +19,11 @@ func NewPower() *Power {
 	}
 }
 
-func (p Power) Copy() *Power {
+func (p *Power) Copy() *Power {
 	return &Power{
 		Id:       p.Id,
 		Text:     p.Text,
+		Trigger:  p.Trigger,
 		Costs:    p.Costs.Copy(),
 		Target:   p.Target,
 		UsesTurn: p.UsesTurn,
@@ -35,11 +32,11 @@ func (p Power) Copy() *Power {
 	}
 }
 
-func (p *Power) Json() js.Object {
-	return js.Object{
+func (p *Power) JSON() cast.JSON {
+	return cast.JSON{
 		"id":       p.Id,
 		"text":     p.Text,
-		"costs":    p.Costs,
+		"costs":    p.Costs.JSON(),
 		"trigger":  p.Trigger,
 		"target":   p.Target,
 		"usesturn": p.UsesTurn,
@@ -61,13 +58,23 @@ func (p Powers) Copy() Powers {
 	return cp
 }
 
-func (powers Powers) Json() js.Object {
+func (powers Powers) GetTrigger(name string) []*Power {
+	ps := make([]*Power, 0)
+	for _, p := range powers {
+		if p.Trigger == name {
+			ps = append(ps, p)
+		}
+	}
+	return ps
+}
+
+func (powers Powers) JSON() []cast.JSON {
 	if powers == nil {
 		return nil
 	}
-	json := js.Object{}
-	for id, p := range powers {
-		json[fmt.Sprint(id)] = p.Json()
+	json := make([]cast.JSON, 0)
+	for _, power := range powers {
+		json = append(json, power.JSON())
 	}
 	return json
 }

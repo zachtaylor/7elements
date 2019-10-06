@@ -1,57 +1,65 @@
 package game
 
 import (
-	"github.com/zachtaylor/7elements"
+	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/chat"
+	"ztaylor.me/cast"
 	"ztaylor.me/keygen"
 	"ztaylor.me/log"
 )
 
 type T struct {
-	id       string
-	in       chan *Request
-	Cards    Cards
-	Seats    map[string]*Seat
-	State    *State
-	Settings *Settings
-	Logger   *log.Logger
+	id      string
+	in      chan *Request
+	chat    *chat.Room
+	close   chan bool
+	Cards   Cards
+	Seats   map[string]*Seat
+	State   *State
+	Runtime *Runtime
 }
 
-func New(id string, logger *log.Logger, settings *Settings) *T {
-	return &T{
-		id:       id,
-		in:       make(chan *Request),
-		Cards:    make(Cards),
-		Seats:    make(map[string]*Seat),
-		Settings: settings,
-		Logger:   logger,
+func New(id string, rt *Runtime) *T {
+	game := &T{
+		id:      id,
+		in:      make(chan *Request),
+		chat:    rt.chat.New(`game#`+id, 21),
+		close:   make(chan bool),
+		Cards:   make(Cards),
+		Seats:   make(map[string]*Seat),
+		Runtime: rt,
 	}
+	return game
 }
 
 func (game *T) ID() string {
 	return game.id
 }
 
+func (game *T) GetChat() *chat.Room {
+	return game.chat
+}
+
 func (game T) String() string {
-	return "T#" + game.id
+	return "Game#" + game.id
 }
 
-func (game *T) Log() log.Log {
-	return game.Logger.New()
+func (game *T) Log() *log.Entry {
+	return game.Runtime.logger.New()
 }
 
-func (game *T) NewState(seat string, event Event) *State {
+func (game *T) NewState(event Event) *State {
 	id := keygen.NewVal()
 	return &State{
 		id:     id,
-		Seat:   seat,
-		Timer:  game.Settings.Timeout,
+		Timer:  game.Runtime.Timeout,
 		Reacts: make(map[string]string),
 		Event:  event,
 	}
 }
 
 // Request buffers a *game.Request, returning immediately
-func (game *T) Request(username string, uri string, data vii.Json) {
+func (game *T) Request(username string, uri string, data cast.JSON) {
 	go game.request(&Request{
 		Username: username,
 		URI:      uri,
@@ -59,7 +67,9 @@ func (game *T) Request(username string, uri string, data vii.Json) {
 	})
 }
 func (game *T) request(r *Request) {
-	game.in <- r
+	if game.in != nil {
+		game.in <- r
+	}
 }
 
 func (game *T) Monitor() <-chan *Request {
@@ -100,9 +110,9 @@ func (game *T) Register(deck *vii.AccountDeck) *Seat {
 	deckSize := 0
 
 	for cardid, copies := range deck.Cards {
-		card, _ := vii.CardService.Get(cardid)
+		card, _ := game.Runtime.Root.Cards.Get(cardid)
 		if card == nil {
-			log.Clone().Add("CardId", cardid).Warn("register: card missing")
+			log.Copy().Add("CardId", cardid).Warn("register: card missing")
 			return nil
 		}
 
@@ -129,34 +139,49 @@ func (game *T) RegisterCard(card *Card) {
 	game.Cards[card.Id] = card
 }
 
-func (game *T) WriteJson(json vii.Json) {
+// SendAll sends data to all seats
+func (game *T) SendAll(json cast.JSON) {
 	for _, seat := range game.Seats {
-		seat.WriteJson(json)
+		seat.Send(json)
 	}
 }
 
-func (game *T) Json(name string) vii.Json {
-	seat := game.GetSeat(name)
-	seats := vii.Json{}
-	for _, s := range game.Seats {
-		seats[s.Username] = s.Json(false)
+// GetCloser returns the game open chan
+func (game *T) Done() chan bool {
+	return game.close
+}
+
+// Close ends the game, freeing resources
+func (game *T) Close() {
+	game.Runtime.logger.New().
+		// With(log.Fields{}).
+		Info("close") // add fields later
+	close(game.in)
+	game.in = nil
+	close(game.close)
+	game.close = nil
+	game.chat.Destroy()
+	game.Runtime.logger.Close()
+}
+
+// PerspectiveJSON returns JSON representation of a game
+func (game *T) PerspectiveJSON(name string) cast.JSON {
+	if game == nil {
+		return nil
 	}
-	return vii.Json{
-		"id":       game.id,
+	seat := game.GetSeat(name)
+	seats := cast.JSON{}
+	for _, s := range game.Seats {
+		seats[s.Username] = s.JSON()
+	}
+	return cast.JSON{
+		"id":       game.ID(),
 		"life":     seat.Life,
-		"hand":     seat.Hand.Json(),
-		"state":    game.State.Json(game),
-		"elements": seat.Elements.Json(),
+		"hand":     seat.Hand.JSON(),
+		"state":    game.State.JSON(),
+		"elements": seat.Elements.JSON(),
 		"username": name,
 		"opponent": game.GetOpponentSeat(name).Username,
 		"seats":    seats,
 	}
-}
-
-// Stop ends the game and removes it from the service
-func (game *T) Stop() {
-	Service.Forget(game.id)
-	log.Protect(func() {
-		close(game.in)
-	})
 }

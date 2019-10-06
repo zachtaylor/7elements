@@ -1,9 +1,8 @@
 package vii
 
-import "ztaylor.me/js"
+import "ztaylor.me/cast"
 
-type Json = js.Object
-
-type JsonWriter interface {
-	WriteJson(Json)
+// JSONWriter is a Writer that accepts JSON
+type JSONWriter interface {
+	WriteJSON(cast.JSON)
 }

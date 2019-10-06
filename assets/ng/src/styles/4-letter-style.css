@@ -1,0 +1,69 @@
+/* 4 letter words */
+.clrl {
+	clear:left;
+}
+.clrr {
+	clear:right;
+}
+.clrb {
+	clear:both;
+}
+.dblk {
+	display:block;
+}
+.dinl {
+  display:inline-block;
+}
+.flxc {
+	display:flex;
+	flex-direction:column;
+}
+.flxr {
+	display:flex;
+	flex-direction:row;
+}
+.flx1 {
+	flex:1;
+}
+.fltl {
+  float:left;
+}
+.fltr {
+  float:right;
+}
+.lft0 {
+	left:0%;
+}
+.posa {
+	position:absolute;
+}
+.posr {
+	position:relative;
+}
+.posf {
+	position:fixed;
+}
+.rit0 {
+	right:0%;
+}
+.talc {
+	text-align:center;
+}
+.tall {
+	text-align:left;
+}
+.talr {
+	text-align:right;
+}
+.vatb {
+	vertical-align:text-bottom;
+}
+.bot0 {
+	bottom:0%;
+}
+.w100 {
+	width:100%;
+}
+.h100 {
+	height:100%;
+}

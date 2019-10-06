@@ -1,6 +1,13 @@
-<div class="paper">
-  <div class="title">{{title}}</div>
+<div class="page">
+  <div #header class="header">
+    <ng-content select="article-header"></ng-content>
+  </div>
+  <hr *ngIf="header.innerHTML.trim()" />
   <div class="body">
-    <ng-content></ng-content>
+    <ng-content select="article-body"></ng-content>
+  </div>
+  <hr *ngIf="footer.innerHTML.trim()" />
+  <div #footer class="footer">
+    <ng-content select="article-footer"></ng-content>
   </div>
 </div>

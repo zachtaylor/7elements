@@ -1,0 +1,243 @@
+<div *ngIf="conn.isLoggedIn(); then loggedIn; else loggedOut"></div>
+<!-- logged in -->
+<ng-template #loggedIn>
+  <div *ngIf="game; then showGame; else noGame"></div>
+  <!-- show game -->
+  <ng-template #showGame>
+    <!-- seats menu -->
+    <div class="flx1 flxc">
+      <app-game-seat [username]="game.opponent"></app-game-seat>
+      <hr/>
+      <app-game-seat [username]="game.username"></app-game-seat>
+    </div>
+    <!-- hand menu menu -->
+    <div class="hand" [style.margin-bottom.px]="settings.game.hand ? 0 : -319">
+      <div class="flxr">
+        <button (click)="settings.game.hand=!settings.game.hand">
+          <img adapt="2" src="/img/icon/hand.svg">
+        </button>
+        <input class="flx1" #chatinput (keyup.enter)="sendChat(game, chatinput)">
+        <button (click)="sendPass(game)" class="fntc" [disabled]="game.state.reacts[game.username]"><span>PASS</span></button>
+      </div>
+      <div class="flxr">
+        <a *ngFor="let card of game.hand | mapValues" (click)="clickHand(game, card)">
+          <app-card-detail [card]="card"></app-card-detail>
+        </a>
+      </div>
+    </div>
+    <!-- start menu -->
+    <overlay *ngIf="showStartOverlay(game)" title="Start Menu">
+      Keep your starting hand? <a (click)="sendChoice(game, 'keep')" class="fltr">Click here to keep</a>
+      <br/><br/>
+      You may discard it, and draw a new hand <a (click)="sendChoice(game, 'mulligan')" class="fltr">Click here to mulligan</a>
+      <br/><br/>
+      <app-card-detail *ngFor="let card of game.hand | mapValues" [card]="card"></app-card-detail>
+    </overlay>
+    <!-- sunrise menu -->
+    <overlay *ngIf="showSunriseOverlay(game)" title="Create a new Element">
+      <div class="flexr" style="text-align:center;">
+      <button *ngFor="let i of [1,2,3,4,5,6,7]" (click)="sendSunriseElement(game, i)">
+        <img src="/img/icon/element-{{i}}.png">
+      </button>
+    </div>
+    </overlay>
+    <!-- react menu -->
+    <overlay *ngIf="showPlayOverlay(game)"title="{{game.state.data.card.username}} played {{game.state.data.card.name}}">
+      <app-card-detail [card]="game.state.data.card"></app-card-detail>
+      <br/><br/>
+      <a (click)="sendPass(game)">Dismiss</a>
+    </overlay>
+    <!-- choice menu -->
+    <overlay *ngIf="showChoiceOverlay(game)" title="{{game.state.data.prompt}}">
+      <button *ngFor="let i of game.state.data.choices" (click)="sendChoice(game, i.choice)" [innerHTML]="i.display"></button>
+    </overlay>
+    <!-- zoom overlay -->
+    <overlay *ngIf="settings.game.zoom" title="{{settings.game.zoom.name}}">
+      <div class="flxr">
+        <app-card-detail [card]="settings.game.zoom"></app-card-detail>
+        <div class="diln flxc">
+          <ng-container *ngIf="settings.game.zoom.username==game.username">
+            <span *ngFor="let power of settings.game.zoom.powers">
+              <ng-container *ngIf="zoomShowPower(settings.game.zoom, power)" >
+                <a (click)="clickPower(game, settings.game.zoom, power)">
+                  {{powerString(power)}}
+                </a>
+                <br/>
+              </ng-container>
+            </span>
+            <span *ngIf="settings.game.zoom.awake&&game.state.name=='main'&&game.username==game.state.seat">
+              <a (click)="clickAttack(game, settings.game.zoom.gcid)">attack</a>
+              <br/>
+            </span>
+            <span *ngIf="settings.game.zoom.awake&&game.state.name=='attack'&&game.username!=game.state.seat">
+              <a (click)="clickDefend(game, settings.game.zoom.gcid)">defend</a>
+              <br/>
+            </span>
+          </ng-container>
+          <span class="flx1"></span>
+          <a (click)="settings.game.zoom=null">dismiss</a>
+        </div>
+      </div>
+    </overlay>
+    <!-- target being overlay -->
+    <overlay *ngIf="settings.game.target && settings.game.target.helper=='being'" title="Target Being">
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.opponent].active | mapValues" >
+          <app-game-token *ngIf="card.body" [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <hr/>
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.username].active | mapValues" >
+          <app-game-token *ngIf="card.body" [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <div>
+        <a (click)="settings.game.target=null">dismiss</a>
+      </div>
+    </overlay>
+    <!-- target past-being overlay -->
+    <overlay *ngIf="settings.game.target && settings.game.target.helper=='past-being'" title="Target Being">
+      <div>{{game.opponent}}</div>
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.opponent].past | mapValues" >
+          <app-game-token *ngIf="card.body" [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <hr/>
+      <div>{{game.username}}</div>
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.username].past | mapValues" >
+          <app-game-token *ngIf="card.body" [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <div>
+        <a (click)="settings.game.target=null">dismiss</a>
+      </div>
+    </overlay>
+    <!-- target mypast-being overlay -->
+    <overlay *ngIf="settings.game.target && settings.game.target.helper=='mypast-being'" title="Target Being">
+      <div>{{game.username}}</div>
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.username].past | mapValues" >
+          <app-game-token *ngIf="card.body" [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <div>
+        <a (click)="settings.game.target=null">dismiss</a>
+      </div>
+    </overlay>
+    <!-- target player-being overlay -->
+    <overlay *ngIf="settings.game.target && settings.game.target.helper=='player-being'" title="Target Body or Player">
+      <div>
+        <a (click)="clickTarget(game, game.opponent)">{{game.opponent}}</a>
+      </div>
+      <carousel >
+        <ng-container *ngFor="let card of game.seats[game.opponent].active | mapValues" >
+          <app-game-token *ngIf="card.body" [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <hr/>
+      <div>
+        <a (click)="clickTarget(game, game.username)">{{game.username}}</a>
+      </div>
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.username].active | mapValues" >
+          <app-game-token *ngIf="card.body" [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <div>
+        <a (click)="settings.game.target=null">dismiss</a>
+      </div>
+    </overlay> 
+    <!-- target being-item overlay -->
+    <overlay *ngIf="settings.game.target && settings.game.target.helper=='being-item'" title="Target Body or Item">
+      <div class="fnt1">{{game.opponent}}</div>
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.opponent].active | mapValues" >
+          <app-game-token [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <hr/>
+      <div class="fnt1">{{game.username}}</div>
+      <carousel>
+        <ng-container *ngFor="let card of game.seats[game.username].active | mapValues" >
+          <app-game-token [card]="card" [game]="game" (click)="clickTarget(game, card.gcid)"></app-game-token>
+        </ng-container>
+      </carousel>
+      <div>
+        <a (click)="settings.game.target=null">dismiss</a>
+      </div>
+    </overlay>
+    <!-- end menu -->
+    <overlay *ngIf="showEndOverlay(game)" title="End Menu">
+      <br/>
+      <ng-container *ngIf="game.username==game.state.data.winner">
+        <a (click)="clickEnd(game)">¡You Win!</a>
+      </ng-container>
+      <ng-container *ngIf="game.username==game.state.data.loser">
+        <a (click)="clickEnd(game)">You Lost</a>
+      </ng-container>
+      <br/>
+    </overlay>
+  </ng-template>
+  <!-- no game -->
+  <ng-template #noGame>
+    <div class="h100 w100" style="overflow:auto;">
+      <article>
+        <article-header>Start a New Game</article-header>
+        <article-body>Select your active Deck below, and then click to start a new Game</article-body>
+        <article-footer>
+          <button (click)="startVsAiGame()"><span>Play VS AI</span></button>
+          <button (click)="startVsHumanQueue()" disabled><span>Play VS Human</span></button>
+          PvP will be enabled in a later update
+        </article-footer>
+      </article>
+      <br/>
+      <article>
+        <article-header>Current Free-to-Play Decks</article-header>
+        <article-body>
+          <app-deck-summary *ngFor="let deck of glob?.decks | mapValues" [deck]="deck">
+            <a class="fltr" [routerLink]="['/decks', deck.id]" class="fltr">
+              <img adapt="1" src="/img/icon/magnify.svg">
+            </a>
+            <img adapt="1" *ngIf="(!settings.deck.account)&&settings.deck.id==deck.id" 
+                src="/img/icon/star.svg">
+            <button *ngIf="settings.deck.account||settings.deck.id!=deck.id"
+              (click)="setActiveDeck(false, deck.id)">
+              <img adapt="2" src="/img/icon/hand.svg">
+            </button>
+          </app-deck-summary>
+        </article-body>
+      </article>
+      <br/>
+      <article *ngIf="myaccount">
+        <article-header>Your Decks</article-header>
+        <article-body>
+          Sorry about that, deck building will come with a future update
+          <!-- <app-deck-summary *ngFor="let deck of myaccount?.decks | mapValues" [deck]="deck">
+            <a class="fltr" [routerLink]="['/mydecks', deck.id]" class="fltr">
+              <img adapt="1" src="/img/icon/pencil.svg">
+            </a>
+            <img adapt="1" *ngIf="settings.deck.account&&settings.deck.id==deck.id" 
+                src="/img/icon/star.svg">
+            <button *ngIf="(!settings.deck.account)||settings.deck.id!=deck.id"
+              (click)="setActiveDeck(true, deck.id)">
+              <img adapt="2" src="/img/icon/hand.svg">
+            </button>
+          </app-deck-summary> -->
+        </article-body>
+      </article>
+      <br/>
+    </div>
+  </ng-template>
+</ng-template>
+<!-- logged out -->
+<ng-template #loggedOut>
+  <article>
+    <article-header>Start a New Game</article-header>
+    <article-body>
+      Please <a routerLink="/myaccount">Click here</a> to login!
+    </article-body>
+  </article>
+</ng-template>

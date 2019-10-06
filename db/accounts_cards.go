@@ -4,36 +4,43 @@ import (
 	"errors"
 	"time"
 
-	"github.com/zachtaylor/7elements"
+	vii "github.com/zachtaylor/7elements"
+	"ztaylor.me/db"
 )
 
-func init() {
-	vii.AccountCardService = make(AccountCardService)
+type AccountCardService struct {
+	conn  *db.DB
+	cache map[string]vii.AccountCards
 }
 
-type AccountCardService map[string]vii.AccountsCards
-
-func (service AccountCardService) Test(username string) vii.AccountsCards {
-	return service[username]
+func NewAccountCardService(db *db.DB) vii.AccountCardService {
+	return &AccountCardService{
+		conn:  db,
+		cache: make(map[string]vii.AccountCards),
+	}
 }
 
-func (service AccountCardService) Forget(username string) {
-	delete(service, username)
+func (acs *AccountCardService) Test(username string) vii.AccountCards {
+	return acs.cache[username]
 }
 
-func (service AccountCardService) Get(username string) (vii.AccountsCards, error) {
-	if service[username] == nil {
-		if stack, err := service.Load(username); err != nil {
+func (acs *AccountCardService) Forget(username string) {
+	delete(acs.cache, username)
+}
+
+func (acs *AccountCardService) Find(username string) (vii.AccountCards, error) {
+	if acs.cache[username] == nil {
+		if stack, err := acs.Get(username); err != nil {
 			return nil, err
 		} else {
-			service[username] = stack
+			acs.cache[username] = stack
 		}
 	}
-	return service[username], nil
+	return acs.cache[username], nil
 }
 
-func (service AccountCardService) Load(username string) (vii.AccountsCards, error) {
-	rows, err := Conn.Query("SELECT username, card, register, notes FROM accounts_cards WHERE username=?",
+func (acs *AccountCardService) Get(username string) (vii.AccountCards, error) {
+	rows, err := acs.conn.Query("SELECT username, card, register, notes FROM accounts_cards WHERE username=?",
 		username,
 	)
 
@@ -41,7 +48,7 @@ func (service AccountCardService) Load(username string) (vii.AccountsCards, erro
 		return nil, err
 	}
 
-	collection := vii.AccountsCards{}
+	collection := vii.AccountCards{}
 
 	for rows.Next() {
 		accountcard := &vii.AccountCard{}
@@ -65,15 +72,15 @@ func (service AccountCardService) Load(username string) (vii.AccountsCards, erro
 	return collection, nil
 }
 
-func (service AccountCardService) Insert(username string) error {
-	stack := service.Test(username)
+func (acs *AccountCardService) Insert(username string) error {
+	stack := acs.Test(username)
 	if stack == nil {
 		return errors.New("accountscards missing")
 	}
 
 	for _, list := range stack {
 		for _, accountcard := range list {
-			if err := service.InsertCard(accountcard); err != nil {
+			if err := acs.InsertCard(accountcard); err != nil {
 				return err
 			}
 		}
@@ -82,8 +89,17 @@ func (service AccountCardService) Insert(username string) error {
 	return nil
 }
 
-func (service AccountCardService) InsertCard(card *vii.AccountCard) error {
-	_, err := Conn.Exec("INSERT INTO accounts_cards(username, card, register, notes) VALUES (?, ?, ?, ?)",
+func (acs *AccountCardService) InsertCard(card *vii.AccountCard) error {
+	if acs.cache[card.Username] == nil {
+		acs.cache[card.Username] = vii.AccountCards{}
+	}
+	cards := acs.cache[card.Username]
+	if list := cards[card.CardId]; list == nil {
+		cards[card.CardId] = make([]*vii.AccountCard, 0)
+	}
+	cards[card.CardId] = append(cards[card.CardId], card)
+	acs.cache[card.Username] = cards
+	_, err := acs.conn.Exec("INSERT INTO accounts_cards(username, card, register, notes) VALUES (?, ?, ?, ?)",
 		card.Username,
 		card.CardId,
 		card.Register.Unix(),
@@ -92,8 +108,8 @@ func (service AccountCardService) InsertCard(card *vii.AccountCard) error {
 	return err
 }
 
-func (service AccountCardService) Delete(username string) error {
-	_, err := Conn.Exec("DELETE FROM accounts_cards WHERE username=?",
+func (acs *AccountCardService) Delete(username string) error {
+	_, err := acs.conn.Exec("DELETE FROM accounts_cards WHERE username=?",
 		username,
 	)
 
@@ -104,11 +120,11 @@ func (service AccountCardService) Delete(username string) error {
 	return nil
 }
 
-func (service AccountCardService) DeleteAndInsert(username string) error {
-	if cardcollection := service.Test(username); cardcollection != nil {
-		if err := service.Delete(username); err != nil {
+func (acs *AccountCardService) DeleteAndInsert(username string) error {
+	if cardcollection := acs.Test(username); cardcollection != nil {
+		if err := acs.Delete(username); err != nil {
 			return err
-		} else if err := service.Insert(username); err != nil {
+		} else if err := acs.Insert(username); err != nil {
 			return err
 		}
 	}

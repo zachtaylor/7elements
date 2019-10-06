@@ -1,5 +1,10 @@
-<article title="All Available Cards">
-  <ng-container *ngIf="conn.ping$ | async as ping">
-    <app-card-detail *ngFor="let card of ping?.cards" [card]="card"></app-card-detail>
-  </ng-container>
+<article>
+  <article-title>All Available Cards</article-title>
+  <article-body>
+    <app-card-detail *ngFor="let card of cards" [card]="card">
+      <ng-container *ngIf="conn.myaccount$ | async as myaccount">
+        <div style="padding:7px" *ngIf="myaccount&&myaccount.cards[card.id]">x{{myaccount.cards[card.id]}}</div>
+      </ng-container>
+    </app-card-detail>
+  </article-body>
 </article>

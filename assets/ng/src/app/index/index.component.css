@@ -1,3 +1,16 @@
+:host {
+  background-image:url(/img/splash.jpg);
+  background-repeat:no-repeat;
+  background-position: center;
+  position:fixed;
+  height:100%;
+  width:100%;
+  overflow:auto;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
 .qlink {
   flex:1;
   text-align:center;

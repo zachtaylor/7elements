@@ -1,8 +1,20 @@
 package vii
 
+import "ztaylor.me/cast"
+
 type Body struct {
 	Attack int
 	Health int
+}
+
+func (b *Body) JSON() cast.JSON {
+	if b == nil {
+		return nil
+	}
+	return cast.JSON{
+		"attack": b.Attack,
+		"health": b.Health,
+	}
 }
 
 func (b *Body) Copy() *Body {
@@ -12,15 +24,5 @@ func (b *Body) Copy() *Body {
 	return &Body{
 		Attack: b.Attack,
 		Health: b.Health,
-	}
-}
-
-func (b *Body) Json() Json {
-	if b == nil {
-		return nil
-	}
-	return Json{
-		"attack": b.Attack,
-		"health": b.Health,
 	}
 }

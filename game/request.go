@@ -1,11 +1,11 @@
 package game
 
-import "github.com/zachtaylor/7elements"
+import "ztaylor.me/cast"
 
 type Request struct {
 	Username string
 	URI      string
-	Data     vii.Json
+	Data     cast.JSON
 }
 
 func (r *Request) String() string {

@@ -6,4 +6,4 @@ import "ztaylor.me/db"
 var Patch = db.Patch
 
 // Open = db.Open
-var Open = db.Open
+// var Open = db.Open

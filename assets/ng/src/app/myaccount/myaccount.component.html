@@ -1,18 +1,76 @@
-<ng-container *ngIf="conn.ping$ | async as ping">
-  <ng-container *ngIf="conn.myaccount$ | async as myaccount">
-    <article title="Account Details">
-      <div autosize>You have {{myaccount?.coins}} coins</div>
-      <div autosize>You have {{myaccount?.cards.length}} cards</div>
-      <div autosize>You have {{myaccount?.decks.length}} decks</div>
-    </article>
-    <article title="Your Cards">
-      <app-card-detail *ngFor="let cardid of myaccount?.cards | mapKeys" [card]="conn.getCard(ping, cardid)"></app-card-detail>
-    </article>
-    <article title="Your Decks">
-      <app-deck-summary *ngFor="let deckid of myaccount?.cards | mapKeys" [deck]="conn.getDeck(ping, deckid)"></app-deck-summary>
-    </article>
-  </ng-container>
-</ng-container>
-<article title="Logout">
-  Thanks for visiting, <a href="/api/logout">click here to logout</a>
-</article>
+<div *ngIf="conn.isLoggedIn(); then loggedIn; else loggedOut">
+</div>
+<!-- logged in -->
+<ng-template #loggedIn>
+  <article>
+    <article-header>Logout</article-header>
+    <article-body>Thanks for playing, <a (click)="logout()">click here to logout</a></article-body>
+  </article>
+  <br/>
+  <article>
+    <article-header>Account Details</article-header>
+    <article-body>
+      <div *ngIf="!!myaccount" autosize>You have {{myaccount.coins}} coins</div>
+      <div *ngIf="!!myaccount" autosize>You have {{objectKeys(myaccount.cards).length}} cards</div>
+      <div *ngIf="!!myaccount" autosize>You have {{objectKeys(myaccount.decks).length}} decks</div>
+    </article-body>
+  </article>
+  <br/>
+  <article>
+    <article-header>Your Cards</article-header>
+    <article-body>
+      <app-card-detail *ngFor="let cardid of myaccount.cards | mapKeys" [card]="conn.getCard(cardid)">
+        <div style="padding:7px">x{{myaccount.cards[cardid]}}</div>
+      </app-card-detail>
+    </article-body>
+  </article>
+  <br/>
+  <article>
+    <article-header>Your Decks</article-header>
+    <article-body>
+      Sorry about that, deck building will come with a future update
+      <!-- <app-deck-summary *ngFor="let deckid of myaccount?.cards | mapKeys" [deck]="conn.getDeck(ping, deckid)"></app-deck-summary> -->
+    </article-body>
+  </article>
+  <br/>
+</ng-template>
+<!-- logged out -->
+<ng-template #loggedOut>
+  <article>
+    <article-header>My Account</article-header>
+    <article-body>
+      <form class="vii well pos-rel" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <fieldset class="width100">
+          <div class="talr">
+            <span>Use the Signup form</span>
+            <toggle (check)="signup=$event"></toggle>
+          </div>
+          <div *ngIf="signup" class="vii-form-detail fltr">Your username must be unique</div>
+          <div class="vii-form-group" id="form-group-username">
+            <span><b>username</b></span>
+            <input type="text" formControlName="username">
+          </div>
+          <div *ngIf="signup" class="vii-form-detail fltr">Your e-mail is optional at this point</div>
+          <div *ngIf="signup" class="vii-form-group" id="form-group-email">
+            <span><b>e-mail</b></span>
+            <input type="email" formControlName="email">
+          </div>
+          <div *ngIf="signup" class="vii-form-detail fltr">Your account password has no length or specific requirements</div>
+          <div class="vii-form-group" id="form-group-password1">
+            <span><b>password</b></span>
+            <input type="password" formControlName="password1" class="vii">
+          </div>
+          <div *ngIf="signup" class="vii-form-detail fltr">Your account password must match above</div>
+          <div *ngIf="signup" class="vii-form-group" id="form-group-password2">
+            <span><b>password</b></span>
+            <input type="password" formControlName="password2" class="vii">
+          </div>
+          <div class="fltr">
+            <button type="submit"><span>{{signup?'Signup':'Login'}}</span></button>
+          </div>
+        </fieldset>
+      </form>
+    </article-body>
+  </article>
+</ng-template>
+

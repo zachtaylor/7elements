@@ -2,7 +2,7 @@ package vii
 
 type Element byte
 
-const ELEMnull Element = 0
+const ELEMnil Element = 0
 const ELEMwhite Element = 1
 const ELEMred Element = 2
 const ELEMyellow Element = 3
@@ -11,7 +11,7 @@ const ELEMblue Element = 5
 const ELEMviolet Element = 6
 const ELEMblack Element = 7
 
-var Elements = []Element{ELEMnull, ELEMwhite, ELEMred, ELEMyellow, ELEMgreen, ELEMblue, ELEMviolet, ELEMblack}
+var Elements = []Element{ELEMnil, ELEMwhite, ELEMred, ELEMyellow, ELEMgreen, ELEMblue, ELEMviolet, ELEMblack}
 
 func (e Element) Char() string {
 	switch e {

@@ -1,23 +1,34 @@
-<div style="height:24px">
-  <div class="float-l" style="padding:1px;">
-    <span *ngFor="let ceid of card?.costs | mapKeys">
-      <app-icon *ngFor="let i of card?.costs[ceid] | count" src="/img/icon/element-{{ceid}}.png"></app-icon>
+<div class="panel">
+  <span class="panel-label fntb">{{card?.name}}</span>
+  <div class="fltr">
+    <span class="card-cost" *ngFor="let ceid of card?.costs | mapKeys">
+      <img *ngFor="let i of card?.costs[ceid] | count" src="/img/icon/element-{{ceid}}.png">
     </span>
   </div>
-  <span class="card-label font-crsv float-r">{{card?.name}}</span>
 </div>
-<img style="height:178px;padding-left:1px;" [src]="card?.image">
-<div>
-  <span class="card-label">{{card?.type}}</span>
-  <span *ngIf="card.body" class="float-r">
+<img class="art" [src]="card?.image">
+<div class="panel">
+  <span class="panel-label">{{card?.type}}</span>
+  <span *ngIf="card?.body" class="fltr">
     <span>{{card.body.attack}}</span>
     <img src="/img/icon/attack.20px.png">
     <span>{{card.body.health}}</span>
     <img src="/img/icon/life.20px.png">
   </span>
 </div>
-<ng-container *ngFor="let power of card?.powers| mapValues">
-  <div [innerHTML]="power.text | keepHtml"></div>
-</ng-container>
-<div class="footer font-crsv" style="font-size:13px">{{card?.text}}</div>
-<ng-content></ng-content>
+<div class="card-text panel">
+  <div *ngFor="let power of card?.powers | mapValues">
+    <img *ngIf="power.usesturn" src="/img/icon/timer.png">
+    <img *ngIf="power.useskill" src="/img/icon/trash.svg">
+    <img *ngIf="power.trigger=='sunrise'" src="/img/icon/sunrise.svg">
+    <img *ngIf="power.trigger=='sunset'" src="/img/icon/sunset.svg">
+    <span *ngFor="let e of power.costs | mapKeys">
+      <img *ngFor="let i of Array(power.costs[e]).fill(1)" src="/img/icon/element-{{e}}.png">
+    </span>
+    <span [innerHTML]="power.text | keepHtml"></span>
+  </div>
+  <div class="posa talr bot0 fntb" style="font-size:13px">{{card?.text}}</div>
+</div>
+<div class="card-banner">
+  <ng-content></ng-content>
+</div>

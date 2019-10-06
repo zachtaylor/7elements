@@ -1,5 +1,4 @@
-import { Component, OnInit, Input, ViewChildren, ViewChild, ContentChildren } from '@angular/core';
-import { QueryList } from '@angular/core/src/render3';
+import { Component, OnInit } from '@angular/core'
 
 @Component({
   selector: 'article',
@@ -7,9 +6,6 @@ import { QueryList } from '@angular/core/src/render3';
   styleUrls: ['./article.component.css']
 })
 export class ArticleComponent implements OnInit {
-  @Input() title = ''
-
   constructor() { }
-
-  ngOnInit() {  }
+  ngOnInit() { }
 }

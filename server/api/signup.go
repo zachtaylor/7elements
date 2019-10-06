@@ -4,51 +4,56 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/zachtaylor/7elements"
+	vii "github.com/zachtaylor/7elements"
 	"ztaylor.me/events"
-	"ztaylor.me/http/sessions"
-	"ztaylor.me/log"
 	// "github.com/zachtaylor/7elements/emails"
 	// "github.com/zachtaylor/7elements/options"
 )
 
-func SignupHandler(sessions *sessions.Service, dbsalt string) http.Handler {
+func SignupHandler(rt *Runtime) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := log.Add("Addr", r.RemoteAddr)
+		log := rt.Root.Logger.New().Tag("api/signup").Add("Addr", r.RemoteAddr)
 
 		if r.Method != "POST" {
 			w.WriteHeader(404)
-			log.Add("Method", r.Method).Warn("signup: only POST allowed")
+			log.Add("Method", r.Method).Warn("only POST allowed")
 			return
 		}
 
-		session := sessions.ReadRequestCookie(r)
+		session := rt.Sessions.Cookie(r)
 		if session != nil {
-			http.Redirect(w, r, "/", 307)
-			log.Add("SessionId", session.ID).Info("signup: request has valid session cookie")
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			log.Add("SessionId", session.ID).Info("request has valid session cookie")
 			return
 		}
 
 		username := r.FormValue("username")
-		email := r.FormValue("email")
-		password1 := HashPassword(r.FormValue("password1"), dbsalt)
-		password2 := HashPassword(r.FormValue("password2"), dbsalt)
+		log.Add("Username", username)
 
-		log.Add("Username", username).Add("Email", email)
-
-		if vii.AccountService.Test(username) != nil {
-			http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
-			log.Error("signup: duplicate is online right")
+		if !CheckUsername(username) {
+			http.Redirect(w, r, "/signup?username", http.StatusSeeOther)
+			log.Warn("invalid username")
 			return
-		} else if account, err := vii.AccountService.Load(username); account != nil {
-			http.Redirect(w, r, "/signup/?usernametaken&email="+email, 307)
-			log.Add("Error", err).Error("signup: duplicate exists")
+		}
+
+		email := r.FormValue("email")
+		password1 := HashPassword(r.FormValue("password1"), rt.Salt)
+		password2 := HashPassword(r.FormValue("password2"), rt.Salt)
+		log.Add("Email", email)
+
+		if rt.Root.Accounts.Test(username) != nil {
+			http.Redirect(w, r, "/signup?usernametaken&email="+email, http.StatusSeeOther)
+			log.Error("duplicate is online right")
+			return
+		} else if account, err := rt.Root.Accounts.Get(username); account != nil {
+			http.Redirect(w, r, "/signup?usernametaken&email="+email, http.StatusSeeOther)
+			log.Add("Error", err).Error("duplicate exists")
 			return
 		}
 
 		if password1 != password2 {
-			http.Redirect(w, r, "/signup/?passwordmatch&email="+email+"&username="+username, 307)
-			log.Warn("signup: password mismatch")
+			http.Redirect(w, r, "/signup?passwordmatch&email="+email+"&username="+username, http.StatusSeeOther)
+			log.Warn("password mismatch")
 			return
 		}
 
@@ -61,10 +66,9 @@ func SignupHandler(sessions *sessions.Service, dbsalt string) http.Handler {
 			Register: time.Now(),
 		}
 
-		if err := vii.AccountService.Insert(account); err != nil {
-			http.Redirect(w, r, "/signup/?error="+email+"&username="+username, 500)
-			log.Add("Error", err).Error("/api/signup: account insert")
-			w.WriteHeader(500)
+		if err := rt.Root.Accounts.Insert(account); err != nil {
+			http.Redirect(w, r, "/signup/?error="+email+"&username="+username, http.StatusInternalServerError)
+			log.Add("Error", err).Error("account insert")
 			return
 		}
 
@@ -74,8 +78,8 @@ func SignupHandler(sessions *sessions.Service, dbsalt string) http.Handler {
 			deck := vii.NewAccountDeck()
 			deck.ID = i
 			deck.Username = username
-			if err := vii.AccountDeckService.Update(deck); err != nil {
-				log.Add("Error", err).Error("/api/signup: grant decks")
+			if err := rt.Root.AccountsDecks.Update(deck); err != nil {
+				log.Add("Error", err).Error("grant decks")
 				return
 			}
 		}
@@ -84,7 +88,10 @@ func SignupHandler(sessions *sessions.Service, dbsalt string) http.Handler {
 		// 	log.Clone().Add("mail-user", options.String("mail-user")).Add("mail-pass", options.String("mail-pass")).Add("mail-host", options.String("mail-host")).Add("Error", err).Error("/api/signup: send validation email")
 		// }
 
-		GrantSession(w, r, sessions, account, "Signup success!")
-		log.Info("/api/signup")
+		if s, err := Login(rt, account); s == nil {
+			log.Add("Error", err).Error("login")
+		} else {
+			w.Write([]byte(redirectHomeTpl))
+		}
 	})
 }

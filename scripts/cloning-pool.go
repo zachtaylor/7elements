@@ -1,22 +1,22 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/animate"
+	vii "github.com/zachtaylor/7elements"
+
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine"
+	"ztaylor.me/cast"
 )
 
 const CloningPoolID = "cloning-pool"
 
 func init() {
-	engine.Scripts[CloningPoolID] = CloningPool
+	game.Scripts[CloningPoolID] = CloningPool
 }
 
-func CloningPool(g *game.T, seat *game.Seat, target interface{}) game.Event {
+func CloningPool(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 	log := g.Log().Add("Target", target).Add("Username", seat.Username)
 
-	gcid := CastString(target)
+	gcid := cast.String(target)
 	card := g.Cards[gcid]
 	if card == nil {
 		log.Add("Error", "gcid not found").Error(CloningPoolID)
@@ -36,7 +36,7 @@ func CloningPool(g *game.T, seat *game.Seat, target interface{}) game.Event {
 	clone.Username = seat.Username
 	g.RegisterCard(clone)
 	seat.Life++
-	animate.GameSeat(g, seat)
+	g.SendAll(game.BuildSeatUpdate(seat))
 
 	log.Info(CloningPoolID)
 	return nil

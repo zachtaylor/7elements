@@ -1,0 +1,30 @@
+<article>
+  <article-header>Purchase Coins</article-header>
+  <article-body><h3>Your coins: {{myaccount?.coins}}</h3></article-body>
+  <article-footer>
+    This doesn't work yet please try later!
+  </article-footer>
+</article>
+<article *ngFor="let pack of glob?.packs">
+  <article-header>
+    <span>{{pack.name}}</span>
+    <span class="fltr">{{pack.cost}} Coins</span>
+    <span class="fltr"> / </span>
+    <span class="fltr">{{pack.size}} Cards</span>
+  </article-header>
+  <article-body>
+    <carousel>
+      <ng-container *ngFor="let cardid of pack.cards">
+        <app-card-detail *ngIf="glob" [card]="conn.getCard(cardid)">
+          <div style="padding:7px" *ngIf="myaccount&&myaccount.cards[cardid]">x{{myaccount.cards[cardid]}}</div>
+        </app-card-detail>
+      </ng-container>
+    </carousel>
+  </article-body>
+  <article-footer>
+    <span *ngIf="myaccount">
+      <span *ngIf="myaccount.coins < pack.cost"></span>
+      <a *ngIf="myaccount.coins >= pack.cost" (click)="sendBuyPack(pack.id)">Click here</a> to buy this pack [{{myaccount.coins}} - {{pack.cost}} = {{myaccount.coins - pack.cost}}]
+    </span>
+  </article-footer>
+</article>

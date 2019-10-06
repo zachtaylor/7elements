@@ -1,0 +1,58 @@
+@keyframes rainbowbox {
+	0%, 100% {
+		border-color:white;
+	}
+	10% {
+		border-color:black;
+	}
+	25% {
+		border-color:purple;
+	}
+	40% {
+		border-color:yellow;
+	}
+	55% {
+		border-color:red;
+	}
+	70% {
+		border-color:green;
+	}
+	85% {
+		border-color:blue;
+	}
+}
+@keyframes rainbowtext {
+	0%, 100% {
+		color:black;
+	}
+	10% {
+		color:blue;
+	}
+	25% {
+		color:yellow;
+	}
+	40% {
+		color:purple;
+	}
+	55% {
+		color:green;
+	}
+	70% {
+		color:red;
+	}
+	85% {
+		color:white;
+	}
+}
+@keyframes background-slide {
+	0% {background-position:0% 0%}
+	100% {background-position:110% 110%}
+}
+@keyframes box-shadow-float {
+	0%, 100% {
+    box-shadow:2px 2px black;
+  }
+  50% {
+    box-shadow:1px 5px black;
+  }
+}

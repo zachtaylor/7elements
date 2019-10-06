@@ -1,18 +1,76 @@
 :host {
   border:2px solid black;
-  border-radius:3px;
+  border-radius:7px;
   width:256px;
   height:350px;
+  font-size:16px;
   display: inline-block;
   vertical-align: top;
   position:relative;
+  color:black;
+  background-color:#a7a7a7;
 }
-.footer {
-  position:absolute;
-  bottom:2px;
-  right:2px;
+:host.white {
+  background-color:white;
 }
-.card-label {
+:host.blue {
+  background-color:blue;
+}
+:host.green {
+  background-color:green;
+}
+:host.yellow {
+  background-color:yellow;
+}
+:host.red {
+  background-color:red;
+}
+:host.violet {
+  background-color:violet;
+}
+:host.black {
+  background-color:black;
+}
+.panel {
+  margin:2px 1px 0px 1px;
+  background-color:#E7E7E7;
+  border-radius:7px;
+}
+.panel-label {
+  margin-left:4px;
+}
+.title-panel {
+  height:24px;
   font-size:18px;
-  padding:3px;
+}
+.card-cost img {
+  height:20px;
+  width:20px;
+  vertical-align:sub;
+  padding:1px;
+}
+.art {
+  height:178px;
+  width:250px;
+  margin:2px 1px 0px 1px;
+  border-radius:7px;
+}
+.card-text {
+  padding:5px;
+  height:114px;
+  text-align:left;
+  position:relative;
+}
+.card-text img {
+  width:20px;
+  height:20px;
+  padding:1px;
+}
+.card-banner {
+  position:absolute;
+  z-index:1;
+  right:0px;
+  top:32px;
+  border-radius: 50% 0% 0% 50%;
+  background-color:whitesmoke
 }

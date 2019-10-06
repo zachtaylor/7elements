@@ -1,0 +1,49 @@
+:host {
+  display:flex;
+  position:relative;
+  flex-direction:column;
+  height:100%;
+  overflow:hidden;
+}
+.panel {
+  background:whitesmoke;
+  border:2px solid black;
+  border-radius:7px;
+  box-sizing:content-box;
+  z-index:5;
+}
+.panel img {
+  vertical-align:middle;
+}
+.hand {
+  position:absolute;
+  bottom:0%;
+  width:100%;
+  height:388px;
+  text-align:center;
+  border:2px solid black;
+  background-color:#e7e7e7;
+  transition:0.42s ease-out;
+  animation:1s linear;
+  z-index:5;
+}
+.hand-arrow {
+  height:calc((var(--ui) / 2) - 4px);
+  width:calc((var(--ui) / 2) - 4px);
+  transition:0.35s ease-out;
+}
+.pass-button {
+  border-width:2px;
+  border-style:solid;
+  border-radius:7px;
+  cursor: pointer;
+  animation:rainbowbox 7s infinite;
+}
+.pass-button img {
+  padding:0px var(--pad);
+}
+.pass-button[disabled] {
+  border-color:black;
+  cursor: initial;
+  animation:none;
+}

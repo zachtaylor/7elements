@@ -1,25 +1,24 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
-	"ztaylor.me/http/sessions"
-	"ztaylor.me/log"
+	httpsessions "ztaylor.me/http/session"
 )
 
-const tagLogout = "/api/logout"
-
-func LogoutHandler(sessions *sessions.Service) http.Handler {
+func LogoutHandler(rt *Runtime) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := log.Add("Addr", r.RemoteAddr)
+		log := rt.Root.Logger.New().Tag("api/logout").Add("Addr", r.RemoteAddr)
 
-		if session := sessions.ReadRequestCookie(r); session != nil {
-			log.Debug(tagLogout)
-			session.Revoke()
+		if session := rt.Sessions.Cookie(r); session != nil {
+			log.Debug("revoking")
+			rt.Sessions.Remove(session)
 		} else {
-			log.Warn(tagLogout, ": cookie missing")
+			log.Warn("cookie missing")
 		}
 
-		http.Redirect(w, r, "/", 307)
+		httpsessions.EraseSessionID(w)
+		w.Write([]byte(fmt.Sprintf(redirectHomeTpl, "Logout Success")))
 	})
 }

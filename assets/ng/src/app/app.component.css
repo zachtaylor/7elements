@@ -1,19 +1,37 @@
-nav {
-  position:fixed;
-  z-index:1;
-  width:100%;
-  vertical-align:text-bottom;
-  background:linear-gradient(to bottom, #000, #333);
-  box-shadow:0px 3px 7px;
+:host {
+	height:100%;
+  display:flex;
+  flex-direction:column;
+  background-color:#777777;
 }
-nav span, nav a {
+nav {
+  z-index:1;
   color:#f7f7f7;
+  background:linear-gradient(to bottom, #000, #333);
+  box-shadow:0px 2px 7px black;
 }
 nav a {
-  cursor:pointer;
-  text-decoration:none;
+  position:relative;
+  bottom:0px;
+  color:white;
 }
 nav a:hover {
-  cursor:pointer;
-  text-decoration:underline;
+  box-shadow:inset 0px -7px 4px -4px white;
+}
+nav a.hilite, nav a.hilite:hover {
+  box-shadow:inset 0px -5px 3px -3px yellow;
+}
+.nav-links {
+  bottom:1px;
+}
+.nav-links a {
+  margin-left:var(--pad);
+}
+.not-panel {
+  z-index:9;
+  background-color:whitesmoke;
+  border-width:2px;
+  border-style:solid;
+  border-radius:7px;
+  animation:rainbowbox 7s infinite;
 }

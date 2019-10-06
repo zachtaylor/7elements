@@ -1,168 +1,220 @@
 package engine
 
 import (
-	"github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/animate"
+	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/event"
+	"ztaylor.me/cast"
 	"ztaylor.me/log"
 )
 
-func Request(game *game.T, seat *game.Seat, uri string, json vii.Json) *game.State {
+func Request(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Event {
 	switch uri {
 	case "connect":
-		Connect(game, seat)
+		requestConnect(g, seat)
 	case "disconnect":
-		RequestDisconnect(game, seat)
+		requestDisconnect(g, seat)
 	case "chat":
-		RequestChat(game, seat, json)
+		requestChat(g, seat, json)
 	case "pass":
-		RequestPass(game, seat, json)
-	case game.State.ID():
-		RequestGameState(game, seat, json)
+		requestPass(g, seat, json)
+	case g.State.ID():
+		RequestGameState(g, seat, json)
+	case "attack":
+		return RequestAttack(g, seat, json)
 	case "play":
-		return RequestPlay(game, seat, json, game.State.EventName() != "main" || seat.Username != game.State.Seat)
+		return RequestPlay(g, seat, json, g.State.EventName() != "main" || seat.Username != g.State.Event.Seat())
 	case "trigger":
-		return RequestTrigger(game, seat, json)
+		return RequestTrigger(g, seat, json)
 	default:
-		game.Log().WithFields(log.Fields{
-			"Seat":       seat,
-			"RequestURI": uri,
-			"State":      game.State.EventName(),
+		g.Log().With(log.Fields{
+			"Seat":  seat.Print(),
+			"URI":   uri,
+			"State": g.State.Print(),
 		}).Warn("engine/request: 404")
 	}
 	return nil
 }
 
-func Connect(g *game.T, seat *game.Seat) {
-	log := g.Log().Add("Seat", seat).Add("State", g.State)
-	animate.GameReconnect(g, seat)
-	log.Debug("engine/connect")
+func requestConnect(g *game.T, s *game.Seat) {
+	g.Log().With(log.Fields{
+		"Username": s.Username,
+		"State":    g.State.Print(),
+	}).Debug("engine/connect: seated")
+	s.Send(game.BuildGameUpdate(g, s.Username))
 
-	if connector, _ := g.State.Event.(game.ConnectEventer); connector == nil {
-		log.Debug("engine/connect: state: no data")
-	} else {
-		log.Debug("engine/connect: state")
-		connector.OnConnect(g, seat)
+	if connector, ok := g.State.Event.(game.ConnectEventer); ok {
+		connector.OnConnect(g, s)
 	}
 }
 
-func RequestDisconnect(game *game.T, seat *game.Seat) {
-	game.Log().Add("Seat", seat).Info("player disconnect")
-	// animate.GameDisconnect(game, seat) // todo
-}
+func requestDisconnect(g *game.T, s *game.Seat) {
+	g.Log().With(log.Fields{
+		"Username": s.Username,
+		"State":    g.State,
+	}).Tag("engine/disconnect: left")
 
-func RequestChat(game *game.T, seat *game.Seat, json vii.Json) {
-	animate.Chat(game, seat.Username, "game#"+game.ID(), json.Sval("message"))
-}
-
-func RequestPass(game *game.T, seat *game.Seat, json vii.Json) {
-	if pass := json.Sval("pass"); pass == "" {
-		game.Log().WithFields(log.Fields{
-			"data": json,
-			"Seat": seat.Username,
-		}).Warn("engine/request: pass: no target")
-	} else if pass != game.State.ID() {
-		game.Log().WithFields(log.Fields{
-			"pass":  json,
-			"State": game.State.ID(),
-			"Seat":  seat.Username,
-		}).Warn("engine/request: pass: target mismatch")
-	} else {
-		game.Log().WithFields(log.Fields{
-			"Seat":  seat.Username,
-			"State": game.State.ID(),
-		}).Debug("engine/request: pass")
-		game.State.Reacts[seat.Username] = "pass"
-		animate.GameReact(game, seat.Username)
+	if disconnector, ok := g.State.Event.(game.DisconnectEventer); ok {
+		disconnector.OnDisconnect(g, s)
 	}
 }
 
-func RequestPlay(game *game.T, seat *game.Seat, json vii.Json, onlySpells bool) *game.State {
-	log := game.Log().WithFields(log.Fields{
+func requestChat(g *game.T, seat *game.Seat, json cast.JSON) {
+	text := json.GetS("text")
+	g.Log().With(log.Fields{
 		"Username": seat.Username,
-		"Elements": seat.Elements,
-	})
+		"Text":     text,
+	}).Debug("engine/chat") // died after
+	go g.GetChat().AddMessage(chat.NewMessage(seat.Username, text))
+}
 
-	gcid := json.Sval("gcid")
+func requestPass(g *game.T, seat *game.Seat, json cast.JSON) {
+	log := g.Log().With(log.Fields{
+		"State":    g.State.Print(),
+		"Username": seat.Username,
+	}).Tag("engine/pass")
+	if pass := json.GetS("pass"); pass == "" {
+		log.Warn("target missing")
+	} else if pass != g.State.ID() {
+		log.Add("PassID", pass).Warn("target mismatch")
+	} else {
+		g.State.Reacts[seat.Username] = "pass"
+		g.SendAll(game.BuildReactUpdate(g, seat.Username))
+	}
+}
+
+// RequestAttack causes AttackEvent to stack on MainEvent
+func RequestAttack(g *game.T, s *game.Seat, json cast.JSON) []game.Event {
+	log := g.Log().With(log.Fields{
+		"Seat": s.Print(),
+	}).Tag("engine/attack")
+
+	if gcid := json.GetS("gcid"); gcid == "" {
+		log.Error("gcid missing")
+	} else if card := g.Cards[gcid]; card == nil {
+		log.Add("GCID", gcid).Error("gcid invalid")
+	} else if card.Username != s.Username {
+		log.Add("Owner", card.Username).Error("card belongs to a different player")
+	} else if card.Card.Type != vii.CTYPbody {
+		log.Add("Card", card.Print()).Error("card type must be body")
+		s.Send(game.BuildErrorUpdate(card.Card.Name, `not "body" type`))
+	} else if s.Present[gcid] == nil {
+		log.Add("Card", card.Print()).Error("card must be in present")
+		s.Send(game.BuildErrorUpdate(card.Card.Name, `not in your present`))
+	} else if !card.IsAwake {
+		log.Add("Card", card.Print()).Error("card must be awake")
+		s.Send(game.BuildErrorUpdate(card.Card.Name, `not awake`))
+	} else {
+		log.Add("Card", card.Print()).Info("accept")
+		card.IsAwake = false
+		g.SendAll(game.BuildCardUpdate(card))
+		return []game.Event{event.NewAttackEvent(s.Username, card)}
+	}
+	return nil
+}
+
+func RequestPlay(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.Event {
+	log := g.Log().With(log.Fields{
+		"Seat": seat.Print(),
+	}).Tag("engine/play")
+
+	gcid := json.GetS("gcid")
 	if gcid == "" {
-		log.Error("engine/request: play: gcid missing")
+		log.Error("gcid missing")
+		return nil
+	}
+
+	card := g.Cards[gcid]
+	if card == nil {
+		log.Add("GCID", gcid).Error("gcid invalid")
+	} else if card.Username != seat.Username {
+		log.Add("Owner", card.Username).Error("card belongs to a different player")
+	} else if card.Card.Type != vii.CTYPspell && onlySpells {
+		log.Add("Card", card.Print()).Error("card type must be spell")
+		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not "spell" type`))
+	} else if seat.Hand[gcid] == nil {
+		log.Add("Card", card.Print()).Error("card must be in hand")
+		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not in your hand`))
+	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
+		log.Add("Card", card.Print()).Error("not enough elements")
+		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not enough elements`))
+	} else {
+		log.Add("Card", card.Print()).Info("accept")
+		seat.Elements.Deactivate(card.Card.Costs)
+		delete(seat.Hand, gcid)
+		g.SendAll(game.BuildSeatUpdate(seat))
+		seat.Send(game.BuildHandUpdate(seat))
+		return []game.Event{event.Play(seat.Username, card, json["target"])}
+	}
+	return nil
+}
+
+func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Event {
+	log := g.Log().With(log.Fields{
+		"Seat":     seat.Username,
+		"Elements": seat.Elements,
+	}).Tag("engine/trigger")
+
+	gcid := json.GetS("gcid")
+	if gcid == "" {
+		log.Error("gcid missing")
 		return nil
 	}
 	log.Add("GCID", gcid)
 
-	card := game.Cards[gcid]
-	if card == nil {
-		log.Error("engine/request: play: gcid not found")
-	} else if card.Username != seat.Username {
-		log.Add("Owner", card.Username).Error("engine/request: play: card belongs to a different player")
-	} else if card.Card.Type != vii.CTYPspell && onlySpells {
-		animate.GameError(seat, game, card.Card.Name, `not "spell" type`)
-		log.Error("engine/request: play: not spell type")
-	} else if !seat.HasCardInHand(gcid) {
-		animate.GameError(seat, game, card.Card.Name, `not in your hand`)
-		log.Error("engine/request: play: card not in hand")
-	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
-		animate.GameError(seat, game, card.Card.Name, `not enough elements`)
-		log.Error("engine/request: play: cannot afford")
-	} else {
-		log.Info("engine/request: play")
-		seat.Elements.Deactivate(card.Card.Costs)
-		return game.NewState(seat.Username, Play(game, seat, card, json["target"]))
-	}
-	return nil
-}
-
-func RequestTrigger(game *game.T, seat *game.Seat, json vii.Json) *game.State {
-	log := game.Log().WithFields(log.Fields{
-		"Username": seat.Username,
-		"Elements": seat.Elements,
-	})
-
-	gcid := json.Sval("gcid")
-	if gcid == "" {
-		log.Error("games.Trigger: gcid missing")
-		return nil
-	}
-
-	powerid := json.Ival("powerid")
-	if powerid < 1 {
-		log.Error("games.Trigger: powerid missing")
-		return nil
-	}
-	log.Add("GCID", gcid).Add("PowerId", powerid)
-
 	card := seat.Present[gcid]
 	if card == nil {
-		log.Error("try-trigger: gcid not found")
-	} else if power := card.Powers[powerid]; power == nil {
-		log.Error("try-trigger: powerid not found")
-	} else if !card.IsAwake && power.UsesTurn {
-		animate.GameError(seat, game, card.Card.Name, `not awake`)
-		log.Error("try-trigger: card is asleep")
-	} else if !seat.Elements.GetActive().Test(power.Costs) {
-		animate.GameError(seat, game, card.Card.Name, `not enough elements`)
-		log.Add("Costs", power.Costs).Error("try-trigger: cannot afford")
-	} else {
-		seat.Elements.Deactivate(power.Costs)
-		card.IsAwake = card.IsAwake && !power.UsesTurn
-		if power.Target == "self" {
-			return game.NewState(seat.Username, Trigger(game, seat, card, power, card))
-		} else {
-			return game.NewState(seat.Username, Trigger(game, seat, card, power, json["target"]))
-		}
+		log.Error("gcid not found")
+		return nil
+	} else if card.Username != seat.Username {
+		log.Add("Owner", card.Id).Error("card doesn't belong to you")
+		return nil
 	}
-	return nil
+
+	powerid := json.GetI("powerid")
+	if powerid < 1 {
+		log.Error("powerid missing")
+		return nil
+	}
+	log.Add("PowerId", powerid)
+
+	power := card.Powers[powerid]
+	if power == nil {
+		log.Error("powerid not found")
+		return nil
+	} else if !card.IsAwake && power.UsesTurn {
+		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not awake`))
+		log.Error("card is asleep")
+		return nil
+	} else if !seat.Elements.GetActive().Test(power.Costs) {
+		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not enough elements`))
+		log.Add("Costs", power.Costs).Error("cannot afford")
+		return nil
+	}
+
+	if power.Costs.Count() > 0 {
+		seat.Elements.Deactivate(power.Costs)
+	}
+	card.IsAwake = card.IsAwake && !power.UsesTurn // if power.UsesTurn {awake=false}
+	if power.UsesKill {
+		delete(seat.Present, card.Id)
+	}
+	g.SendAll(game.BuildSeatUpdate(seat))
+
+	if power.Target == "self" {
+		return []game.Event{event.NewTriggerEvent(seat.Username, card, power, card)}
+	}
+	return []game.Event{event.NewTriggerEvent(seat.Username, card, power, json["target"])}
 }
 
-func RequestGameState(g *game.T, seat *game.Seat, json vii.Json) {
-	log := g.Logger.WithFields(log.Fields{
-		"State":    g.State.EventName(),
-		"Username": seat.Username,
-	})
-	if requester, _ := g.State.Event.(game.RequestEventer); requester == nil {
-		log.Warn("request state failed")
-	} else {
-		log.Debug("request state")
+func RequestGameState(g *game.T, seat *game.Seat, json cast.JSON) {
+	if requester, ok := g.State.Event.(game.RequestEventer); ok {
 		requester.Request(g, seat, json)
+	} else {
+		g.Log().With(log.Fields{
+			"State":    g.State.EventName(),
+			"Username": seat.Username,
+		}).Warn("engine/state: request failed")
 	}
 }
