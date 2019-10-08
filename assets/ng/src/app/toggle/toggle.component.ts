@@ -7,6 +7,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 })
 export class ToggleComponent implements OnInit {
   @Output() check = new EventEmitter()
+  isChecked : boolean
 
   constructor() {
   }
