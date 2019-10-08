@@ -35,7 +35,7 @@ func main() {
 	rt.Games = engine.NewService(rt.Root, rt.Chat)
 
 	if conn, err := mysql.Open(dbe.BuildDSN(env)); err != nil {
-		stdout.New().Add("Error", err).Error("patch error")
+		stdout.New().Add("Error", err).Error("db error")
 		return
 	} else if patch, err := db.Patch(conn); patch != Patch {
 		stdout.New().Add("Expected", Patch).Add("Found", patch).Add("Error", err).Error("patch mismatch")

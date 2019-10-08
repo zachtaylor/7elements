@@ -12,7 +12,7 @@
 <article *ngIf="conn.ping$ | async as ping">
   <article-header>People online right now</article-header>
   <article-body>
-    {{ping.online}} / {{conn.global$.value.users}}
+    {{ping.online}} / {{conn.global$.value?.users}}
   </article-body>
 </article>
 <br/><br/>
