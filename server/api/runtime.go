@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"sync"
 
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
@@ -16,6 +17,27 @@ type Runtime struct {
 	Salt       string
 	Sessions   session.Service
 	FileSystem http.FileSystem
+	Ping       *Ping
+}
+
+// Ping measures the connected websockets
+type Ping struct {
+	sync.Mutex
+	count int
+}
+
+func (p *Ping) Add() {
+	p.Lock()
+	p.count++
+	p.Unlock()
+}
+func (p *Ping) Get() int {
+	return p.count
+}
+func (p *Ping) Remove() {
+	p.Lock()
+	p.count--
+	p.Unlock()
 }
 
 // func NewRuntime(root *vii.Runtime)

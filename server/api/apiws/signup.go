@@ -29,7 +29,7 @@ func Signup(rt *api.Runtime) websocket.Handler {
 		} else if account = signup(rt, log, username, email, password1); account == nil {
 			log.Add("Error", err).Error("signup failed")
 		} else {
-			pushJSON(socket, "/data/ping", api.PingData(rt))
+			pushPingJSON(rt, socket)
 			pushRedirectJSON(socket, "/")
 
 			if s, err := api.Login(rt, account); s == nil {

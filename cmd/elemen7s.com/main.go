@@ -31,6 +31,7 @@ func main() {
 		Chat:       chat.MemService{},
 		Salt:       env.Get("DB_PWSALT"),
 		FileSystem: http.Dir(env.Default("WWW_PATH", "www/")),
+		Ping:       &api.Ping{},
 	}
 	rt.Games = engine.NewService(rt.Root, rt.Chat)
 

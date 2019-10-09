@@ -12,7 +12,7 @@ func Logout(rt *api.Runtime) websocket.Handler {
 		if socket.Session != nil {
 			rt.Sessions.Remove(socket.Session)
 			socket.Session = nil
-			pushJSON(socket, "/data/ping", api.PingData(rt))
+			pushPingJSON(rt, socket)
 			log.Debug("close")
 		} else {
 			log.Warn("cookie missing")

@@ -44,7 +44,7 @@ func Login(rt *api.Runtime) websocket.Handler {
 			rt.Root.Accounts.Cache(account)
 			socket.Session = s
 			log.Add("Name", account.Username).Info("accept")
-			pushJSON(socket, "/data/ping", api.PingData(rt))
+			pushPingJSON(rt, socket)
 			pushRedirectJSON(socket, "/")
 			connectAccount(rt, log, socket)
 			connectGame(rt, log, socket)
