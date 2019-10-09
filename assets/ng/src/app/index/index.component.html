@@ -2,7 +2,7 @@
 <article>
   <article-header>7 Elements Online</article-header>
   <article-body>
-    Patch Date: 2019-10-07 (database reset)
+    Patch Date: 2019-10-09 (bug fix)
     <br/><br/>
     <a routerLink="/updates">Click here</a> for patch notes
   </article-body>
@@ -12,7 +12,7 @@
 <article *ngIf="conn.ping$ | async as ping">
   <article-header>People online right now</article-header>
   <article-body>
-    {{ping.online}} / {{conn.global$.value?.users}}
+    {{ping.ping}} connected / {{ping.online}} logged in / {{conn.global$.value?.users}} users
   </article-body>
 </article>
 <br/><br/>

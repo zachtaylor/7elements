@@ -33,11 +33,11 @@
   <article-header>Karma</article-header>
   <article-body>
     Each turn, your Karma will add a new Element color. Elements of your Karma will reactivate at the start of each turn
-    <br/>
+    <br/><br/>
     All Cards have associated Element costs. These costs are paid from your active Karma
-    <br/>
+    <br/><br/>
     Each turn, before you draw a card, choose any element to add to your available Karma, and it will be active in the same turn, onward
-    <br/>
+    <br/><br/>
     Each card played deactivates elements of your Karma, but these elements become active again every turn, at Sunrise (start phase), on your turn
   </article-body>
 </article>
@@ -47,20 +47,20 @@
   <article-header>Being Cards</article-header>
   <article-body>
     These Cards add Beings to the Present, and the Card is also added to your Past. Beings may have abilities, or be used to Attack your opponent, reducing your opponents Health.
-    <br/>
+    <br/><br/>
     Beings in the Present have active Health. When this reaches 0, the Being is removed from the Present. Beings do not (re-)gain Health unless otherwise specified. Beings Awaken at Sunrise (start phase) on your turn, and are Asleep when they enter the Present.
     <div class="clrl"></div>
     <app-card-detail class="fltl" [card]="glob.cards[0]"></app-card-detail>
     <br/><br/>This Being uses a white Element to play. It also has an ability that it can use each turn, notated by <img adapt="1" src="/img/icon/timer.png">
-    <br/>It doesn't have any Attack points, so it shouldn't Attack yet
+    <br/><br/>It doesn't have any Attack points, so it shouldn't Attack yet
     <div class="clrl"></div>
     <app-card-detail class="fltr" [card]="glob.cards[3]"></app-card-detail>
     <br/><br/>This Being uses a green Element to play. It has an ability that is triggered every start of your turn, notated by <img adapt="1" src="/img/icon/sunrise.svg">
-    <br/>This being can do a lot of damage as it will gain more and more Attack points each turn
+    <br/><br/>This being can do a lot of damage as it will gain more and more Attack points each turn
     <div class="clrr"></div>
     <app-card-detail class="fltl" [card]="glob.cards[6]"></app-card-detail>
     <br/><br/>This Being uses a black Element to play. It has an ability that it can use, which uses its turn (<img adapt="2" src="/img/icon/timer.png">) and destroys itself, notated by <img adapt="1" src="/img/icon/trash.svg">
-    <br/>This Being can be used to remove another Being from the Present
+    <br/><br/>This Being can be used to remove another Being from the Present
     <div class="clrl"></div>
     <app-card-detail class="fltr" [card]="glob.cards[1]"></app-card-detail>
     <br/><br/><br/>This Being uses a red Element to play. It has an ability that requires a red Element of your Karma to activate, notated by <img adapt="1" src="/img/icon/element-2.png">
