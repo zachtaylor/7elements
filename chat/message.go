@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"strings"
 	"time"
 
 	"ztaylor.me/cast"
@@ -27,7 +28,7 @@ func NewMessage(username string, message string) *Message {
 func (m *Message) JSON() cast.JSON {
 	return cast.JSON{
 		"username": m.Username,
-		"message":  m.Message,
+		"message":  strings.Replace(m.Message, "\"", "\\\"", -1),
 		"time":     m.Time.Format("01-02 15:04:05"),
 	}
 }
