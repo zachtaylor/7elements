@@ -33,12 +33,16 @@ func (s *State) Print() string {
 
 // JSON returns a a representation of game state
 func (s *State) JSON() cast.JSON {
+	reactsJSON := cast.JSON{}
+	for k, v := range s.Reacts {
+		reactsJSON[k] = v
+	}
 	return cast.JSON{
 		"id":     s.ID(),
 		"name":   s.Event.Name(),
 		"seat":   s.Event.Seat(),
 		"data":   s.Event.JSON(),
 		"timer":  int(s.Timer.Seconds()),
-		"reacts": s.Reacts,
+		"reacts": reactsJSON,
 	}
 }
