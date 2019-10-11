@@ -50,7 +50,7 @@ func (c *Card) JSON() cast.JSON {
 		"gcid":     c.Id,
 		"cardid":   c.Card.Id,
 		"name":     c.Card.Name,
-		"costs":    c.Card.Costs,
+		"costs":    c.Card.Costs.JSON(),
 		"text":     c.Card.Text,
 		"username": c.Username,
 		"image":    c.Card.Image,
