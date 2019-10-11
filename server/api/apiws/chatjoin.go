@@ -26,11 +26,13 @@ func ChatJoin(rt *api.Runtime) websocket.Handler {
 			return
 		}
 
-		if chrm := rt.Chat.Get(channel); chrm == nil {
+		chrm := rt.Chat.Get(channel)
+		if chrm != nil {
+			log.Info("found")
+		} else {
 			log.Info("create")
+			chrm = rt.Chat.New(channel, 42)
 		}
-
-		chrm := rt.Chat.New(channel, 42)
 
 		if chrm.Users[m.User] != nil {
 			log.Warn("exists")

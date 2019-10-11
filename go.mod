@@ -7,10 +7,10 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20190728182440-6a916e37a237 // indirect
 	ztaylor.me/cast v0.0.3
 	ztaylor.me/charset v0.0.0
-	ztaylor.me/db v0.0.2
+	ztaylor.me/db v0.0.3
 	ztaylor.me/env v0.0.0
 	ztaylor.me/events v0.0.0
 	ztaylor.me/http v0.0.3
 	ztaylor.me/keygen v0.0.0
-	ztaylor.me/log v0.0.3
+	ztaylor.me/log v0.0.4
 )
