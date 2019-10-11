@@ -53,9 +53,9 @@ export class GameSeatComponent implements OnInit {
   }
 
   getIcon() : string {
-    if (this.game.state.reacts[this.game.username]) {
+    if (this.game.state.reacts[this.username]) {
       return 'asleep'
-    } else if (this.game.state.data.target && this.game.state.data.target==this.game.username) {
+    } else if (this.game.state.data && this.game.state.data.target && this.game.state.data.target==this.game.username) {
       return 'target'
     } else if (this.phaseIsMy('sunrise')) {
       return 'sunrise'
