@@ -1,8 +1,0 @@
-NEW CARDS
-
-- (B)(B) Painful Memories [spell]
-  - Target Being in your Past, then choose 1
-    - Your opponent(s) lose life equal to it's Attack
-    - You gain Life equal to it's Life
-- (G)(G) Party of Plenty [item]
-  - use: Target being gets +1 Attack
