@@ -13,9 +13,9 @@ func init() {
 	game.Scripts["new-element"] = NewElement
 }
 
-func NewElement(g *game.T, s *game.Seat, target interface{}) []game.Event {
+func NewElement(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 	log := g.Log().With(log.Fields{
-		"Seat": s.Username,
+		"Seat": seat.Username,
 	}).Tag("scripts/new-element")
 	me, ok := target.(*game.Card)
 	if !ok {
@@ -23,7 +23,7 @@ func NewElement(g *game.T, s *game.Seat, target interface{}) []game.Event {
 		return nil
 	}
 	return []game.Event{event.NewChoiceEvent(
-		s.Username,
+		seat.Username,
 		"Create a New Element",
 		cast.JSON{
 			"card": me.JSON(),
@@ -36,8 +36,8 @@ func NewElement(g *game.T, s *game.Seat, target interface{}) []game.Event {
 			} else {
 				e := vii.Element(i)
 				log.Add("Element", e).Debug()
-				s.Elements.Append(e)
-				g.SendAll(game.BuildSeatUpdate(s))
+				seat.Elements.Append(e)
+				g.SendSeatUpdate(seat)
 			}
 		},
 	)}

@@ -3,6 +3,7 @@ package scripts
 import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
 )
 
@@ -27,7 +28,7 @@ func LightningStrike(g *game.T, seat *game.Seat, target interface{}) []game.Even
 		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(LightningStrikeID)
 	} else {
 		log.Info(LightningStrikeID)
-		return game.TriggerDamage(g, card, 3)
+		return trigger.Damage(g, card, 3)
 	}
 	return nil
 }

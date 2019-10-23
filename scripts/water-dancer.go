@@ -1,27 +1,29 @@
 package scripts
 
 import (
-
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/target"
 	"ztaylor.me/log"
 )
 
+const WaterDancerID = "water-dancer"
+
 func init() {
-	game.Scripts["water-dancer"] = WaterDancer
+	game.Scripts[WaterDancerID] = WaterDancer
 }
 
-func WaterDancer(g *game.T, s *game.Seat, target interface{}) []game.Event {
+func WaterDancer(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
 	log := g.Log().With(log.Fields{
-		"Target":   target,
-		"Username": s.Username,
-	}).Tag("scripts/water-dancer")
-
-	if card := game.TargetBeing(g, cast.String(target)); card == nil {
-		log.Warn("target failed")
-	} else {
-		card.IsAwake = false
-		g.SendAll(game.BuildCardUpdate(card))
+		"Target":   arg,
+		"Username": seat.Username,
+	}).Tag(logtag + WaterDancerID)
+	card, err := target.PresentBeing(g, seat, arg)
+	if err != nil {
+		log.Add("Error", err).Error()
+		return nil
 	}
+	log.Info()
+	card.IsAwake = false
+	g.SendCardUpdate(card)
 	return nil
 }

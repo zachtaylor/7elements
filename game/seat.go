@@ -56,6 +56,19 @@ func (seat *Seat) Send(json cast.JSON) {
 	}
 }
 
+func (seat *Seat) SendHandUpdate() {
+	seat.Send(BuildPushJSON("/game/hand", cast.JSON{
+		"cards": seat.Hand.JSON(),
+	}))
+}
+
+func (seat *Seat) SendError(source, message string) {
+	seat.Send(BuildPushJSON("/game/error", cast.JSON{
+		"source":  source,
+		"message": message,
+	}))
+}
+
 func (seat *Seat) HasAwakePresentCards() bool {
 	for _, card := range seat.Present {
 		if card.IsAwake {

@@ -3,6 +3,7 @@ package event
 import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
 	"ztaylor.me/log"
 )
@@ -26,8 +27,8 @@ func (event *SunriseEvent) Name() string {
 func (event *SunriseEvent) OnActivate(g *game.T) []game.Event {
 	seat := g.GetSeat(event.Seat())
 	seat.Reactivate()
-	g.SendAll(game.BuildSeatUpdate(seat))
-	return game.SeatTriggeredEvents(g, g.GetSeat(event.Seat()), "sunrise")
+	g.SendSeatUpdate(seat)
+	return trigger.SeatPresent(g, g.GetSeat(event.Seat()), "sunrise")
 }
 func _sunriseIsActivator(event *SunriseEvent) game.ActivateEventer {
 	return event
@@ -48,9 +49,9 @@ func (event *SunriseEvent) Finish(g *game.T) []game.Event {
 	seat.Elements.Append(event.element)
 	if card := seat.Deck.Draw(); card != nil {
 		seat.Hand[card.Id] = card
-		seat.Send(game.BuildHandUpdate(seat))
+		seat.SendHandUpdate()
 	}
-	g.SendAll(game.BuildSeatUpdate(seat))
+	g.SendSeatUpdate(seat)
 	g.Log().With(log.Fields{
 		"Element":  event.element,
 		"Karma":    seat.Elements.String(),
@@ -85,5 +86,5 @@ func (event *SunriseEvent) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 	event.element = vii.Elements[int(elementID)]
 	log.Add("Element", event.element).Info("confirm")
 	g.State.Reacts[seat.Username] = "confirm"
-	g.SendAll(game.BuildReactUpdate(g, seat.Username))
+	g.SendReactUpdate(seat.Username)
 }

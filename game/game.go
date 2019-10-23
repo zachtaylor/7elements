@@ -139,13 +139,6 @@ func (game *T) RegisterCard(card *Card) {
 	game.Cards[card.Id] = card
 }
 
-// SendAll sends data to all seats
-func (game *T) SendAll(json cast.JSON) {
-	for _, seat := range game.Seats {
-		seat.Send(json)
-	}
-}
-
 // GetCloser returns the game open chan
 func (game *T) Done() chan bool {
 	return game.close
@@ -165,11 +158,10 @@ func (game *T) Close() {
 }
 
 // PerspectiveJSON returns JSON representation of a game
-func (game *T) PerspectiveJSON(name string) cast.JSON {
+func (game *T) PerspectiveJSON(seat *Seat) cast.JSON {
 	if game == nil {
 		return nil
 	}
-	seat := game.GetSeat(name)
 	seats := cast.JSON{}
 	for _, s := range game.Seats {
 		seats[s.Username] = s.JSON()
@@ -180,8 +172,8 @@ func (game *T) PerspectiveJSON(name string) cast.JSON {
 		"hand":     seat.Hand.JSON(),
 		"state":    game.State.JSON(),
 		"elements": seat.Elements.JSON(),
-		"username": name,
-		"opponent": game.GetOpponentSeat(name).Username,
+		"username": seat.Username,
+		"opponent": game.GetOpponentSeat(seat.Username).Username,
 		"seats":    seats,
 	}
 }

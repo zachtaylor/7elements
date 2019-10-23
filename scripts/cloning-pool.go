@@ -36,7 +36,7 @@ func CloningPool(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 	clone.Username = seat.Username
 	g.RegisterCard(clone)
 	seat.Life++
-	g.SendAll(game.BuildSeatUpdate(seat))
+	g.SendSeatUpdate(seat)
 
 	log.Info(CloningPoolID)
 	return nil

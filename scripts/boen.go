@@ -28,7 +28,7 @@ package scripts
 // 		seat.Hand[card.Id] = card
 
 // 		seat.Send(game.BuildHandUpdate(seat))
-// 		g.SendAll(game.BuildSeatUpdate(seat))
+// 		g.SendSeatUpdate(seat)
 // 	}
 
 // 	log.Info(BoenID)

@@ -2,8 +2,8 @@ package scripts
 
 import (
 	vii "github.com/zachtaylor/7elements"
-
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
 	"ztaylor.me/log"
 )
@@ -32,7 +32,7 @@ func NightmareAder(g *game.T, seat *game.Seat, target interface{}) []game.Event 
 		log.Add("CardType", card.Card.Type).Error("card not type body")
 	} else {
 		log.Info()
-		return game.TriggerDamage(g, card, card.Body.Attack)
+		return trigger.Damage(g, card, card.Body.Attack)
 	}
 
 	return nil

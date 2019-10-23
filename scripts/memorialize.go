@@ -1,10 +1,8 @@
 package scripts
 
 import (
-	vii "github.com/zachtaylor/7elements"
-
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/target"
 	"ztaylor.me/log"
 )
 
@@ -14,28 +12,21 @@ func init() {
 	game.Scripts[MemorializeID] = Memorialize
 }
 
-func Memorialize(g *game.T, seat *game.Seat, target interface{}) []game.Event {
+func Memorialize(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
 	log := g.Log().With(log.Fields{
-		"Target":   target,
 		"Username": seat.Username,
-	}).Tag("scripts/memorialize")
-
-	gcid := cast.String(target)
-	card := seat.Past[gcid]
-	if card == nil {
-		log.Error("gcid not found")
-	} else if card.Card.Type != vii.CTYPbody {
-		log.Add("CardType", card.Card.Type).Error("card not type body")
-	} else {
-		log.Info()
-		c := game.NewCard(card.Card)
-		c.Username = seat.Username
-		g.RegisterCard(c)
-		seat.Hand[c.Id] = c
-		g.SendAll(game.BuildSeatUpdate(seat))
-		seat.Send(game.BuildHandUpdate(seat))
+	}).Tag(logtag + MemorializeID)
+	card, err := target.MyPastBeing(g, seat, arg)
+	if err != nil {
+		log.Add("Error", err).Error()
 		return nil
 	}
-
+	log.Info()
+	c := game.NewCard(card.Card)
+	c.Username = seat.Username
+	g.RegisterCard(c)
+	seat.Hand[c.Id] = c
+	g.SendSeatUpdate(seat)
+	seat.SendHandUpdate()
 	return nil
 }

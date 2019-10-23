@@ -29,6 +29,6 @@ func CallTheBanners(g *game.T, seat *game.Seat, target interface{}) []game.Event
 		card.Username = seat.Username
 		g.RegisterCard(card)
 	}
-	g.SendAll(game.BuildSeatUpdate(seat))
+	g.SendSeatUpdate(seat)
 	return nil
 }

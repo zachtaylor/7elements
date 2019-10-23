@@ -60,8 +60,8 @@ func (event *PlayEvent) Finish(g *game.T) []game.Event {
 	if event.Card.Card.Type == vii.CTYPbody || event.Card.Card.Type == vii.CTYPitem {
 		log.Debug("spawn")
 		seat.Present[event.Card.Id] = event.Card // card in present and past
-		g.SendAll(game.BuildSpawnUpdate(g, event.Card))
 	}
+	g.SendSeatUpdate(seat)
 
 	powers := event.Card.Powers.GetTrigger("play")
 	events := make([]game.Event, 0)

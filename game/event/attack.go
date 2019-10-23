@@ -67,7 +67,7 @@ func (event *AttackEvent) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 		log.Add("GCID", json["gcid"]).Error("gcid not found")
 	} else if !c.IsAwake {
 		log.Warn("card asleep")
-		seat.Send(game.BuildErrorUpdate(c.Card.Name, "not awake"))
+		seat.SendError(c.Card.Name, "not awake")
 	} else {
 		event.DefendCard = c
 	}

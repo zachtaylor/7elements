@@ -2,6 +2,7 @@ package event
 
 import (
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
 )
 
@@ -44,19 +45,19 @@ func (event *CombatEvent) Name() string {
 func (event *CombatEvent) Finish(g *game.T) []game.Event {
 	var events []game.Event
 	if event.B != nil {
-		if e := game.TriggerDamage(g, event.B, event.A.Body.Attack); e != nil {
+		if e := trigger.Damage(g, event.B, event.A.Body.Attack); e != nil {
 			events = append(events, e...)
 		}
-		g.SendAll(game.BuildCardUpdate(event.B))
-		if e := game.TriggerDamage(g, event.A, event.B.Body.Attack); e != nil {
+		g.SendCardUpdate(event.B)
+		if e := trigger.Damage(g, event.A, event.B.Body.Attack); e != nil {
 			events = append(events, e...)
 		}
-		g.SendAll(game.BuildCardUpdate(event.A))
+		g.SendCardUpdate(event.A)
 	} else if enemyseat := g.GetOpponentSeat(event.A.Username); enemyseat == nil {
 
 	} else if enemyseat.Life > event.A.Body.Attack {
 		enemyseat.Life -= event.A.Body.Attack
-		g.SendAll(game.BuildSeatUpdate(enemyseat))
+		g.SendSeatUpdate(enemyseat)
 	} else {
 		events = []game.Event{NewEndEvent(event.A.Username, enemyseat.Username)}
 	}

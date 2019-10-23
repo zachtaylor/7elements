@@ -15,7 +15,7 @@ func connectGame(rt *api.Runtime, log *log.Entry, socket *websocket.T) {
 		log.Add("Seat", seat).Warn("seat?")
 	} else {
 		log.Add("Name", socket.Session.Name()).Add("GameID", g.ID()).Debug("game data")
-		pushJSON(socket, "/game", g.PerspectiveJSON(socket.Session.Name()))
+		pushJSON(socket, "/game", g.PerspectiveJSON(seat))
 		seat.Receiver = &WebsocketReceiver{socket}
 		go g.Request(seat.Username, "connect", nil)
 		go g.GetChat().User(newChatUser("game#"+g.ID(), socket))

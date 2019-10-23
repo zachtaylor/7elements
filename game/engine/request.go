@@ -42,7 +42,7 @@ func requestConnect(g *game.T, s *game.Seat) {
 		"Username": s.Username,
 		"State":    g.State.Print(),
 	}).Debug("engine/connect: seated")
-	s.Send(game.BuildGameUpdate(g, s.Username))
+	g.SendPrivateUpdate(s)
 
 	if connector, ok := g.State.Event.(game.ConnectEventer); ok {
 		connector.OnConnect(g, s)
@@ -80,36 +80,36 @@ func requestPass(g *game.T, seat *game.Seat, json cast.JSON) {
 		log.Add("PassID", pass).Warn("target mismatch")
 	} else {
 		g.State.Reacts[seat.Username] = "pass"
-		g.SendAll(game.BuildReactUpdate(g, seat.Username))
+		g.SendReactUpdate(seat.Username)
 	}
 }
 
 // RequestAttack causes AttackEvent to stack on MainEvent
-func RequestAttack(g *game.T, s *game.Seat, json cast.JSON) []game.Event {
+func RequestAttack(g *game.T, seat *game.Seat, json cast.JSON) []game.Event {
 	log := g.Log().With(log.Fields{
-		"Seat": s.Print(),
+		"Seat": seat.Print(),
 	}).Tag("engine/attack")
 
 	if gcid := json.GetS("gcid"); gcid == "" {
 		log.Error("gcid missing")
 	} else if card := g.Cards[gcid]; card == nil {
 		log.Add("GCID", gcid).Error("gcid invalid")
-	} else if card.Username != s.Username {
+	} else if card.Username != seat.Username {
 		log.Add("Owner", card.Username).Error("card belongs to a different player")
 	} else if card.Card.Type != vii.CTYPbody {
 		log.Add("Card", card.Print()).Error("card type must be body")
-		s.Send(game.BuildErrorUpdate(card.Card.Name, `not "body" type`))
-	} else if s.Present[gcid] == nil {
+		seat.SendError(card.Card.Name, `not "body" type`)
+	} else if seat.Present[gcid] == nil {
 		log.Add("Card", card.Print()).Error("card must be in present")
-		s.Send(game.BuildErrorUpdate(card.Card.Name, `not in your present`))
+		seat.SendError(card.Card.Name, `not in your present`)
 	} else if !card.IsAwake {
 		log.Add("Card", card.Print()).Error("card must be awake")
-		s.Send(game.BuildErrorUpdate(card.Card.Name, `not awake`))
-	} else {
+		seat.SendError(card.Card.Name, `not awake`)
+		} else {
 		log.Add("Card", card.Print()).Info("accept")
 		card.IsAwake = false
-		g.SendAll(game.BuildCardUpdate(card))
-		return []game.Event{event.NewAttackEvent(s.Username, card)}
+		g.SendCardUpdate(card)
+		return []game.Event{event.NewAttackEvent(seat.Username, card)}
 	}
 	return nil
 }
@@ -132,19 +132,19 @@ func RequestPlay(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []
 		log.Add("Owner", card.Username).Error("card belongs to a different player")
 	} else if card.Card.Type != vii.CTYPspell && onlySpells {
 		log.Add("Card", card.Print()).Error("card type must be spell")
-		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not "spell" type`))
+		seat.SendError(card.Card.Name, `not "spell" type`)
 	} else if seat.Hand[gcid] == nil {
 		log.Add("Card", card.Print()).Error("card must be in hand")
-		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not in your hand`))
+		seat.SendError(card.Card.Name, `not in your hand`)
 	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
 		log.Add("Card", card.Print()).Error("not enough elements")
-		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not enough elements`))
+		seat.SendError(card.Card.Name, `not enough elements`)
 	} else {
 		log.Add("Card", card.Print()).Info("accept")
 		seat.Elements.Deactivate(card.Card.Costs)
 		delete(seat.Hand, gcid)
-		g.SendAll(game.BuildSeatUpdate(seat))
-		seat.Send(game.BuildHandUpdate(seat))
+		g.SendSeatUpdate(seat)
+		seat.SendHandUpdate()
 		return []game.Event{event.Play(seat.Username, card, json["target"])}
 	}
 	return nil
@@ -184,11 +184,11 @@ func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Event {
 		log.Error("powerid not found")
 		return nil
 	} else if !card.IsAwake && power.UsesTurn {
-		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not awake`))
+		seat.SendError(card.Card.Name, `not awake`)
 		log.Error("card is asleep")
 		return nil
 	} else if !seat.Elements.GetActive().Test(power.Costs) {
-		seat.Send(game.BuildErrorUpdate(card.Card.Name, `not enough elements`))
+		seat.SendError(card.Card.Name, `not enough elements`)
 		log.Add("Costs", power.Costs).Error("cannot afford")
 		return nil
 	}
@@ -200,7 +200,7 @@ func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Event {
 	if power.UsesKill {
 		delete(seat.Present, card.Id)
 	}
-	g.SendAll(game.BuildSeatUpdate(seat))
+	g.SendSeatUpdate(seat)
 
 	if power.Target == "self" {
 		return []game.Event{event.NewTriggerEvent(seat.Username, card, power, card)}

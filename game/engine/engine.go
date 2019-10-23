@@ -56,7 +56,7 @@ loop: // nested break
 			g.State = state
 			g.State.Timer = g.Runtime.Timeout
 			g.State.Reacts = make(map[string]string)
-			g.SendAll(game.BuildStateUpdate(g.State))
+			g.SendStateUpdate()
 		} else if e := g.State.Event.GetNext(g); e != nil { // next state
 			log.Add("Next", e).Debug("getnext")
 			g.State = g.NewState(e)
@@ -76,7 +76,7 @@ loop: // nested break
 	enginelog.Add("Data", g.State.Event.JSON()).Add("Time", time.Now().Sub(tStart)).Info("end")
 	for _, seat := range g.Seats {
 		if seat.Receiver != nil {
-			seat.Receiver.WriteJSON(game.BuildGameUpdate(nil, seat.Username))
+			seat.Receiver.WriteJSON(game.BuildPushJSON("/game", nil))
 		}
 		seat.Receiver = nil
 	}
@@ -124,7 +124,7 @@ func finish(g *game.T) []game.Event {
 func activate(g *game.T) []game.Event {
 	g.State.Timer = g.Runtime.Timeout
 	g.State.Reacts = make(map[string]string)
-	g.SendAll(game.BuildStateUpdate(g.State))
+	g.SendStateUpdate()
 	if activator, ok := g.State.Event.(game.ActivateEventer); ok {
 		g.Log().Add("State", g.State.Print()).Debug("engine/activate")
 		if events := activator.OnActivate(g); len(events) > 0 {

@@ -27,7 +27,7 @@ func (event *StartEvent) OnActivate(g *game.T) []game.Event {
 	for _, seat := range g.Seats {
 		seat.Deck.Shuffle()
 		seat.DrawCard(3)
-		seat.Send(game.BuildHandUpdate(seat))
+		seat.SendHandUpdate()
 	}
 	return nil
 }
@@ -70,14 +70,14 @@ func (event *StartEvent) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 		g.State.Reacts[seat.Username] = "mulligan"
 		seat.DiscardHand()
 		seat.DrawCard(3)
-		seat.Send(game.BuildHandUpdate(seat))
-		g.SendAll(game.BuildSeatUpdate(seat))
+		seat.SendHandUpdate()
+		g.SendSeatUpdate(seat)
 	} else {
 		log.Warn("unrecognized")
 		return
 	}
 
 	g.State.Reacts[seat.Username] = choice
-	g.SendAll(game.BuildReactUpdate(g, seat.Username))
+	g.SendReactUpdate(seat.Username)
 	log.Info("confirm")
 }

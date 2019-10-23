@@ -13,23 +13,21 @@ func init() {
 	game.Scripts[SummonersPortalID] = SummonersPortal
 }
 
-func SummonersPortal(g *game.T, seat *game.Seat, target interface{}) []game.Event {
-	card := seat.Deck.Draw()
+func SummonersPortal(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
 	log := g.Log().With(log.Fields{
 		"Username": seat.Username,
-		"Card":     card,
-	}).Tag("/scripts/" + SummonersPortalID)
-
+	}).Tag(logtag + SummonersPortalID)
+	card := seat.Deck.Draw()
 	if card == nil {
 		log.Error(`card is nil`)
+		return nil
 	} else if card.Card.Type == vii.CTYPbody || card.Card.Type == vii.CTYPitem {
 		seat.Present[card.Id] = card
-		g.SendAll(game.BuildSpawnUpdate(g, card))
 	} else {
 		log.Add("BurnedCard", true)
-		seat.Past[card.Id] = card
-		g.SendAll(game.BuildSeatUpdate(seat))
+		g.SendSeatUpdate(seat)
 	}
-	log.Info(SummonersPortalID)
+	seat.Past[card.Id] = card
+	log.Info()
 	return nil
 }

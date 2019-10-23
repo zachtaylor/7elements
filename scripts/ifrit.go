@@ -4,6 +4,7 @@ import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/event"
+	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
 	"ztaylor.me/log"
 )
@@ -23,7 +24,7 @@ func Ifrit(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 	opponent := g.GetOpponentSeat(seat.Username)
 	if target == opponent.Username {
 		opponent.Life--
-		g.SendAll(game.BuildSeatUpdate(opponent))
+		g.SendSeatUpdate(opponent)
 		if opponent.Life < 0 {
 			return []game.Event{
 				event.NewEndEvent(seat.Username, opponent.Username),
@@ -32,7 +33,7 @@ func Ifrit(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 		return nil
 	} else if target == seat.Username {
 		seat.Life--
-		g.SendAll(game.BuildSeatUpdate(seat))
+		g.SendSeatUpdate(seat)
 		if opponent.Life < 0 {
 			return []game.Event{
 				event.NewEndEvent(opponent.Username, seat.Username),
@@ -53,7 +54,7 @@ func Ifrit(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 		log.Add("CardType", card.Card.Type).Error("card not type body")
 	} else {
 		log.Info("confirm")
-		return game.TriggerDamage(g, card, 1)
+		return trigger.Damage(g, card, 1)
 	}
 
 	return nil

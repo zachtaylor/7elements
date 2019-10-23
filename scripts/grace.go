@@ -2,6 +2,8 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/target"
+	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/log"
 )
 
@@ -11,17 +13,17 @@ func init() {
 	game.Scripts[GraceID] = Grace
 }
 
-func Grace(g *game.T, seat *game.Seat, target interface{}) []game.Event {
+func Grace(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
 	log := g.Log().With(log.Fields{
-		"Target":   target,
+		"Target":   arg,
 		"Username": seat.Username,
-	}).Tag("scripts/grace")
+	}).Tag(logtag + GraceID)
 
-	if card := game.TargetBeing(g, target); card == nil {
-		log.Warn("target failed")
-	} else {
-		card.Body.Health += 2
-		g.SendAll(game.BuildCardUpdate(card))
+	card, err := target.PresentBeing(g, seat, arg)
+	if err != nil {
+		log.Add("Error", err).Error()
+		return nil
 	}
-	return nil
+	log.Info()
+	return trigger.Heal(g, card, 2)
 }
