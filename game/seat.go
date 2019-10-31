@@ -136,7 +136,7 @@ func (seat *Seat) JSON() cast.JSON {
 		"life":     seat.Life,
 		"active":   seat.Present.JSON(),
 		"hand":     len(seat.Hand),
-		"elements": seat.Elements,
+		"elements": seat.Elements.JSON(),
 		"past":     seat.Past.JSON(),
 		"future":   len(seat.Deck.Cards),
 	}
