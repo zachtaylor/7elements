@@ -55,11 +55,8 @@ func (event *CombatEvent) Finish(g *game.T) []game.Event {
 		g.SendCardUpdate(event.A)
 	} else if enemyseat := g.GetOpponentSeat(event.A.Username); enemyseat == nil {
 
-	} else if enemyseat.Life > event.A.Body.Attack {
-		enemyseat.Life -= event.A.Body.Attack
-		g.SendSeatUpdate(enemyseat)
-	} else {
-		events = []game.Event{NewEndEvent(event.A.Username, enemyseat.Username)}
+	} else if dmgEvents := trigger.DamageSeat(g, event.A, enemyseat, event.A.Body.Attack); len(dmgEvents) > 0 {
+		events = append(events, dmgEvents...)
 	}
 
 	return events

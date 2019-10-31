@@ -3,7 +3,7 @@ package scripts
 import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event"
+	"github.com/zachtaylor/7elements/game/event/end"
 	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
 	"ztaylor.me/log"
@@ -23,11 +23,12 @@ func Ifrit(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 
 	opponent := g.GetOpponentSeat(seat.Username)
 	if target == opponent.Username {
+		// TODO trigger.DamageSeat
 		opponent.Life--
 		g.SendSeatUpdate(opponent)
 		if opponent.Life < 0 {
 			return []game.Event{
-				event.NewEndEvent(seat.Username, opponent.Username),
+				end.New(seat.Username, opponent.Username),
 			}
 		}
 		return nil
@@ -36,7 +37,7 @@ func Ifrit(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 		g.SendSeatUpdate(seat)
 		if opponent.Life < 0 {
 			return []game.Event{
-				event.NewEndEvent(opponent.Username, seat.Username),
+				end.New(opponent.Username, seat.Username),
 			}
 		}
 		return nil

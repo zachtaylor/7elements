@@ -1,4 +1,4 @@
-package event
+package end
 
 import (
 	"github.com/zachtaylor/7elements/game"
@@ -6,7 +6,7 @@ import (
 	"ztaylor.me/log"
 )
 
-func NewEndEvent(winner, loser string) game.Event {
+func New(winner, loser string) game.Event {
 	return &EndEvent{
 		Winner: winner,
 		Loser:  loser,

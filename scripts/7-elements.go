@@ -2,7 +2,7 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event"
+	"github.com/zachtaylor/7elements/game/event/end"
 )
 
 func init() {
@@ -10,5 +10,5 @@ func init() {
 }
 
 func Elemen7s(g *game.T, seat *game.Seat, target interface{}) []game.Event {
-	return []game.Event{event.NewEndEvent(seat.Username, g.GetOpponentSeat(seat.Username).Username)}
+	return []game.Event{end.New(seat.Username, g.GetOpponentSeat(seat.Username).Username)}
 }
