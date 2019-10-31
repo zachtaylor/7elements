@@ -52,6 +52,8 @@ func PacksBuy(rt *api.Runtime) websocket.Handler {
 		}
 
 		account.Coins -= pack.Cost
+		rt.Root.Accounts.UpdateCoins(account)
+
 		cards := gencardpack.NewPack(rt.Root, account.Username, pack)
 		for _, card := range cards {
 			if err := rt.Root.AccountsCards.InsertCard(card); err != nil {
