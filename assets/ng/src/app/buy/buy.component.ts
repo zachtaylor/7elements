@@ -4,7 +4,7 @@ import { MyAccount, PingData, GlobalData } from '../api'
 import { Subscription } from 'rxjs'
 
 @Component({
-  selector: 'app-packs',
+  selector: 'app-buy',
   templateUrl: './buy.component.html',
   styleUrls: ['./buy.component.css']
 })
