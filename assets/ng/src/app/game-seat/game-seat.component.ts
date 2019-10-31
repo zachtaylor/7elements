@@ -9,15 +9,15 @@ import { Subscription, interval } from 'rxjs'
   styleUrls: ['./game-seat.component.css']
 })
 export class GameSeatComponent implements OnInit {
-  game : Game
-  @Input() username : string
-  timer : number
-  private $ticker : Subscription
-  private $game : Subscription
+  game: Game
+  @Input() username: string
+  timer: number
+  private $ticker: Subscription
+  private $game: Subscription
 
   objectKeys = Object.keys
 
-  constructor(private conn : ConnService) { }
+  constructor(private conn: ConnService) { }
 
   ngOnInit() {
     this.$ticker = interval(1000).subscribe(_ => {
@@ -38,24 +38,24 @@ export class GameSeatComponent implements OnInit {
     this.$game.unsubscribe()
   }
 
-  clickCard(card : GameCard) {
+  clickCard(card: GameCard) {
     let settings = this.conn.settings$.value
     settings.game.zoom = card
     this.conn.settings$.next(settings)
   }
 
-  phaseIs(state : string) : boolean {
+  phaseIs(state: string): boolean {
     return this.game.state.name == state
   }
 
-  phaseIsMy(state : string) : boolean {
+  phaseIsMy(state: string): boolean {
     return this.game.state.seat == this.username && this.phaseIs(state)
   }
 
-  getIcon() : string {
+  getIcon(): string {
     if (this.game.state.reacts[this.username]) {
       return 'asleep'
-    } else if (this.game.state.data && this.game.state.data.target && this.game.state.data.target==this.game.username) {
+    } else if (this.game.state.data && this.game.state.data.target && this.game.state.data.target == this.game.username) {
       return 'target'
     } else if (this.phaseIsMy('sunrise')) {
       return 'sunrise'

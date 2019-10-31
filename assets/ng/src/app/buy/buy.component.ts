@@ -9,12 +9,12 @@ import { Subscription } from 'rxjs'
   styleUrls: ['./buy.component.css']
 })
 export class BuyComponent implements OnInit {
-  glob : GlobalData
-  myaccount : MyAccount
-  private $glob : Subscription
-  private $myaccount : Subscription
+  glob: GlobalData
+  myaccount: MyAccount
+  private $glob: Subscription
+  private $myaccount: Subscription
 
-  constructor(public conn : ConnService) {
+  constructor(public conn: ConnService) {
   }
 
   ngOnInit() {
@@ -31,9 +31,9 @@ export class BuyComponent implements OnInit {
     this.$myaccount.unsubscribe()
   }
 
-  sendBuyPack(packid : number) {
+  sendBuyPack(packid: number) {
     this.conn.sendWS('/packs/buy', {
-      'packid':packid,
+      'packid': packid,
     })
   }
 }
