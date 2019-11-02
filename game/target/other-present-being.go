@@ -10,7 +10,7 @@ func OtherPresentBeing(g *game.T, seat *game.Seat, card *game.Card, arg interfac
 	if gcid, ok := arg.(string); !ok {
 		return nil, errors.New("no gcid")
 	} else if c := g.Cards[gcid]; card == nil {
-		return nil, errors.New("no card")
+		return nil, errors.New("no card: " + gcid)
 	} else if s := g.GetSeat(c.Username); s == nil {
 		return nil, errors.New("no seat")
 	} else if !s.HasPresentCard(c.Id) {
