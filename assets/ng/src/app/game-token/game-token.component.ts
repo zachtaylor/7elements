@@ -7,10 +7,10 @@ import { GameCard, Game } from '../api'
   styleUrls: ['./game-token.component.css']
 })
 export class GameTokenComponent implements OnInit {
-  @Input() card : GameCard
-  @Input() game : Game
+  @Input() card: GameCard
+  @Input() game: Game
 
-  @HostBinding('class.triggered') get isTriggered() : boolean {
+  @HostBinding('class.triggered') get isTriggered(): boolean {
     let dat = this.game.state.data
     return dat && (dat.gcid == this.card.gcid ||
       (dat.card && dat.card.gcid == this.card.gcid) ||
@@ -25,7 +25,7 @@ export class GameTokenComponent implements OnInit {
   ngOnInit() {
   }
 
-  getIcon() : string {
+  getIcon(): string {
     let dat = this.game.state.data
     if (!dat) {
       if (this.card.awake) {

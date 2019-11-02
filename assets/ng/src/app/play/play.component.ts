@@ -10,18 +10,18 @@ import { Subscription, Observable, interval } from 'rxjs'
   styleUrls: ['./play.component.css']
 })
 export class PlayComponent implements OnInit {
-  glob : GlobalData
-  myaccount : MyAccount
-  game : Game
-  timer : number
-  settings : Settings
-  private $ticker : Subscription
-  private $glob : Subscription
-  private $myaccount : Subscription
-  private $game : Subscription
-  private $settings : Subscription
+  glob: GlobalData
+  myaccount: MyAccount
+  game: Game
+  timer: number
+  settings: Settings
+  private $ticker: Subscription
+  private $glob: Subscription
+  private $myaccount: Subscription
+  private $game: Subscription
+  private $settings: Subscription
 
-  constructor(public conn : ConnService, private router : Router) {
+  constructor(public conn: ConnService, private router: Router) {
   }
 
   ngOnInit() {
@@ -38,7 +38,7 @@ export class PlayComponent implements OnInit {
     this.$game = this.conn.game$.subscribe(game => {
       if (!game) {
         return
-      } 
+      }
       this.game = game
       this.timer = game.state.timer
       if (game.state.name == 'target') {
@@ -64,7 +64,7 @@ export class PlayComponent implements OnInit {
    * @param account use p2p deck
    * @param deckid
    */
-  setActiveDeck(account : boolean, deckid : number) {
+  setActiveDeck(account: boolean, deckid: number) {
     let settings = this.conn.settings$.value
     settings.deck.account = account
     settings.deck.id = deckid
@@ -122,73 +122,73 @@ export class PlayComponent implements OnInit {
 
   updateTarget() {
     console.debug('updateTarget', this.game.state.data.helper, this.game.state.data.display)
-    if (this.game.state.seat==this.game.username) {
+    if (this.game.state.seat == this.game.username) {
       let me = this
       this.settings.game.target.helper = this.game.state.data.helper
       this.settings.game.target.display = this.game.state.data.display
-      this.settings.game.target.send = function(val : any) {
+      this.settings.game.target.send = function (val: any) {
         me.sendGCID(me.game, val)
         me.settings.game.target = null
       }
     }
   }
 
-  powerString(power : Power) : string {
+  powerString(power: Power): string {
     if (power.usesturn) return 'use'
     else if (power.useskill) return 'kill'
     else return "activate"
   }
 
-  clickAttack(game : Game, gcid : string) {
+  clickAttack(game: Game, gcid: string) {
     this.conn.sendWS('/game', {
-      gameid:game.id,
-      uri:'attack',
-      gcid:gcid,
+      gameid: game.id,
+      uri: 'attack',
+      gcid: gcid,
     })
     this.settings.game.zoom = null
     this.conn.settings$.next(this.settings)
   }
 
-  clickDefend(game : Game, gcid : string) {
+  clickDefend(game: Game, gcid: string) {
     this.sendGCID(game, gcid)
     this.settings.game.zoom = null
     this.conn.settings$.next(this.settings)
   }
 
-  clickHand(game : Game, card : GameCard) {
+  clickHand(game: Game, card: GameCard) {
     console.debug('hand click', card)
     this.settings.game.hand = false
-    if (!card.body && card.powers.length > 0 && card.powers[0].target!='self') {
+    if (card.type == 'spell' && card.powers.length > 0 && card.powers[0].target != 'self') {
       let conn = this.conn
       this.settings.game.target = {
         display: card.powers[0].text,
         helper: card.powers[0].target,
-        send: function(val : any) {
+        send: function (val: any) {
           conn.sendWS('/game', {
-            'uri':'play',
-            'gameid':game.id,
-            'gcid':card.gcid,
-            'target':val
+            'uri': 'play',
+            'gameid': game.id,
+            'gcid': card.gcid,
+            'target': val
           })
         }
       }
     } else {
       this.conn.sendWS('/game', {
-        'uri':'play',
-        'gameid':game.id,
-        'gcid':card.gcid
+        'uri': 'play',
+        'gameid': game.id,
+        'gcid': card.gcid
       })
     }
     this.conn.settings$.next(this.settings)
   }
 
-  clickPower(game : Game, card : GameCard, power : Power) {
+  clickPower(game: Game, card: GameCard, power: Power) {
     console.debug('click power', card, power)
-    if (power.target!='' && power.target!='self') {
+    if (power.target != '' && power.target != 'self') {
       let me = this
       this.settings.game.target = new Target()
       this.settings.game.target.helper = power.target
-      this.settings.game.target.send = function(target : any) {
+      this.settings.game.target.send = function (target: any) {
         me.sendPower(game, card.gcid, power.id, target)
       }
     } else {
@@ -198,14 +198,14 @@ export class PlayComponent implements OnInit {
     this.conn.settings$.next(this.settings)
   }
 
-  clickTarget(game : Game, target : any) {
+  clickTarget(game: Game, target: any) {
     this.settings.game.target.send(target)
     this.settings.game.target.helper = ''
     this.settings.game.target.send = false
     this.conn.settings$.next(this.settings)
   }
 
-  clickEnd(game : Game) {
+  clickEnd(game: Game) {
     this.sendPass(game)
     this.conn.game$.next(null)
     this.router.navigateByUrl('/')
@@ -213,62 +213,62 @@ export class PlayComponent implements OnInit {
 
   // send data
 
-  sendChat(game : Game, chatinput : any) {
+  sendChat(game: Game, chatinput: any) {
     console.debug('send chat', chatinput)
     this.conn.sendWS('/game', {
-      gameid:game.id,
-      uri:'chat',
-      text:chatinput.value,
+      gameid: game.id,
+      uri: 'chat',
+      text: chatinput.value,
     })
     chatinput.value = ''
   }
 
-  sendPass(game : Game) {
+  sendPass(game: Game) {
     console.debug('send pass')
     this.conn.sendWS('/game', {
-      gameid:game.id,
-      uri:'pass',
-      pass:game.state.id,
+      gameid: game.id,
+      uri: 'pass',
+      pass: game.state.id,
     })
   }
 
-  zoomShowPower(card : GameCard, power : Power) : boolean {
+  zoomShowPower(card: GameCard, power: Power): boolean {
     if (power.trigger) return false
     else if (!power.usesturn) return true
     else return card.awake
   }
 
-  sendChoice(game : Game, choice : string) {
+  sendChoice(game: Game, choice: string) {
     this.conn.sendWS('/game', {
-      gameid:game.id,
-      uri:game.state.id,
-      choice:choice,
+      gameid: game.id,
+      uri: game.state.id,
+      choice: choice,
     })
   }
 
-  sendSunriseElement(game : Game, i : number) {
+  sendSunriseElement(game: Game, i: number) {
     this.conn.sendWS('/game', {
-      gameid:game.id,
-      uri:game.state.id,
-      elementid:i,
+      gameid: game.id,
+      uri: game.state.id,
+      elementid: i,
     })
   }
 
-  sendPower(game : Game, gcid : string, powerid : number, target : any) {
+  sendPower(game: Game, gcid: string, powerid: number, target: any) {
     this.conn.sendWS('/game', {
-      gameid:game.id,
-      uri:'trigger',
-      gcid:gcid,
-      powerid:powerid,
-      target:target
+      gameid: game.id,
+      uri: 'trigger',
+      gcid: gcid,
+      powerid: powerid,
+      target: target
     })
   }
 
-  sendGCID(game : Game, gcid : string) {
+  sendGCID(game: Game, gcid: string) {
     this.conn.sendWS('/game', {
-      gameid:game.id,
-      uri:game.state.id,
-      gcid:gcid,
+      gameid: game.id,
+      uri: game.state.id,
+      gcid: gcid,
     })
   }
 }

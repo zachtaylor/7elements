@@ -26,29 +26,29 @@ export class ConnService {
       hand: false,
       zoom: null,
       target: {
-        display:'',
-        helper:'',
-        send:false
+        display: '',
+        helper: '',
+        send: false
       }
     }
   })
 
   private ws: WebSocket
 
-  constructor(private router : Router, private http : HttpClient, private cookieService : CookieService) {
+  constructor(private router: Router, private http: HttpClient, private cookieService: CookieService) {
     this.http.get<GlobalData>(`/api/global.json`).subscribe(glob => {
       console.debug('glob', glob)
       this.global$.next(glob)
     })
     let me = this
-    this.ws = new WebSocket(window.location.protocol.replace('http', 'ws')+window.location.host+'/api/websocket')
-    this.ws.onopen = function() {
+    this.ws = new WebSocket(window.location.protocol.replace('http', 'ws') + window.location.host + '/api/websocket')
+    this.ws.onopen = function () {
       console.debug('ws opened')
     }
-    this.ws.onmessage = function(msg) {
+    this.ws.onmessage = function (msg) {
       if (msg.data instanceof Blob) {
         let reader = new FileReader()
-        reader.onload = function() {
+        reader.onload = function () {
           let data = me.parseWS(reader.result.toString())
           if (data) me.serveWS(data)
           else return console.error("websocket.message failed to parse", msg.data)
@@ -60,7 +60,7 @@ export class ConnService {
         else return console.error("websocket.message failed to parse", msg.data)
       }
     }
-    this.ws.onclose = function(e) {
+    this.ws.onclose = function (e) {
       console.warn('ws connection lost', e)
       me.myaccount$.next(null)
       me.game$.next(null)
@@ -71,15 +71,15 @@ export class ConnService {
    * isLoggedIn returns whether this.myaccount$ has been set
    * This is useful because templates do not execute when a Subscription returns null
    */
-  isLoggedIn() : boolean {
-    return (!!this.myaccount$.value)&&(!!this.myaccount$.value.username)
+  isLoggedIn(): boolean {
+    return (!!this.myaccount$.value) && (!!this.myaccount$.value.username)
   }
 
   /**
    * hasGame returns whether Game is set 
    * This is useful because templates do not execute when a Subscription returns null
    */
-  hasGame() : boolean {
+  hasGame(): boolean {
     return !!this.game$.value
   }
 
@@ -87,7 +87,7 @@ export class ConnService {
    * getGame returns Game
    * @hidden
    */
-  getGame() : Game {
+  getGame(): Game {
     return this.game$.value
   }
 
@@ -113,9 +113,9 @@ export class ConnService {
     this.notifications$.next([])
   }
 
-  getCard(cardid : number) {
+  getCard(cardid: number) {
     let cards = this.global$.value.cards
-    for (let i=0; i<cards.length; i++) {
+    for (let i = 0; i < cards.length; i++) {
       if (cards[i].id == cardid) {
         return cards[i]
       }
@@ -123,10 +123,10 @@ export class ConnService {
     return null
   }
 
-  getDeck(deckid : number) {
+  getDeck(deckid: number) {
     if (!this.global$.value) return null
     let decks = this.global$.value.decks
-    for (let i=0; i<decks.length; i++) {
+    for (let i = 0; i < decks.length; i++) {
       if (decks[i].id == deckid) {
         return decks[i]
       }
@@ -134,7 +134,7 @@ export class ConnService {
     return null
   }
 
-  getChat(channel : string) : BehaviorSubject<Chat> {
+  getChat(channel: string): BehaviorSubject<Chat> {
     if (!this.chats[channel]) {
       let chat = new Chat()
       chat.name = channel
@@ -143,15 +143,15 @@ export class ConnService {
     return this.chats[channel]
   }
 
-  newGame(ai : boolean, usep2p : boolean, deckid : number) {
+  newGame(ai: boolean, usep2p: boolean, deckid: number) {
     let path = '/api/newgame.json'
     if (ai) path += '?ai=true'
     this.http.get<Game>(path, {
-      params:new HttpParams({
-        fromObject:{
-          "ai":ai.toString(),
-          "deckid":deckid.toString(),
-          "usep2p":usep2p.toString(),
+      params: new HttpParams({
+        fromObject: {
+          "ai": ai.toString(),
+          "deckid": deckid.toString(),
+          "usep2p": usep2p.toString(),
         }
       })
     }).subscribe(match => {
@@ -161,15 +161,15 @@ export class ConnService {
     })
   }
 
-  sendWS(uri : string, data : object) {
+  sendWS(uri: string, data: object) {
     console.debug('ws out:', uri, data)
     this.ws.send(JSON.stringify({
-      'uri':uri,
-      'data':data
+      'uri': uri,
+      'data': data
     }))
   }
 
-  parseWS(msg : string) {
+  parseWS(msg: string) {
     try {
       return JSON.parse(msg)
     } catch (e) {
@@ -239,7 +239,7 @@ export class ConnService {
     this.myaccount$.next(data)
   }
 
-  servePingData(data : any) {
+  servePingData(data: any) {
     console.debug('conn.servePingData:', data)
     this.ping$.next(data)
   }
@@ -257,7 +257,7 @@ export class ConnService {
     if (data.source) {
       not.message = data.source + ': '
     }
-    not.message += data.error
+    not.message += data.message
     nots.push(not)
     this.notifications$.next(nots)
     let me = this.notifications$
@@ -271,7 +271,7 @@ export class ConnService {
     }, 7000)
   }
 
-  serveChat(data : any) {
+  serveChat(data: any) {
     console.debug('conn.serveChat:', data.channel, data.username, data.message)
     let chat$ = this.getChat(data.channel)
     let next = chat$.getValue()
@@ -298,12 +298,12 @@ export class ConnService {
     }, 7000)
   }
 
-  serveChatJoin(data : any) {
+  serveChatJoin(data: any) {
     console.debug('conn.serveChatJoin', data.channel)
     this.getChat(data.channel).next(data)
   }
 
-  serveGame(data : any) {
+  serveGame(data: any) {
     if (data) {
       console.debug('conn.serveGame', data.id, data)
       if (this.router.url != '/play') {
@@ -313,15 +313,15 @@ export class ConnService {
     this.game$.next(data)
   }
 
-  serveGameState(data : any) {
+  serveGameState(data: any) {
     console.debug('conn.serveGameState', data.seat, data.name, data.data)
     let game = this.getGame()
     game.state = data
     this.game$.next(game)
   }
 
-  serveGameSeat(data : any) {
-    console.debug('conn.serveGameSeat', data.username)
+  serveGameSeat(data: any) {
+    console.debug('conn.serveGameSeat', data.username, data.elements)
     let game = this.getGame()
     let seat = game.seats[data.username]
     Object.keys(data).forEach(key => {
@@ -331,7 +331,7 @@ export class ConnService {
     this.game$.next(game)
   }
 
-  serveGameCard(data : any) {
+  serveGameCard(data: any) {
     let game = this.getGame()
     let owner = data.username
     if (data.body && data.body.health < 1) {
@@ -345,22 +345,22 @@ export class ConnService {
     }
     this.game$.next(game)
   }
-  
-  serveGameHand(data : any) {
+
+  serveGameHand(data: any) {
     console.debug('conn.serveGameHand', data.cards)
     let game = this.getGame()
     game.hand = data.cards
     this.game$.next(game)
   }
 
-  serveGameChoice(data : any) {
+  serveGameChoice(data: any) {
     console.debug('conn.serveGameChoice')
     let game = this.getGame()
     game.state.data = data
     this.game$.next(game)
   }
 
-  serveGameReact(data : any) {
+  serveGameReact(data: any) {
     console.debug('conn.serveGameReact', data.username, data.react)
     let game = this.getGame()
     if (!game) return;
@@ -369,7 +369,7 @@ export class ConnService {
     this.game$.next(game)
   }
 
-  serveGameSpawn(data : any) {
+  serveGameSpawn(data: any) {
     let game = this.getGame()
     console.debug('conn.serveGameSpawn', data.username, data.card.name, game.seats[data.username].active)
     game.seats[data.username].active[data.card.gcid] = data.card
