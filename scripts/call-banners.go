@@ -7,12 +7,12 @@ import (
 )
 
 func init() {
-	game.Scripts["call-the-banners"] = CallTheBanners
+	game.Scripts["call-banners"] = CallTheBanners
 }
 
 var ctbCard = &vii.Card{
 	Type:  vii.CTYPbody,
-	Image: "/img/cards/zealot-0.jpg",
+	Image: "/img/card/4.jpg",
 	Name:  "Bannerman",
 	Text:  "At your call",
 	Costs: vii.ElementMap{},
@@ -28,7 +28,8 @@ func CallTheBanners(g *game.T, seat *game.Seat, target interface{}) []game.Event
 		card := game.NewCard(ctbCard)
 		card.Username = seat.Username
 		g.RegisterCard(card)
+		seat.Present[card.Id] = card
+		g.SendCardUpdate(card)
 	}
-	g.SendSeatUpdate(seat)
 	return nil
 }

@@ -18,7 +18,7 @@ import (
 	"ztaylor.me/log"
 )
 
-const Patch = 2
+const Patch = 3
 
 var stdout = log.StdOutService(log.LevelDebug)
 
