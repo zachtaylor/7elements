@@ -8,6 +8,7 @@
   vertical-align: top;
   position:relative;
   color:black;
+  text-align:left;;
   background-color:#a7a7a7;
 }
 :host.white {
