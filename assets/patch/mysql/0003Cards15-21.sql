@@ -43,7 +43,7 @@ INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	scri
 	VALUES (20, 1, "", "my-being", 1, 0, "font-life", "Target Being gains 2 Health");
 
 INSERT INTO cards (id, type, name, text, image)
-	VALUES (21, 3, "Intro to Necromancy", "", "/img/card/21.jpg");
+	VALUES (21, 3, "Necromancy 101", "", "/img/card/21.jpg");
 INSERT INTO cards_element_costs (cardid, element, count)
 	VALUES (21, 7, 3);
 INSERT INTO cards_powers (cardid, id, xtrigger,	target,	usesturn, useskill,	script, text)

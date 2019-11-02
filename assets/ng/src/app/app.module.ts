@@ -1,6 +1,6 @@
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
-import { HttpClientModule  } from '@angular/common/http'
+import { HttpClientModule } from '@angular/common/http'
 import { CookieService } from 'ngx-cookie-service'
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
@@ -60,8 +60,8 @@ import { UpdatesComponent } from './updates/updates.component'
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [ CookieService ],
-  bootstrap: [ AppComponent ],
-  schemas: [ NO_ERRORS_SCHEMA ]
+  providers: [CookieService],
+  bootstrap: [AppComponent],
+  schemas: [NO_ERRORS_SCHEMA]
 })
 export class AppModule { }
