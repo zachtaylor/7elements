@@ -53,9 +53,7 @@ export class GameSeatComponent implements OnInit {
   }
 
   getIcon(): string {
-    if (this.game.state.reacts[this.username]) {
-      return 'asleep'
-    } else if (this.game.state.data && this.game.state.data.target && this.game.state.data.target == this.game.username) {
+    if (this.game.state.data && this.game.state.data.target && this.game.state.data.target == this.game.username) {
       return 'target'
     } else if (this.phaseIsMy('sunrise')) {
       return 'sunrise'
@@ -71,6 +69,8 @@ export class GameSeatComponent implements OnInit {
       return 'combat'
     } else if (this.phaseIsMy('sunset')) {
       return 'sunset'
+    } else if (this.game.state.reacts[this.username]) {
+      return 'asleep'
     } else {
       return 'awake'
     }
