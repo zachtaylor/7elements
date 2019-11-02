@@ -28,9 +28,9 @@ func (event *SunriseEvent) OnActivate(g *game.T) []game.Event {
 	seat := g.GetSeat(event.Seat())
 	seat.Reactivate()
 	g.SendSeatUpdate(seat)
-	return trigger.SeatPresent(g, g.GetSeat(event.Seat()), "sunrise")
+	return trigger.SeatPresent(g, seat, "sunrise")
 }
-func _sunriseIsActivator(event *SunriseEvent) game.ActivateEventer {
+func _sunriseIsActivateEventer(event *SunriseEvent) game.ActivateEventer {
 	return event
 }
 

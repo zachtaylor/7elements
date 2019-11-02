@@ -2,6 +2,7 @@ package event
 
 import (
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
 )
 
@@ -19,9 +20,14 @@ func (event *SunsetEvent) Name() string {
 	return "sunset"
 }
 
-// // OnActivate implements game.ActivateEventer
-// func (event *SunsetEvent) OnActivate(g *game.T) {
-// }
+// OnActivate implements game.ActivateEventer
+func (event *SunsetEvent) OnActivate(g *game.T) []game.Event {
+	seat := g.GetSeat(event.Seat())
+	return trigger.SeatPresent(g, seat, "sunset")
+}
+func _sunsetIsActivateEventer(event *SunsetEvent) game.ActivateEventer {
+	return event
+}
 
 // // OnConnect implements game.ConnectEventer
 // func (event *SunsetEvent) OnConnect(*game.T, *game.Seat) {

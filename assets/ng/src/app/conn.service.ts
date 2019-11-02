@@ -181,51 +181,51 @@ export class ConnService {
 
   // Websocket Mux
 
-  serveWS(msg : any) {
+  serveWS(msg: any) {
     let uri = msg.uri
     let data = msg.data
     if (!uri) {
       console.warn('ws in uri?', msg)
       return
-    } else if (uri=='/redirect') {
+    } else if (uri == '/redirect') {
       this.serveRedirect(data)
-    } else if (uri=='/data/myaccount') {
+    } else if (uri == '/data/myaccount') {
       this.serveDataMyAccount(data)
-    } else if (uri=='/data/ping') {
+    } else if (uri == '/data/ping') {
       this.servePingData(data)
-    } else if (uri=='/error') {
-      this.serveError(data)
-    } else if (uri=='/chat') {
+    } else if (uri == '/chat') {
       this.serveChat(data)
-    } else if (uri=='/chat/join') {
+    } else if (uri == '/chat/join') {
       this.serveChatJoin(data)
-    } else if (uri=='/game') {
+    } else if (uri == '/game') {
       this.serveGame(data)
-    } else if (uri=='/game/state') {
+    } else if (uri == '/game/state') {
       this.serveGameState(data)
-    } else if (uri=='/game/seat') {
+    } else if (uri == '/game/seat') {
       this.serveGameSeat(data)
-    } else if (uri=='/game/card') {
+    } else if (uri == '/game/card') {
       this.serveGameCard(data)
-    } else if (uri=='/game/hand') {
+    } else if (uri == '/game/hand') {
       this.serveGameHand(data)
-    } else if (uri=='/game/choice') {
+    } else if (uri == '/game/choice') {
       this.serveGameChoice(data)
-    } else if (uri=='/game/react') {
+    } else if (uri == '/game/error') {
+      this.serveGameError(data)
+    } else if (uri == '/game/react') {
       this.serveGameReact(data)
-    } else if (uri=='/game/spawn') {
+    } else if (uri == '/game/spawn') {
       this.serveGameSpawn(data)
     } else {
-      console.warn('ws in?', uri, data)
+      console.log('ws in?', uri, data)
     }
   }
 
-  serveRedirect(data : any) {
+  serveRedirect(data: any) {
     console.debug('conn.serveRedirect:', data.location)
     this.router.navigate([data.location])
   }
 
-  serveDataMyAccount(data : any) {
+  serveDataMyAccount(data: any) {
     if (data.username) {
       // let date = new Date();
       // date.setDate(date.getDate() + 1);
@@ -248,8 +248,8 @@ export class ConnService {
   //   this.addNotification(data.level, data.source, data.text)
   // }
 
-  serveError(data : any) {
-    console.debug('conn.serveError:', data.source, data.error)
+  serveGameError(data: any) {
+    console.log('conn.serveGameError:', data.source, data.error)
     let nots = this.notifications$.value
     let not = new Notification()
     not.source = 'vii'

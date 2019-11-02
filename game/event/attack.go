@@ -1,6 +1,7 @@
 package event
 
 import (
+	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
 	"ztaylor.me/cast"
 	"ztaylor.me/log"
@@ -23,9 +24,14 @@ func (event *AttackEvent) Name() string {
 	return "attack"
 }
 
-// // OnActivate implements game.ActivateEventer
-// func (event *AttackEvent) OnActivate(*game.T) {
-// }
+// OnActivate implements game.ActivateEventer
+func (event *AttackEvent) OnActivate(g *game.T) []game.Event {
+	go g.GetChat().AddMessage(chat.NewMessage(event.AttackCard.Card.Name, "attack"))
+	return nil
+}
+func (e *AttackEvent) _isActivateEventer() game.ActivateEventer {
+	return e
+}
 
 // // OnConnect implements game.ConnectEventer
 // func (event *AttackEvent) OnConnect(*game.T, *game.Seat) {

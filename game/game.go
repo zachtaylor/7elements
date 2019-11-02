@@ -1,6 +1,8 @@
 package game
 
 import (
+	"sync"
+
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
 	"ztaylor.me/cast"
@@ -11,6 +13,7 @@ import (
 type T struct {
 	id      string
 	in      chan *Request
+	lock    sync.Mutex
 	chat    *chat.Room
 	close   chan bool
 	Cards   Cards
@@ -67,9 +70,11 @@ func (game *T) Request(username string, uri string, data cast.JSON) {
 	})
 }
 func (game *T) request(r *Request) {
+	game.lock.Lock()
 	if game.in != nil {
 		game.in <- r
 	}
+	game.lock.Unlock()
 }
 
 func (game *T) Monitor() <-chan *Request {
@@ -149,10 +154,12 @@ func (game *T) Close() {
 	game.Runtime.logger.New().
 		// With(log.Fields{}).
 		Info("close") // add fields later
+	game.lock.Lock()
 	close(game.in)
 	game.in = nil
 	close(game.close)
 	game.close = nil
+	game.lock.Unlock()
 	game.chat.Destroy()
 	game.Runtime.logger.Close()
 }

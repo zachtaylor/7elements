@@ -104,7 +104,7 @@ func (event *PlayEvent) JSON() cast.JSON {
 	json := cast.JSON{
 		"card": event.Card.JSON(),
 	}
-	if c, ok := event.Target.(*game.Card); ok {
+	if c, _ := event.Target.(*game.Card); c != nil {
 		json["target"] = c.JSON()
 	} else {
 		json["target"] = event.Target
