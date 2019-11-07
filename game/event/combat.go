@@ -27,7 +27,9 @@ func (event *CombatEvent) Name() string {
 
 // OnActivate implements game.ActivateEventer
 func (event *CombatEvent) OnActivate(g *game.T) []game.Event {
-	go g.GetChat().AddMessage(chat.NewMessage(event.A.Card.Name, "vs "+event.B.Card.Name))
+	if event.B != nil {
+		go g.GetChat().AddMessage(chat.NewMessage(event.A.Card.Name, "vs "+event.B.Card.Name))
+	}
 	return nil
 }
 func (e *CombatEvent) _isActivateEventer() game.ActivateEventer {
