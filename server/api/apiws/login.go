@@ -3,7 +3,6 @@ package apiws
 import (
 	"github.com/zachtaylor/7elements/server/api"
 	"ztaylor.me/cast"
-	"ztaylor.me/http/json"
 	"ztaylor.me/http/websocket"
 )
 
@@ -58,7 +57,7 @@ type WebsocketReceiver struct {
 }
 
 func (ws *WebsocketReceiver) WriteJSON(data cast.JSON) {
-	ws.Write(json.Encode(data))
+	ws.Write(cast.BytesS(data.String()))
 }
 
 func (ws *WebsocketReceiver) String() string {

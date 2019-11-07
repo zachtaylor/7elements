@@ -3,7 +3,6 @@ package apiws
 import (
 	"github.com/zachtaylor/7elements/server/api"
 	"ztaylor.me/cast"
-	"ztaylor.me/http/json"
 	"ztaylor.me/http/websocket"
 	"ztaylor.me/log"
 )
@@ -49,14 +48,14 @@ func ChatJoin(rt *api.Runtime) websocket.Handler {
 			}
 		}
 
-		socket.Write(json.Encode(cast.JSON{
+		socket.Write(cast.BytesS(cast.JSON{
 			"uri": "/chat/join",
 			"data": cast.JSON{
 				"channel":  channel,
 				"username": m.User,
 				"messages": history,
 			},
-		}))
+		}.String()))
 
 		log.Info()
 		select {

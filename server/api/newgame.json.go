@@ -8,7 +8,6 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai"
 	"ztaylor.me/cast"
-	"ztaylor.me/http/json"
 )
 
 func NewGameHandler(rt *Runtime) http.Handler {
@@ -78,7 +77,7 @@ func NewGameHandler(rt *Runtime) http.Handler {
 		}
 
 		if g != nil {
-			w.Write(json.Encode(g.PerspectiveJSON(g.GetSeat(session.Name()))))
+			w.Write(cast.BytesS(g.PerspectiveJSON(g.GetSeat(session.Name())).String()))
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("internal server error"))
