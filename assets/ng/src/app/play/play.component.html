@@ -72,11 +72,11 @@
             <span
               *ngIf="settings.game.zoom.awake&&settings.game.zoom.body&&game.state.name=='main'&&game.username==game.state.seat">
               <a (click)="clickAttack(game, settings.game.zoom.gcid)">attack</a>
-              <br/>
+              <br />
             </span>
             <span *ngIf="settings.game.zoom.awake&&game.state.name=='attack'&&game.username!=game.state.seat">
               <a (click)="clickDefend(game, settings.game.zoom.gcid)">defend</a>
-              <br/>
+              <br />
             </span>
           </ng-container>
           <span class="flx1"></span>

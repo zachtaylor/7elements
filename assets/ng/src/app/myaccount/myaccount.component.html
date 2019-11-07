@@ -6,7 +6,7 @@
     <article-header>Logout</article-header>
     <article-body>Thanks for playing, <a (click)="logout()">click here to logout</a></article-body>
   </article>
-  <br/>
+  <br />
   <article>
     <article-header>Account Details</article-header>
     <article-body>
@@ -15,7 +15,7 @@
       <div *ngIf="!!myaccount" autosize>You have {{objectKeys(myaccount.decks).length}} decks</div>
     </article-body>
   </article>
-  <br/>
+  <br />
   <article>
     <article-header>Your Cards</article-header>
     <article-body>
@@ -24,7 +24,7 @@
       </app-card-detail>
     </article-body>
   </article>
-  <br/>
+  <br />
   <article>
     <article-header>Your Decks</article-header>
     <article-body>
@@ -32,7 +32,7 @@
       <!-- <app-deck-summary *ngFor="let deckid of myaccount?.cards | mapKeys" [deck]="conn.getDeck(ping, deckid)"></app-deck-summary> -->
     </article-body>
   </article>
-  <br/>
+  <br />
 </ng-template>
 <!-- logged out -->
 <ng-template #loggedOut>
@@ -55,7 +55,7 @@
             <span><b>e-mail</b></span>
             <input type="email" formControlName="email">
           </div>
-          <div *ngIf="signup" class="vii-form-detail fltr">Your account password has no length or specific requirements</div>
+          <div *ngIf="signup" class="vii-form-detail fltr">Your account password has no specific requirements</div>
           <div class="vii-form-group" id="form-group-password1">
             <span><b>password</b></span>
             <input type="password" formControlName="password1" class="vii">
@@ -73,4 +73,3 @@
     </article-body>
   </article>
 </ng-template>
-
