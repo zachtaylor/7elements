@@ -132,10 +132,10 @@
     <a routerLink="/cards">Click here</a> to access the card set
   </article-body>
   <article-footer>
-    <ng-container *ngIf="conn.myaccount$.data">
+    <ng-container *ngIf="conn.isLoggedIn()">
       <a routerLink="/play">Click here</a> to play a game
     </ng-container>
-    <ng-container *ngIf="!conn.myaccount$.data">
+    <ng-container *ngIf="!conn.isLoggedIn()">
       <a routerLink="/myaccount">Click here</a> to login
     </ng-container>
   </article-footer>

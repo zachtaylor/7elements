@@ -11,7 +11,7 @@ export class ChatsComponent implements OnInit {
   channel = ''
   openChats = ['all']
 
-  constructor(public ws : WebsocketService) {
+  constructor(public conn: ConnService, public ws : WebsocketService) {
   }
 
   ngOnInit() {

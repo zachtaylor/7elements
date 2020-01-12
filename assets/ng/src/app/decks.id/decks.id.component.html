@@ -1,7 +1,7 @@
 <article>
   <article-header>Deck Details</article-header>
   <article-body>
-    <h2>{{deck?.title}}</h2>
+    <h2>{{deck?.name}}</h2>
     <hr/>
     <app-card-detail *ngFor="let cardid of deck?.cards | mapKeys" [card]="conn.card(cardid)">
       <div style="padding:7px">x{{deck?.cards[cardid]}}</div>
