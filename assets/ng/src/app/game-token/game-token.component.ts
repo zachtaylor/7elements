@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core'
-import { GameCard, Game } from '../api'
+import { GameToken, Game } from '../api'
+import { Subscription } from 'rxjs'
+import { GameService } from '../game.service'
 
 @Component({
   selector: 'app-game-token',
@@ -7,44 +9,56 @@ import { GameCard, Game } from '../api'
   styleUrls: ['./game-token.component.css']
 })
 export class GameTokenComponent implements OnInit {
-  @Input() card: GameCard
+  @Input() tokenid: string
+  token : GameToken
+  $token : Subscription
   @Input() game: Game
 
   @HostBinding('class.triggered') get isTriggered(): boolean {
-    let dat = this.game.state.data
-    return dat && (dat.gcid == this.card.gcid ||
-      (dat.card && dat.card.gcid == this.card.gcid) ||
-      (dat.attack && dat.attack.gcid == this.card.gcid) ||
-      (dat.block && dat.block.gcid == this.card.gcid) ||
-      (dat.target && dat.target.gcid == this.card.gcid))
+    let data = this.game.state.data
+    return data && this.token && (data.id == this.token.id ||
+      (data.token && data.token.id == this.token.id) ||
+      (data.attack && data.attack.id == this.token.id) ||
+      (data.block && data.block.id == this.token.id) ||
+      (data.target && data.target.id == this.token.id))
   }
 
-  constructor() {
+  constructor(public games : GameService) {
   }
 
   ngOnInit() {
+    let me = this
+    this.$token = this.games.token$(this.tokenid).subscribe(token => {
+      me.token = token
+    })
+  }
+
+  ngOnDestroy() {
+    this.$token.unsubscribe()
   }
 
   getIcon(): string {
-    let dat = this.game.state.data
-    if (!dat) {
-      if (this.card.awake) {
+    let data = this.game.state.data
+    if (!this.token) {
+      return ''
+    } else if (!data) {
+      if (this.token.awake) {
         return 'awake.svg'
       } else {
         return 'asleep.svg'
       }
     } else if (this.game.state.name == 'combat' && (
-      (dat.attack.gcid == this.card.gcid) ||
-      (dat.block && dat.block.gcid == this.card.gcid)
+      (data.attack.id == this.token.id) ||
+      (data.block && data.block.id == this.token.id)
     )) {
       return 'combat.svg'
-    } else if (this.game.state.name == 'attack' && dat.gcid == this.card.gcid) {
+    } else if (this.game.state.name == 'attack' && data.id == this.token.id) {
       return 'attack.svg'
-    } else if (dat.card && dat.card.gcid == this.card.gcid) {
+    } else if (data.token && data.token.id == this.token.id) {
       return 'star.svg'
-    } else if (dat.target == this.card.gcid) {
+    } else if (data.target == this.token.id) {
       return 'target.svg'
-    } else if (this.card.awake) {
+    } else if (this.token.awake) {
       return 'awake.svg'
     } else {
       return 'asleep.svg'

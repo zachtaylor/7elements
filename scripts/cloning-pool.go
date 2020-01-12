@@ -1,43 +1,37 @@
 package scripts
 
 import (
-	vii "github.com/zachtaylor/7elements"
-
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/target"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-const CloningPoolID = "cloning-pool"
+const cloningpoolID = "cloning-pool"
 
 func init() {
-	game.Scripts[CloningPoolID] = CloningPool
+	game.Scripts[cloningpoolID] = CloningPool
 }
 
-func CloningPool(g *game.T, seat *game.Seat, target interface{}) []game.Event {
-	log := g.Log().Add("Target", target).Add("Username", seat.Username)
+func CloningPool(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	var token *game.Token
+	if len(args) < 1 {
+		return nil, game.ErrNoTarget
+	} else if token, err = target.MyPresentBeing(g, s, args[0]); err != nil {
+		return
+	} else if token == nil {
+		return nil, game.ErrNoTarget
+	} else {
+		card := game.NewCard(token.Card.Card)
+		card.Username = token.Username
+		token, events = trigger.Spawn(g, s, card)
+		token.Body.Health = 1
+		if e := trigger.DamageSeat(g, card, s, 1); e != nil {
+			events = append(events, e...)
+		}
 
-	gcid := cast.String(target)
-	card := g.Cards[gcid]
-	if card == nil {
-		log.Add("Error", "gcid not found").Error(CloningPoolID)
-		return nil
-	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
-		log.Add("Error", "card owner not found").Error(CloningPoolID)
-		return nil
-	} else if !ownerSeat.HasPresentCard(gcid) {
-		log.Add("Error", "card not in play").Error(CloningPoolID)
-		return nil
-	} else if card.Card.Type != vii.CTYPbody {
-		log.Add("CardType", card.Card.Type).Add("Error", "card not type body").Error(CloningPoolID)
-		return nil
+		update.Seat(g, s)
+		update.Token(g, token)
 	}
-
-	clone := game.NewCard(card.Card)
-	clone.Username = seat.Username
-	g.RegisterCard(clone)
-	seat.Life++
-	g.SendSeatUpdate(seat)
-
-	log.Info(CloningPoolID)
-	return nil
+	return
 }

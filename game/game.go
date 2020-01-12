@@ -3,6 +3,8 @@ package game
 import (
 	"sync"
 
+	"ztaylor.me/cast/charset"
+
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
 	"ztaylor.me/cast"
@@ -16,7 +18,7 @@ type T struct {
 	lock    sync.Mutex
 	chat    *chat.Room
 	close   chan bool
-	Cards   Cards
+	Objects map[string]interface{}
 	Seats   map[string]*Seat
 	State   *State
 	Runtime *Runtime
@@ -28,7 +30,7 @@ func New(id string, rt *Runtime) *T {
 		in:      make(chan *Request),
 		chat:    rt.chat.New(`game#`+id, 21),
 		close:   make(chan bool),
-		Cards:   make(Cards),
+		Objects: make(map[string]interface{}),
 		Seats:   make(map[string]*Seat),
 		Runtime: rt,
 	}
@@ -51,13 +53,14 @@ func (game *T) Log() *log.Entry {
 	return game.Runtime.logger.New()
 }
 
-func (game *T) NewState(event Event) *State {
-	id := keygen.NewVal()
+func (game *T) NewState(r Stater) *State {
+	id := keygen.New(3, charset.AlphaCapitalNumeric, keygen.DefaultSettings.Rand)
+
 	return &State{
 		id:     id,
 		Timer:  game.Runtime.Timeout,
 		Reacts: make(map[string]string),
-		Event:  event,
+		R:      r,
 	}
 }
 
@@ -125,7 +128,6 @@ func (game *T) Register(deck *vii.AccountDeck) *Seat {
 			card := NewCard(card)
 			card.Username = deck.Username
 			game.RegisterCard(card)
-			game.Cards[card.Id] = card
 			seat.Deck.Append(card)
 		}
 		deckSize += copies
@@ -136,12 +138,29 @@ func (game *T) Register(deck *vii.AccountDeck) *Seat {
 	return seat
 }
 
-func (game *T) RegisterCard(card *Card) {
-	card.Id = keygen.NewVal()
-	for game.Cards[card.Id] != nil {
-		card.Id = keygen.NewVal()
+func (game *T) RegisterObjectKey() (key string) {
+	newkey := func() string {
+		return keygen.New(4, charset.AlphaCapitalNumeric, keygen.DefaultSettings.Rand)
 	}
-	game.Cards[card.Id] = card
+	key = newkey()
+	for _, ok := game.Objects[key]; ok; {
+		key = newkey()
+		_, ok = game.Objects[key]
+	}
+	game.Objects[key] = nil
+	return
+}
+
+func (game *T) RegisterCard(card *Card) {
+	key := game.RegisterObjectKey()
+	card.ID = key
+	game.Objects[key] = card
+}
+
+func (game *T) RegisterToken(token *Token) {
+	key := game.RegisterObjectKey()
+	token.ID = key
+	game.Objects[key] = token
 }
 
 // GetCloser returns the game open chan
@@ -164,8 +183,15 @@ func (game *T) Close() {
 	game.Runtime.logger.Close()
 }
 
-// PerspectiveJSON returns JSON representation of a game
-func (game *T) PerspectiveJSON(seat *Seat) cast.JSON {
+// WriteJSON calls WriteJSON(data) for all game seats
+func (game *T) WriteJSON(json cast.JSON) {
+	for _, seat := range game.Seats {
+		seat.WriteJSON(json)
+	}
+}
+
+// JSON returns JSON representation of a game
+func (game *T) JSON(seat *Seat) cast.JSON {
 	if game == nil {
 		return nil
 	}
@@ -174,13 +200,13 @@ func (game *T) PerspectiveJSON(seat *Seat) cast.JSON {
 		seats[s.Username] = s.JSON()
 	}
 	return cast.JSON{
-		"id":       game.ID(),
-		"life":     seat.Life,
-		"hand":     seat.Hand.JSON(),
-		"state":    game.State.JSON(),
-		"elements": seat.Elements.JSON(),
+		"id": game.ID(),
+		// "life":     seat.Life,
+		"hand":  seat.Hand.JSON(),
+		"state": game.State.JSON(),
+		// "elements": seat.Elements.JSON(),
 		"username": seat.Username,
-		"opponent": game.GetOpponentSeat(seat.Username).Username,
-		"seats":    seats,
+		// "opponent": game.GetOpponentSeat(seat.Username).Username,
+		"seats": seats,
 	}
 }

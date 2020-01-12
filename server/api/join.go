@@ -25,17 +25,17 @@ package api
 // 	} else if game := game.Service.Get(gameid); game == nil {
 // 		return ErrGameMissing
 // 	} else if seat := game.GetSeat(r.Username); seat == nil {
-// 		log.WithFields(log.Fields{
+// 		log.WithFields(cast.JSON{
 // 			"Game":     game,
 // 			"Username": r.Username,
 // 		}).Warn("/api/join: not participating in game")
 // 	} else if seat.Receiver != nil {
-// 		log.WithFields(log.Fields{
+// 		log.WithFields(cast.JSON{
 // 			"Game": game,
 // 			"Seat": seat,
 // 		}).Warn("/api/join: seat already occupied")
 // 	} else if socket, ok := r.Agent.(*http.Socket); !ok {
-// 		log.WithFields(log.Fields{
+// 		log.WithFields(cast.JSON{
 // 			"Game":  game,
 // 			"Seat":  seat,
 // 			"Agent": r.Agent,

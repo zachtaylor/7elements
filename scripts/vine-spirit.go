@@ -2,27 +2,23 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-const VineSpiritID = "vine-spirit"
+const vinespiritID = "vine-spirit"
 
 func init() {
-	game.Scripts[VineSpiritID] = VineSpirit
+	game.Scripts[vinespiritID] = VineSpirit
 }
 
-func VineSpirit(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   arg,
-		"Username": seat.Username,
-	}).Tag(logtag + VineSpiritID)
-	me, ok := arg.(*game.Card)
-	if !ok {
-		log.Error("this?")
-		return nil
+func VineSpirit(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if token, ok := me.(*game.Token); !ok {
+		err = game.ErrMeToken
+	} else if token == nil {
+		err = game.ErrMeNil
+	} else {
+		token.Body.Attack++
+		update.Token(g, token)
 	}
-	log.Info()
-	me.Body.Attack++
-	g.SendCardUpdate(me)
-	return nil
+	return
 }

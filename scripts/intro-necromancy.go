@@ -2,9 +2,9 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event/end"
 	"github.com/zachtaylor/7elements/game/target"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
 const IntroToNecromancyID = "intro-necromancy"
@@ -13,24 +13,21 @@ func init() {
 	game.Scripts[IntroToNecromancyID] = IntroToNecromancy
 }
 
-func IntroToNecromancy(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   arg,
-		"Username": seat.Username,
-	}).Tag(logtag + IntroToNecromancyID)
-
-	card, err := target.MyPastBeing(g, seat, arg)
-	if err != nil {
-		log.Add("Error", err).Error()
-		return nil
+func IntroToNecromancy(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if card, _err := target.MyPastBeing(g, s, args[0]); _err != nil {
+		err = _err
+	} else if card == nil {
+		err = game.ErrNoTarget
+	} else {
+		token, _events := trigger.Spawn(g, s, card)
+		if len(_events) > 0 {
+			events = append(events, _events...)
+		}
+		token.Body.Health = 1
+		update.Token(g, token)
+		events = append(events, trigger.DamageSeat(g, card, s, 1)...)
 	}
-	log.Info()
-	seat.Present[card.Id] = card
-	card.Body.Health = 1
-	// TODO return trigger.DamageSeat()
-	seat.Life--
-	if seat.Life < 1 {
-		return []game.Event{end.New(g.GetOpponentSeat(seat.Username).Username, seat.Username)}
-	}
-	return nil
+	return
 }

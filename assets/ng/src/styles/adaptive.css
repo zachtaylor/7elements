@@ -18,12 +18,12 @@ body {
 [adapt~="2"] {
   height:calc(var(--ui) / 2);
 }
-.fnt0 {
+h1, .fnt0 {
   font-size:calc(var(--ui) - 5px - var(--pad));
 }
-.fnt1 {
+h2, .fnt1 {
   font-size:calc(var(--pad) * -2 + var(--ui) - 7px);
 }
-.fnt2 {
+h3, .fnt2 {
   font-size:calc(var(--ui) / 2 - (var(--pad) / 2) - 4px);
 }

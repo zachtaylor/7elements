@@ -3,27 +3,24 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-const EnergizeID = "energize"
+const energizeID = "energize"
 
 func init() {
-	game.Scripts[EnergizeID] = Energize
+	game.Scripts[energizeID] = Energize
 }
 
-func Energize(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   arg,
-		"Username": seat.Username,
-	}).Tag(logtag + EnergizeID)
-	card, err := target.PresentBeingItem(g, seat, arg)
-	if err != nil {
-		log.Add("Error", err).Error()
-		return nil
+func Energize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	var token *game.Token
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if token, err = target.PresentBeingItem(g, s, args[0]); err != nil {
+
+	} else {
+		token.IsAwake = true
+		update.Token(g, token)
 	}
-	log.Info()
-	card.IsAwake = true
-	g.SendCardUpdate(card)
-	return nil
+	return
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ConnService } from '../conn.service'
 import { MyAccount, PingData, GlobalData } from '../api'
 import { Subscription } from 'rxjs'
+import { WebsocketService } from '../websocket.service'
 
 @Component({
   selector: 'app-buy',
@@ -14,7 +15,7 @@ export class BuyComponent implements OnInit {
   private $glob: Subscription
   private $myaccount: Subscription
 
-  constructor(public conn: ConnService) {
+  constructor(public conn: ConnService, public ws: WebsocketService) {
   }
 
   ngOnInit() {
@@ -32,7 +33,7 @@ export class BuyComponent implements OnInit {
   }
 
   sendBuyPack(packid: number) {
-    this.conn.sendWS('/packs/buy', {
+    this.ws.send('/packs/buy', {
       'packid': packid,
     })
   }

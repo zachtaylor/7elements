@@ -13,7 +13,7 @@ package scripts
 // 	game.Scripts[WandOfSuppressionID] = WandOfSuppression
 // }
 
-// func WandOfSuppression(g *game.T, seat *game.Seat, target interface{}) []game.Event {
+// func WandOfSuppression(g *game.T, seat *game.Seat, target interface{}) []game.Stater {
 // 	log := g.Log().Add("Target", target).Add("Username", seat.Username)
 
 // 	gcid := cast.String(target)

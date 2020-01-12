@@ -3,30 +3,29 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-const MemorializeID = "memorialize"
+const memorializeID = "memorialize"
 
 func init() {
-	game.Scripts[MemorializeID] = Memorialize
+	game.Scripts[memorializeID] = Memorialize
 }
 
-func Memorialize(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Username": seat.Username,
-	}).Tag(logtag + MemorializeID)
-	card, err := target.MyPastBeing(g, seat, arg)
-	if err != nil {
-		log.Add("Error", err).Error()
-		return nil
+func Memorialize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if card, e := target.MyPastBeing(g, s, args[0]); e != nil {
+		err = e
+	} else if card == nil {
+		err = game.ErrNoTarget
+	} else {
+		c := game.NewCard(card.Card)
+		c.Username = s.Username
+		g.RegisterCard(c)
+		s.Hand[c.ID] = c
+		update.Seat(g, s)
+		update.Hand(s)
 	}
-	log.Info()
-	c := game.NewCard(card.Card)
-	c.Username = seat.Username
-	g.RegisterCard(c)
-	seat.Hand[c.Id] = c
-	g.SendSeatUpdate(seat)
-	seat.SendHandUpdate()
-	return nil
+	return
 }

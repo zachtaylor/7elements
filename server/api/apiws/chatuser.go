@@ -1,15 +1,13 @@
 package apiws
 
-import (
-	"github.com/zachtaylor/7elements/chat"
-	"ztaylor.me/http/websocket"
-)
+// import (
+// 	"github.com/zachtaylor/7elements/chat"
+// 	"ztaylor.me/http/websocket"
+// )
 
-func newChatUser(channel string, socket *websocket.T) *chat.User {
-	return &chat.User{
-		Name: socket.Session.Name(),
-		Send: func(msg *chat.Message) {
-			pushJSON(socket, "/chat", newChatJSON(channel, msg))
-		},
-	}
-}
+// // newChatUser returns a chat.User that pushes messages into websocket.T.Message for given chat path
+// func newChatUser(name, path string, socket *websocket.T) *chat.User {
+// 	return chat.NewUser(name, func(msg *chat.Message) {
+// 		socket.Message(path, msg.JSON())
+// 	})
+// }

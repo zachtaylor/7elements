@@ -3,27 +3,25 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-const InspireGrowthID = "inspire-growth"
+const inspiregrowthID = "inspire-growth"
 
 func init() {
-	game.Scripts[InspireGrowthID] = InspireGrowth
+	game.Scripts[inspiregrowthID] = InspireGrowth
 }
 
-func InspireGrowth(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   arg,
-		"Username": seat.Username,
-	}).Tag(logtag + InspireGrowthID)
-	card, err := target.PresentBeing(g, seat, arg)
-	if err != nil {
-		log.Add("Error", err).Error()
-		return nil
+func InspireGrowth(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if token, e := target.PresentBeing(g, s, args[0]); e != nil {
+		err = e
+	} else if token == nil {
+		err = game.ErrNoTarget
+	} else {
+		token.Body.Attack++
+		update.Token(g, token)
 	}
-	log.Info()
-	card.Body.Attack++
-	g.SendCardUpdate(card)
-	return nil
+	return
 }

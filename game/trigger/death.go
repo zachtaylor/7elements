@@ -1,16 +1,16 @@
 package trigger
 
 import (
-	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-func Death(g *game.T, card *game.Card) []game.Event {
-	if card.Body != nil {
-		card.Body.Health = 0
+func Death(g *game.T, t *game.Token) []game.Stater {
+	if t.Body != nil {
+		t.Body.Health = 0
 	}
-	seat := g.GetSeat(card.Username)
-	go g.GetChat().AddMessage(chat.NewMessage(card.Card.Name, "Died"))
-	delete(seat.Present, card.Id)
-	return g.Runtime.Service.CardTriggeredEvents(g, seat, card, "death", card)
+	seat := g.GetSeat(t.Username)
+	update.GameChat(g, t.Card.Card.Name, "died")
+	delete(seat.Present, t.ID)
+	return g.Runtime.Service.Trigger(g, seat, t, "death", t)
 }

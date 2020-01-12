@@ -1,13 +1,11 @@
 package apiws
 
-import (
-	"github.com/zachtaylor/7elements/server/api"
-	"ztaylor.me/http/websocket"
-)
+import "ztaylor.me/http/websocket"
 
-func Disconnect(rt *api.Runtime) websocket.Handler {
-	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		rt.Root.Logger.New().Add("Username", socket.GetUser()).Info("apiws/disconnect")
-		rt.Ping.Remove()
+func Disconnect(rt *Runtime) websocket.Handler {
+	return websocket.HandlerFunc(func(socket *websocket.T, _ *websocket.Message) {
+		rt.Runtime.Root.Logger.New().Add("Socket", socket).Source().Info()
+		rt.Runtime.Ping.Remove()
+		go ping(rt)
 	})
 }

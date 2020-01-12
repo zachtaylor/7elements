@@ -12,9 +12,9 @@ import (
 
 // TODO write error messages to socket
 
-func Signup(rt *api.Runtime) websocket.Handler {
+func Signup(rt *Runtime) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		log := rt.Root.Logger.New().Tag("apiws/signup").Add("Socket", socket.String())
+		log := rt.Runtime.Root.Logger.New().Tag("apiws/signup").Add("Socket", socket.String())
 		if socket.Session != nil {
 			log.Warn("session exists")
 		} else if username := m.Data.GetS("username"); username == "" {
@@ -22,21 +22,21 @@ func Signup(rt *api.Runtime) websocket.Handler {
 		} else if !api.CheckUsername(username) {
 			log.Warn("username banned")
 		} else if email := m.Data.GetS("email"); false {
-		} else if account, err := rt.Root.Accounts.Get(username); account != nil {
+		} else if account, err := rt.Runtime.Root.Accounts.Get(username); account != nil {
 			log.Add("Error", err).Warn("account exists")
-		} else if password1, password2 := api.HashPassword(m.Data.GetS("password1"), rt.Salt), api.HashPassword(m.Data.GetS("password2"), rt.Salt); password1 != password2 {
+		} else if password1, password2 := api.HashPassword(m.Data.GetS("password1"), rt.Runtime.Salt), api.HashPassword(m.Data.GetS("password2"), rt.Runtime.Salt); password1 != password2 {
 			log.Add("Error", err).Error("passwords don't match")
-		} else if account = signup(rt, log, username, email, password1); account == nil {
+		} else if account = signup(rt.Runtime, log, username, email, password1); account == nil {
 			log.Add("Error", err).Error("signup failed")
 		} else {
-			pushPingJSON(rt, socket)
-			pushRedirectJSON(socket, "/")
+			go ping(rt)
+			redirect(socket, "/")
 
-			if s, err := api.Login(rt, account); s == nil {
+			if s, err := api.Login(rt.Runtime, account); s == nil {
 				log.Add("Error", err).Error("login")
 			} else {
 				socket.Session = s
-				pushJSON(socket, "/data/myaccount", rt.Root.AccountJSON(s.Name()))
+				socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(s.Name()))
 				log.Info()
 			}
 		}

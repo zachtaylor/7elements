@@ -1,12 +1,10 @@
 package scripts
 
 import (
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event/end"
+	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/trigger"
 	"ztaylor.me/cast"
-	"ztaylor.me/log"
 )
 
 const IfritID = "ifrit"
@@ -15,48 +13,25 @@ func init() {
 	game.Scripts[IfritID] = Ifrit
 }
 
-func Ifrit(g *game.T, seat *game.Seat, target interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   target,
-		"Username": seat.Username,
-	}).Tag("scripts/ifrit")
-
-	opponent := g.GetOpponentSeat(seat.Username)
-	if target == opponent.Username {
-		// TODO trigger.DamageSeat
-		opponent.Life--
-		g.SendSeatUpdate(opponent)
-		if opponent.Life < 0 {
-			return []game.Event{
-				end.New(seat.Username, opponent.Username),
-			}
-		}
-		return nil
-	} else if target == seat.Username {
-		seat.Life--
-		g.SendSeatUpdate(seat)
-		if opponent.Life < 0 {
-			return []game.Event{
-				end.New(opponent.Username, seat.Username),
-			}
-		}
-		return nil
+func Ifrit(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	token, ok := me.(*game.Token)
+	if !ok {
+		g.Log().Add("me", me).Error("i must be a game token")
+		return
 	}
 
-	gcid := cast.String(target)
-	card := g.Cards[gcid]
-	if card == nil {
-		log.Error("gcid not found")
-	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
-		log.Error("card owner not found")
-	} else if !ownerSeat.HasPresentCard(gcid) {
-		log.Error("card not in present")
-	} else if card.Card.Type != vii.CTYPbody {
-		log.Add("CardType", card.Card.Type).Error("card not type body")
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if arg := args[0]; arg == s.Username {
+		events = trigger.DamageSeat(g, token.Card, s, 1)
+	} else if seat := g.Seats[cast.String(arg)]; seat != nil {
+		events = trigger.DamageSeat(g, token.Card, seat, 1)
+	} else if token, e := target.PresentBeing(g, s, arg); e != nil {
+		err = e
+	} else if token == nil {
+		err = game.ErrNoTarget
 	} else {
-		log.Info("confirm")
-		return trigger.Damage(g, card, 1)
+		events = trigger.Damage(g, token, 1)
 	}
-
-	return nil
+	return
 }

@@ -10,10 +10,14 @@
   border-radius:7px;
 }
 .header {
-  font-size:32px;
   padding-left:var(--pad);
-  padding-top:calc(var(--pad) / 2);
+  line-height:1.7;
 }
 .body {
   padding:var(--pad);
+}
+.footer {
+  text-align:right;
+  line-height:1.7;
+  padding-right:var(--pad);
 }

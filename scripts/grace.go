@@ -4,7 +4,6 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"ztaylor.me/log"
 )
 
 const GraceID = "grace"
@@ -13,17 +12,15 @@ func init() {
 	game.Scripts[GraceID] = Grace
 }
 
-func Grace(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   arg,
-		"Username": seat.Username,
-	}).Tag(logtag + GraceID)
-
-	card, err := target.PresentBeing(g, seat, arg)
-	if err != nil {
-		log.Add("Error", err).Error()
-		return nil
+func Grace(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if token, e := target.MyPresentBeing(g, s, args[0]); e != nil {
+		err = e
+	} else if token == nil {
+		err = game.ErrNoTarget
+	} else {
+		events = trigger.Heal(g, token, 3)
 	}
-	log.Info()
-	return trigger.Heal(g, card, 2)
+	return
 }

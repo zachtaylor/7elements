@@ -1,12 +1,97 @@
-<div class="flx1"></div>
-<div class="flxr">
-  <div class="dinl flx1"></div>
-  <div class="page">
-    <div class="fnt1 fntc">{{title}}</div>
-    <hr/>
-    <ng-content></ng-content>
-  </div>
-  <div class="dinl flx1"></div>
+<button class="posa" style="top:7px;right:7px;" (click)="close()">&nbsp;X&nbsp;</button>
+<span>{{overlay.title}}</span>
+<hr/>
+<!-- token insert -->
+<div class="talc" *ngIf="overlay.token">
+  <app-game-token [tokenid]="overlay.token.id" [game]="game"></app-game-token>
+  <hr/>
 </div>
+<!-- card insert -->
+<div class="talc" *ngIf="overlay.card">
+  <app-card-detail [card]="overlay.card"></app-card-detail>
+  <hr/>
+</div>
+<!-- target insert -->
+<div *ngIf="overlay.target">
+  <ng-container *ngFor="let seat of game.seats | mapValues">
+    <h3>
+      <span>{{seat.username}}</span>
+      <span *ngIf="testtarget(seat)">
+        <button class="vii" (click)="sendtarget(seat.username)">
+          <img adapt="2" src="/img/icon/target.svg">
+        </button>
+      </span>
+    </h3>
+    <div class="dinl" *ngFor="let token of targettokens(seat.username, overlay.target)">
+      <span *ngIf="testtarget(token)">
+        <button class="vii" (click)="sendtarget(token.id)">
+          <img adapt="2" src="/img/icon/target.svg">
+        </button>
+      </span>
+      <br/>
+      <app-game-token [tokenid]="token.id" [game]="game"></app-game-token>
+    </div>
+    <div class="dinl" *ngFor="let card of targetpastcards(seat.username, overlay.target)">
+      {{card}}
+      <span *ngIf="testtarget(card)">
+        <button class="vii" (click)="sendtarget(card.id)">
+          <img adapt="2" src="/img/icon/target.svg">
+        </button>
+      </span>
+      <br/>
+      <app-game-token [tokenid]="target" [game]="game"></app-game-token>
+    </div>
+  </ng-container>
+</div>
+<!-- spaces and choices -->
 <div class="flx1"></div>
-<div class="flx1"></div>
+<div>
+  <ng-container *ngIf="overlay.card">
+    <div *ngIf="testkarma(overlay.card); then showPlay; else showKarmaWarning">
+    </div>
+    <ng-template #showPlay>
+      <ng-container *ngIf="!testplayable()">
+        <span><i>Only playable during Main</i></span>
+      </ng-container>
+      <ng-container *ngIf="testplayable()">
+        <button (click)="sendplay()"><span>Play</span></button>
+      </ng-container>
+    </ng-template>
+    <ng-template #showKarmaWarning>
+      <span><i>Not enough Karma</i></span>
+    </ng-template>
+  </ng-container>
+  <ng-container *ngIf="overlay.token">
+    <ng-container *ngFor="let power of overlay.token.powers">
+      <ng-container *ngIf="!power.trigger">
+        <img adapt="2" *ngIf="power.usesturn" src="/img/icon/timer.png">
+        <img adapt="2" *ngIf="power.useskill" src="/img/icon/trash.svg">
+        <ng-container *ngFor="let el of power.costs | mapKeys">
+          <img adapt="2" *ngFor="let i of power.costs[el] | count" src="/img/icon/element-{{el}}.png">
+        </ng-container>
+        : {{power.text}}
+        <ng-container *ngIf="testkarma(power)">
+          <button class="vii" (click)="sendpower(power)">Trigger</button>
+        </ng-container>
+        <ng-container *ngIf="!testkarma(power)">
+          <i>not enough karma</i>
+        </ng-container>
+      </ng-container>
+      <div *ngIf="!!power.trigger" class="powerbox">
+        <img adapt="2" *ngIf="power.trigger=='sunrise'" src="/img/icon/sunrise.svg">
+        <img adapt="2" *ngIf="power.trigger=='sunset'" src="/img/icon/sunset.svg">
+        {{power.text}}
+      </div>
+    </ng-container>
+    <div *ngIf="showattack()">
+      <button class="vii" (click)="sendattack(overlay.token.id)"><span>Attack</span></button>
+    </div>
+    <div *ngIf="showdefend()">
+      <button class="vii" (click)="senddefend(overlay.token.id)"><span>Defend</span></button>
+    </div>
+    <!-- overlay.token.awake&&overlay.token.body&&game.state.name=='attack' -->
+  </ng-container>
+  <ng-container *ngFor="let choice of overlay.choices">
+    <button class="dinl" (click)="sendchoice(game, choice.choice)"><span [innerHTML]="choice.display | keepHtml"></span></button>
+  </ng-container>
+</div>

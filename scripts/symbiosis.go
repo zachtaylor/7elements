@@ -2,9 +2,10 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event"
+	"github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/target"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
+	"ztaylor.me/cast"
 )
 
 const SymbiosisID = "symbiosis"
@@ -13,25 +14,25 @@ func init() {
 	game.Scripts[SymbiosisID] = Symbiosis
 }
 
-func Symbiosis(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Username": seat.Username,
+func Symbiosis(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	log := g.Log().With(cast.JSON{
+		"Username": s.Username,
 	}).Tag(logtag + SymbiosisID)
 
-	return []game.Event{event.NewTargetEvent(
-		seat.Username,
-		"targer-being",
+	return []game.Stater{state.NewTarget(
+		s.Username,
+		"being",
 		"Target Being gains 1 Attack",
-		func(val string) []game.Event {
-			card, err := target.PresentBeing(g, seat, val)
+		func(val string) []game.Stater {
+			token, err := target.PresentBeing(g, s, val)
 			if err != nil {
-
+				log.Add("Error", err).Error()
 			} else {
-				log.Add("Card", card.String()).Info()
-				card.Body.Attack++
-				g.SendCardUpdate(card)
+				log.Add("Token", token.String()).Info()
+				token.Body.Attack++
+				update.Token(g, token)
 			}
 			return nil
 		},
-	)}
+	)}, nil
 }

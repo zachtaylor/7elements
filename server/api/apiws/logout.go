@@ -1,21 +1,17 @@
 package apiws
 
-import (
-	"github.com/zachtaylor/7elements/server/api"
-	"ztaylor.me/http/websocket"
-)
+import "ztaylor.me/http/websocket"
 
-func Logout(rt *api.Runtime) websocket.Handler {
+func Logout(rt *Runtime) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		pushJSON(socket, "/data/myaccount", nil)
-		log := rt.Root.Logger.New().Tag("apiws/logout").Add("Socket", socket.String())
+		socket.Message("/myaccount", nil)
 		if socket.Session != nil {
-			rt.Sessions.Remove(socket.Session)
+			rt.Runtime.Root.Logger.New().Add("Socket", socket).Source().Debug("close")
+			rt.Runtime.Sessions.Remove(socket.Session)
 			socket.Session = nil
-			pushPingJSON(rt, socket)
-			log.Debug("close")
+			go ping(rt)
 		} else {
-			log.Warn("cookie missing")
+			rt.Runtime.Root.Logger.New().Add("Socket", socket).Source().Warn("cookie missing")
 		}
 	})
 }

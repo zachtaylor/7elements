@@ -1,9 +1,9 @@
 <article>
-  <article-header>Purchase Coins</article-header>
-  <article-body><h3>Your coins: {{myaccount?.coins}}</h3></article-body>
-  <article-footer>
+  <article-header>Your coins</article-header>
+  <article-body><h3>{{myaccount?.coins}}</h3></article-body>
+  <!-- <article-footer>
     This doesn't work yet please try later!
-  </article-footer>
+  </article-footer> -->
 </article>
 <article *ngFor="let pack of glob?.packs">
   <article-header>
@@ -15,7 +15,7 @@
   <article-body>
     <carousel>
       <ng-container *ngFor="let cardid of pack.cards">
-        <app-card-detail *ngIf="glob" [card]="conn.getCard(cardid)">
+        <app-card-detail *ngIf="glob" [card]="conn.card(cardid)">
           <div style="padding:7px" *ngIf="myaccount&&myaccount.cards[cardid]">x{{myaccount.cards[cardid]}}</div>
         </app-card-detail>
       </ng-container>
@@ -23,8 +23,16 @@
   </article-body>
   <article-footer>
     <span *ngIf="myaccount">
-      <span *ngIf="myaccount.coins < pack.cost"></span>
-      <a *ngIf="myaccount.coins >= pack.cost" (click)="sendBuyPack(pack.id)">Click here</a> to buy this pack [{{myaccount.coins}} - {{pack.cost}} = {{myaccount.coins - pack.cost}}]
+      <span *ngIf="myaccount.coins >= pack.cost">
+        <a (click)="sendBuyPack(pack.id)">Click here</a>
+      </span>
+      <span *ngIf="myaccount.coins < pack.cost">
+        <i>not enough coins</i>
+      </span>
+      <span> to buy this pack [{{myaccount.coins}} - {{pack.cost}} = {{myaccount.coins - pack.cost}}]</span>
+    </span>
+    <span *ngIf="!myaccount">
+      <i>you must be logged in to purchase packs</i>
     </span>
   </article-footer>
 </article>

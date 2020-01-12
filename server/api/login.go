@@ -5,8 +5,8 @@ import (
 	"time"
 
 	vii "github.com/zachtaylor/7elements"
+	"ztaylor.me/cast"
 	"ztaylor.me/http/session"
-	"ztaylor.me/log"
 )
 
 func LoginHandler(rt *Runtime) http.Handler {
@@ -64,20 +64,20 @@ func Login(rt *Runtime, a *vii.Account) (*session.T, error) {
 	}
 	s := rt.Sessions.Grant(a.Username)
 	a.SessionID = s.ID()
-	go loginWaiter(rt, s)
+	go _loginWaiter(rt, s)
 	return s, nil
 }
 
-func loginWaiter(rt *Runtime, s *session.T) {
+func _loginWaiter(rt *Runtime, s *session.T) {
 	for {
 		if _, ok := <-s.Done(); !ok {
 			break
 		}
 	}
-	rt.Root.Logger.New().With(log.Fields{
+	rt.Root.Logger.New().With(cast.JSON{
 		"SessionID": s.ID(),
 		"Username":  s.Name(),
-	}).Info("login: done")
+	}).Source().Info("done")
 	rt.Root.Accounts.Forget(s.Name())
 	rt.Root.AccountsCards.Forget(s.Name())
 	rt.Root.AccountsDecks.Forget(s.Name())

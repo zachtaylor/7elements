@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"strings"
 	"time"
 
 	"ztaylor.me/cast"
@@ -9,11 +8,12 @@ import (
 
 type Message struct {
 	Username string
+	Channel  string
 	Message  string
 	Time     time.Time
 }
 
-func NewMessage(username string, message string) *Message {
+func NewMessage(username, message string) *Message {
 	return &Message{
 		Username: username,
 		Message:  message,
@@ -21,14 +21,11 @@ func NewMessage(username string, message string) *Message {
 	}
 }
 
-// func (m *Message) String() string {
-// 	return m.JSON().String()
-// }
-
 func (m *Message) JSON() cast.JSON {
 	return cast.JSON{
+		// "userid":    m.SocketID(),
 		"username": m.Username,
-		"message":  strings.Replace(m.Message, "\"", "\\\"", -1),
+		"message":  cast.EscapeString(m.Message),
 		"time":     m.Time.Format("01-02 15:04:05"),
 	}
 }

@@ -5,20 +5,21 @@ import (
 
 	"github.com/zachtaylor/7elements/game"
 	"ztaylor.me/cast"
-	"ztaylor.me/log"
 )
 
 const Username = "A.I."
 
+var nullJSON = cast.Stringer(`null`)
+
 type AI struct {
-	Delay time.Duration
-	Game  *game.T
-	Seat  *game.Seat
+	Game *game.T
+	Seat *game.Seat
+	Settings
 }
 
 func ConnectAI(g *game.T) {
 	seat := g.GetSeat(Username)
-	ai := &AI{2 * time.Second, g, seat}
+	ai := &AI{g, seat, DefaultSettings()}
 	seat.Receiver = ai
 	g.Request(seat.Username, "connect", nil)
 }
@@ -59,55 +60,59 @@ func (ai *AI) receive(name string, json cast.JSON) {
 	} else if name == "/game/seat" {
 	} else if name == "/alert" {
 	} else {
-		ai.Game.Log().With(log.Fields{
-			"GameId":    ai.Game.ID(),
-			"Username":  ai.Seat.Username,
-			"EventName": name,
+		ai.Game.Log().With(cast.JSON{
+			"GameId":   ai.Game.ID(),
+			"Username": ai.Seat.Username,
+			"Name":     name,
 		}).Warn("ai: event not recognized")
 	}
 }
 
 func (ai *AI) GameState(data cast.JSON) {
-	if ai.Game.State.EventName() == "start" {
+	if ai.Game.State.Name() == "start" {
 		if ai.Game.State.Reacts[ai.Seat.Username] == "" {
 			ai.Request(ai.Game.State.ID(), cast.JSON{
 				"choice": "keep",
 			})
 		}
-	} else if ai.Game.State.EventName() == "sunrise" {
-		if ai.Game.State.Event.Seat() == ai.Seat.Username {
-			ai.requestSunriseElement()
+	} else if ai.Game.State.Name() == "sunrise" {
+		if choice := ai.NewPlan(); choice == nil {
+			// ai.requestSunriseElement()
 		} else {
-			ai.RequestPass()
+			choice.Submit(ai)
 		}
-	} else if ai.Game.State.EventName() == "play" {
+	} else if ai.Game.State.Name() == "play" {
 		ai.RequestPass()
-	} else if ai.Game.State.EventName() == "trigger" {
+	} else if ai.Game.State.Name() == "trigger" {
 		ai.RequestPass()
-	} else if ai.Game.State.EventName() == "main" {
-		ai.GameStateMain()
-	} else if ai.Game.State.EventName() == "attack" {
+	} else if ai.Game.State.Name() == "main" {
+		if choice := ai.NewPlan(); choice == nil {
+			ai.RequestPass()
+		} else {
+			choice.Submit(ai)
+		}
+	} else if ai.Game.State.Name() == "attack" {
 		ai.RequestPass()
-	} else if ai.Game.State.EventName() == "combat" {
+	} else if ai.Game.State.Name() == "combat" {
 		ai.RequestPass()
-	} else if ai.Game.State.EventName() == "sunset" {
+	} else if ai.Game.State.Name() == "sunset" {
 		ai.RequestPass()
-	} else if ai.Game.State.EventName() == "end" {
+	} else if ai.Game.State.Name() == "end" {
 		ai.RequestPass()
 		ai.Request("disconnect", nil)
 	} else {
-		ai.Game.Log().With(log.Fields{
-			"State": ai.Game.State.EventName(),
+		ai.Game.Log().With(cast.JSON{
+			"State": ai.Game.State.Name(),
 		}).Warn("ai: state unrecognized")
 	}
 }
 
 func (ai *AI) GameChoice(data cast.JSON) {
-	if ai.Game.State.Event.Seat() != ai.Seat.Username {
+	if ai.Game.State.R.Seat() != ai.Seat.Username {
 		ai.RequestPass()
 		return
 	}
-	log := ai.Game.Log().With(log.Fields{
+	log := ai.Game.Log().With(cast.JSON{
 		"Data": data.String(),
 	}).Tag("ai/gamechoice")
 	if data["prompt"] == `Create a New Element` {
@@ -137,12 +142,6 @@ func (ai *AI) GameChoice(data cast.JSON) {
 // }
 
 // func (ai *AI) EventEnd(data cast.JSON) {
-// }
-
-// func (ai *AI) EventSunrise(data cast.JSON) {
-// 	if data["username"] == ai.Seat.Username {
-// 		ai.sendElementEvent()
-// 	}
 // }
 
 // func (ai *AI) EventMain(data cast.JSON) {
@@ -192,38 +191,26 @@ func (ai *AI) GameChoice(data cast.JSON) {
 
 func (ai *AI) requestSunriseElement() {
 	ai.Request(ai.Game.State.ID(), cast.JSON{
-		"elementid": int(ai.getNewElement()),
+		"choice": int(ai.getNewElement()),
 	})
 }
 
-func (ai *AI) GameStateMain() {
-	if ai.Game.State.Event.Seat() != ai.Seat.Username {
-	} else if hand := ai.getHandCanAfford(); len(hand) > 0 {
-		ai.gameStateMainPlay(hand)
-		return
-	} else if awake := ai.getPresentCanAttack(); len(awake) > 0 {
-		ai.gameStateMainAttack(awake)
-		return
-	}
-	ai.RequestPass()
-}
-
-func (ai *AI) gameStateMainPlay(hand []string) {
-	ai.Game.Log().Add("Choices", hand).Add("Choice", hand[0]).Info("ai: choose")
-	ai.Request("play", cast.JSON{
-		"gcid": hand[0],
-	})
-}
-
-func (ai *AI) gameStateMainAttack(awake []string) {
-	for _, gcid := range awake {
-		card := ai.Game.Cards[gcid]
-		if card.IsAwake && card.Body != nil && card.Body.Attack > 0 {
-			ai.Request("attack", cast.JSON{
-				"gcid": gcid,
-			})
-			return
+func (ai *AI) NewPlan() (plan Plan) {
+	plans := ai.NewPlans()
+	log := ai.Game.Log().With(cast.JSON{
+		"Plans": plans,
+	}).Tag("ai/plan")
+	var score int
+	for _, p := range plans {
+		if p.Score() > score {
+			plan = p
+			score = p.Score()
 		}
 	}
-	ai.RequestPass()
+	if plan == nil {
+		log.Debug("no high score")
+	} else {
+		log.Add("Plan", plan).Add("Score", score).Debug()
+	}
+	return
 }

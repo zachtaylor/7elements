@@ -7,9 +7,9 @@ type Body struct {
 	Health int
 }
 
-func (b *Body) JSON() cast.JSON {
+func (b *Body) JSON() cast.IStringer {
 	if b == nil {
-		return nil
+		return cast.Stringer(`null`)
 	}
 	return cast.JSON{
 		"attack": b.Attack,

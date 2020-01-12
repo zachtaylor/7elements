@@ -1,29 +1,21 @@
 package apiws
 
-import (
-	"github.com/zachtaylor/7elements/server/api"
-	"ztaylor.me/http/websocket"
-	"ztaylor.me/log"
-)
+import "ztaylor.me/http/websocket"
 
-func connectGame(rt *api.Runtime, log *log.Entry, socket *websocket.T) {
+func connectgame(rt *Runtime, socket *websocket.T) {
+	log := rt.Runtime.Root.Logger.New().Add("Session", socket.Session)
 	if socket.Session == nil {
-		log.Debug("no session")
-	} else if g := rt.Games.FindUsername(socket.Session.Name()); g == nil {
-		log.Debug("no game")
+		log.Source().Warn("no session")
+	} else if g := rt.Runtime.Games.FindUsername(socket.Session.Name()); g == nil {
+		// log.Source().Warn("no game")
 	} else if seat := g.GetSeat(socket.Session.Name()); seat == nil || seat.Receiver != nil {
-		log.Add("Seat", seat).Warn("seat?")
+		log.Source().Warn("no game")
 	} else {
-		log.Add("Name", socket.Session.Name()).Add("GameID", g.ID()).Debug("game data")
-		pushJSON(socket, "/game", g.PerspectiveJSON(seat))
+		log.Add("GameID", g.ID).Source().Debug()
 		seat.Receiver = &WebsocketReceiver{socket}
+		chat := g.GetChat()
 		go g.Request(seat.Username, "connect", nil)
-		go g.GetChat().User(newChatUser("game#"+g.ID(), socket))
-		select {
-		case <-g.Done():
-		case <-socket.Done():
-		}
-		log.Debug("vacate game")
-		seat.Receiver = nil
+		chat.AddUser(socket)
+		go _connectGameWaiter(socket, g, seat.Username, log)
 	}
 }

@@ -48,6 +48,8 @@ type AccountService interface {
 	Insert(*Account) error
 	// UpdateCoins updates an accounts coin count on back end
 	UpdateCoins(*Account) error
+	// UpdateEmail updates an accounts email
+	UpdateEmail(*Account) error
 	// UpdateLogin updates an accounts login time on back end
 	UpdateLogin(*Account) error
 	// UpdatePassword updates an accounts password on back end

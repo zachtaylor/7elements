@@ -2,6 +2,7 @@ package scripts
 
 import (
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/game/trigger"
 
 	"github.com/zachtaylor/7elements/game"
 )
@@ -23,13 +24,12 @@ var ctbCard = &vii.Card{
 	Powers: vii.NewPowers(),
 }
 
-func CallTheBanners(g *game.T, seat *game.Seat, target interface{}) []game.Event {
+func CallTheBanners(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	card := game.NewCard(ctbCard)
+	card.Username = s.Username
 	for i := 0; i < 3; i++ {
-		card := game.NewCard(ctbCard)
-		card.Username = seat.Username
-		g.RegisterCard(card)
-		seat.Present[card.Id] = card
-		g.SendCardUpdate(card)
+		_, e := trigger.Spawn(g, s, card)
+		events = append(events, e...)
 	}
-	return nil
+	return
 }

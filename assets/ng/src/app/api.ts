@@ -1,3 +1,35 @@
+export class ElementCount {
+  items: Map<number, number>
+  constructor(items? : Map<number, number>) {
+    if (items) {
+      this.items = items
+    } else {
+      this.items = new Map<number, number>()
+    }
+  }
+  length() : number {
+    let length = 0, keys = Object.keys(this.items)
+    for (let i = 0; i < keys.length; i++) {
+      length += this.items[keys[i]]
+    }
+    return length
+  }
+  test(costs: Map<number, number>) : boolean {
+    let keys = Object.keys(costs)
+    for (let i=0; i < keys.length; i++) {
+      let el = keys[i]
+      if (el=='0') {
+
+      } else if (this.items[el] < costs[el]) {
+        return false
+      }
+    }
+    // guarantees costs where el==0
+    let countcosts = new ElementCount(costs)
+    return this.length() >= countcosts.length()
+  }
+}
+
 export class Card {
   id: number
   name: string
@@ -9,7 +41,22 @@ export class Card {
     attack: number
     health: number
   }
-  powers: Map<number, Power>
+  powers: Array<Power>
+  constructor(data: any) {
+    if (!data) return
+    if (data.id) this.id = data.id
+    if (data.name) this.name = data.name
+    if (data.text) this.text = data.text
+    if (data.image) this.image = data.image
+    if (data.type) this.type = data.type
+    if (data.costs) this.costs = data.costs
+    if (data.body) this.body = data.body
+    if (data.powers) this.powers = data.powers
+  }
+  // enoughkarma(karma: Map<number, number>) : boolean {
+  //   let karmacount = new ElementCount(karma)
+  //   return karmacount.test(this.costs)
+  // }
 }
 
 export class Chat {
@@ -41,17 +88,12 @@ export class Deck {
 
 export class Game {
   id: string
-  life: number
-  hand: Array<GameCard>
-  events: Array<String>
-  state: GameState
   username: string
-  opponent: string
-  elements: Map<number, Array<boolean>>
+  state: GameState
+  hand: Map<string, GameCard>
   seats: Map<string, GameSeat>
 
   constructor() {
-    this.elements = new Map<number, Array<boolean>>()
     this.seats = new Map<string, GameSeat>()
   }
 }
@@ -68,22 +110,36 @@ export class GameState {
 export class GameSeat {
   username: string
   elements: Map<number, Array<boolean>>
-  active: Map<string, GameCard>
+  present: Array<string>
   hand: number
-  past: Map<string, GameCard>
+  past: Array<string>
   future: number
   life: number
   color: string
 }
 
 export class GameCard {
-  gcid: string
+  id: string
   cardid: number
   name: string
   text: string
   username: string
   image: string
+  powers: Array<Power>
+  body?: {
+    attack: number
+    health: number
+  }
+  type: string
+}
+
+export class GameToken {
+  id: string
   awake: boolean
+  cardid: number
+  name: string
+  username: string
+  text: string
   powers: Array<Power>
   body?: {
     attack: number
@@ -109,6 +165,7 @@ export class Notification {
 }
 
 export class PingData {
+  ping: number
   online: number
 }
 
@@ -135,14 +192,65 @@ export class Settings {
     account: boolean
   }
   game: {
-    hand: boolean
-    zoom: GameCard
-    target: Target
+    hand: {
+      open: boolean
+      openChangeOnUpdate: boolean
+      quickcast: boolean
+    }
+    chat: {
+      off: boolean
+      hideT: number
+    }
+  }
+  constructor() {
+    this.deck = {
+      id:1,
+      account:false,
+    }
+    this.game = {
+      hand: {
+        open:false,
+        openChangeOnUpdate:true,
+        quickcast:false,
+      },
+      chat: {
+        off:false,
+        hideT:7000,
+      }
+    }
   }
 }
 
-export class Target {
+export class Overlay {
+  title: string // text
+  target: string  // targeting enum
+  targetF: any // this func procs for 'target' selection
+  token: GameToken
+  card: GameCard
+  choices: Array<OverlayChoice> // offered choices
+  stack: Overlay
+
+  constructor(title: string, stack: Overlay) {
+    this.title=title
+    this.choices = []
+    this.stack = stack
+  }
+
+  show() : boolean {
+    if (this.title) {
+      return true
+    } else if (this.target) {
+      return true
+    } else if (this.token != null) {
+      return true
+    } else if (this.card != null) {
+      return true
+    } 
+    return false
+  }
+}
+
+export class OverlayChoice {
   display: string
-  helper: string
-  send: any
+  f: any
 }

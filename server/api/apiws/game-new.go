@@ -7,21 +7,20 @@ import (
 	"github.com/zachtaylor/7elements/server/api"
 	"ztaylor.me/cast"
 	"ztaylor.me/http/websocket"
-	"ztaylor.me/log"
 )
 
-func GameNew(rt *api.Runtime) websocket.Handler {
+func GameNew(rt *Runtime) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		log := rt.Root.Logger.New().Tag("apiws/game.new").With(log.Fields{
-			"Username": m.User,
+		log := rt.Runtime.Root.Logger.New().Tag("apiws/game.new").With(cast.JSON{
+			"Session": socket.Session,
 		})
 
 		if socket.Session == nil {
 			log.Warn("session required")
 			return
-		} else if game := rt.Games.FindUsername(m.User); game != nil {
+		} else if game := rt.Runtime.Games.FindUsername(socket.Session.Name()); game != nil {
 			log.Add("GameID", game.ID).Warn("game exists")
-			connectGame(rt, log, socket)
+			connectgame(rt, socket)
 			return
 		}
 
@@ -33,9 +32,9 @@ func GameNew(rt *api.Runtime) websocket.Handler {
 			log.Warn("account missing")
 			return
 		} else if cast.Bool(account) {
-			deck = api.GetMyDeck(rt, log, m.User, deckid)
+			deck = api.GetMyDeck(rt.Runtime, log, socket.Session.Name(), deckid)
 		} else {
-			if deck = api.GetFreeDeck(rt, log, m.User, deckid); deck == nil {
+			if deck = api.GetFreeDeck(rt.Runtime, log, socket.Session.Name(), deckid); deck == nil {
 				return
 			}
 		}
@@ -46,7 +45,7 @@ func GameNew(rt *api.Runtime) websocket.Handler {
 			return
 		} else if deck.Count() < 20 {
 			log.Warn("deck too small")
-			pushJSON(socket, "/error", cast.JSON{
+			socket.Message("/error", cast.JSON{
 				"error": "deck must have at least 21 cards",
 			})
 			return
@@ -60,17 +59,17 @@ func GameNew(rt *api.Runtime) websocket.Handler {
 			log.Warn("ai missing")
 			return
 		} else if cast.Bool(useai) {
-			g = rt.Games.New(deck, ai.GetAccountDeck(rt.Root.Decks))
+			g = rt.Runtime.Games.New(deck, ai.GetAccountDeck(rt.Runtime.Root.Decks))
 			ai.ConnectAI(g)
 			log.Add("GameID", g.ID()).Info("created game vs ai")
-		} else if search := rt.Games.Search(deck); search == nil {
+		} else if search := rt.Runtime.Games.Search(deck); search == nil {
 			log.Warn("cannot start search")
 		} else {
 			log.Info("starting search")
 			if gameid := <-search.Done; gameid == "" {
 				log.Warn("search failed")
 			} else {
-				g = rt.Games.Get(gameid)
+				g = rt.Runtime.Games.Get(gameid)
 				log.Info("match found")
 			}
 		}
@@ -78,7 +77,7 @@ func GameNew(rt *api.Runtime) websocket.Handler {
 		if g == nil {
 			log.Error("fail")
 		} else {
-			connectGame(rt, log, socket)
+			connectgame(rt, socket)
 		}
 	})
 }

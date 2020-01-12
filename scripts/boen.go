@@ -13,7 +13,7 @@ package scripts
 // 	game.Scripts[BoenID] = Boen
 // }
 
-// func Boen(g *game.T, seat *game.Seat, target interface{}) []game.Event {
+// func Boen(g *game.T, seat *game.Seat, target interface{}) []game.Stater {
 // 	log := g.Log().With(log.Fields{
 // 		"Username": seat.Username,
 // 		"Card":     target,

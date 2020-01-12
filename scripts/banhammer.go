@@ -3,28 +3,25 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/trigger"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-const BanhammerID = "banhammer"
+const banhammerID = "banhammer"
 
 func init() {
-	game.Scripts[BanhammerID] = Banhammer
+	game.Scripts[banhammerID] = Banhammer
 }
 
-func Banhammer(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   arg,
-		"Username": seat.Username,
-	}).Tag(logtag + BanhammerID)
-
-	card, err := target.PresentBeingItem(g, seat, arg)
-	if err != nil {
-		log.Add("Error", err).Error()
-		return nil
+func Banhammer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if card, e := target.PastBeingItem(g, s, args[0]); e != nil {
+		err = e
+	} else if s := g.GetSeat(card.Username); s == nil {
+		err = game.ErrNoSeat
+	} else {
+		delete(s.Past, card.ID)
+		update.Seat(g, s)
 	}
-	log.Info()
-
-	return trigger.Death(g, card)
+	return
 }

@@ -1,0 +1,45 @@
+<ng-container *ngIf="conn.isLoggedIn()">
+  <article>
+    <article-header>
+      <span class="fltr" *ngIf="countDiff(diff)">
+        <button class="vii" (click)="onSubmit()"><span>Save</span></button>
+      </span>
+      <span>Edit Deck</span>
+    </article-header>
+    <article-body>
+      <span><input type="text" class="vii" formControlName="name" [value]="deck.name"></span>
+    </article-body>
+  </article>
+  <br/>
+  <article>
+    <article-header>
+      <span class="fltr">
+        <b>{{countDeck()}}</b>
+        <i *ngIf="countDiff(diff)">+{{countDiff(diff)}} = {{countLive(diff)}}</i>
+        <b>/ 21+</b>
+      </span>
+      <span>Deck Cards</span>
+    </article-header>
+    <article-body>
+      <div class="dinl" *ngFor="let cardid of getView() | mapKeys">
+        <div class="talc">
+          <span class="fltr"><button (click)="clickDown(cardid)"><span>-</span></button></span>
+          <span class="fltl"><button (click)="clickUp(cardid)"><span>+</span></button></span>
+          <span>x{{deck?.cards[cardid]}}</span>
+          <span *ngIf="diff[cardid]>0">+{{diff[cardid]}}</span>
+          <span *ngIf="diff[cardid]<0">{{diff[cardid]}}</span>
+        </div>
+        <app-card-detail [card]="conn.card(cardid)"></app-card-detail>
+      </div>
+    </article-body>
+  </article>
+  <br/>
+  <article>
+    <article-header>Card Collection</article-header>
+    <article-body>
+      <app-card-detail *ngFor="let cardid of myaccount.cards | mapKeys" [card]="conn.card(cardid)" (click)="clickUp(cardid)">
+        <div style="padding:7px">x{{myaccount.cards[cardid]}}</div>
+      </app-card-detail>
+    </article-body>
+  </article>
+</ng-container>

@@ -5,118 +5,71 @@
     <br />
     It is free to play in your browser. You may play any of the current Free to Play Decks, or collect Cards to build
     your own Decks
-    <br /><br />
-    <h2>Expansion added 2019-11-02</h2>
-    <br />
-    <h2>Play Mode is added 2019-10-07</h2>
-    <br />
-    Please continue reading for more information about playing the game
-    <br /><br />
-    You may save this web page to your Desktop or Homescreen, and it has an icon and extra capabilities
+    <br/><br/>
+    <h2>Expansion 2020-01-12</h2>
   </article-body>
+  <article-footer>
+    <a routerLink="/updates">Click here</a> to access update history
+  </article-footer>
 </article>
 <br /><br />
 <article>
   <article-header>Introduction</article-header>
   <article-body>
-    You begin the game with a Deck of Cards. This is called your Future. You also begin with 7 Life.
+    You begin the game with a Deck of Cards, called your Future, and 7 Life
     <br /><br />
-    When a Players' Life reaches 0, that Player loses. When a Player has no more opponents, they win!
-    <br /><br />
-    Each turn, you will have several phases, and you can play cards. Keep reading to learn more.
+    When a Players' Life reaches 0, that Player loses, and when a Player has no more Opponents, they win!
   </article-body>
 </article>
 <br /><br />
 <article>
   <article-header>Starting the Game</article-header>
   <article-body>
-    When the game starts, you Future will be Shuffled, and you will be given 3 Cards.
+    In order to play, you must be logged in, and then you may <a routerLink="play">Click here</a> to start playing
+    <br /><br />
+    When the Game starts, you Future will be Shuffled, and you Draw 3 Cards
+    <br /><br />
+    Your first choice is whether to keep your starting Hand, or Mulligan
     <br /><br />
     You may keep your starting hand, by clicking "Keep"
     <br /><br />
-    Or, you may click "Mulligan", which will put all 3 cards from your Hand into your Past. You will draw 3 more Cards.
+    Or, you may click "Mulligan", which will put all 3 Cards from your Hand into your Past, and you will then Draw 3 Cards
   </article-body>
 </article>
 <br /><br />
-<article>
-  <article-header>Gameplay</article-header>
-  <article-body>
-    Your turn will have several Phases, outlined here.
-    <br /><br />
-    Each Phase requires a response from you. This is indicated by a timer ticking next to your name, as well as the
-    "PASS" button. The "PASS" button will excuse you from the current Phase, typically failing any available choice.
-    <br /><br />
-    At all times, players may Trigger Powers of their Beings or Items, or Play Spell Cards
-    <br /><br />
-    <img adapt="1" src="/img/icon/sunrise.svg"> Sunrise: You may select a new Element to add to your Karma, and Draw a
-    Card
-    <br /><br />
-    <img adapt="1" src="/img/icon/sun.svg"> Main: On your turn, you may play Being Cards and Item Cards, and your Beings
-    can activate Attack Phase
-    <br /><br />
-    <img adapt="1" src="/img/icon/sunset.svg"> Sunset: Extra spacer at the end of your turn
-    <br /><br />
-    <img adapt="1" src="/img/icon/attack.svg"> Attack: Your Being has activated Attack Phase
-    <br /><br />
-    <img adapt="1" src="/img/icon/combat.svg"> Combat: Your Being will deal or receive damage during this Combat; At the
-    end of Combat, return to Main
-    <br /><br />
-    <img adapt="1" src="/img/icon/star.svg"> Trigger: You are activating a Power
-    <br /><br />
-    <img adapt="1" src="/img/icon/magnify.svg"> Target: You are selecting a Target
-  </article-body>
-</article>
-<br /><br />
-<article>
-  <article-header>Playing Cards</article-header>
-  <article-body>
-    Cards have a <i>cost</i> to play, and this is paid from your in-game Karma. You may only play Cards which you have
-    enough Elements to use at the time.
-    <br /><br />
-    You won't be able to play certain cards when you don't have enough active Elements in your Karma to match the
-    Elements listed on the title of each Card
-  </article-body>
-</article>
-<br /><br />
-<article>
-  <article-header>Karma</article-header>
-  <article-body>
-    Each turn, your Karma will add a new Element color. Elements of your Karma will reactivate at the start of each turn
-    <br /><br />
-    All Cards have associated Element costs. These costs are paid from your active Karma
-    <br /><br />
-    Each turn, before you draw a card, choose any element to add to your available Karma, and it will be active in the
-    same turn, onward
-    <br /><br />
-    Each card played deactivates elements of your Karma, but these elements become active again every turn, at Sunrise
-    (start phase), on your turn
-  </article-body>
-</article>
 <ng-container *ngIf="conn.global$ | async as glob">
-  <br /><br />
   <article>
     <article-header>Being Cards</article-header>
     <article-body>
-      These Cards add Beings to the Present, and the Card is also added to your Past. Beings may have abilities, or be
-      used to Attack your opponent, reducing your opponents Health.
+      These Cards add Being Tokens to the Present, and the Card is added to your Past
       <br /><br />
-      Beings in the Present have active Health. When this reaches 0, the Being is removed from the Present. Beings do
-      not (re-)gain Health unless otherwise specified. Beings Awaken at Sunrise (start phase) on your turn, and are
-      Asleep when they enter the Present.
+      Being Tokens in the Present have their own Health, and when this reaches 0, the Being is removed from the Present
+      <br /><br />
+      Being Tokens in the Present may be Awake or Asleep, and must be Awake to be used
+      <br /><br />
+      Beings do not (re-)gain Health unless otherwise specified
+      <br /><br />
+      Being Tokens are Asleep when they enter the Present
       <div class="clrl">
-        <br />
+        <br/>
       </div>
-      <app-card-detail class="fltl" [card]="glob.cards[0]"></app-card-detail>
-      <br /><br />This Being uses a white Element to play. It also has an ability that it can use each turn, notated by
-      <img adapt="1" src="/img/icon/timer.png">
-      <br /><br />It doesn't have any Attack points, so it shouldn't Attack yet
+      <app-card-detail class="fltl" [card]="glob.cards[2]"></app-card-detail>
+      This Being requires a yellow Element to play
+      <br/><br/>
+      It has 2 Attack, and 2 Health, notated by <img adapt="1" src="/img/icon/attack.32px.png"> and <img adapt="1" src="/img/icon/life.32px.png"> 
+      <br/><br/>
+      It can be used to attack, and win the game!
+      <br/>
       <div class="clrl"></div>
-      <app-card-detail class="fltr" [card]="glob.cards[3]"></app-card-detail>
-      <br /><br />This Being uses a green Element to play. It has an ability that is triggered every start of your turn,
-      notated by <img adapt="1" src="/img/icon/sunrise.svg">
-      <br /><br />This being can do a lot of damage as it will gain more and more Attack points each turn
+      <app-card-detail class="fltr" [card]="glob.cards[6]"></app-card-detail>
+      This Being requires a black Element to play
+      <br/><br/>
+      It has a Power that can be triggered, notated by <img adapt="1" src="/img/icon/timer.png">
+      <br/><br/>
+      This Power also removes this Being from the Present, notated by <img adapt="1" src="/img/icon/trash.svg">
+      <br/>
       <div class="clrr"></div>
-      <app-card-detail class="fltl" [card]="glob.cards[6]"></app-card-detail>
+      <!-- <app-card-detail class="fltl" [card]="glob.cards[6]"></app-card-detail>
       <br /><br />This Being uses a black Element to play. It has an ability that it can use, which uses its turn (<img
         adapt="2" src="/img/icon/timer.png">) and destroys itself, notated by <img adapt="1" src="/img/icon/trash.svg">
       <br /><br />This Being can be used to remove another Being from the Present
@@ -124,49 +77,72 @@
       <app-card-detail class="fltr" [card]="glob.cards[1]"></app-card-detail>
       <br /><br /><br />This Being uses a red Element to play. It has an ability that requires a red Element of your
       Karma to activate, notated by <img adapt="1" src="/img/icon/element-2.png">
-      <div class="clrr"></div>
+      <div class="clrr"></div> -->
     </article-body>
   </article>
   <br /><br />
   <article>
     <article-header>Spell Cards</article-header>
     <article-body>
-      These cards have effects that take place immediately, and are put into the Past when their effect is
-      complete.<br />
+      These cards have effects that take place immediately, and are put into the Past when their effect is complete<br />
+      <br/>
       <app-card-detail class="fltl" [card]="glob.cards[12]"></app-card-detail>
-      <br /><br /><br />
-      <p>This Spell uses a violet Element to play, and can be used to prevent a Being from losing all of its Health</p>
+      <br/>
+      This Spell requires a violet Element to play
+      <br/><br/>
+      It can be used to prevent a Being from losing all of its Health
+      <br/>
       <div class="clrl"></div>
-      <app-card-detail class="fltr" [card]="glob.cards[11]"></app-card-detail>
+      <!-- <app-card-detail class="fltr" [card]="glob.cards[11]"></app-card-detail>
       <br /><br /><br />
       <p>This Spell uses a blue Element to play, and can be used to slow your opponent down by making them re-play their
         Being Card</p>
+      <div class="clrr"></div> -->
+      <app-card-detail class="fltr" [card]="glob.cards[8]"></app-card-detail>
+      <br/>
+      This Spell requires a red Element to play
+      <br /><br />
+      It can be used reduce the Health of a Being Token
+      <br/>
       <div class="clrr"></div>
-      <app-card-detail class="fltl" [card]="glob.cards[9]"></app-card-detail>
-      <br /><br /><br />
-      <p>This Spell uses a yellow Element to play, and can be used to Awaken a Being, allowing it to use a Power or
-        Attack again</p>
-      <div class="clrl"></div>
     </article-body>
   </article>
   <br /><br />
   <article>
     <article-header>Item Cards</article-header>
     <article-body>
-      These Cards at Items to the Present, and the Card is also added to your Past. Items may have activatable or
-      passive abilities
+      These Cards add Items Tokens to the Present, and the Card is added to your Past
+      <br /><br />
+      Item Tokens in the Present may be Awake or Asleep, and must be Awake to be used
+      <br /><br />
+      Item Tokens are Asleep when they enter the Present
       <div class="clrl">
         <br />
       </div>
-      <app-card-detail class="fltr" [card]="glob.cards[15]"></app-card-detail>
-      <br /><br />This Item uses 2 red Elements to play. It has an ability that is triggered every end of your turn,
-      notated by <img adapt="1" src="/img/icon/sunset.svg">
-      <div class="clrr"></div>
-      <app-card-detail class="fltl" [card]="glob.cards[18]"></app-card-detail>
-      <br /><br />This Item uses 2 blue Elements to play. It has an activatable ability that can be used to change your
-      Future, notated by <img adapt="1" src="/img/icon/timer.png">
+      <app-card-detail class="fltl" [card]="glob.cards[17]"></app-card-detail>
+      <br/>
+      This Item requires a green Element to play
+      <br/><br/>
+      It has a Power that is Triggered at Sunrise ( on the start of every turn ) notated by <img adapt="1" src="/img/icon/sunrise.svg">
+      <br/>
       <div class="clrl"></div>
+      <app-card-detail class="fltr" [card]="glob.cards[18]"></app-card-detail>
+      <br/>
+      This Item requires 2 blue Elements to play
+      <br/><br/>
+      It has an activatable ability that can be used to change your Future, notated by <img adapt="1" src="/img/icon/timer.png">
+      <br/>
+      <div class="clrr"></div>
     </article-body>
   </article>
   <br /><br />
 </ng-container>
+<br/><br/>
+<article>
+  <article-header>Questions?</article-header>
+  <article-body>For more information, there is a detailed how-to guide</article-body>
+  <article-footer>
+    <a routerLink="/how-to">Click here</a> to access the how-to
+  </article-footer>
+</article>
+<br /><br />

@@ -1,5 +1,8 @@
-<div class="fnt1 panel">
+<div *ngIf="game.seats[username]" class="fnt1 panel">
   <div class="fltr">
+    <img adapt="1" src="/img/icon/timer.png">
+    <b *ngIf="!game.state.reacts[username]">{{timer}}</b>
+    <span *ngIf="game.state.reacts[username]"> -- </span>
     <img adapt="1" src="/img/icon/heart.svg">
     <b>{{game.seats[username].life}}</b>
     <img adapt="1" src="/img/icon/cards.png">
@@ -10,21 +13,26 @@
     <b>{{objectKeys(game.seats[username].past).length}}</b>
   </div>
   <div class="fltl">
-    <img adapt="1" src="/img/icon/{{getIcon()}}.svg">
+    <img adapt="1" *ngIf="game.state.reacts[username]" src="/img/icon/asleep.svg">
+    <img adapt="1" *ngIf="!game.state.reacts[username]" src="/img/icon/awake.svg">
     <b>{{username}}</b>
-    <span *ngIf="!game.state.reacts[username]">{{timer}}</span>
+    <ng-container *ngIf="game.state.seat==game.state.username">
+      <img adapt="1" src="/img/icon/{{getTitleIcon()}}.svg">
+      <span>{{getTitleText}}</span>
+    </ng-container>
+    
   </div>
 </div>
 <div class="h100 flx1 flxr">
   <div class="h100 dinl panel karma">
     <div class="talc fntb">Karma</div>
-    <ng-container *ngFor="let eid of game.seats[username].elements | mapKeys">
+    <ng-container *ngFor="let eid of game.seats[username]?.elements | mapKeys">
       <img *ngFor="let ok of game.seats[username].elements[eid] | mapValues" adapt="1"
         [ngClass]="{'active': ok, 'inactive': !ok}" src="/img/icon/element-{{eid}}.png">
     </ng-container>
   </div>
   <carousel class="h100 dinl flx1">
-    <app-game-token *ngFor="let card of game.seats[username].active | mapValues" [card]="card" [game]="game"
-      (click)="clickCard(card)"></app-game-token>
+    <app-game-token *ngFor="let tokenid of game.seats[username]?.present" [tokenid]="tokenid" [game]="game"
+      (click)="clickToken(tokenid)"></app-game-token>
   </carousel>
 </div>

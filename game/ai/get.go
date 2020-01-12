@@ -33,7 +33,7 @@ func (ai *AI) getHandCanAfford() (hand []string) {
 	elements := ai.Seat.Elements.GetActive()
 	for _, c := range ai.Seat.Hand {
 		if elements.Test(c.Card.Costs) {
-			hand = append(hand, c.Id)
+			hand = append(hand, c.ID)
 		}
 	}
 	return
@@ -43,7 +43,7 @@ func (ai *AI) getHandCanAfford() (hand []string) {
 func (ai *AI) getPresentCanAttack() (awake []string) {
 	for _, c := range ai.Seat.Present {
 		if c.IsAwake {
-			awake = append(awake, c.Id)
+			awake = append(awake, c.ID)
 		}
 	}
 	return

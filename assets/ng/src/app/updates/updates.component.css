@@ -1,0 +1,8 @@
+.card-cost {
+  height:24px;
+  width:24px;
+  vertical-align:sub;
+}
+li img {
+  height:calc(var(--ui) / 2);
+}

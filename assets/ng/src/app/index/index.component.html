@@ -1,32 +1,32 @@
 <br/><br/>
-<article>
-  <article-header>7 Elements Online</article-header>
-  <article-body>
-    Patch Date: 2019-10-11 (bug fix)
-    <br/><br/>
-    <a routerLink="/updates">Click here</a> for patch notes
-  </article-body>
-</article>
-<br/><br/>
-<br/><br/>
 <article *ngIf="conn.ping$ | async as ping">
-  <article-header>People online right now</article-header>
+  <article-header>7 Elements Online</article-header>
   <article-body>
     {{ping.ping}} connected / {{ping.online}} logged in / {{conn.global$.value?.users}} users
   </article-body>
+  <article-footer>
+    <a routerLink="/intro">Click here</a> for an introduction
+  </article-footer>
 </article>
 <br/><br/>
 <br/><br/>
 <article>
-  <article-header>Introduction</article-header>
+  <article-header>Version 2</article-header>
   <article-body>
-    <a routerLink="/intro">Click here</a> to learn how to play
+    New and Updated Cards
+    <br/>
+    Deck Editor
+    <br/>
+    Upgraded AI
   </article-body>
+  <article-footer>
+    <a routerLink="/updates">Click here</a> for update history
+  </article-footer>
 </article>
 <br/><br/>
 <br/><br/>
 <article>
-    <article-header>Chat Room</article-header>
+  <article-header>Chat Room</article-header>
   <article-body>
     <a routerLink="/chats">Click here</a> to visit the chat room
   </article-body>

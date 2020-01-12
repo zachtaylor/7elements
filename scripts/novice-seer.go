@@ -2,28 +2,24 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event"
+	"github.com/zachtaylor/7elements/game/state"
+	"github.com/zachtaylor/7elements/game/update"
 	"ztaylor.me/cast"
-	"ztaylor.me/log"
 )
 
-const NoviceSeerId = "novice-seer"
+const noviceseerId = "novice-seer"
 
 func init() {
-	game.Scripts[NoviceSeerId] = NoviceSeer
+	game.Scripts[noviceseerId] = NoviceSeer
 }
 
-func NoviceSeer(g *game.T, seat *game.Seat, target interface{}) []game.Event {
-	me, ok := target.(*game.Card)
-	if !ok {
-		return nil
-	}
-	card := seat.Deck.Draw()
-	return []game.Event{event.NewChoiceEvent(
-		seat.Username,
+func NoviceSeer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	card := s.Deck.Draw()
+	events = []game.Stater{state.NewChoice(
+		s.Username,
 		"Novice Seer",
 		cast.JSON{
-			"card": me.JSON(),
+			// "card": me.JSON(),
 		},
 		[]cast.JSON{
 			cast.JSON{
@@ -36,18 +32,13 @@ func NoviceSeer(g *game.T, seat *game.Seat, target interface{}) []game.Event {
 			},
 		},
 		func(val interface{}) {
-			log := g.Log().With(log.Fields{
-				"Seat": seat.Username,
-			}).Tag("/scripts/" + NoviceSeerId)
-
 			if destroy := cast.Bool(val); destroy {
-				log.Debug("destroy")
-				seat.Past[card.Id] = card
-				g.SendSeatUpdate(seat)
+				s.Past[card.ID] = card
 			} else {
-				log.Debug("keep")
-				seat.Deck.Prepend(card)
+				s.Deck.Prepend(card)
 			}
+			update.Seat(g, s)
 		},
 	)}
+	return
 }

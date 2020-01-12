@@ -1,66 +1,232 @@
-<br />&nbsp;<br />
 <article>
-  <article-header>Alpha v0.0.2 2019-11-02</article-header>
+  <article-header>Update History</article-header>
   <article-body>
-    <ul>Cards Added
-      <li>Banhammer</li>
-      <li>Burning Rage</li>
-      <li>Call the Banners</li>
-      <li>Symbiosis</li>
-      <li>Crystal Ball</li>
-      <li>Font of Life</li>
-      <li>Necromancy 101</li>
-    </ul>
-    <ul>
-      <li>all accounts have been gifted with 36 coins</li>
-      <li>add deck builder</li>
-      <li>add some more visual polish</li>
-      <li>added more extensive detail to the <a routerLink="/intro">intro</a> page</li>
-    </ul>
+    This page details changes to the game
+    <br/><br/>
+    A knowledge of gameplay is recommended before reading
+    <br/><br/>
+    <a routerLink="/intro">Click here</a> to access introduction
+    <br/><br/>
+    <a routerLink="/how-to">Click here</a> to access how-to
   </article-body>
+  <article-footer>
+    <a routerLink="/todo">Click here</a> to access my public todo list
+  </article-footer>
 </article>
 <br />&nbsp;<br />
 <article>
-  <article-header>BUGFIX 2019-10-09</article-header>
+  <article-header>v0.0.2 2020-01-12</article-header>
   <article-body>
     <ul>
-      <li><a routerLink="/intro">intro</a> page now shows cards correctly</li>
-      <li>updates page layout fixed</li>
-      <li>splash page updated for clarity</li>
+      <li><ul>General
+        <li>This version contains known and unknown issues</li>
+        <li>I will apply fixes as I identify these, and you can let me know of any issues found by visiting the project on Github</li>
+      </ul></li>
+      <li><ul>Account Support
+        <li>All accounts have been gifted with 21 coins</li>
+        <li>Added support for email change</li>
+        <li>Added support for password change</li>
+      </ul></li>
+      <li><ul>Deck Builder
+        <li>Added initial support</li>
+      </ul></li>
+      <li><ul>Play Mode
+        <li><ul>Gameplay
+          <li>Playing Being Cards will now create a Being Token, and playing Item Cards will now create Item Tokens, in the Present</li>
+          <li>Each Sunrise will allow every Player to create an Element, and Trigger Sunrise on every Token</li>
+          <li>Each Sunset will Trigger Sunset on every Token</li>
+        </ul></li>
+        <li><ul>Free to Play Decks
+          <li><i>removed previous Free to Play Decks</i></li>
+          <li>AllCards: 1 copy of each Card</li>
+          <li>WhiteGold: 3 of each Time Runner, Zealot, New Element, Burn, Energize, Banhammer, Call the Banners</li>
+          <li>GreenGold: 3 of each Zealot, Vine Spirit, Energize, Inspire Growth, Grace, Call the Banners, Symbiosis</li>
+          <li>RedBlue: Ifrit, Water Dancer, Nightmare Ader, Burn, Wormhole, Burning Rage, Crystal Ball</li>
+          <li>ItemTech: Time Runner, New Element, Burn, Banhammer, Burning Rage, Symbiosis, Crystal Ball</li>
+          <li>Sk8_H1: Pixie, Nightmare Ader, Grace, Memorialize, Symbiosis, Font of Life, Necromancy 101</li>
+          <li>KetchupMustard: Ifrit, Zealot, Burn, Energize, Memorialize, Burning Rage, Call the Banners</li>
+        </ul></li>
+        <li><ul>VS AI
+          <li>Added AI ability targeting</li>
+          <li>Added AI decision prioritization</li>
+        </ul></li>
+      </ul></li>
+      <li><ul>Cards Added
+        <li><ul>Banhammer
+          <li>Cost: <img adapt="2" src="/img/icon/element-1.png"><img adapt="2" src="/img/icon/element-1.png"></li>
+          <li>Type: Item</li>
+          <li><img adapt="2" src="/img/icon/timer.png"><img adapt="2" src="/img/icon/element-1.png">: Remove Target Being or Item from the Past</li>
+        </ul></li>
+        <li><ul>Burning Rage
+          <li>Cost: <img adapt="2" src="/img/icon/element-2.png"><img adapt="2" src="/img/icon/element-2.png"></li>
+          <li>Type: Item</li>
+          <li><img adapt="2" src="/img/icon/sunset.svg">: Burning Rage does 1 Damage to each enemy Player</li>
+        </ul></li>
+        <li><ul>Call the Banners
+          <li>Cost: <img adapt="2" src="/img/icon/element-3.png"><img adapt="2" src="/img/icon/element-3.png"><img adapt="2" src="/img/icon/element-3.png"></li>
+          <li>Type: Spell</li>
+          <li>Add 3 Beings to your Present, each with 2 Attack and 2 Health</li>
+        </ul></li>
+        <li><ul>Symbiosis
+          <li>Cost: <img adapt="2" src="/img/icon/element-4.png"></li>
+          <li>Type: Item</li>
+          <li><img adapt="2" src="/img/icon/sunrise.svg">: Target Being gets 1 Attack</li>
+        </ul></li>
+        <li><ul>Crystal Ball
+          <li>Cost: <img adapt="2" src="/img/icon/element-5.png"><img adapt="2" src="/img/icon/element-5.png"></li>
+          <li>Type: Item</li>
+          <li><img adapt="2" src="/img/icon/timer.png">: Look at the next Card in your Future, then you can choose to Shuffle your Future</li>
+        </ul></li>
+        <li><ul>Font of Life
+          <li>Cost: <img adapt="2" src="/img/icon/element-6.png"><img adapt="2" src="/img/icon/element-6.png"></li>
+          <li>Type: Item</li>
+          <li><img adapt="2" src="/img/icon/timer.png"><img adapt="2" src="/img/icon/element-6.png">: You gain 2 Life</li>
+          <li><img adapt="2" src="/img/icon/timer.png"><img adapt="2" src="/img/icon/element-6.png">: Target Being gains 2 Health</li>
+        </ul></li>
+        <li><ul>Necromancy 101
+          <li>Cost: <img adapt="2" src="/img/icon/element-7.png"><img adapt="2" src="/img/icon/element-7.png"><img adapt="2" src="/img/icon/element-7.png"></li>
+          <li>Type: Item</li>
+          <li><img adapt="2" src="/img/icon/timer.png"><img adapt="2" src="/img/icon/element-0.png"><img adapt="2" src="/img/icon/element-7.png"><img adapt="2" src="/img/icon/element-7.png">: Add Target Being from your Past to your Present, set its' Health to 1, you lose 1 Life</li>
+        </ul></li>
+      </ul></li>
+      <li><ul>Cards Changed
+        <li><ul>Time Runner
+          <li>Type: Being 0 / 2</li>
+          <li><img adapt="2" src="/img/icon/element-1.png"><img adapt="2" src="/img/icon/timer.png">: Draw a Card</li>
+          <li><i>added karmic cost to ability, added 1 health to compensate</i></li>
+        </ul></li>
+        <li><ul>Ifrit
+          <li>Type: Being 2 / 1</li>
+          <li><img adapt="2" src="/img/icon/element-2.png"><img adapt="2" src="/img/icon/timer.png">: Deal 1 Damage to Target Being or Player</li>
+          <li><i>added turn requirement to ability, added 1 attack to compensate</i></li>
+        </ul></li>
+        <li><ul>Vine Spirit
+          <li>Type: Being 0 / 2</li>
+          <li><i>reduced attack, add health to respond to the change to Sunrise Triggers</i></li>
+        </ul></li>
+        <li><ul>Pixie
+          <li>Type: Being 1 / 2</li>
+          <li><i>add health to compensate buff to aggro strategies</i></li>
+        </ul></li>
+        <li><ul>Nightmare Ader
+          <li>Type: Being 0 / 3</li>
+          <li><i>add health to compensate buff to aggro strategies</i></li>
+        </ul></li>
+        <li><ul>Wormhole
+          <li>Target Being's Owner adds a Copy of it to their Hand, remove it from the Present</li>
+          <li><i>updated behavior for game tokens</i></li>
+        </ul></li>
+        <li><ul>Grace
+          <li>Target Being gains 3 Health</li>
+          <li><i>add health to compensate buff to aggro strategies</i></li>
+        </ul></li>
+      </ul></li>
     </ul>
   </article-body>
 </article>
 <br />&nbsp;<br />
 <article>
-  <article-header>Alpha v0.0.1 2019-10-07</article-header>
+  <article-header>v0.0.1 2019-10-07</article-header>
   <article-body>
-    This version introduces the Play Mode
-    <br />&nbsp;<br />
-    <ul>Cards Added
-      <li>Time Runner</li>
-      <li>Ifrit</li>
-      <li>Zealot</li>
-      <li>Vine Spirit</li>
-      <li>Water Dancer</li>
-      <li>Pixie</li>
-      <li>Nightmare Ader</li>
-      <li>New Element</li>
-      <li>Burn</li>
-      <li>Energize</li>
-      <li>Inspire Growth</li>
-      <li>Wormhole</li>
-      <li>Grace</li>
-      <li>Memorialize</li>
+    <ul>
+      <li>New, re-engineered website</li>
+      <li><ul>Account Support
+        <li><ul>Database Reset
+          <li>Reserve your username today!</li>
+        </ul></li>
+        <li><ul>E-mail
+          <li>This value is not yet used</li>
+        </ul></li>
+      </ul></li>
+      <li><ul>Play Mode
+        <li>Added initial support</li>
+        <li><ul>Free to Play Decks
+          <li>AllCards: 3x every Card</li>
+          <li>WREG: 3x Time Runner, 3x Ifrit, 3x Zealot, 3x Vine Spirit, 3x New Element, 3x Burn, 3x Energize</li>
+          <li>GBVK: 3x Vine Spirit, 3x Water Dancer, 3x Pixie, 3x Nightmare Ader, 3x Wormhole, 3x Grace, 3x Memorialize</li>
+        </ul></li>
+        <li><ul>VS AI
+          <li>Added initial support</li>
+          <li>Known issue: ability targeting</li>
+        </ul></li>
+      </ul></li>
+      <li><ul>Cards Added
+        <li><ul>Time Runner
+          <li>Cost: <img adapt="2" src="/img/icon/element-1.png"></li>
+          <li>Type: Being 0 / 1</li>
+          <li><img adapt="2" src="/img/icon/timer.png">: Draw a Card</li>
+        </ul></li>
+        <li><ul>Ifrit
+          <li>Cost: <img adapt="2" src="/img/icon/element-2.png"></li>
+          <li>Type: Being 1 / 1</li>
+          <li><img adapt="2" src="/img/icon/element-2.png">: Deal 1 Damage to Target Being or Player</li>
+        </ul></li>
+        <li><ul>Zealot
+          <li>Cost: <img adapt="2" src="/img/icon/element-3.png"></li>
+          <li>Type: Being 2 / 2</li>
+        </ul></li>
+        <li><ul>Vine Spirit
+          <li>Cost: <img adapt="2" src="/img/icon/element-4.png"></li>
+          <li>Type: Being 1 / 1</li>
+          <li><img adapt="2" src="/img/icon/sunrise.svg">: Vine Spirit gets 1 Attack</li>
+        </ul></li>
+        <li><ul>Water Dancer
+          <li>Cost: <img adapt="2" src="/img/icon/element-5.png"></li>
+          <li>Type: Being 1 / 1</li>
+          <li><img adapt="2" src="/img/icon/timer.png">: Target Being becomes Asleep</li>
+        </ul></li>
+        <li><ul>Pixie
+          <li>Cost: <img adapt="2" src="/img/icon/element-6.png"></li>
+          <li>Type: Being 1 / 1</li>
+          <li><img adapt="2" src="/img/icon/trash.svg">: Target Being or Player gains Health equal to my Health</li>
+        </ul></li>
+        <li><ul>Nightmare Ader
+          <li>Cost: <img adapt="2" src="/img/icon/element-7.png"></li>
+          <li>Type: Being 0 / 1</li>
+          <li><img adapt="2" src="/img/icon/timer.png"><img adapt="2" src="/img/icon/trash.svg">: Target Being becomes Asleep</li>
+        </ul></li>
+        <li><ul>New Element
+          <li>Cost: <img adapt="2" src="/img/icon/element-1.png"></li>
+          <li>Type: Spell</li>
+          <li>Create a new Element</li>
+        </ul></li>
+        <li><ul>Burn
+          <li>Cost: <img adapt="2" src="/img/icon/element-2.png"></li>
+          <li>Type: Spell</li>
+          <li>Deal 2 Damage to Target Being</li>
+        </ul></li>
+        <li><ul>Energize
+          <li>Cost: <img adapt="2" src="/img/icon/element-3.png"></li>
+          <li>Type: Spell</li>
+          <li>Target Being or Item becomes Awake</li>
+        </ul></li>
+        <li><ul>Inspire Growth
+          <li>Cost: <img adapt="2" src="/img/icon/element-4.png"></li>
+          <li>Type: Spell</li>
+          <li>Target Being gets 1 Attack</li>
+        </ul></li>
+        <li><ul>Wormhole
+          <li>Cost: <img adapt="2" src="/img/icon/element-5.png"></li>
+          <li>Type: Spell</li>
+          <li>Add Target Being to its owners Hand, and remove it from the Present</li>
+        </ul></li>
+        <li><ul>Grace
+          <li>Cost: <img adapt="2" src="/img/icon/element-6.png"></li>
+          <li>Type: Spell</li>
+          <li>Target Being gets 2 Health</li>
+        </ul></li>
+        <li><ul>Memorialize
+          <li>Cost: <img adapt="2" src="/img/icon/element-7.png"></li>
+          <li>Type: Spell</li>
+          <li>Add a Card to your Hand that is a Copy of Target Being Card in your Past</li>
+        </ul></li>
+      </ul></li>
     </ul>
-    <a routerLink="/cards">Click here</a> to view the card set
-    <br />&nbsp;<br />
-    Database was reset with this patch, so please make a new account
-    <br />&nbsp;<br />
-    Account email does nothing yet, and it will be possible to change it later. Lock in your usernames now!
   </article-body>
 </article>
 <br />&nbsp;<br />
 <article>
+  <article-header>That's all folks</article-header>
   <article-body>
     There are no more patch notes, <a routerLink="/">click here</a> to go home
   </article-body>

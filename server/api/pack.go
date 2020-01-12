@@ -27,7 +27,7 @@ package api
 // 			"coins":    account.Coins,
 // 			"packs":    account.Packs,
 // 		})
-// 		log.WithFields(log.Fields{
+// 		log.WithFields(cast.JSON{
 // 			"Remote":   r.Remote,
 // 			"Username": r.Username,
 // 			"Coins":    account.Coins,

@@ -1,8 +1,8 @@
 <div class="panel">
   <span class="panel-label fntb">{{card?.name}}</span>
   <div class="fltr">
-    <span class="card-cost" *ngFor="let ceid of card?.costs | mapKeys">
-      <img *ngFor="let i of card?.costs[ceid] | count" src="/img/icon/element-{{ceid}}.png">
+    <span class="card-cost" *ngFor="let el of card?.costs | mapKeys">
+      <img *ngFor="let i of card?.costs[el] | count" src="/img/icon/element-{{el}}.png">
     </span>
   </div>
 </div>

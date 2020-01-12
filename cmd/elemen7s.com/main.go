@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"ztaylor.me/cast"
+
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/db"
@@ -26,6 +28,14 @@ func main() {
 	env := env.Global()
 	envName := env.Get("ENV")
 
+	stdout.Formatter().CutSourcePath(2)
+	stdout.New().With(cast.JSON{
+		"Patch":   Patch,
+		"ENV":     envName,
+		"DB_USER": env.Get("DB_USER"),
+	}).Source().Debug()
+	tstart := cast.Now()
+
 	rt := &api.Runtime{
 		Root:       &vii.Runtime{},
 		Chat:       chat.MemService{},
@@ -33,13 +43,18 @@ func main() {
 		FileSystem: http.Dir(env.Default("WWW_PATH", "www/")),
 		Ping:       &api.Ping{},
 	}
+	// games is a circular ref
 	rt.Games = engine.NewService(rt.Root, rt.Chat)
 
 	if conn, err := mysql.Open(dbe.BuildDSN(env)); err != nil {
 		stdout.New().Add("Error", err).Error("db error")
 		return
 	} else if patch, err := db.Patch(conn); patch != Patch {
-		stdout.New().Add("Expected", Patch).Add("Found", patch).Add("Error", err).Error("patch mismatch")
+		stdout.New().With(cast.JSON{
+			"ExpectedPatch": Patch,
+			"ActualPatch":   patch,
+			"Error":         err,
+		}).Source().Error("patch error")
 		return
 	} else {
 		rt.Root.Accounts = db.NewAccountService(conn)
@@ -48,13 +63,17 @@ func main() {
 		rt.Root.Cards = db.NewCardService(conn)
 		rt.Root.Decks = db.NewDeckService(conn)
 		rt.Root.Packs = db.NewPackService(conn)
+		stdout.New().
+			Add("Cards", len(rt.Root.Cards.GetAll())).
+			Add("Speed", cast.Now().Sub(tstart)).
+			Source().Debug("loaded")
 	}
 
 	logLevel, _ := log.GetLevel(env.Default("LOG_LEVEL", "info"))
 
 	if envName == "dev" {
 		rt.Sessions = session.NewCache(7 * time.Minute)
-		rt.Root.Logger = log.StdOutService(logLevel)
+		rt.Root.Logger = stdout
 		server.Start(rt, ":"+env.Default("PORT", "80"))
 	} else if envName == "pro" {
 		rt.Sessions = session.NewCache(7 * time.Hour)

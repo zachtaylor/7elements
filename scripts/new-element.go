@@ -2,43 +2,37 @@ package scripts
 
 import (
 	vii "github.com/zachtaylor/7elements"
-
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event"
+	"github.com/zachtaylor/7elements/game/state"
+	"github.com/zachtaylor/7elements/game/update"
 	"ztaylor.me/cast"
-	"ztaylor.me/log"
 )
 
 func init() {
 	game.Scripts["new-element"] = NewElement
 }
 
-func NewElement(g *game.T, seat *game.Seat, target interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Seat": seat.Username,
-	}).Tag("scripts/new-element")
-	me, ok := target.(*game.Card)
-	if !ok {
-		log.Add("Target", target).Error("target failed")
-		return nil
+func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if me, ok := me.(*game.Card); !ok {
+		err = game.ErrMeCard
+	} else {
+		events = []game.Stater{state.NewChoice(
+			s.Username,
+			"Create a New Element",
+			cast.JSON{
+				"card": me.JSON(),
+			},
+			update.ChoicesNewElement,
+			func(val interface{}) {
+				if i := cast.Int(val); i < 1 || i > 7 {
+					update.ErrorW(g, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
+				} else {
+					e := vii.Element(i)
+					s.Elements.Append(e)
+					update.Seat(g, s)
+				}
+			},
+		)}
 	}
-	return []game.Event{event.NewChoiceEvent(
-		seat.Username,
-		"Create a New Element",
-		cast.JSON{
-			"card": me.JSON(),
-		},
-		game.GameChoiceNewElementChoices,
-		func(val interface{}) {
-			log.Tag("finish")
-			if i := cast.Int(val); i < 1 || i > 7 {
-				log.Warn("no element")
-			} else {
-				e := vii.Element(i)
-				log.Add("Element", e).Debug()
-				seat.Elements.Append(e)
-				g.SendSeatUpdate(seat)
-			}
-		},
-	)}
+	return
 }

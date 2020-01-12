@@ -2,32 +2,30 @@ package scripts
 
 import (
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/game/trigger"
 
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
-const SummonersPortalID = "summoners-portal"
+const summonersportalID = "summoners-portal"
 
 func init() {
-	game.Scripts[SummonersPortalID] = SummonersPortal
+	game.Scripts[summonersportalID] = SummonersPortal
 }
 
-func SummonersPortal(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Username": seat.Username,
-	}).Tag(logtag + SummonersPortalID)
-	card := seat.Deck.Draw()
+func SummonersPortal(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	card := s.Deck.Draw()
 	if card == nil {
-		log.Error(`card is nil`)
-		return nil
+		err = game.ErrFutureEmpty
 	} else if card.Card.Type == vii.CTYPbody || card.Card.Type == vii.CTYPitem {
-		seat.Present[card.Id] = card
+		if _, _events := trigger.Spawn(g, s, card); len(_events) > 0 {
+			events = append(events, _events...)
+		}
 	} else {
-		log.Add("BurnedCard", true)
-		g.SendSeatUpdate(seat)
+		update.ErrorW(g, "Summoners Portal", "Next card was "+card.Card.Name)
+		update.Seat(g, s)
 	}
-	seat.Past[card.Id] = card
-	log.Info()
-	return nil
+	s.Past[card.ID] = card
+	return
 }

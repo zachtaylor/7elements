@@ -4,7 +4,8 @@ import (
 	"time"
 
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
+	"ztaylor.me/cast"
 )
 
 // Run the engine
@@ -13,7 +14,7 @@ func Run(g *game.T) {
 	one2nd := time.NewTicker(time.Second)
 	var tStep time.Time
 
-	enginelog := g.Runtime.Root.Logger.New().With(log.Fields{
+	enginelog := g.Runtime.Root.Logger.New().With(cast.JSON{
 		"GameID": g.ID(),
 	}).Tag("engine")
 	enginelog.Info("start")
@@ -28,7 +29,7 @@ loop: // nested break
 				g.Log().Info("closed")
 				break loop // nested break
 			}
-			g.Log().With(log.Fields{
+			g.Log().With(cast.JSON{
 				"Path":     r.URI,
 				"Username": r.Username,
 			}).Debug("engine: request")
@@ -56,8 +57,9 @@ loop: // nested break
 			g.State = state
 			g.State.Timer = g.Runtime.Timeout
 			g.State.Reacts = make(map[string]string)
-			g.SendStateUpdate()
-		} else if e := g.State.Event.GetNext(g); e != nil { // next state
+			update.State(g)
+			connect(g, nil)
+		} else if e := g.State.R.GetNext(g); e != nil { // next state
 			log.Add("Next", e).Debug("getnext")
 			g.State = g.NewState(e)
 			events = append(events, activate(g)...)
@@ -73,65 +75,11 @@ loop: // nested break
 		}
 	} // event loop
 
-	enginelog.Add("Data", g.State.Event.JSON()).Add("Time", time.Now().Sub(tStart)).Info("end")
+	enginelog.Add("Data", g.State.R.JSON()).Add("Time", time.Now().Sub(tStart)).Info("end")
 	for _, seat := range g.Seats {
 		if seat.Receiver != nil {
-			seat.Receiver.WriteJSON(game.BuildPushJSON("/game", nil))
+			seat.Receiver.WriteJSON(update.Build("/game", nil))
 		}
 		seat.Receiver = nil
 	}
-}
-
-func connect(g *game.T, seat *game.Seat) {
-	log := g.Log().With(log.Fields{
-		"State": g.State.Print(),
-		"Seat":  seat, // seat could be nil
-	}).Tag("engine/connect")
-	if connector, _ := g.State.Event.(game.ConnectEventer); connector != nil {
-		log.Debug()
-		connector.OnConnect(g, seat)
-	} else {
-		log.Debug("empty")
-	}
-}
-
-func stack(g *game.T, events []game.Event) {
-	if events == nil {
-		return
-	}
-	g.Log().With(log.Fields{
-		"State": g.State,
-		"Stack": events,
-	}).Debug("engine: stack")
-	for _, e := range events {
-		s := g.NewState(e)
-		s.Stack = g.State
-		g.State = s
-		stack(g, activate(g))
-	}
-}
-
-func finish(g *game.T) []game.Event {
-	log := g.Log().Add("State", g.State.Print()).Tag("engine/finish")
-	if finisher, _ := g.State.Event.(game.FinishEventer); finisher != nil {
-		log.Debug()
-		return finisher.Finish(g)
-	}
-	log.Debug("empty")
-	return nil
-}
-
-func activate(g *game.T) []game.Event {
-	g.State.Timer = g.Runtime.Timeout
-	g.State.Reacts = make(map[string]string)
-	g.SendStateUpdate()
-	if activator, ok := g.State.Event.(game.ActivateEventer); ok {
-		g.Log().Add("State", g.State.Print()).Debug("engine/activate")
-		if events := activator.OnActivate(g); len(events) > 0 {
-			return events
-		}
-	} else {
-		g.Log().Add("State", g.State.Print()).Debug("engine/activate: none")
-	}
-	return nil
 }

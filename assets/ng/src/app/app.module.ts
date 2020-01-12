@@ -7,7 +7,6 @@ import { AppComponent } from './app.component'
 import { ArticleComponent } from './article/article.component'
 import { IntroComponent } from './intro/intro.component'
 import { MyAccountComponent } from './myaccount/myaccount.component'
-import { DeckDetailComponent } from './deck-detail/deck-detail.component'
 import { CardDetailComponent } from './card-detail/card-detail.component'
 import { IconComponent } from './icon/icon.component'
 import { EscapeHtmlPipe, MapKeysPipe, MapValuesPipe, CountPipe } from './app.pipes'
@@ -25,6 +24,10 @@ import { OverlayComponent } from './overlay/overlay.component'
 import { CarouselComponent } from './carousel/carousel.component'
 import { ToggleComponent } from './toggle/toggle.component'
 import { UpdatesComponent } from './updates/updates.component'
+import { MyDecksIdComponent } from './mydecks.id/mydecks.id.component';
+import { LostComponent } from './lost/lost.component';
+import { TodoComponent } from './todo/todo.component';
+import { HowtoComponent } from './howto/howto.component'
 
 @NgModule({
   declarations: [
@@ -32,7 +35,6 @@ import { UpdatesComponent } from './updates/updates.component'
     IntroComponent,
     MyAccountComponent,
     ArticleComponent,
-    DeckDetailComponent,
     CardDetailComponent,
     IconComponent,
     EscapeHtmlPipe,
@@ -51,7 +53,11 @@ import { UpdatesComponent } from './updates/updates.component'
     OverlayComponent,
     CarouselComponent,
     ToggleComponent,
-    UpdatesComponent
+    UpdatesComponent,
+    MyDecksIdComponent,
+    LostComponent,
+    TodoComponent,
+    HowtoComponent
   ],
   imports: [
     BrowserModule,

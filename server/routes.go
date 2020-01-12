@@ -5,11 +5,11 @@ import (
 
 	"github.com/zachtaylor/7elements/server/api"
 	"github.com/zachtaylor/7elements/server/api/apiws"
+	"ztaylor.me/cast"
 	"ztaylor.me/http/handler"
 	"ztaylor.me/http/mux"
 	"ztaylor.me/http/router"
 	"ztaylor.me/http/websocket"
-	"ztaylor.me/log"
 )
 
 func Routes(rt *Runtime) mux.Mux {
@@ -28,31 +28,42 @@ func Routes(rt *Runtime) mux.Mux {
 	return m
 }
 
-func WSRoutes(rt *Runtime) http.Handler {
-	mux := websocket.NewCache(rt.Sessions)
+func WSRoutes(apirt *Runtime) http.Handler {
+	mux := websocket.NewCache(apirt.Sessions)
+	rt := &apiws.Runtime{apirt, mux}
 	mux.Route(&websocket.Route{websocket.RouterLit("/connect"), apiws.Connect(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/disconnect"), apiws.Disconnect(rt)})
+	mux.Route(&websocket.Route{websocket.RouterLit("/ping"), websocket.HandlerFunc(ping)})
+	mux.Route(&websocket.Route{websocket.RouterLit("/signup"), apiws.Signup(rt)})
+	mux.Route(&websocket.Route{websocket.RouterLit("/login"), apiws.Login(rt)})
+	mux.Route(&websocket.Route{websocket.RouterLit("/email"), apiws.Email(rt)})
+	mux.Route(&websocket.Route{websocket.RouterLit("/password"), apiws.Password(rt)})
+	mux.Route(&websocket.Route{websocket.RouterLit("/logout"), apiws.Logout(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/chat"), apiws.Chat(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/chat/join"), apiws.ChatJoin(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/game"), apiws.Game(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/game/new"), apiws.GameNew(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/packs/buy"), apiws.PacksBuy(rt)})
-	mux.Route(&websocket.Route{websocket.RouterLit("/signup"), apiws.Signup(rt)})
-	mux.Route(&websocket.Route{websocket.RouterLit("/login"), apiws.Login(rt)})
-	mux.Route(&websocket.Route{websocket.RouterLit("/logout"), apiws.Logout(rt)})
 
 	// route 404
 	mux.Route(&websocket.Route{
-		websocket.RouterFunc(func(*websocket.Message) bool {
+		Router: websocket.RouterFunc(func(*websocket.Message) bool {
 			return true
 		}),
-		websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-			rt.Root.Logger.New().With(log.Fields{
-				"Username": m.User,
-				"URI":      m.URI,
-			}).Warn("api/ws: message routing failed")
+		Handler: websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
+			wsroutefailed(apirt, socket, m)
 		}),
 	})
-
 	return websocket.UpgradeHandler(mux)
+}
+
+// ping does nothing
+func ping(*websocket.T, *websocket.Message) {
+}
+
+func wsroutefailed(rt *Runtime, socket *websocket.T, m *websocket.Message) {
+	rt.Root.Logger.New().With(cast.JSON{
+		"Session": socket.Session,
+		"URI":     m.URI,
+	}).Source().Warn("routing failed")
 }

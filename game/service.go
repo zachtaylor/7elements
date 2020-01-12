@@ -12,6 +12,6 @@ type Service interface {
 	FindUsername(string) *T
 	// Search starts a PVP game search
 	Search(deck *vii.AccountDeck) *Search
-	// CardTriggeredEvents builds slice of triggered events to stack for a trigger name
-	CardTriggeredEvents(game *T, seat *Seat, card *Card, trigger string, target interface{}) []Event
+
+	Trigger(g *T, seat *Seat, token *Token, name string, arg interface{}) []Stater
 }

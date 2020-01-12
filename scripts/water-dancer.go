@@ -3,7 +3,7 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/game/update"
 )
 
 const WaterDancerID = "water-dancer"
@@ -12,18 +12,16 @@ func init() {
 	game.Scripts[WaterDancerID] = WaterDancer
 }
 
-func WaterDancer(g *game.T, seat *game.Seat, arg interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
-		"Target":   arg,
-		"Username": seat.Username,
-	}).Tag(logtag + WaterDancerID)
-	card, err := target.PresentBeing(g, seat, arg)
-	if err != nil {
-		log.Add("Error", err).Error()
-		return nil
+func WaterDancer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if len(args) < 1 {
+		err = game.ErrNoTarget
+	} else if token, _err := target.PresentBeing(g, s, args[0]); _err != nil {
+		err = _err
+	} else if token == nil {
+		err = game.ErrBadTarget
+	} else {
+		token.IsAwake = false
+		update.Token(g, token)
 	}
-	log.Info()
-	card.IsAwake = false
-	g.SendCardUpdate(card)
-	return nil
+	return
 }

@@ -1,13 +1,13 @@
 <div adapt="2">
   <img adapt="2" class="fltl" [src]="'/img/icon/'+getIcon()">
-  <span class="name fltr fnt2 fntb">{{card.name}}</span>
+  <span class="name fltr fnt2 fntb">{{token?.name}}</span>
 </div>
-<img class="card-art" [src]="card?.image">
+<img class="card-art" [src]="token?.image">
 <div adapt="2">
-  <div *ngIf="card.body" class="fnt2 fltr">
-    <span>{{card.body.attack}}</span>
+  <div *ngIf="token?.body" class="fnt2 fltr">
+    <span>{{token?.body?.attack}}</span>
     <img src="/img/icon/attack.20px.png">
-    <span>{{card.body.health}}</span>
+    <span>{{token?.body?.health}}</span>
     <img src="/img/icon/life.20px.png">
   </div>
 </div>

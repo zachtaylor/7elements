@@ -1,6 +1,0 @@
-<ng-container *ngIf="conn.global$ | async">
-  <h2>{{deck?.name}}</h2>
-  <app-card-detail *ngFor="let cardid of deck?.cards | mapKeys" [card]="conn.getCard(cardid)">
-    <div style="padding:7px">x{{deck?.cards[cardid]}}</div>
-  </app-card-detail>
-</ng-container>

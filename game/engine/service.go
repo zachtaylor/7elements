@@ -8,9 +8,10 @@ import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/event"
+	"github.com/zachtaylor/7elements/game/state"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"ztaylor.me/cast"
 	"ztaylor.me/keygen"
-	"ztaylor.me/log"
 )
 
 type Service struct {
@@ -40,12 +41,12 @@ func (service *Service) New(a, b *vii.AccountDeck) *game.T {
 		service.runtime,
 		service,
 		70*time.Second,
-		log.NewService(log.LevelInfo, log.DefaultFormatter(false), f),
+		f,
 		service.chat,
 	))
 	g.Register(a)
 	g.Register(b)
-	g.State = g.NewState(event.NewStartEvent(a.Username))
+	g.State = g.NewState(state.NewStart(a.Username))
 	service.set(key, g)
 	go service.runner(g)
 	service.runtime.Logger.New().Add("Key", key).Info("engine: new game started")
@@ -105,40 +106,34 @@ func (service *Service) Search(deck *vii.AccountDeck) *game.Search {
 	return search
 }
 
-func (service *Service) CardTriggeredEvents(g *game.T, seat *game.Seat, card *game.Card, trigger string, origTarget interface{}) []game.Event {
-	log := g.Log().With(log.Fields{
+func (service *Service) Trigger(g *game.T, seat *game.Seat, token *game.Token, name string, arg interface{}) []game.Stater {
+	log := g.Log().With(cast.JSON{
 		"Seat":    seat.Username,
-		"Card":    card.Card.Name,
-		"Trigger": trigger,
-	}).Tag("engine/card-trigger")
-	powers := card.Powers.GetTrigger(trigger)
+		"Token":   token.String(),
+		"Trigger": name,
+	})
+	powers := token.Powers.GetTrigger(name)
 	if len(powers) < 1 {
 		log.Debug("empty")
 		return nil
 	}
-	events := make([]game.Event, 0)
+	events := make([]game.Stater, 0)
 	for _, p := range powers {
-		var target interface{}
-		if p.Target == "self" {
-			target = card
-		} else if origTarget != nil {
-			target = origTarget
-		}
-
-		if target != nil {
-			events = append(events, event.NewTriggerEvent(seat.Username, card, p, target))
-		} else {
-			script := game.Scripts[p.Script]
-			events = append(events, event.NewTargetEvent(
+		if p.Target != "self" && arg == nil {
+			power := p
+			events = append(events, state.NewTarget(
 				seat.Username,
 				p.Target,
 				p.Text,
-				func(val string) []game.Event {
-					return script(g, seat, val)
+				func(val string) []game.Stater {
+					return trigger.Power(g, seat, power, token, cast.NewArray(val))
 				},
 			))
+		} else {
+			events = append(events, state.NewTrigger(seat.Username, token, p, arg))
 		}
 	}
+	log.Add("Events", events).Source().Debug()
 	return events
 }
 

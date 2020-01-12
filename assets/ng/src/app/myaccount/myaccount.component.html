@@ -8,28 +8,81 @@
   </article>
   <br />
   <article>
-    <article-header>Account Details</article-header>
+    <article-header>
+      <span class="fltr">{{myaccount.coins}} coins</span>
+      <span>Account Details</span>
+    </article-header>
     <article-body>
-      <div *ngIf="!!myaccount" autosize>You have {{myaccount.coins}} coins</div>
-      <div *ngIf="!!myaccount" autosize>You have {{objectKeys(myaccount.cards).length}} cards</div>
-      <div *ngIf="!!myaccount" autosize>You have {{objectKeys(myaccount.decks).length}} decks</div>
+      <br/>
+      <div autosize>Your email address: {{myaccount.email}}</div>
+      <i>make sure your email is up to date to receive news</i>
+      <br/>
+      <br/>
+      <hr/>
+      <br/>
+      <form class="vii well pos-rel" [formGroup]="changeEmail" (ngSubmit)="onSubmitChangeEmail()">
+        <div class="vii-form-group">
+          <span>
+            <b>Change Email</b>
+          </span>
+          <span>
+            <button class="vii" type="submit"><span>Update</span></button>
+          </span>
+        </div>
+        <div class="vii-form-group">
+          <span><b>e-mail</b></span>
+          <input type="email" autocomplete="email" formControlName="email">
+        </div>
+      </form>
+      <br/>
+      <hr/>
+      <br/>
+      <form class="vii well pos-rel" [formGroup]="changePassword" (ngSubmit)="onSubmitChangePassword()">
+        <div class="vii-form-group">
+          <span><b>Change Password</b></span>
+          <span><button type="submit"><span>Update</span></button></span>
+        </div>
+        <div class="vii-form-group">
+          <span><b>password</b></span>
+          <input type="password" autocomplete="new-password" formControlName="password1">
+        </div>
+        <div class="vii-form-group">
+          <span><b>password</b></span>
+          <input type="password" autocomplete="new-password" formControlName="password2">
+        </div>
+      </form>
+      <br/>
+      <hr/>
+      <br/>
+      <i>payment methods unsupported at this time</i>
+      <br/>
+      <br/>
     </article-body>
   </article>
   <br />
   <article>
-    <article-header>Your Cards</article-header>
+    <article-header>
+      <span class="fltr">{{objectKeys(myaccount.cards).length}} cards</span>
+      <span>Your Cards</span>
+    </article-header>
     <article-body>
-      <app-card-detail *ngFor="let cardid of myaccount.cards | mapKeys" [card]="conn.getCard(cardid)">
+      <app-card-detail *ngFor="let cardid of myaccount.cards | mapKeys" [card]="conn.card(cardid)">
         <div style="padding:7px">x{{myaccount.cards[cardid]}}</div>
       </app-card-detail>
     </article-body>
   </article>
   <br />
   <article>
-    <article-header>Your Decks</article-header>
+    <article-header>
+      <span class="fltr">{{objectKeys(myaccount.decks).length}} decks</span>
+      <span>Your Decks</span>
+    </article-header>
     <article-body>
-      Sorry about that, deck building will come with a future update
-      <!-- <app-deck-summary *ngFor="let deckid of myaccount?.cards | mapKeys" [deck]="conn.getDeck(ping, deckid)"></app-deck-summary> -->
+      <app-deck-summary *ngFor="let deck of myaccount?.decks | mapValues" [deck]="deck">
+        <a class="fltr" [routerLink]="['/mydecks', deck.id]" class="fltr">
+          <img adapt="1" src="/img/icon/pencil.svg"> Edit
+        </a>
+      </app-deck-summary>
     </article-body>
   </article>
   <br />
@@ -46,24 +99,24 @@
             <toggle (check)="signup=$event"></toggle>
           </div>
           <div *ngIf="signup" class="vii-form-detail fltr">Your username must be unique</div>
-          <div class="vii-form-group" id="form-group-username">
+          <div class="vii-form-group">
             <span><b>username</b></span>
-            <input type="text" formControlName="username">
+            <input type="text" formControlName="username" autocomplete="username">
           </div>
           <div *ngIf="signup" class="vii-form-detail fltr">Your e-mail is optional at this point</div>
-          <div *ngIf="signup" class="vii-form-group" id="form-group-email">
+          <div *ngIf="signup" class="vii-form-group">
             <span><b>e-mail</b></span>
             <input type="email" formControlName="email">
           </div>
           <div *ngIf="signup" class="vii-form-detail fltr">Your account password has no specific requirements</div>
           <div class="vii-form-group" id="form-group-password1">
             <span><b>password</b></span>
-            <input type="password" formControlName="password1" class="vii">
+            <input type="password" formControlName="password1" autocomplete="new-password current-password" class="vii">
           </div>
           <div *ngIf="signup" class="vii-form-detail fltr">Your account password must match above</div>
           <div *ngIf="signup" class="vii-form-group" id="form-group-password2">
             <span><b>password</b></span>
-            <input type="password" formControlName="password2" class="vii">
+            <input type="password" formControlName="password2" autocomplete="new-password" class="vii">
           </div>
           <div class="fltr">
             <button type="submit"><span>{{signup?'Signup':'Login'}}</span></button>

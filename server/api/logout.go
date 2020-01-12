@@ -14,6 +14,9 @@ func LogoutHandler(rt *Runtime) http.Handler {
 		if session := rt.Sessions.Cookie(r); session != nil {
 			log.Debug("revoking")
 			rt.Sessions.Remove(session)
+			rt.Root.Accounts.Forget(session.Name())
+			rt.Root.AccountsCards.Forget(session.Name())
+			rt.Root.AccountsDecks.Forget(session.Name())
 		} else {
 			log.Warn("cookie missing")
 		}

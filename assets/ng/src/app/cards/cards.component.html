@@ -1,5 +1,5 @@
 <article>
-  <article-title>All Available Cards</article-title>
+  <article-header>All Available Cards</article-header>
   <article-body>
     <app-card-detail *ngFor="let card of cards" [card]="card">
       <ng-container *ngIf="conn.myaccount$ | async as myaccount">

@@ -77,7 +77,7 @@ func NewGameHandler(rt *Runtime) http.Handler {
 		}
 
 		if g != nil {
-			w.Write(cast.BytesS(g.PerspectiveJSON(g.GetSeat(session.Name())).String()))
+			w.Write(cast.BytesS(g.JSON(g.GetSeat(session.Name())).String()))
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("internal server error"))

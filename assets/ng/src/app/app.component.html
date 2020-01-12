@@ -14,7 +14,7 @@
     </div>
     <div *ngIf="conn.isLoggedIn(); then loggedIn; else loggedOut"></div>
     <ng-template #loggedIn>
-      <div class="fltr"><a class="fltr" adapt="0" [class.hilite]="breadcrumbService.path=='/myaccount'" routerLink="/myaccount">{{conn.getUsername()}}</a></div>
+      <div class="fltr"><a class="fltr" adapt="0" [class.hilite]="breadcrumbService.path=='/myaccount'" routerLink="/myaccount">{{conn.username()}}</a></div>
     </ng-template>
     <ng-template #loggedOut>
       <div class="fltr"><a class="fltr" adapt="0" [class.hilite]="breadcrumbService.path=='/myaccount'" routerLink="/myaccount">Login</a></div>
@@ -24,13 +24,13 @@
   <div *ngIf="!game" adapt="0" ></div>
 </ng-container>
 <!-- notifications -->
-<ng-container *ngIf="conn.notifications$ | async as nots">
+<ng-container *ngIf="notifications.data$ | async as nots">
   <div *ngIf="nots.length>0" class="posa flxr" style="width:100%;">
+    <div class="fltr" style="padding:21px;">
+      <button (click)="notifications.clear()">&nbsp;X&nbsp;</button>
+    </div>
     <div class="flx1"></div>
     <div class="talc not-panel">
-      <div class="fltr" style="padding:21px;">
-        <button (click)="conn.clearNotifications()"><span>X</span></button>
-      </div>
       <div class="fltl" style="padding:21px;">
         <div *ngFor='let not of nots; let i = index'>
           <span class="fntc">{{not.source}}</span>

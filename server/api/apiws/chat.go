@@ -2,23 +2,29 @@ package apiws
 
 import (
 	"github.com/zachtaylor/7elements/chat"
-	"github.com/zachtaylor/7elements/server/api"
+	"ztaylor.me/cast"
 	"ztaylor.me/http/websocket"
 )
 
-func Chat(rt *api.Runtime) websocket.Handler {
+func Chat(rt *Runtime) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		log := rt.Root.Logger.New().Tag("api/ws/chat").Add("Username", m.User)
+		log := rt.Runtime.Root.Logger.New().Add("Session", socket.Session)
 		if message := m.Data.GetS("message"); message == "" {
-			log.Add("Data", m.Data.String()).Warn("message missing")
+			log.Source().Warn("message missing")
+		} else if message = cast.EscapeString(message); cast.OutCharset(message, SpeechCharset) {
+			socket.Message("/error", cast.JSON{
+				"error": "bad message content",
+			})
 		} else if channel := m.Data.GetS("channel"); channel == "" {
-			log.Add("Data", m.Data.String()).Warn("channel missing")
-		} else if chrm := rt.Chat.Get(channel); chrm == nil {
-			log.Add("Data", m.Data.String()).Warn("chat missing")
+			log.Source().Warn("channel missing")
+		} else if room := rt.Runtime.Chat.Get(channel); room == nil {
+			log.Source().Warn("chat missing")
+		} else if user := room.User(socket.ID); user == nil {
+			log.Source().Warn("user missing")
 		} else {
-			msg := chat.NewMessage(m.User, message)
-			go chrm.AddMessage(msg)
-			log.Add("Channel", channel).Add("Message", msg.Message).Info("chat")
+			msg := chat.NewMessage(user.Name, message)
+			log.Source().Add("Message", msg).Info()
+			room.AddMessage(msg)
 		}
 	})
 }

@@ -13,7 +13,7 @@ type Seat struct {
 	Deck     *Deck
 	Elements vii.ElementSet
 	Hand     Cards
-	Present  Cards
+	Present  Tokens
 	Past     Cards
 	Color    string
 	Receiver vii.JSONWriter
@@ -22,7 +22,7 @@ type Seat struct {
 func (game *T) NewSeat() *Seat {
 	return &Seat{
 		Elements: vii.ElementSet{},
-		Present:  Cards{},
+		Present:  Tokens{},
 		Hand:     Cards{},
 		Past:     Cards{},
 	}
@@ -31,65 +31,45 @@ func (game *T) NewSeat() *Seat {
 func (seat *Seat) DrawCard(count int) {
 	for i := 0; i < count && len(seat.Deck.Cards) > 0; i++ {
 		card := seat.Deck.Draw()
-		seat.Hand[card.Id] = card
+		seat.Hand[card.ID] = card
 	}
 }
 
 func (seat *Seat) DiscardHand() {
 	for _, card := range seat.Hand {
-		seat.Past[card.Id] = card
+		seat.Past[card.ID] = card
 	}
 	seat.Hand = Cards{}
 }
 
-func (seat *Seat) Reactivate() {
-	for _, card := range seat.Present {
-		card.IsAwake = true
-	}
-	seat.Elements.Reactivate()
-}
-
-// Send sends data to player agent if available
-func (seat *Seat) Send(json cast.JSON) {
+// WriteJSON sends data to player agent if available
+func (seat *Seat) WriteJSON(json cast.JSON) {
 	if r := seat.Receiver; r != nil {
 		r.WriteJSON(json)
 	}
 }
 
-func (seat *Seat) SendHandUpdate() {
-	seat.Send(BuildPushJSON("/game/hand", cast.JSON{
-		"cards": seat.Hand.JSON(),
-	}))
-}
+// func (seat *Seat) HasAwakePresentCards() bool {
+// 	for _, card := range seat.Present {
+// 		if card.IsAwake {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
-func (seat *Seat) SendError(source, message string) {
-	seat.Send(BuildPushJSON("/game/error", cast.JSON{
-		"source":  source,
-		"message": message,
-	}))
-}
-
-func (seat *Seat) HasAwakePresentCards() bool {
-	for _, card := range seat.Present {
-		if card.IsAwake {
+func (seat *Seat) HasPresent(tid string) bool {
+	for _, token := range seat.Present {
+		if token.ID == tid {
 			return true
 		}
 	}
 	return false
 }
 
-func (seat *Seat) HasPresentCard(gcid string) bool {
-	for _, card := range seat.Present {
-		if card.Id == gcid {
-			return true
-		}
-	}
-	return false
-}
-
-func (seat *Seat) HasPastCard(gcid string) bool {
+func (seat *Seat) HasPastCard(cid string) bool {
 	for _, card := range seat.Past {
-		if card.Id == gcid {
+		if card.ID == cid {
 			return true
 		}
 	}
@@ -100,17 +80,17 @@ func (seat *Seat) HasActiveElements() bool {
 	return len(seat.Elements.GetActive()) > 0
 }
 
-func (seat *Seat) HasCardsInHand() bool {
-	return len(seat.Hand) > 0
-}
-
-func (seat *Seat) HasCardInHand(gcid string) bool {
+func (seat *Seat) HasCardInHand(cid string) bool {
 	for _, card := range seat.Hand {
-		if card.Id == gcid {
+		if card.ID == cid {
 			return true
 		}
 	}
 	return false
+}
+
+func (seat *Seat) HasCardsInHand() bool {
+	return len(seat.Hand) > 0
 }
 
 func (seat *Seat) String() string {
@@ -130,14 +110,22 @@ func (seat *Seat) Print() string {
 
 // JSON returns JSON representation of a game seat
 func (seat *Seat) JSON() cast.JSON {
+	past := make([]string, 0, len(seat.Past))
+	for _, c := range seat.Past {
+		past = append(past, c.ID)
+	}
+	present := make([]string, 0, len(seat.Present))
+	for _, t := range seat.Present {
+		present = append(present, t.ID)
+	}
 	return cast.JSON{
 		"username": seat.Username,
 		"deck":     len(seat.Deck.Cards),
 		"life":     seat.Life,
-		"active":   seat.Present.JSON(),
+		"present":  present,
 		"hand":     len(seat.Hand),
 		"elements": seat.Elements.JSON(),
-		"past":     seat.Past.JSON(),
+		"past":     past,
 		"future":   len(seat.Deck.Cards),
 	}
 }

@@ -94,6 +94,15 @@ func (as AccountService) UpdateCoins(account *vii.Account) error {
 	return err
 }
 
+func (as AccountService) UpdateEmail(account *vii.Account) error {
+	_, err := as.conn.Exec(
+		"UPDATE accounts SET email=? WHERE username=?",
+		account.Email,
+		account.Username,
+	)
+	return err
+}
+
 func (as AccountService) UpdateLogin(account *vii.Account) error {
 	_, err := as.conn.Exec(
 		"UPDATE accounts SET lastlogin=? WHERE username=?",

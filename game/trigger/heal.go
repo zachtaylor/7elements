@@ -1,9 +1,12 @@
 package trigger
 
-import "github.com/zachtaylor/7elements/game"
+import (
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/update"
+)
 
-func Heal(g *game.T, card *game.Card, n int) []game.Event {
-	card.Body.Health += n
-	g.SendCardUpdate(card)
+func Heal(g *game.T, t *game.Token, n int) []game.Stater {
+	t.Body.Health += n
+	update.Token(g, t)
 	return nil
 }

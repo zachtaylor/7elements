@@ -16,6 +16,10 @@ type Runtime struct {
 	Packs         PackService
 }
 
+func (rt *Runtime) SendAccountUpdate(sender func(cast.JSON), name string) {
+	sender(rt.AccountJSON(name))
+}
+
 func (rt *Runtime) AccountJSON(name string) cast.JSON {
 	if a, _ := rt.Accounts.Find(name); a == nil {
 		return nil
