@@ -1,14 +1,14 @@
-package engine
+package request
 
 import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/state"
+	pkg_state "github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/update"
 	"ztaylor.me/cast"
 )
 
-func Play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.Stater {
+func play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.Stater {
 	log := g.Log().With(cast.JSON{
 		"Seat": seat.String(),
 	}).Source()
@@ -30,7 +30,7 @@ func Play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.St
 		delete(seat.Hand, id)
 		update.Seat(g, seat)
 		update.Hand(seat)
-		return []game.Stater{state.NewPlay(seat.Username, card, json["target"])}
+		return []game.Stater{pkg_state.NewPlay(seat.Username, card, json["target"])}
 	}
 	return nil
 }

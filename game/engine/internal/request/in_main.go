@@ -1,29 +1,29 @@
-package engine
+package request
 
 import (
 	"github.com/zachtaylor/7elements/game"
 	"ztaylor.me/cast"
 )
 
-func RequestAny(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Stater {
+func InMain(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Stater {
 	g.Log().Add("Data", json).Source().Debug()
 	switch uri {
 	case "connect":
-		requestConnect(g, seat)
+		connect(g, seat)
 	case "disconnect":
-		requestDisconnect(g, seat)
+		disconnect(g, seat)
 	case "chat":
-		requestChat(g, seat, json)
+		chat(g, seat, json)
 	case "pass":
-		requestPass(g, seat, json)
+		pass(g, seat, json)
 	case g.State.ID():
-		RequestGameState(g, seat, json)
+		state(g, seat, json)
 	case "trigger":
-		return RequestTrigger(g, seat, json)
+		return trigger(g, seat, json)
 	case "attack":
-		return RequestAttack(g, seat, json)
+		return attack(g, seat, json)
 	case "play":
-		return RequestPlay(g, seat, json, false)
+		return play(g, seat, json, false)
 	default:
 		g.Log().With(cast.JSON{
 			"Seat":  seat.String(),

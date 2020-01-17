@@ -1,14 +1,14 @@
-package engine
+package request
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/state"
+	pkg_state "github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/update"
 	"ztaylor.me/cast"
 )
 
-func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
+func trigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 	log := g.Log().Add("Seat", seat)
 
 	// validation
@@ -62,7 +62,7 @@ func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 	}
 
 	if power.Target == "self" {
-		return []game.Stater{state.NewTrigger(seat.Username, token, power, token)}
+		return []game.Stater{pkg_state.NewTrigger(seat.Username, token, power, token)}
 	}
-	return []game.Stater{state.NewTrigger(seat.Username, token, power, json["target"])}
+	return []game.Stater{pkg_state.NewTrigger(seat.Username, token, power, json["target"])}
 }

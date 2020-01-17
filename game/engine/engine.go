@@ -33,7 +33,7 @@ loop: // nested break
 				"Path":     r.URI,
 				"Username": r.Username,
 			}).Debug("engine: request")
-			stack(g, Request(g, g.GetSeat(r.Username), r.URI, r.Data))
+			stack(g, request(g, g.GetSeat(r.Username), r.URI, r.Data))
 			continue
 		case <-one2nd.C:
 		} // time passed, requests were processed
