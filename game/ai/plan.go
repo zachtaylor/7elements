@@ -24,7 +24,7 @@ func (ai *AI) NewPlans() []Plan {
 	}
 	for _, c := range ai.Seat.Hand {
 		if ai.Game.State.Name() != `main` && ai.Game.State.R.Seat() != ai.Seat.Username && c.Card.Type != vii.CTYPspell {
-		} else if !ai.Seat.Elements.GetActive().Test(c.Card.Costs) {
+		} else if !ai.Seat.Karma.Active().Test(c.Card.Costs) {
 		} else if cs := ai.plansFromHand(c); len(cs) > 0 {
 			plans = append(plans, cs...)
 		}
@@ -86,7 +86,7 @@ func (ai *AI) plansFromPresent(t *game.Token) []Plan {
 		}
 	}
 
-	activeElements := ai.Seat.Elements.GetActive()
+	activeElements := ai.Seat.Karma.Active()
 
 	// add triggerable powers option
 	if ps := t.Powers.GetTrigger(``); len(ps) < 1 {

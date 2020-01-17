@@ -5,7 +5,7 @@ import vii "github.com/zachtaylor/7elements"
 // getNewElement returns the ai preferred new element
 func (ai *AI) getNewElement() vii.Element {
 	devotion := ai.Seat.Hand.Devotion()
-	for e, stack := range ai.Seat.Elements {
+	for e, stack := range ai.Seat.Karma {
 		for _, ok := range stack {
 			if ok {
 				devotion[e]--
@@ -30,7 +30,7 @@ func (ai *AI) getNewElement() vii.Element {
 
 // getHandCanAfford returns a slice of gcid of cards ai can afford to play
 func (ai *AI) getHandCanAfford() (hand []string) {
-	elements := ai.Seat.Elements.GetActive()
+	elements := ai.Seat.Karma.Active()
 	for _, c := range ai.Seat.Hand {
 		if elements.Test(c.Card.Costs) {
 			hand = append(hand, c.ID)

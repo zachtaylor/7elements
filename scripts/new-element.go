@@ -28,7 +28,7 @@ func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (ev
 					update.ErrorW(g, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
 				} else {
 					e := vii.Element(i)
-					s.Elements.Append(e)
+					s.Karma.Add(e)
 					update.Seat(g, s)
 				}
 			},

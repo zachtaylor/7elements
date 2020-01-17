@@ -9,10 +9,7 @@ import (
 )
 
 func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
-	log := g.Log().With(cast.JSON{
-		"Seat":     seat.Username,
-		"Elements": seat.Elements,
-	})
+	log := g.Log().Add("Seat", seat)
 
 	// validation
 
@@ -38,7 +35,7 @@ func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 		update.ErrorW(seat, token.Card.Card.Name, `not awake`)
 		log.Source().Error("card is asleep")
 		return nil
-	} else if !seat.Elements.GetActive().Test(power.Costs) {
+	} else if !seat.Karma.Active().Test(power.Costs) {
 		update.ErrorW(seat, token.Card.Card.Name, `not enough elements`)
 		log.Add("Costs", power.Costs).Source().Error("cannot afford")
 		return nil
@@ -50,7 +47,7 @@ func RequestTrigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 	dirty := false
 	if power.Costs.Count() > 0 {
 		dirty = true
-		seat.Elements.Deactivate(power.Costs)
+		seat.Karma.Deactivate(power.Costs)
 	}
 	if power.UsesTurn {
 		token.IsAwake = false

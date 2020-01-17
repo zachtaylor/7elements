@@ -21,12 +21,12 @@ func Play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.St
 	} else if card.Card.Type != vii.CTYPspell && onlySpells {
 		log.Add("Card", card.Print()).Error("card type must be spell")
 		update.ErrorW(seat, card.Card.Name, `not "spell" type`)
-	} else if !seat.Elements.GetActive().Test(card.Card.Costs) {
+	} else if !seat.Karma.Active().Test(card.Card.Costs) {
 		log.Add("Card", card.Print()).Error("not enough elements")
 		update.ErrorW(seat, card.Card.Name, `not enough elements`)
 	} else {
 		log.Add("Card", card.Print()).Info("accept")
-		seat.Elements.Deactivate(card.Card.Costs)
+		seat.Karma.Deactivate(card.Card.Costs)
 		delete(seat.Hand, id)
 		update.Seat(g, seat)
 		update.Hand(seat)

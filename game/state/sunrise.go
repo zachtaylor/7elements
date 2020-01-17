@@ -26,7 +26,7 @@ func (r *Sunrise) Name() string {
 // OnActivate implements game.ActivateStater
 func (r *Sunrise) OnActivate(g *game.T) []game.Stater {
 	events := make([]game.Stater, 0)
-	g.GetSeat(r.Seat()).Elements.Reactivate()
+	g.GetSeat(r.Seat()).Karma.Reactivate()
 	for _, seat := range g.Seats {
 		update.Seat(g, seat)
 		for _, token := range seat.Present {
@@ -74,7 +74,7 @@ func (r *Sunrise) Finish(g *game.T) []game.Stater {
 			log.Add("React", react).Source().Warn("el is out of bounds")
 			continue
 		} else {
-			seat.Elements.Append(vii.Element(el))
+			seat.Karma.Add(vii.Element(el))
 		}
 		update.Seat(g, seat)
 		log.Source().Debug()

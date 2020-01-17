@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-
 	vii "github.com/zachtaylor/7elements"
 	"ztaylor.me/cast"
 )
@@ -11,7 +9,7 @@ type Seat struct {
 	Username string
 	Life     int
 	Deck     *Deck
-	Elements vii.ElementSet
+	Karma    vii.Karma
 	Hand     Cards
 	Present  Tokens
 	Past     Cards
@@ -21,10 +19,10 @@ type Seat struct {
 
 func (game *T) NewSeat() *Seat {
 	return &Seat{
-		Elements: vii.ElementSet{},
-		Present:  Tokens{},
-		Hand:     Cards{},
-		Past:     Cards{},
+		Karma:   vii.Karma{},
+		Present: Tokens{},
+		Hand:    Cards{},
+		Past:    Cards{},
 	}
 }
 
@@ -76,9 +74,9 @@ func (seat *Seat) HasPastCard(cid string) bool {
 	return false
 }
 
-func (seat *Seat) HasActiveElements() bool {
-	return len(seat.Elements.GetActive()) > 0
-}
+// func (seat *Seat) HasActiveElements() bool {
+// 	return len(seat.Elements.GetActive()) > 0
+// }
 
 func (seat *Seat) HasCardInHand(cid string) bool {
 	for _, card := range seat.Hand {
@@ -94,17 +92,14 @@ func (seat *Seat) HasCardsInHand() bool {
 }
 
 func (seat *Seat) String() string {
-	return fmt.Sprintf("vii.Seat{%s}", seat.Print())
-}
-
-// Print returns a detailed compressed string representation
-func (seat *Seat) Print() string {
-	return fmt.Sprintf("%s ☼:%s ◘:%d ♥:%d ♣:%d",
+	return cast.StringN(
+		`{`,
 		seat.Username,
-		seat.Elements.String(),
-		len(seat.Deck.Cards),
-		seat.Life,
-		len(seat.Hand),
+		` ♥:`, seat.Life,
+		` ☼:`, seat.Karma.String(),
+		` ♣:`, len(seat.Hand),
+		` ◘:`, len(seat.Deck.Cards),
+		`}`,
 	)
 }
 
@@ -124,7 +119,7 @@ func (seat *Seat) JSON() cast.JSON {
 		"life":     seat.Life,
 		"present":  present,
 		"hand":     len(seat.Hand),
-		"elements": seat.Elements.JSON(),
+		"elements": seat.Karma.JSON(),
 		"past":     past,
 		"future":   len(seat.Deck.Cards),
 	}
