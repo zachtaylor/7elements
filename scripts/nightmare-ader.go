@@ -14,7 +14,7 @@ func init() {
 
 func NightmareAder(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if token, e := target.PresentBeing(g, s, args[0]); err != nil {
 		err = e
 	} else {

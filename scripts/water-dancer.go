@@ -14,11 +14,11 @@ func init() {
 
 func WaterDancer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if token, _err := target.PresentBeing(g, s, args[0]); _err != nil {
 		err = _err
 	} else if token == nil {
-		err = game.ErrBadTarget
+		err = ErrBadTarget
 	} else {
 		token.IsAwake = false
 		update.Token(g, token)

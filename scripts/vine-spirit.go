@@ -12,10 +12,8 @@ func init() {
 }
 
 func VineSpirit(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if token, ok := me.(*game.Token); !ok {
-		err = game.ErrMeToken
-	} else if token == nil {
-		err = game.ErrMeNil
+	if token, ok := me.(*game.Token); !ok || token == nil {
+		err = ErrMeToken
 	} else {
 		token.Body.Attack++
 		update.Token(g, token)

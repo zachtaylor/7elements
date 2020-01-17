@@ -14,9 +14,9 @@ func init() {
 
 func FontOfLife2(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if token, err := target.MyPresentBeing(g, s, args[0]); err != nil || token == nil {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else {
 		events = trigger.Heal(g, token, 1)
 	}

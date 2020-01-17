@@ -5,7 +5,6 @@ import (
 	"github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/update"
-	"ztaylor.me/cast"
 )
 
 const SymbiosisID = "symbiosis"
@@ -15,10 +14,6 @@ func init() {
 }
 
 func Symbiosis(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	log := g.Log().With(cast.JSON{
-		"Username": s.Username,
-	}).Tag(logtag + SymbiosisID)
-
 	return []game.Stater{state.NewTarget(
 		s.Username,
 		"being",
@@ -26,9 +21,9 @@ func Symbiosis(g *game.T, s *game.Seat, me interface{}, args []interface{}) (eve
 		func(val string) []game.Stater {
 			token, err := target.PresentBeing(g, s, val)
 			if err != nil {
-				log.Add("Error", err).Error()
+				g.Log().Source().Add("Error", err).Error()
 			} else {
-				log.Add("Token", token.String()).Info()
+				g.Log().Source().Add("Token", token.String()).Info()
 				token.Body.Attack++
 				update.Token(g, token)
 			}

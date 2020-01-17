@@ -15,7 +15,7 @@ func init() {
 func Energize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	var token *game.Token
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if token, err = target.PresentBeingItem(g, s, args[0]); err != nil {
 
 	} else {

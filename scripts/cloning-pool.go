@@ -16,11 +16,11 @@ func init() {
 func CloningPool(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	var token *game.Token
 	if len(args) < 1 {
-		return nil, game.ErrNoTarget
+		return nil, ErrNoTarget
 	} else if token, err = target.MyPresentBeing(g, s, args[0]); err != nil {
 		return
 	} else if token == nil {
-		return nil, game.ErrNoTarget
+		return nil, ErrBadTarget
 	} else {
 		card := game.NewCard(token.Card.Card)
 		card.Username = token.Username

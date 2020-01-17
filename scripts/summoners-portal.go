@@ -17,7 +17,7 @@ func init() {
 func SummonersPortal(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	card := s.Deck.Draw()
 	if card == nil {
-		err = game.ErrFutureEmpty
+		err = ErrFutureEmpty
 	} else if card.Card.Type == vii.CTYPbody || card.Card.Type == vii.CTYPitem {
 		if _, _events := trigger.Spawn(g, s, card); len(_events) > 0 {
 			events = append(events, _events...)

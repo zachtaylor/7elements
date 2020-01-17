@@ -21,7 +21,7 @@ func Ifrit(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events 
 	}
 
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if arg := args[0]; arg == s.Username {
 		events = trigger.DamageSeat(g, token.Card, s, 1)
 	} else if seat := g.Seats[cast.String(arg)]; seat != nil {
@@ -29,7 +29,7 @@ func Ifrit(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events 
 	} else if token, e := target.PresentBeing(g, s, arg); e != nil {
 		err = e
 	} else if token == nil {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else {
 		events = trigger.Damage(g, token, 1)
 	}

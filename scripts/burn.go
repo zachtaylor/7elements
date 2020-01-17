@@ -14,7 +14,7 @@ func init() {
 
 func Burn(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if card, e := target.PresentBeing(g, s, args[0]); e != nil {
 		err = e
 	} else {

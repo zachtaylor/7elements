@@ -17,11 +17,9 @@ func init() {
 
 func Pixie(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
-	} else if token, ok := me.(*game.Token); !ok {
-		err = game.ErrMeToken
-	} else if token == nil {
-		err = game.ErrMeNil
+		err = ErrNoTarget
+	} else if token, ok := me.(*game.Token); !ok || token == nil {
+		err = ErrMeToken
 	} else if seat := g.Seats[cast.String(args[0])]; seat != nil {
 		hp := token.Body.Health
 		if _events := trigger.HealSeat(g, token.Card, seat, hp); len(_events) > 0 {
@@ -30,7 +28,7 @@ func Pixie(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events 
 	} else if targetToken, _err := target.OtherPresentBeing(g, s, token, args[0]); _err != nil {
 		err = _err
 	} else if targetToken == nil {
-		err = game.ErrBadTarget
+		err = ErrBadTarget
 	} else {
 		hp := token.Body.Health
 		events = append(events, trigger.Death(g, token)...)

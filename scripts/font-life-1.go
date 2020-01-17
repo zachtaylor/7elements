@@ -14,7 +14,7 @@ func init() {
 func FontOfLife1(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	token, ok := me.(*game.Token)
 	if !ok || token == nil {
-		err = game.ErrMeToken
+		err = ErrMeToken
 	} else {
 		events = trigger.HealSeat(g, token.Card, s, 1)
 	}

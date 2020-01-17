@@ -14,7 +14,7 @@ func init() {
 func BurningRage(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	token, ok := me.(*game.Token)
 	if !ok || token == nil {
-		err = game.ErrMeToken
+		err = ErrMeToken
 	} else {
 		for _, seat := range g.Seats {
 			if s == seat {

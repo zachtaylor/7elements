@@ -14,11 +14,11 @@ func init() {
 
 func Banhammer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if card, e := target.PastBeingItem(g, s, args[0]); e != nil {
 		err = e
 	} else if s := g.GetSeat(card.Username); s == nil {
-		err = game.ErrNoSeat
+		err = ErrBadTarget
 	} else {
 		delete(s.Past, card.ID)
 		update.Seat(g, s)

@@ -10,7 +10,7 @@ func Power(g *game.T, s *game.Seat, p *vii.Power, me interface{}, args []interfa
 	// return []game.Stater{}
 	log := g.Log().Add("Script", p.Script).Tag("trigger/power")
 	if script := game.Scripts[p.Script]; script == nil {
-		log.Add("Error", game.ErrNotImplemented).Error()
+		log.Add("Error", vii.ErrNotImplemented).Error()
 	} else if events, err := script(g, s, me, args); err != nil {
 		log.Add("Error", err).Error()
 	} else {

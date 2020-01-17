@@ -14,11 +14,11 @@ func init() {
 
 func GraveBirth(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if card, e := target.MyPastBeing(g, s, args[0]); e != nil {
 		err = e
 	} else if card == nil {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else {
 		// TODO
 	}

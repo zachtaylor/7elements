@@ -14,7 +14,7 @@ func init() {
 
 func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if me, ok := me.(*game.Card); !ok {
-		err = game.ErrMeCard
+		err = ErrMeCard
 	} else {
 		events = []game.Stater{state.NewChoice(
 			s.Username,

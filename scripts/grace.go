@@ -14,11 +14,11 @@ func init() {
 
 func Grace(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if token, e := target.MyPresentBeing(g, s, args[0]); e != nil {
 		err = e
 	} else if token == nil {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else {
 		events = trigger.Heal(g, token, 3)
 	}

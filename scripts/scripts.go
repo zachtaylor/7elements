@@ -1,17 +1,13 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
+	"errors"
+
 	"ztaylor.me/cast"
-	"ztaylor.me/log"
 )
 
-var logtag = "scripts/"
-
-func newlog(g *game.T, s *game.Seat, me interface{}, args []interface{}) *log.Entry {
-	return g.Log().New().With(cast.JSON{
-		"seat": s.Username,
-		"me":   me,
-		"args": args,
-	})
-}
+var ErrMeCard = cast.NewError(nil, "script host must be a card")
+var ErrMeToken = cast.NewError(nil, "script host must be a token")
+var ErrNoTarget = cast.NewError(nil, "no target")
+var ErrBadTarget = errors.New("bad target")
+var ErrFutureEmpty = errors.New("future is empty")

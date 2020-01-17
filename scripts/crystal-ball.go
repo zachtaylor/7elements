@@ -15,7 +15,7 @@ func init() {
 
 func CrystalBall(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else {
 		card := s.Deck.Cards[0]
 		events = []game.Stater{state.NewChoice(

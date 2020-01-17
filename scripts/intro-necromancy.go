@@ -15,11 +15,11 @@ func init() {
 
 func IntroToNecromancy(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
 	if len(args) < 1 {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else if card, _err := target.MyPastBeing(g, s, args[0]); _err != nil {
 		err = _err
 	} else if card == nil {
-		err = game.ErrNoTarget
+		err = ErrNoTarget
 	} else {
 		token, _events := trigger.Spawn(g, s, card)
 		if len(_events) > 0 {
