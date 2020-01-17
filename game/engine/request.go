@@ -20,7 +20,7 @@ func Request(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Stat
 func requestConnect(g *game.T, s *game.Seat) {
 	g.Log().With(cast.JSON{
 		"Username": s.Username,
-		"State":    g.State.Print(),
+		"State":    g.State.String(),
 	}).Debug("engine/connect: seated")
 	update.Connect(g, s)
 	if connector, ok := g.State.R.(game.ConnectStater); ok {
@@ -50,7 +50,7 @@ func requestChat(g *game.T, seat *game.Seat, json cast.JSON) {
 
 func requestPass(g *game.T, seat *game.Seat, json cast.JSON) {
 	log := g.Log().With(cast.JSON{
-		"State":    g.State.Print(),
+		"State":    g.State.String(),
 		"Username": seat.Username,
 	}).Tag("engine/pass")
 	if pass := json.GetS("pass"); pass == "" {
@@ -68,7 +68,7 @@ func requestPass(g *game.T, seat *game.Seat, json cast.JSON) {
 // RequestAttack causes AttackEvent to stack on MainEvent
 func RequestAttack(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 	log := g.Log().With(cast.JSON{
-		"Seat": seat.Print(),
+		"Seat": seat.String(),
 	}).Tag("engine/attack")
 
 	if id := json.GetS("id"); id == "" {
@@ -93,7 +93,7 @@ func RequestAttack(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 
 func RequestPlay(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.Stater {
 	log := g.Log().With(cast.JSON{
-		"Seat": seat.Print(),
+		"Seat": seat.String(),
 	}).Tag("engine/play")
 
 	if id := json.GetS("id"); id == "" {
@@ -102,13 +102,13 @@ func RequestPlay(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []
 		log.Error("no card")
 		update.ErrorW(seat, `vii`, `bad card id`)
 	} else if card.Card.Type != vii.CTYPspell && onlySpells {
-		log.Add("Card", card.Print()).Error("card type must be spell")
+		log.Add("Card", card.String()).Error("card type must be spell")
 		update.ErrorW(seat, card.Card.Name, `not "spell" type`)
 	} else if !seat.Karma.Active().Test(card.Card.Costs) {
-		log.Add("Card", card.Print()).Error("not enough elements")
+		log.Add("Card", card.String()).Error("not enough elements")
 		update.ErrorW(seat, card.Card.Name, `not enough elements`)
 	} else {
-		log.Add("Card", card.Print()).Info("accept")
+		log.Add("Card", card.String()).Info("accept")
 		seat.Karma.Deactivate(card.Card.Costs)
 		delete(seat.Hand, id)
 		update.Seat(g, seat)

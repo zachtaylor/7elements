@@ -10,7 +10,7 @@ import (
 
 func Play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.Stater {
 	log := g.Log().With(cast.JSON{
-		"Seat": seat.Print(),
+		"Seat": seat.String(),
 	}).Source()
 
 	if id := json.GetS("id"); id == "" {
@@ -19,13 +19,13 @@ func Play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.St
 		log.Error("no card")
 		update.ErrorW(seat, `vii`, `bad card id`)
 	} else if card.Card.Type != vii.CTYPspell && onlySpells {
-		log.Add("Card", card.Print()).Error("card type must be spell")
+		log.Add("Card", card.String()).Error("card type must be spell")
 		update.ErrorW(seat, card.Card.Name, `not "spell" type`)
 	} else if !seat.Karma.Active().Test(card.Card.Costs) {
-		log.Add("Card", card.Print()).Error("not enough elements")
+		log.Add("Card", card.String()).Error("not enough elements")
 		update.ErrorW(seat, card.Card.Name, `not enough elements`)
 	} else {
-		log.Add("Card", card.Print()).Info("accept")
+		log.Add("Card", card.String()).Info("accept")
 		seat.Karma.Deactivate(card.Card.Costs)
 		delete(seat.Hand, id)
 		update.Seat(g, seat)

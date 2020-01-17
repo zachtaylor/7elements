@@ -1,8 +1,6 @@
 package vii
 
-import (
-	"time"
-)
+import "time"
 
 type Account struct {
 	Username  string

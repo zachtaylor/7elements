@@ -53,8 +53,8 @@ func (r *Play) activateEventer() game.ActivateStater {
 func (r *Play) Finish(g *game.T) []game.Stater {
 	seat := g.GetSeat(r.Seat())
 	g.Log().With(cast.JSON{
-		"Seat": seat.Print(),
-		"Card": r.Card.Print(),
+		"Seat": seat.String(),
+		"Card": r.Card.String(),
 	}).Debug("engine/play: finish")
 	seat.Past[r.Card.ID] = r.Card
 

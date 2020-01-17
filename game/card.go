@@ -27,12 +27,13 @@ func (c *Card) String() string {
 	if c == nil {
 		return `<nil>`
 	}
-	return `game.Card{` + c.Print() + `}`
-}
-
-// Print returns a detailed compressed string representation
-func (c *Card) Print() string {
-	return c.Card.Name + "(" + c.ID + ")"
+	return cast.StringN(
+		`{`,
+		c.ID,
+		` user:`, c.Username,
+		` card:`, c.Card.String(),
+		`}`,
+	)
 }
 
 // JSON returns a representation of a game card

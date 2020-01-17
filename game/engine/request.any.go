@@ -26,7 +26,7 @@ func RequestAny(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.S
 		return RequestPlay(g, seat, json, false)
 	default:
 		g.Log().With(cast.JSON{
-			"Seat":  seat.Print(),
+			"Seat":  seat.String(),
 			"URI":   uri,
 			"State": g.State.Print(),
 		}).Warn("engine/request: 404")

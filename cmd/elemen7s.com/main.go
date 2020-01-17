@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"ztaylor.me/cast"
-
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/db"
@@ -13,6 +11,7 @@ import (
 	_ "github.com/zachtaylor/7elements/scripts"
 	"github.com/zachtaylor/7elements/server"
 	"github.com/zachtaylor/7elements/server/api"
+	"ztaylor.me/cast"
 	dbe "ztaylor.me/db/env"
 	"ztaylor.me/db/mysql"
 	"ztaylor.me/env"

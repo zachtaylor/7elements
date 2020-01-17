@@ -39,6 +39,15 @@ func (c *Card) JSON() cast.JSON {
 	}
 }
 
+func (c *Card) String() string {
+	return cast.StringN(
+		`{`,
+		c.Id,
+		` `, c.Name,
+		`}`,
+	)
+}
+
 type Cards map[int]*Card
 
 func (cards Cards) JSON() fmt.Stringer {
