@@ -2,7 +2,7 @@ package engine
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	pkg_request "github.com/zachtaylor/7elements/game/engine/internal/request"
+	pkg_request "github.com/zachtaylor/7elements/game/engine/request"
 	"ztaylor.me/cast"
 )
 
