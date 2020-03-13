@@ -1,8 +1,8 @@
 package state
 
 import (
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
+	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
 	"github.com/zachtaylor/7elements/game/update"
@@ -74,7 +74,7 @@ func (r *Sunrise) Finish(g *game.T) []game.Stater {
 			log.Add("React", react).Source().Warn("el is out of bounds")
 			continue
 		} else {
-			seat.Karma.Add(vii.Element(el))
+			seat.Karma.Append(element.T(el), false)
 		}
 		update.Seat(g, seat)
 		log.Source().Debug()

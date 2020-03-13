@@ -1,7 +1,7 @@
 package scripts
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/update"
@@ -27,8 +27,7 @@ func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (ev
 				if i := cast.Int(val); i < 1 || i > 7 {
 					update.ErrorW(g, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
 				} else {
-					e := vii.Element(i)
-					s.Karma.Add(e)
+					s.Karma.Append(element.T(i), false)
 					update.Seat(g, s)
 				}
 			},

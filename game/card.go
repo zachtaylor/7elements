@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/cast"
 )
 
@@ -58,8 +59,8 @@ func (c *Card) JSON() cast.JSON {
 type Cards map[string]*Card
 
 // Devotion returns the ElementMap describing the devotion of this group of cards
-func (cards Cards) Devotion() vii.ElementMap {
-	devo := vii.ElementMap{}
+func (cards Cards) Devotion() element.Count {
+	devo := element.Count{}
 	for _, c := range cards {
 		for e, count := range c.Card.Costs {
 			devo[e] += count

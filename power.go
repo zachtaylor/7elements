@@ -1,6 +1,9 @@
 package vii
 
-import "ztaylor.me/cast"
+import (
+	"github.com/zachtaylor/7elements/element"
+	"ztaylor.me/cast"
+)
 
 type Power struct {
 	Id       int
@@ -8,14 +11,14 @@ type Power struct {
 	Trigger  string
 	UsesTurn bool
 	UsesKill bool
-	Costs    ElementMap
+	Costs    element.Count
 	Target   string
 	Script   string
 }
 
 func NewPower() *Power {
 	return &Power{
-		Costs: ElementMap{},
+		Costs: element.Count{},
 	}
 }
 

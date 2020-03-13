@@ -1,10 +1,9 @@
 package vii
 
 import (
-	"fmt"
-	"sort"
 	"strings"
 
+	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/cast"
 )
 
@@ -14,14 +13,14 @@ type Card struct {
 	Text   string
 	Type   CardType
 	Image  string
-	Costs  ElementMap
+	Costs  element.Count
 	Body   *Body
 	Powers Powers
 }
 
 func NewCard() *Card {
 	return &Card{
-		Costs:  ElementMap{},
+		Costs:  element.Count{},
 		Powers: NewPowers(),
 	}
 }
@@ -50,7 +49,7 @@ func (c *Card) String() string {
 
 type Cards map[int]*Card
 
-func (cards Cards) JSON() fmt.Stringer {
+func (cards Cards) JSON() cast.IStringer {
 	json := make([]string, 0)
 	keys := make([]int, len(cards))
 
@@ -59,7 +58,7 @@ func (cards Cards) JSON() fmt.Stringer {
 		keys[i] = k
 		i++
 	}
-	sort.Ints(keys)
+	cast.SortInts(keys)
 	for _, id := range keys {
 		json = append(json, cards[id].JSON().String())
 	}

@@ -1,9 +1,9 @@
 package ai
 
-import vii "github.com/zachtaylor/7elements"
+import "github.com/zachtaylor/7elements/element"
 
 // getNewElement returns the ai preferred new element
-func (ai *AI) getNewElement() vii.Element {
+func (ai *AI) getNewElement() element.T {
 	devotion := ai.Seat.Hand.Devotion()
 	for e, stack := range ai.Seat.Karma {
 		for _, ok := range stack {
@@ -14,18 +14,18 @@ func (ai *AI) getNewElement() vii.Element {
 	}
 	delete(devotion, 0)
 
-	element, max := vii.ELEMnil, 0
-	for e, count := range devotion {
+	e, max := element.Nil, 0
+	for el, count := range devotion {
 		if count > max {
 			max = count
-			element = e
+			e = el
 		}
 	}
 
-	if element == vii.ELEMnil {
-		element = vii.ELEMyellow
+	if e == element.Nil {
+		e = element.Yellow
 	}
-	return element
+	return e
 }
 
 // getHandCanAfford returns a slice of gcid of cards ai can afford to play

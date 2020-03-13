@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/db"
 )
 
@@ -99,12 +100,12 @@ func (cs *CardService) loadCardCosts() error {
 
 		if err != nil {
 			return err
-		} else if elementid > len(vii.Elements) || elementid < 0 {
+		} else if elementid > len(element.Index) || elementid < 0 {
 			return errors.New(fmt.Sprintf("cards: invalid element#%v", elementid))
 		} else if card := cs.cache[cardid]; card == nil {
 			return errors.New(fmt.Sprintf("cards: cost matching missed card#%v", cardid))
 		} else {
-			card.Costs[vii.Element(elementid)] += count
+			card.Costs[element.T(elementid)] += count
 		}
 	}
 
@@ -157,7 +158,7 @@ func (cs *CardService) loadCardsPowersCosts() error {
 		} else if power := card.Powers[powerid]; power == nil {
 			return errors.New(fmt.Sprintf("cards: unrooted power cost card#%v id#%v", cardid, powerid))
 		} else {
-			power.Costs[vii.Elements[elementid]] += count
+			power.Costs[element.Index[elementid]] += count
 		}
 	}
 

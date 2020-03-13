@@ -2,6 +2,7 @@ package game
 
 import (
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/cast"
 )
 
@@ -9,7 +10,7 @@ type Seat struct {
 	Username string
 	Life     int
 	Deck     *Deck
-	Karma    vii.Karma
+	Karma    element.Karma
 	Hand     Cards
 	Present  Tokens
 	Past     Cards
@@ -19,7 +20,7 @@ type Seat struct {
 
 func (game *T) NewSeat() *Seat {
 	return &Seat{
-		Karma:   vii.Karma{},
+		Karma:   element.Karma{},
 		Present: Tokens{},
 		Hand:    Cards{},
 		Past:    Cards{},

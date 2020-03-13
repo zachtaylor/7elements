@@ -45,7 +45,7 @@ func trigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 	log.Add("Token", token).Add("Power", power).Source().Debug()
 
 	dirty := false
-	if power.Costs.Count() > 0 {
+	if power.Costs.Total() > 0 {
 		dirty = true
 		seat.Karma.Deactivate(power.Costs)
 	}

@@ -2,9 +2,9 @@ package scripts
 
 import (
 	vii "github.com/zachtaylor/7elements"
-	"github.com/zachtaylor/7elements/game/trigger"
-
+	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/trigger"
 )
 
 func init() {
@@ -16,7 +16,7 @@ var ctbCard = &vii.Card{
 	Image: "/img/card/4.jpg",
 	Name:  "Bannerman",
 	Text:  "At your call",
-	Costs: vii.ElementMap{},
+	Costs: element.Count{},
 	Body: &vii.Body{
 		Attack: 2,
 		Health: 2,
