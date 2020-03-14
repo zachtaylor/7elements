@@ -19,7 +19,7 @@ var ctbCard = &vii.Card{
 	Name:  "Bannerman",
 	Text:  "At your call",
 	Costs: element.Count{},
-	Body: &vii.Body{
+	Body: &card.Body{
 		Attack: 2,
 		Health: 2,
 	},

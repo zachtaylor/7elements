@@ -16,7 +16,7 @@ type Card struct {
 	Type   card.Type
 	Image  string
 	Costs  element.Count
-	Body   *Body
+	Body   *card.Body
 	Powers power.Set
 }
 

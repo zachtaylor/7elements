@@ -74,7 +74,7 @@ func (cs *CardService) loadCardBodies() error {
 
 	for rows.Next() {
 		var cardid int
-		body := &vii.Body{}
+		body := &card.Body{}
 		err = rows.Scan(&cardid, &body.Attack, &body.Health)
 
 		if err != nil {
