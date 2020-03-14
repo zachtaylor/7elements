@@ -6,6 +6,7 @@ import (
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/power"
 )
 
 func init() {
@@ -22,7 +23,7 @@ var ctbCard = &vii.Card{
 		Attack: 2,
 		Health: 2,
 	},
-	Powers: vii.NewPowers(),
+	Powers: power.NewSet(),
 }
 
 func CallTheBanners(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {

@@ -3,10 +3,11 @@ package trigger
 import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/power"
 )
 
 // Power invokes game script
-func Power(g *game.T, s *game.Seat, p *vii.Power, me interface{}, args []interface{}) []game.Stater {
+func Power(g *game.T, s *game.Seat, p *power.T, me interface{}, args []interface{}) []game.Stater {
 	// return []game.Stater{}
 	log := g.Log().Add("Script", p.Script).Tag("trigger/power")
 	if script := game.Scripts[p.Script]; script == nil {

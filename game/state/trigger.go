@@ -1,14 +1,14 @@
 package state
 
 import (
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/power"
 	"ztaylor.me/cast"
 )
 
-func NewTrigger(seat string, token *game.Token, p *vii.Power, target interface{}) game.Stater {
+func NewTrigger(seat string, token *game.Token, p *power.T, target interface{}) game.Stater {
 	return &Trigger{
 		R:      R(seat),
 		Token:  token,
@@ -20,7 +20,7 @@ func NewTrigger(seat string, token *game.Token, p *vii.Power, target interface{}
 type Trigger struct {
 	R
 	Token  *game.Token
-	Power  *vii.Power
+	Power  *power.T
 	Target interface{}
 }
 

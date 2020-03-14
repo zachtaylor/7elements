@@ -2,6 +2,7 @@ package game
 
 import (
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/power"
 	"ztaylor.me/cast"
 )
 
@@ -12,7 +13,7 @@ type Token struct {
 	Username string
 	IsAwake  bool
 	Body     *vii.Body
-	Powers   vii.Powers
+	Powers   power.Set
 }
 
 func NewToken(card *Card, username string) *Token {

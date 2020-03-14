@@ -7,6 +7,7 @@ import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/power"
 	"ztaylor.me/db"
 )
 
@@ -122,19 +123,19 @@ func (cs *CardService) loadCardsPowers() error {
 
 	for rows.Next() {
 		var cardid, usesturn, useskill int
-		power := vii.NewPower()
-		err = rows.Scan(&cardid, &power.Id, &usesturn, &useskill, &power.Trigger, &power.Target, &power.Script, &power.Text)
-		power.UsesTurn = usesturn > 0
-		power.UsesKill = useskill > 0
+		p := power.New()
+		err = rows.Scan(&cardid, &p.ID, &usesturn, &useskill, &p.Trigger, &p.Target, &p.Script, &p.Text)
+		p.UsesTurn = usesturn > 0
+		p.UsesKill = useskill > 0
 
 		if err != nil {
 			return err
 		} else if card := cs.cache[cardid]; card == nil {
-			return errors.New(fmt.Sprintf("cards: unrooted power card#%v id#%v", cardid, power.Id))
-		} else if card.Powers[power.Id] != nil {
-			return errors.New(fmt.Sprintf("cards: duplicate power card#%v id#%v", cardid, power.Id))
+			return errors.New(fmt.Sprintf("cards: unrooted power card#%v id#%v", cardid, p.ID))
+		} else if card.Powers[p.ID] != nil {
+			return errors.New(fmt.Sprintf("cards: duplicate power card#%v id#%v", cardid, p.ID))
 		} else {
-			card.Powers[power.Id] = power
+			card.Powers[p.ID] = p
 		}
 	}
 

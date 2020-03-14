@@ -5,6 +5,7 @@ import (
 
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/power"
 	"ztaylor.me/cast"
 )
 
@@ -16,13 +17,13 @@ type Card struct {
 	Image  string
 	Costs  element.Count
 	Body   *Body
-	Powers Powers
+	Powers power.Set
 }
 
 func NewCard() *Card {
 	return &Card{
 		Costs:  element.Count{},
-		Powers: NewPowers(),
+		Powers: power.NewSet(),
 	}
 }
 

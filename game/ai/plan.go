@@ -97,7 +97,7 @@ func (ai *AI) plansFromPresent(t *game.Token) []Plan {
 	} else {
 		plans = append(plans, &TriggerPlan{
 			TID:     t.ID,
-			PowerID: p.Id,
+			PowerID: p.ID,
 			Target:  target,
 			score:   score,
 		})
