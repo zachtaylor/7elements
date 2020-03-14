@@ -3,6 +3,7 @@ package vii
 import (
 	"strings"
 
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/cast"
 )
@@ -11,7 +12,7 @@ type Card struct {
 	Id     int
 	Name   string
 	Text   string
-	Type   CardType
+	Type   card.Type
 	Image  string
 	Costs  element.Count
 	Body   *Body

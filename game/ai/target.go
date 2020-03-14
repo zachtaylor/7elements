@@ -1,7 +1,7 @@
 package ai
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 )
 
@@ -39,36 +39,36 @@ func (ai *AI) TargetEnemyBeing(effect string) (target interface{}, score int) {
 func (ai *AI) TargetEnemyPastBeingItem() (target interface{}, score int) {
 	enemy := ai.Game.GetOpponentSeat(ai.Seat.Username)
 
-	var card *game.Card
-	for _, c := range enemy.Past {
-		if c.Card.Type == vii.CTYPitem && score < 2 {
-			card = c
+	var c *game.Card
+	for _, pc := range enemy.Past {
+		if pc.Card.Type == card.ItemType && score < 2 {
+			c = pc
 			score = 2
-		} else if c.Card.Type == vii.CTYPbody && score < c.Card.Body.Health {
-			card = c
-			score = c.Card.Body.Health
+		} else if pc.Card.Type == card.BodyType && score < pc.Card.Body.Health {
+			c = pc
+			score = pc.Card.Body.Health
 		}
 	}
 
-	if card != nil {
-		target = card.ID
+	if c != nil {
+		target = c.ID
 	}
 	return
 }
 
 // TargetMyPastBeing picks a GCID to target "mypast-being" with score
 func (ai *AI) TargetMyPastBeing() (target interface{}, score int) {
-	var card *game.Card
-	for _, c := range ai.Seat.Past {
-		if c.Card.Type != vii.CTYPbody {
-		} else if score < 3*c.Card.Body.Attack {
-			card = c
-			score = 3 * c.Card.Body.Attack
+	var c *game.Card
+	for _, pc := range ai.Seat.Past {
+		if pc.Card.Type != card.BodyType {
+		} else if score < 3*pc.Card.Body.Attack {
+			c = pc
+			score = 3 * pc.Card.Body.Attack
 		}
 	}
 
-	if card != nil {
-		target = card.ID
+	if c != nil {
+		target = c.ID
 	}
 	return
 }
@@ -81,7 +81,7 @@ func (ai *AI) TargetMyPastBeing() (target interface{}, score int) {
 func (ai *AI) TargetMyPresentBeing(effect string) (target interface{}, score int) {
 	var token *game.Token
 	for _, t := range ai.Seat.Present {
-		if t.Card.Card.Type != vii.CTYPbody {
+		if t.Card.Card.Type != card.BodyType {
 		} else if t.IsAwake && effect == "wake" {
 		} else if effect == "health" {
 			if score < 5-t.Body.Health {
@@ -127,7 +127,7 @@ func (ai *AI) TargetMyPresentBeingItem(effect string) (target interface{}, score
 					score = 4 - t.Body.Health
 				}
 			}
-		} else if t.Card.Card.Type == vii.CTYPitem {
+		} else if t.Card.Card.Type == card.ItemType {
 			if len(t.Powers.GetTrigger("")) > 0 && score < 4 {
 				token = t
 				score = 4

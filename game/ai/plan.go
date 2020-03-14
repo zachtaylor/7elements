@@ -1,7 +1,7 @@
 package ai
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 )
 
@@ -23,7 +23,7 @@ func (ai *AI) NewPlans() []Plan {
 		}
 	}
 	for _, c := range ai.Seat.Hand {
-		if ai.Game.State.Name() != `main` && ai.Game.State.R.Seat() != ai.Seat.Username && c.Card.Type != vii.CTYPspell {
+		if ai.Game.State.Name() != `main` && ai.Game.State.R.Seat() != ai.Seat.Username && c.Card.Type != card.SpellType {
 		} else if !ai.Seat.Karma.Active().Test(c.Card.Costs) {
 		} else if cs := ai.plansFromHand(c); len(cs) > 0 {
 			plans = append(plans, cs...)
@@ -32,33 +32,33 @@ func (ai *AI) NewPlans() []Plan {
 	return plans
 }
 
-func (ai *AI) plansFromHand(card *game.Card) []Plan {
-	switch card.Card.Type {
-	case vii.CTYPbody:
+func (ai *AI) plansFromHand(c *game.Card) []Plan {
+	switch c.Card.Type {
+	case card.BodyType:
 		if ai.Game.State.Name() != "main" || ai.Game.State.R.Seat() != ai.Seat.Username {
 			return nil
 		}
 		return []Plan{&PlayPlan{
-			ID:     card.ID,
+			ID:     c.ID,
 			Target: nullJSON,
 			score:  1,
 		}}
-	case vii.CTYPitem:
+	case card.ItemType:
 		if ai.Game.State.Name() != "main" || ai.Game.State.R.Seat() != ai.Seat.Username {
 			return nil
 		}
 		return []Plan{&PlayPlan{
-			ID:     card.ID,
+			ID:     c.ID,
 			Target: nullJSON,
 			score:  1,
 		}}
-	case vii.CTYPspell:
-		if ps := card.Card.Powers.GetTrigger("play"); len(ps) < 1 {
+	case card.SpellType:
+		if ps := c.Card.Powers.GetTrigger("play"); len(ps) < 1 {
 		} else if p := ps[0]; p == nil {
-		} else if id, score := ai.ScoreCardPower(card, p); score < 1 {
+		} else if id, score := ai.ScoreCardPower(c, p); score < 1 {
 		} else {
 			return []Plan{&PlayPlan{
-				ID:     card.ID,
+				ID:     c.ID,
 				Target: id,
 			}}
 		}

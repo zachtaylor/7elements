@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/db"
 )
@@ -166,19 +167,19 @@ func (cs *CardService) loadCardsPowersCosts() error {
 }
 
 func (cs *CardService) scanCard(scanner db.Scanner) (*vii.Card, error) {
-	card := vii.NewCard()
-	var cardtypebuff int
+	c := vii.NewCard()
+	var typebuff int
 
-	err := scanner.Scan(&card.Id, &cardtypebuff, &card.Name, &card.Text, &card.Image)
+	err := scanner.Scan(&c.Id, &typebuff, &c.Name, &c.Text, &c.Image)
 	if err != nil {
 		return nil, err
 	}
 
-	if ctype := vii.CardType(cardtypebuff); ctype.String() == "error" {
-		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", cardtypebuff))
+	if t := card.Type(typebuff); t.String() != "error" {
+		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", typebuff))
 	} else {
-		card.Type = ctype
+		c.Type = t
 	}
 
-	return card, nil
+	return c, nil
 }

@@ -1,7 +1,7 @@
 package request
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 	pkg_state "github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/update"
@@ -15,22 +15,22 @@ func play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.St
 
 	if id := json.GetS("id"); id == "" {
 		log.Error("no id")
-	} else if card := seat.Hand[id]; card == nil {
+	} else if c := seat.Hand[id]; c == nil {
 		log.Error("no card")
 		update.ErrorW(seat, `vii`, `bad card id`)
-	} else if card.Card.Type != vii.CTYPspell && onlySpells {
-		log.Add("Card", card.String()).Error("card type must be spell")
-		update.ErrorW(seat, card.Card.Name, `not "spell" type`)
-	} else if !seat.Karma.Active().Test(card.Card.Costs) {
-		log.Add("Card", card.String()).Error("not enough elements")
-		update.ErrorW(seat, card.Card.Name, `not enough elements`)
+	} else if c.Card.Type != card.SpellType && onlySpells {
+		log.Add("Card", c.String()).Error("card type must be spell")
+		update.ErrorW(seat, c.Card.Name, `not "spell" type`)
+	} else if !seat.Karma.Active().Test(c.Card.Costs) {
+		log.Add("Card", c.String()).Error("not enough elements")
+		update.ErrorW(seat, c.Card.Name, `not enough elements`)
 	} else {
-		log.Add("Card", card.String()).Info("accept")
-		seat.Karma.Deactivate(card.Card.Costs)
+		log.Add("Card", c.String()).Info("accept")
+		seat.Karma.Deactivate(c.Card.Costs)
 		delete(seat.Hand, id)
 		update.Seat(g, seat)
 		update.Hand(seat)
-		return []game.Stater{pkg_state.NewPlay(seat.Username, card, json["target"])}
+		return []game.Stater{pkg_state.NewPlay(seat.Username, c, json["target"])}
 	}
 	return nil
 }

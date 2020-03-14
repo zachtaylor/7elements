@@ -1,7 +1,7 @@
 package state
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
@@ -58,7 +58,7 @@ func (r *Play) Finish(g *game.T) []game.Stater {
 	}).Debug("engine/play: finish")
 	seat.Past[r.Card.ID] = r.Card
 
-	if r.Card.Card.Type == vii.CTYPbody || r.Card.Card.Type == vii.CTYPitem {
+	if r.Card.Card.Type == card.BodyType || r.Card.Card.Type == card.ItemType {
 		trigger.Spawn(g, seat, r.Card)
 	}
 	update.Seat(g, seat)

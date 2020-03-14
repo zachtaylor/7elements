@@ -2,6 +2,7 @@ package scripts
 
 import (
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
@@ -12,7 +13,7 @@ func init() {
 }
 
 var ctbCard = &vii.Card{
-	Type:  vii.CTYPbody,
+	Type:  card.BodyType,
 	Image: "/img/card/4.jpg",
 	Name:  "Bannerman",
 	Text:  "At your call",
