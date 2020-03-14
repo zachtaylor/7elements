@@ -1,7 +1,6 @@
 package scripts
 
 import (
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
@@ -13,7 +12,7 @@ func init() {
 	game.Scripts["call-banners"] = CallTheBanners
 }
 
-var ctbCard = &vii.Card{
+var callthebannersTokenCardProto = &card.Prototype{
 	Type:  card.BodyType,
 	Image: "/img/card/4.jpg",
 	Name:  "Bannerman",
@@ -27,7 +26,7 @@ var ctbCard = &vii.Card{
 }
 
 func CallTheBanners(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	card := game.NewCard(ctbCard)
+	card := game.NewCard(callthebannersTokenCardProto)
 	card.Username = s.Username
 	for i := 0; i < 3; i++ {
 		_, e := trigger.Spawn(g, s, card)

@@ -3,7 +3,7 @@ package game
 import (
 	"fmt"
 
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/cast"
 )
@@ -11,10 +11,10 @@ import (
 type Card struct {
 	ID       string
 	Username string
-	Card     *vii.Card
+	Card     *card.Prototype
 }
 
-func NewCard(c *vii.Card) *Card {
+func NewCard(c *card.Prototype) *Card {
 	return &Card{
 		Card: c,
 	}

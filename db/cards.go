@@ -4,30 +4,29 @@ import (
 	"errors"
 	"fmt"
 
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/power"
 	"ztaylor.me/db"
 )
 
-func NewCardService(db *db.DB) vii.CardService {
+func NewCardService(db *db.DB) card.PrototypeService {
 	return &CardService{
 		conn:  db,
-		cache: make(vii.Cards),
+		cache: make(card.Prototypes),
 	}
 }
 
 type CardService struct {
 	conn  *db.DB
-	cache vii.Cards
+	cache card.Prototypes
 }
 
-func (cs *CardService) Get(id int) (*vii.Card, error) {
+func (cs *CardService) Get(id int) (*card.Prototype, error) {
 	return cs.cache[id], nil
 }
 
-func (cs *CardService) GetAll() vii.Cards {
+func (cs *CardService) GetAll() card.Prototypes {
 	if len(cs.cache) == 0 {
 		cs.Start()
 	}
@@ -167,8 +166,8 @@ func (cs *CardService) loadCardsPowersCosts() error {
 	return nil
 }
 
-func (cs *CardService) scanCard(scanner db.Scanner) (*vii.Card, error) {
-	c := vii.NewCard()
+func (cs *CardService) scanCard(scanner db.Scanner) (*card.Prototype, error) {
+	c := card.NewPrototype()
 	var typebuff int
 
 	err := scanner.Scan(&c.ID, &typebuff, &c.Name, &c.Text, &c.Image)

@@ -1,6 +1,7 @@
 package vii
 
 import (
+	"github.com/zachtaylor/7elements/card"
 	"ztaylor.me/cast"
 	"ztaylor.me/log"
 )
@@ -11,7 +12,7 @@ type Runtime struct {
 	Accounts      AccountService
 	AccountsCards AccountCardService
 	AccountsDecks AccountDeckService
-	Cards         CardService
+	Cards         card.PrototypeService
 	Decks         DeckService
 	Packs         PackService
 }

@@ -1,33 +1,35 @@
-package vii
+package card
 
 import (
 	"strings"
 
-	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/power"
 	"ztaylor.me/cast"
 )
 
-type Card struct {
+// Prototype is a definition of a card
+type Prototype struct {
 	ID     int
 	Name   string
 	Text   string
-	Type   card.Type
+	Type   Type
 	Image  string
 	Costs  element.Count
-	Body   *card.Body
+	Body   *Body
 	Powers power.Set
 }
 
-func NewCard() *Card {
-	return &Card{
+// NewPrototype returns a new empty Card Prototype
+func NewPrototype() *Prototype {
+	return &Prototype{
 		Costs:  element.Count{},
 		Powers: power.NewSet(),
 	}
 }
 
-func (c *Card) JSON() cast.JSON {
+// JSON returns a representation of this Prototype as type cast.JSON
+func (c *Prototype) JSON() cast.JSON {
 	return cast.JSON{
 		"id":     c.ID,
 		"image":  c.Image,
@@ -40,13 +42,15 @@ func (c *Card) JSON() cast.JSON {
 	}
 }
 
-func (c *Card) String() string {
+func (c *Prototype) String() string {
 	return cast.StringN(`{`, c.ID, ` `, c.Name, `}`)
 }
 
-type Cards map[int]*Card
+// Prototypes is a set of Prototype, mapped by ID number
+type Prototypes map[int]*Prototype
 
-func (cards Cards) JSON() cast.IStringer {
+// JSON returns a representation of these Prototypes as type fmt.Stringer
+func (cards Prototypes) JSON() cast.IStringer {
 	json := make([]string, 0)
 	keys := make([]int, len(cards))
 
@@ -62,8 +66,9 @@ func (cards Cards) JSON() cast.IStringer {
 	return cast.Stringer(`[` + strings.Join(json, ",") + `]`)
 }
 
-type CardService interface {
+// PrototypeService is used to acquire Card Prototypes
+type PrototypeService interface {
 	Start() error
-	Get(cardid int) (*Card, error)
-	GetAll() Cards
+	Get(cardid int) (*Prototype, error)
+	GetAll() Prototypes
 }
