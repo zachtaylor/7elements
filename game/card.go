@@ -44,7 +44,7 @@ func (c *Card) JSON() cast.JSON {
 	}
 	return cast.JSON{
 		"id":       c.ID,
-		"cardid":   c.Card.Id,
+		"cardid":   c.Card.ID,
 		"name":     c.Card.Name,
 		"costs":    c.Card.Costs.JSON(),
 		"text":     c.Card.Text,
@@ -77,7 +77,7 @@ func (cards Cards) Print() string {
 	collapse := make([]int, len(cards))
 	i := 0
 	for _, c := range cards {
-		collapse[i] = c.Card.Id
+		collapse[i] = c.Card.ID
 		i++
 	}
 	return fmt.Sprintf("%v", collapse)

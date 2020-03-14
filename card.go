@@ -9,7 +9,7 @@ import (
 )
 
 type Card struct {
-	Id     int
+	ID     int
 	Name   string
 	Text   string
 	Type   card.Type
@@ -28,7 +28,7 @@ func NewCard() *Card {
 
 func (c *Card) JSON() cast.JSON {
 	return cast.JSON{
-		"id":     c.Id,
+		"id":     c.ID,
 		"image":  c.Image,
 		"name":   c.Name,
 		"text":   c.Text,
@@ -40,12 +40,7 @@ func (c *Card) JSON() cast.JSON {
 }
 
 func (c *Card) String() string {
-	return cast.StringN(
-		`{`,
-		c.Id,
-		` `, c.Name,
-		`}`,
-	)
+	return cast.StringN(`{`, c.ID, ` `, c.Name, `}`)
 }
 
 type Cards map[int]*Card

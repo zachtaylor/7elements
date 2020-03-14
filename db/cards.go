@@ -42,12 +42,12 @@ func (cs *CardService) Start() error {
 	}
 
 	for rows.Next() {
-		card, err := cs.scanCard(rows)
+		c, err := cs.scanCard(rows)
 		if err != nil {
 			rows.Close()
 			return err
 		}
-		cs.cache[card.Id] = card
+		cs.cache[c.ID] = c
 	}
 	rows.Close()
 
@@ -170,7 +170,7 @@ func (cs *CardService) scanCard(scanner db.Scanner) (*vii.Card, error) {
 	c := vii.NewCard()
 	var typebuff int
 
-	err := scanner.Scan(&c.Id, &typebuff, &c.Name, &c.Text, &c.Image)
+	err := scanner.Scan(&c.ID, &typebuff, &c.Name, &c.Text, &c.Image)
 	if err != nil {
 		return nil, err
 	}
