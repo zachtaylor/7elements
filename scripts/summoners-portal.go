@@ -17,12 +17,12 @@ func SummonersPortal(g *game.T, s *game.Seat, me interface{}, args []interface{}
 	c := s.Deck.Draw()
 	if c == nil {
 		err = ErrFutureEmpty
-	} else if c.Card.Type == card.BodyType || c.Card.Type == card.ItemType {
+	} else if c.Proto.Type == card.BodyType || c.Proto.Type == card.ItemType {
 		if _, _events := trigger.Spawn(g, s, c); len(_events) > 0 {
 			events = append(events, _events...)
 		}
 	} else {
-		update.ErrorW(g, "Summoners Portal", "Next card was "+c.Card.Name)
+		update.ErrorW(g, "Summoners Portal", "Next card was "+c.Proto.Name)
 		update.Seat(g, s)
 	}
 	s.Past[c.ID] = c

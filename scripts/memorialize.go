@@ -20,7 +20,7 @@ func Memorialize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (e
 	} else if card == nil {
 		err = ErrNoTarget
 	} else {
-		c := game.NewCard(card.Card)
+		c := game.NewCard(card.Proto)
 		c.Username = s.Username
 		g.RegisterCard(c)
 		s.Hand[c.ID] = c

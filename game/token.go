@@ -20,8 +20,8 @@ func NewToken(card *Card, username string) *Token {
 	return &Token{
 		Card:     card,
 		Username: username,
-		Body:     card.Card.Body.Copy(),
-		Powers:   card.Card.Powers.Copy(),
+		Body:     card.Proto.Body.Copy(),
+		Powers:   card.Proto.Powers.Copy(),
 	}
 }
 
@@ -29,7 +29,7 @@ func NewToken(card *Card, username string) *Token {
 type Tokens map[string]*Token
 
 func (t *Token) String() string {
-	return "Token#" + t.ID + ":" + t.Card.Card.Name
+	return "Token#" + t.ID + ":" + t.Card.Proto.Name
 }
 
 // JSON returns a representation of a game token

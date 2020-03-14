@@ -16,7 +16,7 @@ func PastBeing(g *game.T, seat *game.Seat, arg interface{}) (*game.Card, error) 
 		return nil, errors.New("not card: " + id)
 	} else if s := g.GetSeat(c.Username); s == nil {
 		return nil, errors.New("no seat")
-	} else if c.Card.Type != card.BodyType {
+	} else if c.Proto.Type != card.BodyType {
 		return nil, errors.New("not being")
 	} else if !s.HasPastCard(c.ID) {
 		return nil, errors.New("not past")

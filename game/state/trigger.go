@@ -58,7 +58,7 @@ func (r *Trigger) JSON() cast.JSON {
 // OnConnect implements game.ConnectStater
 func (r *Trigger) OnConnect(g *game.T, seat *game.Seat) {
 	if seat == nil {
-		go g.GetChat().AddMessage(chat.NewMessage("trigger", r.Token.Card.Card.Name))
+		go g.GetChat().AddMessage(chat.NewMessage("trigger", r.Token.Card.Proto.Name))
 	}
 }
 func (r *Trigger) _isConnectStater() game.ConnectStater {

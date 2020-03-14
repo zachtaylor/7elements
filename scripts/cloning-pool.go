@@ -22,7 +22,7 @@ func CloningPool(g *game.T, s *game.Seat, me interface{}, args []interface{}) (e
 	} else if token == nil {
 		return nil, ErrBadTarget
 	} else {
-		card := game.NewCard(token.Card.Card)
+		card := game.NewCard(token.Card.Proto)
 		card.Username = token.Username
 		token, events = trigger.Spawn(g, s, card)
 		token.Body.Health = 1

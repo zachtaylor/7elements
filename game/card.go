@@ -11,12 +11,12 @@ import (
 type Card struct {
 	ID       string
 	Username string
-	Card     *card.Prototype
+	Proto    *card.Prototype
 }
 
 func NewCard(c *card.Prototype) *Card {
 	return &Card{
-		Card: c,
+		Proto: c,
 	}
 }
 
@@ -32,7 +32,7 @@ func (c *Card) String() string {
 		`{`,
 		c.ID,
 		` user:`, c.Username,
-		` card:`, c.Card.String(),
+		` card:`, c.Proto.String(),
 		`}`,
 	)
 }
@@ -44,14 +44,14 @@ func (c *Card) JSON() cast.JSON {
 	}
 	return cast.JSON{
 		"id":       c.ID,
-		"cardid":   c.Card.ID,
-		"name":     c.Card.Name,
-		"costs":    c.Card.Costs.JSON(),
-		"text":     c.Card.Text,
+		"cardid":   c.Proto.ID,
+		"name":     c.Proto.Name,
+		"costs":    c.Proto.Costs.JSON(),
+		"text":     c.Proto.Text,
 		"username": c.Username,
-		"image":    c.Card.Image,
-		"type":     c.Card.Type.String(),
-		"powers":   c.Card.Powers.JSON(),
+		"image":    c.Proto.Image,
+		"type":     c.Proto.Type.String(),
+		"powers":   c.Proto.Powers.JSON(),
 	}
 }
 
@@ -62,7 +62,7 @@ type Cards map[string]*Card
 func (cards Cards) Devotion() element.Count {
 	devo := element.Count{}
 	for _, c := range cards {
-		for e, count := range c.Card.Costs {
+		for e, count := range c.Proto.Costs {
 			devo[e] += count
 		}
 	}
@@ -77,7 +77,7 @@ func (cards Cards) Print() string {
 	collapse := make([]int, len(cards))
 	i := 0
 	for _, c := range cards {
-		collapse[i] = c.Card.ID
+		collapse[i] = c.Proto.ID
 		i++
 	}
 	return fmt.Sprintf("%v", collapse)

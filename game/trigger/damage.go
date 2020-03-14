@@ -8,7 +8,7 @@ import (
 
 func Damage(g *game.T, t *game.Token, n int) []game.Stater {
 	t.Body.Health -= n
-	update.GameChat(g, t.Card.Card.Name, cast.StringI(n)+" damage to "+t.Card.Card.Name)
+	update.GameChat(g, t.Card.Proto.Name, cast.StringI(n)+" damage to "+t.Card.Proto.Name)
 	update.Token(g, t)
 	if t.Body.Health < 1 {
 		return Death(g, t)

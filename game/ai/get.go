@@ -32,7 +32,7 @@ func (ai *AI) getNewElement() element.T {
 func (ai *AI) getHandCanAfford() (hand []string) {
 	elements := ai.Seat.Karma.Active()
 	for _, c := range ai.Seat.Hand {
-		if elements.Test(c.Card.Costs) {
+		if elements.Test(c.Proto.Costs) {
 			hand = append(hand, c.ID)
 		}
 	}

@@ -26,7 +26,7 @@ func (r *Attack) Name() string {
 
 // OnActivate implements game.ActivateStater
 func (r *Attack) OnActivate(g *game.T) []game.Stater {
-	go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Card.Name, "attack"))
+	go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "attack"))
 	return nil
 }
 func (e *Attack) _isActivateRer() game.ActivateStater {
@@ -70,7 +70,7 @@ func (r *Attack) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 		log.Add("ID", id).Source().Error("id not found")
 	} else if !t.IsAwake {
 		log.Source().Warn("card asleep")
-		update.ErrorW(seat, t.Card.Card.Name, "not awake")
+		update.ErrorW(seat, t.Card.Proto.Name, "not awake")
 	} else {
 		r.B = t
 	}

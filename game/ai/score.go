@@ -7,7 +7,7 @@ import (
 
 // ScoreTokenPower picks best Target for given Token and Power, and returns score for the choice
 func (ai *AI) ScoreTokenPower(t *game.Token, p *power.T) (target interface{}, score int) {
-	switch t.Card.Card.ID {
+	switch t.Card.Proto.ID {
 	case 1:
 		target, score = t.ID, 10
 	case 2:
@@ -45,7 +45,7 @@ func (ai *AI) ScoreTokenPower(t *game.Token, p *power.T) (target interface{}, sc
 
 // ScoreCardPower picks best Target for given Card and Power, and returns score for the choice
 func (ai *AI) ScoreCardPower(card *game.Card, p *power.T) (target interface{}, score int) {
-	switch card.Card.ID {
+	switch card.Proto.ID {
 	case 9:
 		target, score = ai.TargetEnemyBeing("damage")
 	case 10:

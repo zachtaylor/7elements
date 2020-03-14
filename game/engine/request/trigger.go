@@ -32,11 +32,11 @@ func trigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 		log.Source().Error("powerid not found")
 		return nil
 	} else if !token.IsAwake && power.UsesTurn {
-		update.ErrorW(seat, token.Card.Card.Name, `not awake`)
+		update.ErrorW(seat, token.Card.Proto.Name, `not awake`)
 		log.Source().Error("card is asleep")
 		return nil
 	} else if !seat.Karma.Active().Test(power.Costs) {
-		update.ErrorW(seat, token.Card.Card.Name, `not enough elements`)
+		update.ErrorW(seat, token.Card.Proto.Name, `not enough elements`)
 		log.Add("Costs", power.Costs).Source().Error("cannot afford")
 		return nil
 	}

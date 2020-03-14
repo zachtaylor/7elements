@@ -23,7 +23,7 @@ func BendWill(g *game.T, s *game.Seat, me interface{}, args []interface{}) (even
 	} else {
 		events = []game.Stater{state.NewChoice(
 			s.Username,
-			cast.StringN(token.Card.Card.Name, "-> Awake or Asleep?"),
+			cast.StringN(token.Card.Proto.Name, "-> Awake or Asleep?"),
 			cast.JSON{
 				"token": token.JSON(),
 			},

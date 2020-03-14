@@ -23,8 +23,8 @@ func (ai *AI) NewPlans() []Plan {
 		}
 	}
 	for _, c := range ai.Seat.Hand {
-		if ai.Game.State.Name() != `main` && ai.Game.State.R.Seat() != ai.Seat.Username && c.Card.Type != card.SpellType {
-		} else if !ai.Seat.Karma.Active().Test(c.Card.Costs) {
+		if ai.Game.State.Name() != `main` && ai.Game.State.R.Seat() != ai.Seat.Username && c.Proto.Type != card.SpellType {
+		} else if !ai.Seat.Karma.Active().Test(c.Proto.Costs) {
 		} else if cs := ai.plansFromHand(c); len(cs) > 0 {
 			plans = append(plans, cs...)
 		}
@@ -33,7 +33,7 @@ func (ai *AI) NewPlans() []Plan {
 }
 
 func (ai *AI) plansFromHand(c *game.Card) []Plan {
-	switch c.Card.Type {
+	switch c.Proto.Type {
 	case card.BodyType:
 		if ai.Game.State.Name() != "main" || ai.Game.State.R.Seat() != ai.Seat.Username {
 			return nil
@@ -53,7 +53,7 @@ func (ai *AI) plansFromHand(c *game.Card) []Plan {
 			score:  1,
 		}}
 	case card.SpellType:
-		if ps := c.Card.Powers.GetTrigger("play"); len(ps) < 1 {
+		if ps := c.Proto.Powers.GetTrigger("play"); len(ps) < 1 {
 		} else if p := ps[0]; p == nil {
 		} else if id, score := ai.ScoreCardPower(c, p); score < 1 {
 		} else {

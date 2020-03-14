@@ -30,9 +30,9 @@ func (r *Play) Name() string {
 
 // OnActivate implements game.ActivateStater
 func (r *Play) OnActivate(g *game.T) []game.Stater {
-	msg := r.Card.Card.Name
-	if r.Card.Card.Text != "" {
-		msg = r.Card.Card.Text
+	msg := r.Card.Proto.Name
+	if r.Card.Proto.Text != "" {
+		msg = r.Card.Proto.Text
 	}
 	go g.GetChat().AddMessage(chat.NewMessage(r.Seat(), msg))
 	return nil
@@ -58,12 +58,12 @@ func (r *Play) Finish(g *game.T) []game.Stater {
 	}).Debug("engine/play: finish")
 	seat.Past[r.Card.ID] = r.Card
 
-	if r.Card.Card.Type == card.BodyType || r.Card.Card.Type == card.ItemType {
+	if r.Card.Proto.Type == card.BodyType || r.Card.Proto.Type == card.ItemType {
 		trigger.Spawn(g, seat, r.Card)
 	}
 	update.Seat(g, seat)
 
-	powers := r.Card.Card.Powers.GetTrigger("play")
+	powers := r.Card.Proto.Powers.GetTrigger("play")
 	events := make([]game.Stater, 0)
 	for _, power := range powers {
 		// trigger.Power(g, seat, power, r.Card, )
@@ -111,5 +111,5 @@ func (r *Play) JSON() cast.JSON {
 }
 
 func (r *Play) String() string {
-	return r.Seat() + " played " + r.Card.Card.Name
+	return r.Seat() + " played " + r.Card.Proto.Name
 }

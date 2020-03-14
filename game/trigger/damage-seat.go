@@ -12,7 +12,7 @@ func DamageSeat(g *game.T, card *game.Card, seat *game.Seat, n int) []game.State
 		return []game.Stater{end.New(card.Username, seat.Username)}
 	}
 	seat.Life -= n
-	update.GameChat(g, card.Card.Name, cast.StringI(n)+" damage to "+seat.Username)
+	update.GameChat(g, card.Proto.Name, cast.StringI(n)+" damage to "+seat.Username)
 	update.Seat(g, seat)
 	return nil
 }

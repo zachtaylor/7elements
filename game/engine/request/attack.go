@@ -20,10 +20,10 @@ func attack(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 		update.ErrorW(seat, id, `not in your present`)
 	} else if token.Body == nil {
 		log.Add("Token", token.String()).Error("card type must be body")
-		update.ErrorW(seat, token.Card.Card.Name, `not "body" type`)
+		update.ErrorW(seat, token.Card.Proto.Name, `not "body" type`)
 	} else if !token.IsAwake {
 		log.Add("Token", token.String()).Error("card must be awake")
-		update.ErrorW(seat, token.Card.Card.Name, `not awake`)
+		update.ErrorW(seat, token.Card.Proto.Name, `not awake`)
 	} else {
 		log.Add("Token", token.String()).Info("accept")
 		token.IsAwake = false

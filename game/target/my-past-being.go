@@ -14,7 +14,7 @@ func MyPastBeing(g *game.T, seat *game.Seat, arg interface{}) (*game.Card, error
 		return nil, errors.New("no object: " + cid)
 	} else if c, ok := obj.(*game.Card); !ok {
 		return nil, errors.New("not card: " + c.String())
-	} else if c.Card.Type != card.BodyType {
+	} else if c.Proto.Type != card.BodyType {
 		return nil, errors.New("not being")
 	} else if !seat.HasPastCard(c.ID) {
 		return nil, errors.New("not my past")

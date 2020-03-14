@@ -18,15 +18,15 @@ func play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.St
 	} else if c := seat.Hand[id]; c == nil {
 		log.Error("no card")
 		update.ErrorW(seat, `vii`, `bad card id`)
-	} else if c.Card.Type != card.SpellType && onlySpells {
+	} else if c.Proto.Type != card.SpellType && onlySpells {
 		log.Add("Card", c.String()).Error("card type must be spell")
-		update.ErrorW(seat, c.Card.Name, `not "spell" type`)
-	} else if !seat.Karma.Active().Test(c.Card.Costs) {
+		update.ErrorW(seat, c.Proto.Name, `not "spell" type`)
+	} else if !seat.Karma.Active().Test(c.Proto.Costs) {
 		log.Add("Card", c.String()).Error("not enough elements")
-		update.ErrorW(seat, c.Card.Name, `not enough elements`)
+		update.ErrorW(seat, c.Proto.Name, `not enough elements`)
 	} else {
 		log.Add("Card", c.String()).Info("accept")
-		seat.Karma.Deactivate(c.Card.Costs)
+		seat.Karma.Deactivate(c.Proto.Costs)
 		delete(seat.Hand, id)
 		update.Seat(g, seat)
 		update.Hand(seat)

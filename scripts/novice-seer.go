@@ -24,11 +24,11 @@ func NoviceSeer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (ev
 		[]cast.JSON{
 			cast.JSON{
 				"choice":  "false",
-				"display": "Future " + card.Card.Name,
+				"display": "Future " + card.Proto.Name,
 			},
 			cast.JSON{
 				"choice":  "true",
-				"display": card.Card.Name + " to Past",
+				"display": card.Proto.Name + " to Past",
 			},
 		},
 		func(val interface{}) {

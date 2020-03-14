@@ -29,10 +29,10 @@ func (r *Combat) Name() string {
 // OnActivate implements game.ActivateStater
 func (r *Combat) OnActivate(g *game.T) []game.Stater {
 	if r.B != nil {
-		go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Card.Name, "vs "+r.B.Card.Card.Name))
+		go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "vs "+r.B.Card.Proto.Name))
 	} else if enemyseat := g.GetOpponentSeat(r.A.Username); enemyseat == nil {
 	} else {
-		go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Card.Name, "vs "+enemyseat.Username))
+		go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "vs "+enemyseat.Username))
 	}
 	return nil
 }

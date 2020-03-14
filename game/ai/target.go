@@ -41,12 +41,12 @@ func (ai *AI) TargetEnemyPastBeingItem() (target interface{}, score int) {
 
 	var c *game.Card
 	for _, pc := range enemy.Past {
-		if pc.Card.Type == card.ItemType && score < 2 {
+		if pc.Proto.Type == card.ItemType && score < 2 {
 			c = pc
 			score = 2
-		} else if pc.Card.Type == card.BodyType && score < pc.Card.Body.Health {
+		} else if pc.Proto.Type == card.BodyType && score < pc.Proto.Body.Health {
 			c = pc
-			score = pc.Card.Body.Health
+			score = pc.Proto.Body.Health
 		}
 	}
 
@@ -60,10 +60,10 @@ func (ai *AI) TargetEnemyPastBeingItem() (target interface{}, score int) {
 func (ai *AI) TargetMyPastBeing() (target interface{}, score int) {
 	var c *game.Card
 	for _, pc := range ai.Seat.Past {
-		if pc.Card.Type != card.BodyType {
-		} else if score < 3*pc.Card.Body.Attack {
+		if pc.Proto.Type != card.BodyType {
+		} else if score < 3*pc.Proto.Body.Attack {
 			c = pc
-			score = 3 * pc.Card.Body.Attack
+			score = 3 * pc.Proto.Body.Attack
 		}
 	}
 
@@ -81,7 +81,7 @@ func (ai *AI) TargetMyPastBeing() (target interface{}, score int) {
 func (ai *AI) TargetMyPresentBeing(effect string) (target interface{}, score int) {
 	var token *game.Token
 	for _, t := range ai.Seat.Present {
-		if t.Card.Card.Type != card.BodyType {
+		if t.Card.Proto.Type != card.BodyType {
 		} else if t.IsAwake && effect == "wake" {
 		} else if effect == "health" {
 			if score < 5-t.Body.Health {
@@ -127,7 +127,7 @@ func (ai *AI) TargetMyPresentBeingItem(effect string) (target interface{}, score
 					score = 4 - t.Body.Health
 				}
 			}
-		} else if t.Card.Card.Type == card.ItemType {
+		} else if t.Card.Proto.Type == card.ItemType {
 			if len(t.Powers.GetTrigger("")) > 0 && score < 4 {
 				token = t
 				score = 4

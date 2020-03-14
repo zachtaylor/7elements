@@ -8,7 +8,7 @@ import (
 
 func HealSeat(g *game.T, card *game.Card, seat *game.Seat, n int) []game.Stater {
 	seat.Life += n
-	update.GameChat(g, seat.Username, "gain "+cast.StringI(n)+" Life ("+card.Card.Name+")")
+	update.GameChat(g, seat.Username, "gain "+cast.StringI(n)+" Life ("+card.Proto.Name+")")
 	update.Seat(g, seat)
 	return nil
 }
