@@ -1,4 +1,4 @@
-package vii
+package account
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	"ztaylor.me/cast"
 )
 
-type AccountDeck struct {
+type Deck struct {
 	ID       int
 	Name     string
 	Username string
@@ -17,14 +17,14 @@ type AccountDeck struct {
 	CoverID  int
 }
 
-func NewAccountDeck() *AccountDeck {
-	return &AccountDeck{
+func NewDeck() *Deck {
+	return &Deck{
 		Cards: make(map[int]int),
 	}
 }
 
-func NewAccountDeckWith(proto *deck.Prototype, username string) *AccountDeck {
-	ad := NewAccountDeck()
+func NewDeckWith(proto *deck.Prototype, username string) *Deck {
+	ad := NewDeck()
 	ad.ID = -proto.ID
 	ad.Name = proto.Name
 	ad.Username = username
@@ -36,7 +36,7 @@ func NewAccountDeckWith(proto *deck.Prototype, username string) *AccountDeck {
 	return ad
 }
 
-func (deck *AccountDeck) Count() int {
+func (deck *Deck) Count() int {
 	total := 0
 	for _, count := range deck.Cards {
 		total += count
@@ -44,7 +44,7 @@ func (deck *AccountDeck) Count() int {
 	return total
 }
 
-func (deck *AccountDeck) JSON() cast.JSON {
+func (deck *Deck) JSON() cast.JSON {
 	cardsJSON := cast.JSON{}
 	for cardid, count := range deck.Cards {
 		cardsJSON[cast.StringI(cardid)] = count
@@ -59,9 +59,9 @@ func (deck *AccountDeck) JSON() cast.JSON {
 	}
 }
 
-type AccountDecks []*AccountDeck
+type Decks []*Deck
 
-func (decks AccountDecks) JSON() cast.JSON {
+func (decks Decks) JSON() cast.JSON {
 	data := cast.JSON{}
 	for _, deck := range decks {
 		data[cast.StringI(deck.ID)] = deck.JSON()
@@ -69,9 +69,9 @@ func (decks AccountDecks) JSON() cast.JSON {
 	return data
 }
 
-type AccountDeckService interface {
-	Find(username string) (AccountDecks, error)
+type DeckService interface {
+	Find(username string) (Decks, error)
 	Forget(username string)
-	Update(deck *AccountDeck) error
+	Update(deck *Deck) error
 	UpdateName(username string, id int, name string) error
 }

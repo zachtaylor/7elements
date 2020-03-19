@@ -3,11 +3,11 @@ package game
 import (
 	"time"
 
-	"github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 )
 
 type Search struct {
-	Deck     *vii.AccountDeck
+	Deck     *account.Deck
 	Start    time.Time
 	Done     chan string
 	Settings SearchSettings
@@ -17,7 +17,7 @@ type SearchSettings struct {
 	UseP2P bool
 }
 
-func NewSearch(deck *vii.AccountDeck) *Search {
+func NewSearch(deck *account.Deck) *Search {
 	return &Search{
 		Deck:     deck,
 		Start:    time.Now(),

@@ -3,23 +3,23 @@ package db
 import (
 	"time"
 
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 	"ztaylor.me/db"
 )
 
-func NewAccountDeckService(db *db.DB) vii.AccountDeckService {
+func NewAccountDeckService(db *db.DB) account.DeckService {
 	return &AccountDeckService{
 		conn:  db,
-		cache: make(map[string]vii.AccountDecks),
+		cache: make(map[string]account.Decks),
 	}
 }
 
 type AccountDeckService struct {
 	conn  *db.DB
-	cache map[string]vii.AccountDecks
+	cache map[string]account.Decks
 }
 
-func (ads *AccountDeckService) Find(username string) (vii.AccountDecks, error) {
+func (ads *AccountDeckService) Find(username string) (account.Decks, error) {
 	if ads.cache[username] == nil {
 		if data, err := ads.Get(username); err != nil {
 			return nil, err
@@ -30,7 +30,7 @@ func (ads *AccountDeckService) Find(username string) (vii.AccountDecks, error) {
 	return ads.cache[username], nil
 }
 
-func (ads *AccountDeckService) Get(username string) (vii.AccountDecks, error) {
+func (ads *AccountDeckService) Get(username string) (account.Decks, error) {
 	rows, err := ads.conn.Query(
 		"SELECT username, id, name, wins, cover, max(register) FROM accounts_decks WHERE username=? GROUP BY id",
 		username,
@@ -40,10 +40,10 @@ func (ads *AccountDeckService) Get(username string) (vii.AccountDecks, error) {
 		return nil, err
 	}
 
-	decks := make(vii.AccountDecks, 0)
+	decks := make(account.Decks, 0)
 
 	for rows.Next() {
-		deck := vii.NewAccountDeck()
+		deck := account.NewDeck()
 		var registerbuff int64
 
 		err = rows.Scan(&deck.Username, &deck.ID, &deck.Name, &deck.Wins, &deck.CoverID, &registerbuff)
@@ -86,7 +86,7 @@ func (ads *AccountDeckService) Forget(username string) {
 	delete(ads.cache, username)
 }
 
-func (ads *AccountDeckService) Update(deck *vii.AccountDeck) (err error) {
+func (ads *AccountDeckService) Update(deck *account.Deck) (err error) {
 	deck.Wins = 0
 	deck.Register = time.Now()
 	if err = ads.Delete(deck.Username, deck.ID); err != nil {
@@ -96,7 +96,7 @@ func (ads *AccountDeckService) Update(deck *vii.AccountDeck) (err error) {
 	return
 }
 
-func (ads *AccountDeckService) Insert(deck *vii.AccountDeck) error {
+func (ads *AccountDeckService) Insert(deck *account.Deck) error {
 	_, err := ads.conn.Exec("INSERT INTO accounts_decks (username, name, id, wins, register, cover) VALUES (?, ?, ?, ?, ?, ?)",
 		deck.Username,
 		deck.Name,

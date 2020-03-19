@@ -13,7 +13,7 @@ type Runtime struct {
 	Logger        log.Service
 	Accounts      account.Service
 	AccountsCards account.CardService
-	AccountsDecks AccountDeckService
+	AccountsDecks account.DeckService
 	Cards         card.PrototypeService
 	Decks         deck.PrototypeService
 	Packs         PackService

@@ -3,7 +3,6 @@ package apiws
 import (
 	"time"
 
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/server/api"
 	"ztaylor.me/events"
@@ -44,16 +43,16 @@ func Signup(rt *Runtime) websocket.Handler {
 	})
 }
 func signup(rt *api.Runtime, log *log.Entry, username, email, password string) *account.T {
-	account := &account.T{
+	a := &account.T{
 		Username: username,
 		Email:    email,
 		Password: password,
 		Skill:    1000,
 		Register: time.Now(),
 	}
-	rt.Root.Accounts.Cache(account)
+	rt.Root.Accounts.Cache(a)
 
-	if err := rt.Root.Accounts.Insert(account); err != nil {
+	if err := rt.Root.Accounts.Insert(a); err != nil {
 		// http.Redirect(w, r, "/signup/?error="+email+"&username="+username, http.StatusInternalServerError)
 		log.Add("Error", err).Error("account insert")
 		return nil
@@ -62,7 +61,7 @@ func signup(rt *api.Runtime, log *log.Entry, username, email, password string) *
 	events.Fire("Signup", username)
 
 	for i := 1; i < 4; i++ {
-		deck := vii.NewAccountDeck()
+		deck := account.NewDeck()
 		deck.ID = i
 		deck.Username = username
 		if err := rt.Root.AccountsDecks.Update(deck); err != nil {
@@ -75,11 +74,11 @@ func signup(rt *api.Runtime, log *log.Entry, username, email, password string) *
 	// 	log.Clone().Add("mail-user", options.String("mail-user")).Add("mail-pass", options.String("mail-pass")).Add("mail-host", options.String("mail-host")).Add("Error", err).Error("/api/signup: send validation email")
 	// }
 
-	if s, err := api.Login(rt, account); s == nil {
+	if s, err := api.Login(rt, a); s == nil {
 		log.Add("Error", err).Error("login")
 		return nil
 	} else {
 		// w.Write([]byte(redirectHomeTpl))
 	}
-	return account
+	return a
 }

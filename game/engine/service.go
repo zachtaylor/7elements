@@ -6,6 +6,7 @@ import (
 	"time"
 
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/state"
@@ -34,7 +35,7 @@ func NewService(rt *vii.Runtime, chat chat.Service) *Service {
 	return service
 }
 
-func (service *Service) New(a, b *vii.AccountDeck) *game.T {
+func (service *Service) New(a, b *account.Deck) *game.T {
 	key := service.keygen()
 	f, _ := os.OpenFile("log/game/"+key+".log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	g := game.New(key, game.NewRuntime(
@@ -90,7 +91,7 @@ func (service *Service) FindUsername(name string) *game.T {
 	return nil
 }
 
-func (service *Service) Search(deck *vii.AccountDeck) *game.Search {
+func (service *Service) Search(deck *account.Deck) *game.Search {
 	if service.FindUsername(deck.Username) != nil {
 		return nil
 	}

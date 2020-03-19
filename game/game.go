@@ -1,7 +1,7 @@
 package game
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/deck"
@@ -101,7 +101,7 @@ func (game *T) GetOpponentSeat(name string) *Seat {
 	return nil
 }
 
-func (game *T) Register(ad *vii.AccountDeck) *Seat {
+func (game *T) Register(ad *account.Deck) *Seat {
 	log := game.Log().Add("Username", ad.Username)
 
 	if game.Seats[ad.Username] != nil {

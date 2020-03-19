@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/account"
 	"ztaylor.me/events"
 	// "github.com/zachtaylor/7elements/emails"
@@ -58,7 +57,7 @@ func SignupHandler(rt *Runtime) http.Handler {
 			return
 		}
 
-		account := &account.T{
+		a := &account.T{
 			Username: username,
 			Email:    email,
 			Password: password1,
@@ -67,7 +66,7 @@ func SignupHandler(rt *Runtime) http.Handler {
 			Register: time.Now(),
 		}
 
-		if err := rt.Root.Accounts.Insert(account); err != nil {
+		if err := rt.Root.Accounts.Insert(a); err != nil {
 			http.Redirect(w, r, "/signup/?error="+email+"&username="+username, http.StatusInternalServerError)
 			log.Add("Error", err).Error("account insert")
 			return
@@ -76,7 +75,7 @@ func SignupHandler(rt *Runtime) http.Handler {
 		events.Fire("Signup", username)
 
 		for i := 1; i < 4; i++ {
-			deck := vii.NewAccountDeck()
+			deck := account.NewDeck()
 			deck.ID = i
 			deck.Username = username
 			if err := rt.Root.AccountsDecks.Update(deck); err != nil {
@@ -89,7 +88,7 @@ func SignupHandler(rt *Runtime) http.Handler {
 		// 	log.Clone().Add("mail-user", options.String("mail-user")).Add("mail-pass", options.String("mail-pass")).Add("mail-host", options.String("mail-host")).Add("Error", err).Error("/api/signup: send validation email")
 		// }
 
-		if s, err := Login(rt, account); s == nil {
+		if s, err := Login(rt, a); s == nil {
 			log.Add("Error", err).Error("login")
 		} else {
 			w.Write([]byte(redirectHomeTpl))

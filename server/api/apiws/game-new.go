@@ -1,7 +1,7 @@
 package apiws
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai"
 	"github.com/zachtaylor/7elements/server/api"
@@ -24,7 +24,7 @@ func GameNew(rt *Runtime) websocket.Handler {
 			return
 		}
 
-		var deck *vii.AccountDeck
+		var deck *account.Deck
 		if deckid := m.Data.GetI("deckid"); deckid < 1 {
 			log.Add("DeckID", m.Data["deckid"]).Warn("deckid parse error")
 			return

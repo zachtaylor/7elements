@@ -3,8 +3,7 @@ package api
 import (
 	"net/http"
 
-	vii "github.com/zachtaylor/7elements"
-
+	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai"
 	"ztaylor.me/cast"
@@ -20,8 +19,8 @@ func NewGameHandler(rt *Runtime) http.Handler {
 			return
 		}
 
-		account, err := rt.Root.Accounts.Get(session.Name())
-		if account == nil {
+		a, err := rt.Root.Accounts.Get(session.Name())
+		if a == nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Add("Error", err).Add("RemoteAddr", r.RemoteAddr).Warn("account missing")
 			return
@@ -29,7 +28,7 @@ func NewGameHandler(rt *Runtime) http.Handler {
 
 		log.Add("Username", session.Name())
 
-		var deck *vii.AccountDeck
+		var deck *account.Deck
 		if _deckid := r.URL.Query().Get("deckid"); len(_deckid) < 1 {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Add("Query", r.URL.Query().Encode()).Warn("deckid missing")
