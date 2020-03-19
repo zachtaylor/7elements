@@ -1,6 +1,7 @@
 package vii
 
 import (
+	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/deck"
 	"ztaylor.me/cast"
@@ -10,7 +11,7 @@ import (
 // Runtime holds service refs
 type Runtime struct {
 	Logger        log.Service
-	Accounts      AccountService
+	Accounts      account.Service
 	AccountsCards AccountCardService
 	AccountsDecks AccountDeckService
 	Cards         card.PrototypeService

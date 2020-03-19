@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 	"ztaylor.me/cast"
 	"ztaylor.me/http/session"
 )
@@ -49,7 +49,7 @@ func LoginHandler(rt *Runtime) http.Handler {
 	})
 }
 
-func Login(rt *Runtime, a *vii.Account) (*session.T, error) {
+func Login(rt *Runtime, a *account.T) (*session.T, error) {
 	rt.Root.Accounts.Cache(a)
 	log := rt.Root.Logger.New().Add("Username", a.Username).Tag("/api/do_login")
 	a.LastLogin = time.Now()

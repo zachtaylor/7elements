@@ -5,6 +5,7 @@ import (
 	"time"
 
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 	"ztaylor.me/events"
 	// "github.com/zachtaylor/7elements/emails"
 	// "github.com/zachtaylor/7elements/options"
@@ -57,7 +58,7 @@ func SignupHandler(rt *Runtime) http.Handler {
 			return
 		}
 
-		account := &vii.Account{
+		account := &account.T{
 			Username: username,
 			Email:    email,
 			Password: password1,

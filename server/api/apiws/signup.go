@@ -4,6 +4,7 @@ import (
 	"time"
 
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/server/api"
 	"ztaylor.me/events"
 	"ztaylor.me/http/websocket"
@@ -42,8 +43,8 @@ func Signup(rt *Runtime) websocket.Handler {
 		}
 	})
 }
-func signup(rt *api.Runtime, log *log.Entry, username, email, password string) *vii.Account {
-	account := &vii.Account{
+func signup(rt *api.Runtime, log *log.Entry, username, email, password string) *account.T {
+	account := &account.T{
 		Username: username,
 		Email:    email,
 		Password: password,
