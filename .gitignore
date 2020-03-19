@@ -1,7 +1,7 @@
 # git ignore file
 
 .env
-# assets/ng/dist/
+assets/ng/dist/
 cmd/elemen7s.com/.env
 cmd/elemen7s.com/log/game/*.log
 cmd/elemen7s.com/elemen7s.com
