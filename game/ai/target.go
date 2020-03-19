@@ -39,7 +39,7 @@ func (ai *AI) TargetEnemyBeing(effect string) (target interface{}, score int) {
 func (ai *AI) TargetEnemyPastBeingItem() (target interface{}, score int) {
 	enemy := ai.Game.GetOpponentSeat(ai.Seat.Username)
 
-	var c *game.Card
+	var c *card.T
 	for _, pc := range enemy.Past {
 		if pc.Proto.Type == card.ItemType && score < 2 {
 			c = pc
@@ -58,7 +58,7 @@ func (ai *AI) TargetEnemyPastBeingItem() (target interface{}, score int) {
 
 // TargetMyPastBeing picks a GCID to target "mypast-being" with score
 func (ai *AI) TargetMyPastBeing() (target interface{}, score int) {
-	var c *game.Card
+	var c *card.T
 	for _, pc := range ai.Seat.Past {
 		if pc.Proto.Type != card.BodyType {
 		} else if score < 3*pc.Proto.Body.Attack {

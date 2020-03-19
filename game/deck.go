@@ -2,21 +2,22 @@ package game
 
 import (
 	"github.com/cznic/mathutil"
+	"github.com/zachtaylor/7elements/card"
 )
 
 type Deck struct {
 	Username      string
 	AccountDeckID int
-	Cards         []*Card
+	Cards         []*card.T
 }
 
 func NewDeck() *Deck {
 	return &Deck{
-		Cards: make([]*Card, 0),
+		Cards: make([]*card.T, 0),
 	}
 }
 
-func (deck *Deck) Draw() *Card {
+func (deck *Deck) Draw() *card.T {
 	if len(deck.Cards) < 1 {
 		return nil
 	}
@@ -25,17 +26,17 @@ func (deck *Deck) Draw() *Card {
 	return card
 }
 
-func (deck *Deck) Prepend(card *Card) {
-	deck.Cards = append([]*Card{card}, deck.Cards...)
+func (deck *Deck) Prepend(c *card.T) {
+	deck.Cards = append([]*card.T{c}, deck.Cards...)
 }
 
-func (deck *Deck) Append(card *Card) {
-	deck.Cards = append(deck.Cards, card)
+func (deck *Deck) Append(c *card.T) {
+	deck.Cards = append(deck.Cards, c)
 }
 
 func (deck *Deck) Shuffle() {
 	shuffleRandom, _ := mathutil.NewFC32(0, len(deck.Cards)-1, true)
-	cp := make([]*Card, len(deck.Cards))
+	cp := make([]*card.T, len(deck.Cards))
 	for i := 0; i < len(deck.Cards); i++ {
 		rand := shuffleRandom.Next()
 		cp[rand] = deck.Cards[i]

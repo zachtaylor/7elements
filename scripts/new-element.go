@@ -1,6 +1,7 @@
 package scripts
 
 import (
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/state"
@@ -13,7 +14,7 @@ func init() {
 }
 
 func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if me, ok := me.(*game.Card); !ok {
+	if me, ok := me.(*card.T); !ok {
 		err = ErrMeCard
 	} else {
 		events = []game.Stater{state.NewChoice(

@@ -9,7 +9,7 @@ import (
 	"ztaylor.me/cast"
 )
 
-func NewPlay(seat string, card *game.Card, target interface{}) game.Stater {
+func NewPlay(seat string, card *card.T, target interface{}) game.Stater {
 	return &Play{
 		R:      R(seat),
 		Card:   card,
@@ -19,7 +19,7 @@ func NewPlay(seat string, card *game.Card, target interface{}) game.Stater {
 
 type Play struct {
 	R
-	Card        *game.Card
+	Card        *card.T
 	Target      interface{}
 	IsCancelled bool
 }

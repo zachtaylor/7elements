@@ -1,6 +1,7 @@
 package state
 
 import (
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
@@ -37,7 +38,7 @@ func (r *Trigger) JSON() cast.JSON {
 		"token": r.Token.JSON(),
 		"power": r.Power.JSON(),
 	}
-	if c, ok := r.Target.(*game.Card); ok {
+	if c, ok := r.Target.(*card.T); ok {
 		json["target"] = c.JSON()
 	} else if t, ok := r.Target.(*game.Token); ok {
 		json["target"] = t.JSON()

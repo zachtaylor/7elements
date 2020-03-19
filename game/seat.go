@@ -2,6 +2,7 @@ package game
 
 import (
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/cast"
 )
@@ -11,9 +12,9 @@ type Seat struct {
 	Life     int
 	Deck     *Deck
 	Karma    element.Karma
-	Hand     Cards
+	Hand     card.Set
 	Present  Tokens
-	Past     Cards
+	Past     card.Set
 	Color    string
 	Receiver vii.JSONWriter
 }
@@ -22,8 +23,8 @@ func (game *T) NewSeat() *Seat {
 	return &Seat{
 		Karma:   element.Karma{},
 		Present: Tokens{},
-		Hand:    Cards{},
-		Past:    Cards{},
+		Hand:    card.Set{},
+		Past:    card.Set{},
 	}
 }
 
@@ -38,7 +39,7 @@ func (seat *Seat) DiscardHand() {
 	for _, card := range seat.Hand {
 		seat.Past[card.ID] = card
 	}
-	seat.Hand = Cards{}
+	seat.Hand = card.Set{}
 }
 
 // WriteJSON sends data to player agent if available

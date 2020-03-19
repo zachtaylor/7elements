@@ -7,12 +7,12 @@ import (
 	"github.com/zachtaylor/7elements/game"
 )
 
-func MyPastBeing(g *game.T, seat *game.Seat, arg interface{}) (*game.Card, error) {
+func MyPastBeing(g *game.T, seat *game.Seat, arg interface{}) (*card.T, error) {
 	if cid, ok := arg.(string); !ok {
 		return nil, errors.New("no cid")
 	} else if obj := g.Objects[cid]; obj == nil {
 		return nil, errors.New("no object: " + cid)
-	} else if c, ok := obj.(*game.Card); !ok {
+	} else if c, ok := obj.(*card.T); !ok {
 		return nil, errors.New("not card: " + c.String())
 	} else if c.Proto.Type != card.BodyType {
 		return nil, errors.New("not being")

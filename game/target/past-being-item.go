@@ -7,12 +7,12 @@ import (
 	"github.com/zachtaylor/7elements/game"
 )
 
-func PastBeingItem(g *game.T, seat *game.Seat, arg interface{}) (*game.Card, error) {
+func PastBeingItem(g *game.T, seat *game.Seat, arg interface{}) (*card.T, error) {
 	if id, ok := arg.(string); !ok {
 		return nil, errors.New("no id")
 	} else if obj := g.Objects[id]; obj == nil {
 		return nil, errors.New("no object: " + id)
-	} else if c, ok := obj.(*game.Card); !ok {
+	} else if c, ok := obj.(*card.T); !ok {
 		return nil, errors.New("not card: " + id)
 	} else if s := g.GetSeat(c.Username); s == nil {
 		return nil, errors.New("no seat")

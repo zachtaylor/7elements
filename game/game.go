@@ -1,13 +1,11 @@
 package game
 
 import (
-	"sync"
-
-	"ztaylor.me/cast/charset"
-
 	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/chat"
 	"ztaylor.me/cast"
+	"ztaylor.me/cast/charset"
 	"ztaylor.me/keygen"
 	"ztaylor.me/log"
 )
@@ -15,7 +13,7 @@ import (
 type T struct {
 	id      string
 	in      chan *Request
-	lock    sync.Mutex
+	lock    cast.Mutex
 	chat    *chat.Room
 	close   chan bool
 	Objects map[string]interface{}
@@ -118,14 +116,14 @@ func (game *T) Register(deck *vii.AccountDeck) *Seat {
 	deckSize := 0
 
 	for cardid, copies := range deck.Cards {
-		card, _ := game.Runtime.Root.Cards.Get(cardid)
-		if card == nil {
+		proto, _ := game.Runtime.Root.Cards.Get(cardid)
+		if proto == nil {
 			log.Copy().Add("CardId", cardid).Warn("register: card missing")
 			return nil
 		}
 
 		for i := 0; i < copies; i++ {
-			card := NewCard(card)
+			card := card.New(proto)
 			card.Username = deck.Username
 			game.RegisterCard(card)
 			seat.Deck.Append(card)
@@ -151,7 +149,7 @@ func (game *T) RegisterObjectKey() (key string) {
 	return
 }
 
-func (game *T) RegisterCard(card *Card) {
+func (game *T) RegisterCard(card *card.T) {
 	key := game.RegisterObjectKey()
 	card.ID = key
 	game.Objects[key] = card

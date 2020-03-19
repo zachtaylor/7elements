@@ -32,7 +32,7 @@ func (ai *AI) NewPlans() []Plan {
 	return plans
 }
 
-func (ai *AI) plansFromHand(c *game.Card) []Plan {
+func (ai *AI) plansFromHand(c *card.T) []Plan {
 	switch c.Proto.Type {
 	case card.BodyType:
 		if ai.Game.State.Name() != "main" || ai.Game.State.R.Seat() != ai.Seat.Username {

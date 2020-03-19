@@ -1,6 +1,7 @@
 package scripts
 
 import (
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/trigger"
@@ -22,7 +23,7 @@ func CloningPool(g *game.T, s *game.Seat, me interface{}, args []interface{}) (e
 	} else if token == nil {
 		return nil, ErrBadTarget
 	} else {
-		card := game.NewCard(token.Card.Proto)
+		card := card.New(token.Card.Proto)
 		card.Username = token.Username
 		token, events = trigger.Spawn(g, s, card)
 		token.Body.Health = 1

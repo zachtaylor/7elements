@@ -1,6 +1,7 @@
 package ai
 
 import (
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/power"
 )
@@ -44,7 +45,7 @@ func (ai *AI) ScoreTokenPower(t *game.Token, p *power.T) (target interface{}, sc
 }
 
 // ScoreCardPower picks best Target for given Card and Power, and returns score for the choice
-func (ai *AI) ScoreCardPower(card *game.Card, p *power.T) (target interface{}, score int) {
+func (ai *AI) ScoreCardPower(card *card.T, p *power.T) (target interface{}, score int) {
 	switch card.Proto.ID {
 	case 9:
 		target, score = ai.TargetEnemyBeing("damage")

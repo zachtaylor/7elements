@@ -9,19 +9,19 @@ import (
 // Token is an in-play game object
 type Token struct {
 	ID       string
-	Card     *Card
+	Card     *card.T
 	Username string
 	IsAwake  bool
 	Body     *card.Body
 	Powers   power.Set
 }
 
-func NewToken(card *Card, username string) *Token {
+func NewToken(c *card.T, username string) *Token {
 	return &Token{
-		Card:     card,
+		Card:     c,
 		Username: username,
-		Body:     card.Proto.Body.Copy(),
-		Powers:   card.Proto.Powers.Copy(),
+		Body:     c.Proto.Body.Copy(),
+		Powers:   c.Proto.Powers.Copy(),
 	}
 }
 

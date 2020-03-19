@@ -26,7 +26,7 @@ var callthebannersTokenCardProto = &card.Prototype{
 }
 
 func CallTheBanners(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	card := game.NewCard(callthebannersTokenCardProto)
+	card := card.New(callthebannersTokenCardProto)
 	card.Username = s.Username
 	for i := 0; i < 3; i++ {
 		_, e := trigger.Spawn(g, s, card)
