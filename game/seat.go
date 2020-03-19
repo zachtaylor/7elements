@@ -3,6 +3,7 @@ package game
 import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/card"
+	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/element"
 	"ztaylor.me/cast"
 )
@@ -10,7 +11,7 @@ import (
 type Seat struct {
 	Username string
 	Life     int
-	Deck     *Deck
+	Deck     *deck.T
 	Karma    element.Karma
 	Hand     card.Set
 	Present  Tokens

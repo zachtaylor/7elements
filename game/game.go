@@ -4,6 +4,7 @@ import (
 	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/chat"
+	"github.com/zachtaylor/7elements/deck"
 	"ztaylor.me/cast"
 	"ztaylor.me/cast/charset"
 	"ztaylor.me/keygen"
@@ -100,22 +101,22 @@ func (game *T) GetOpponentSeat(name string) *Seat {
 	return nil
 }
 
-func (game *T) Register(deck *vii.AccountDeck) *Seat {
-	log := game.Log().Add("Username", deck.Username)
+func (game *T) Register(ad *vii.AccountDeck) *Seat {
+	log := game.Log().Add("Username", ad.Username)
 
-	if game.Seats[deck.Username] != nil {
+	if game.Seats[ad.Username] != nil {
 		log.Warn("register: username already registered")
 		return nil
 	}
 
 	seat := game.NewSeat()
-	seat.Deck = NewDeck()
-	seat.Username = deck.Username
-	seat.Deck.Username = deck.Username
-	seat.Deck.AccountDeckID = deck.ID
+	seat.Deck = deck.New()
+	seat.Username = ad.Username
+	seat.Deck.Username = ad.Username
+	seat.Deck.AccountDeckID = ad.ID
 	deckSize := 0
 
-	for cardid, copies := range deck.Cards {
+	for cardid, copies := range ad.Cards {
 		proto, _ := game.Runtime.Root.Cards.Get(cardid)
 		if proto == nil {
 			log.Copy().Add("CardId", cardid).Warn("register: card missing")
@@ -124,7 +125,7 @@ func (game *T) Register(deck *vii.AccountDeck) *Seat {
 
 		for i := 0; i < copies; i++ {
 			card := card.New(proto)
-			card.Username = deck.Username
+			card.Username = ad.Username
 			game.RegisterCard(card)
 			seat.Deck.Append(card)
 		}
@@ -132,7 +133,7 @@ func (game *T) Register(deck *vii.AccountDeck) *Seat {
 	}
 
 	game.Seats[seat.Username] = seat
-	log.Add("DeckSize", deckSize).Add("Cards", deck.Cards).Debug("registered seat")
+	log.Add("DeckSize", deckSize).Add("Cards", ad.Cards).Debug("registered seat")
 	return seat
 }
 

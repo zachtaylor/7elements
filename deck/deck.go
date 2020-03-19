@@ -1,23 +1,26 @@
-package game
+package deck
 
 import (
 	"github.com/cznic/mathutil"
 	"github.com/zachtaylor/7elements/card"
 )
 
-type Deck struct {
+// T is a Deck
+type T struct {
 	Username      string
 	AccountDeckID int
 	Cards         []*card.T
 }
 
-func NewDeck() *Deck {
-	return &Deck{
+// New returns a new Deck
+func New() *T {
+	return &T{
 		Cards: make([]*card.T, 0),
 	}
 }
 
-func (deck *Deck) Draw() *card.T {
+// Draw removes the top card of the Deck and returns it
+func (deck *T) Draw() *card.T {
 	if len(deck.Cards) < 1 {
 		return nil
 	}
@@ -26,15 +29,18 @@ func (deck *Deck) Draw() *card.T {
 	return card
 }
 
-func (deck *Deck) Prepend(c *card.T) {
+// Prepend places a Card on top of the Deck
+func (deck *T) Prepend(c *card.T) {
 	deck.Cards = append([]*card.T{c}, deck.Cards...)
 }
 
-func (deck *Deck) Append(c *card.T) {
+// Append places a Card on bottom of the Deck
+func (deck *T) Append(c *card.T) {
 	deck.Cards = append(deck.Cards, c)
 }
 
-func (deck *Deck) Shuffle() {
+// Shuffle randomizes the order of Cards in the Deck
+func (deck *T) Shuffle() {
 	shuffleRandom, _ := mathutil.NewFC32(0, len(deck.Cards)-1, true)
 	cp := make([]*card.T, len(deck.Cards))
 	for i := 0; i < len(deck.Cards); i++ {
