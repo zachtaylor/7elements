@@ -12,7 +12,7 @@ import (
 type Runtime struct {
 	Logger        log.Service
 	Accounts      account.Service
-	AccountsCards AccountCardService
+	AccountsCards account.CardService
 	AccountsDecks AccountDeckService
 	Cards         card.PrototypeService
 	Decks         deck.PrototypeService
