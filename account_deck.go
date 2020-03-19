@@ -3,6 +3,7 @@ package vii
 import (
 	"time"
 
+	"github.com/zachtaylor/7elements/deck"
 	"ztaylor.me/cast"
 )
 
@@ -22,14 +23,14 @@ func NewAccountDeck() *AccountDeck {
 	}
 }
 
-func NewAccountDeckWith(deck *Deck, username string) *AccountDeck {
+func NewAccountDeckWith(proto *deck.Prototype, username string) *AccountDeck {
 	ad := NewAccountDeck()
-	ad.ID = -deck.ID
-	ad.Name = deck.Name
+	ad.ID = -proto.ID
+	ad.Name = proto.Name
 	ad.Username = username
 	ad.Register = time.Now()
 	ad.Cards = make(map[int]int)
-	for k, v := range deck.Cards {
+	for k, v := range proto.Cards {
 		ad.Cards[k] = v
 	}
 	return ad

@@ -1,11 +1,11 @@
 package db
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/deck"
 	"ztaylor.me/db"
 )
 
-func NewDeckService(db *db.DB) vii.DeckService {
+func NewDeckService(db *db.DB) deck.PrototypeService {
 	return &DeckService{
 		conn: db,
 	}
@@ -13,7 +13,7 @@ func NewDeckService(db *db.DB) vii.DeckService {
 
 type DeckService struct {
 	conn  *db.DB
-	cache vii.Decks
+	cache deck.Prototypes
 }
 
 func (ds *DeckService) Start() error {
@@ -23,8 +23,8 @@ func (ds *DeckService) Start() error {
 		return err
 	} else {
 		for deckid, cards := range deckscards {
-			if deck := decks[deckid]; deck != nil {
-				deck.Cards = cards
+			if d := decks[deckid]; d != nil {
+				d.Cards = cards
 			}
 		}
 		ds.cache = decks
@@ -32,17 +32,17 @@ func (ds *DeckService) Start() error {
 	return nil
 }
 
-func (ds *DeckService) reloadDecks() (vii.Decks, error) {
-	decks := make(vii.Decks)
+func (ds *DeckService) reloadDecks() (deck.Prototypes, error) {
+	decks := make(deck.Prototypes)
 	rows, err := ds.conn.Query("SELECT id, name, cover FROM decks")
 	if err != nil {
 		return decks, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		deck := &vii.Deck{}
-		if err = rows.Scan(&deck.ID, &deck.Name, &deck.CoverID); err == nil {
-			decks[deck.ID] = deck
+		d := &deck.Prototype{}
+		if err = rows.Scan(&d.ID, &d.Name, &d.CoverID); err == nil {
+			decks[d.ID] = d
 		} else {
 			break
 		}
@@ -70,14 +70,14 @@ func (ds *DeckService) reloadDecksCards() (map[int]map[int]int, error) {
 	return deckscards, err
 }
 
-func (ds *DeckService) GetAll() (vii.Decks, error) {
+func (ds *DeckService) GetAll() (deck.Prototypes, error) {
 	if ds.cache == nil {
 		ds.Start()
 	}
 	return ds.cache, nil
 }
 
-func (ds *DeckService) Get(id int) (*vii.Deck, error) {
+func (ds *DeckService) Get(id int) (*deck.Prototype, error) {
 	decks, err := ds.GetAll()
 	if decks == nil {
 		return nil, err
