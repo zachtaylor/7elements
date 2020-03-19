@@ -175,7 +175,7 @@ func (cs *CardService) scanCard(scanner db.Scanner) (*card.Prototype, error) {
 		return nil, err
 	}
 
-	if t := card.Type(typebuff); t.String() != "error" {
+	if t := card.Type(typebuff); t.String() == "error" {
 		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", typebuff))
 	} else {
 		c.Type = t
