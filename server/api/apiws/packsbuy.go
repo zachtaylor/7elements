@@ -1,7 +1,7 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/gencardpack"
+	"github.com/zachtaylor/7elements/account"
 	"ztaylor.me/cast"
 	"ztaylor.me/http/websocket"
 )
@@ -15,8 +15,8 @@ func PacksBuy(rt *Runtime) websocket.Handler {
 			return
 		}
 		log := rt.Runtime.Root.Logger.New().Add("User", socket.Session.Name()).Tag("apiws/packsbuy")
-		account, err := rt.Runtime.Root.Accounts.Find(socket.Session.Name())
-		if account == nil {
+		a, err := rt.Runtime.Root.Accounts.Find(socket.Session.Name())
+		if a == nil {
 			log.Add("Error", err).Error("account missing")
 			socket.Message("/error", cast.JSON{
 				"error": "account missing",
@@ -24,7 +24,7 @@ func PacksBuy(rt *Runtime) websocket.Handler {
 			return
 		}
 
-		acs, err := rt.Runtime.Root.AccountsCards.Get(account.Username)
+		acs, err := rt.Runtime.Root.AccountsCards.Get(a.Username)
 		if acs == nil {
 			log.Add("Error", err).Error("account collection missing")
 			socket.Message("/error", cast.JSON{
@@ -52,7 +52,7 @@ func PacksBuy(rt *Runtime) websocket.Handler {
 			return
 		}
 
-		if account.Coins < pack.Cost {
+		if a.Coins < pack.Cost {
 			log.Warn("insufficient")
 			socket.Message("/error", cast.JSON{
 				"error": "you don't have enough coins",
@@ -60,11 +60,17 @@ func PacksBuy(rt *Runtime) websocket.Handler {
 			return
 		}
 
-		account.Coins -= pack.Cost
-		rt.Runtime.Root.Accounts.UpdateCoins(account)
+		a.Coins -= pack.Cost
+		rt.Runtime.Root.Accounts.UpdateCoins(a)
 
-		cards := gencardpack.NewPack(rt.Runtime.Root, account.Username, pack)
-		for _, card := range cards {
+		cardIDs := pack.NewPack()
+		now := cast.Now()
+		for _, cardID := range cardIDs {
+			card := &account.Card{
+				Username: a.Username,
+				ProtoID:  cardID,
+				Register: now,
+			}
 			if err := rt.Runtime.Root.AccountsCards.InsertCard(card); err != nil {
 				log.Add("Error", err).Error("insertcard")
 				socket.Message("/error", cast.JSON{
@@ -73,7 +79,7 @@ func PacksBuy(rt *Runtime) websocket.Handler {
 				return
 			}
 		}
-		log.Add("Cards", cards).Info()
-		socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(account.Username))
+		log.Add("Cards", cardIDs).Info()
+		socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(a.Username))
 	})
 }

@@ -1,11 +1,11 @@
 package db
 
 import (
-	vii "github.com/zachtaylor/7elements"
+	"github.com/zachtaylor/7elements/card/pack"
 	"ztaylor.me/db"
 )
 
-func NewPackService(db *db.DB) vii.PackService {
+func NewPackService(db *db.DB) pack.Service {
 	return &PackService{
 		conn: db,
 	}
@@ -13,7 +13,7 @@ func NewPackService(db *db.DB) vii.PackService {
 
 type PackService struct {
 	conn  *db.DB
-	cache vii.Packs
+	cache pack.Prototypes
 }
 
 func (ps *PackService) Start() error {
@@ -36,15 +36,15 @@ func (ps *PackService) Start() error {
 	return nil
 }
 
-func (ps *PackService) reloadPacks() (vii.Packs, error) {
-	packs := make(vii.Packs)
+func (ps *PackService) reloadPacks() (pack.Prototypes, error) {
+	packs := make(pack.Prototypes)
 	rows, err := ps.conn.Query(`SELECT id, name, size, cost, image FROM packs`)
 	if err != nil {
 		return packs, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		pack := vii.NewPack()
+		pack := pack.NewPrototype()
 		if err = rows.Scan(&pack.ID, &pack.Name, &pack.Size, &pack.Cost, &pack.Image); err == nil {
 			packs[pack.ID] = pack
 		} else {
@@ -54,15 +54,15 @@ func (ps *PackService) reloadPacks() (vii.Packs, error) {
 	return packs, err
 }
 
-func (ps *PackService) reloadPacksCards() ([]*vii.PackChance, error) {
-	packscards := make([]*vii.PackChance, 0)
+func (ps *PackService) reloadPacksCards() ([]*pack.Chance, error) {
+	packscards := make([]*pack.Chance, 0)
 	rows, err := ps.conn.Query(`SELECT packid, cardid, weight FROM packs_cards`)
 	if err != nil {
 		return packscards, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		chance := &vii.PackChance{}
+		chance := &pack.Chance{}
 		if err = rows.Scan(&chance.PackID, &chance.CardID, &chance.Weight); err == nil {
 			packscards = append(packscards, chance)
 		} else {
@@ -72,7 +72,7 @@ func (ps *PackService) reloadPacksCards() ([]*vii.PackChance, error) {
 	return packscards, err
 }
 
-func (ps *PackService) Get(id int) (*vii.Pack, error) {
+func (ps *PackService) Get(id int) (*pack.Prototype, error) {
 	packs, err := ps.GetAll()
 	if packs == nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (ps *PackService) Get(id int) (*vii.Pack, error) {
 	return packs[id], err
 }
 
-func (ps *PackService) GetAll() (vii.Packs, error) {
+func (ps *PackService) GetAll() (pack.Prototypes, error) {
 	if ps.cache == nil {
 		ps.Start()
 	}

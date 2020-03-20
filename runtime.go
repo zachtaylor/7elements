@@ -3,6 +3,7 @@ package vii
 import (
 	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/card"
+	"github.com/zachtaylor/7elements/card/pack"
 	"github.com/zachtaylor/7elements/deck"
 	"ztaylor.me/cast"
 	"ztaylor.me/log"
@@ -16,7 +17,7 @@ type Runtime struct {
 	AccountsDecks account.DeckService
 	Cards         card.PrototypeService
 	Decks         deck.PrototypeService
-	Packs         PackService
+	Packs         pack.Service
 }
 
 func (rt *Runtime) SendAccountUpdate(sender func(cast.JSON), name string) {
