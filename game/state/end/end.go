@@ -77,7 +77,7 @@ func (event *EndStater) Finish(g *game.T) []game.Stater {
 		} else if rcv := seat.Receiver; rcv == nil {
 			log.Copy().Add("Error", err).Add("Username", username).Error("no receiver")
 		} else {
-			g.Runtime.Root.SendAccountUpdate(seat.WriteJSON, account.Username)
+			seat.WriteJSON(g.Runtime.Root.AccountJSON(account))
 		}
 	}
 
@@ -96,7 +96,7 @@ func (event *EndStater) Finish(g *game.T) []game.Stater {
 		if err = g.Runtime.Root.Accounts.UpdateCoins(account); err != nil {
 			log.Add("Error", err).Error("account service error")
 		}
-		g.Runtime.Root.SendAccountUpdate(seat.WriteJSON, account.Username)
+		seat.WriteJSON(g.Runtime.Root.AccountJSON(account))
 	}
 	g.Close()
 	return nil

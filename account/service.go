@@ -8,7 +8,7 @@ type Service interface {
 	Cache(*T)
 	// Forget uncaches an account
 	Forget(string)
-	// Find uses Test/Get/Cache best effort to provide account
+	// Find uses Test/Get&Cache best effort to provide account
 	Find(string) (*T, error)
 	// Get loads an account from back end
 	Get(string) (*T, error)

@@ -16,7 +16,7 @@ func connect(rt *Runtime, socket *websocket.T) {
 		rt.Runtime.Root.Logger.New().Source().Debug("no session")
 		return
 	}
-	socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(socket.Session.Name()))
+	socket.Message("/myaccount", rt.Runtime.Root.FindAccountJSON(socket.Session.Name()))
 	go _connectSessionWaiter(rt, socket)
 	connectgame(rt, socket)
 }

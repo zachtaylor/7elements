@@ -80,6 +80,6 @@ func PacksBuy(rt *Runtime) websocket.Handler {
 			}
 		}
 		log.Add("Cards", cardIDs).Info()
-		socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(a.Username))
+		socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(a))
 	})
 }

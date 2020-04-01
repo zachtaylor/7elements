@@ -11,7 +11,7 @@ func LogoutHandler(rt *Runtime) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := rt.Root.Logger.New().Tag("api/logout").Add("Addr", r.RemoteAddr)
 
-		if session := rt.Sessions.Cookie(r); session != nil {
+		if session, _ := rt.Sessions.Cookie(r); session != nil {
 			log.Debug("revoking")
 			rt.Sessions.Remove(session)
 			rt.Root.Accounts.Forget(session.Name())

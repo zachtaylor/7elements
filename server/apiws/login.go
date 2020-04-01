@@ -1,8 +1,9 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/server/api"
+	"github.com/zachtaylor/7elements/server/internal"
 	"ztaylor.me/cast"
+	"ztaylor.me/cast/charset"
 	"ztaylor.me/http/websocket"
 )
 
@@ -24,7 +25,7 @@ func login(rt *Runtime, socket *websocket.T, m *websocket.Message) {
 			"error": "username missing",
 		})
 		log.Warn("username missing")
-	} else if !api.CheckUsername(username) {
+	} else if !cast.InCharset(username, charset.AlphaCapitalNumeric) {
 		socket.Message("/error", cast.JSON{
 			"error": "username not allowed: " + username,
 		})
@@ -34,12 +35,12 @@ func login(rt *Runtime, socket *websocket.T, m *websocket.Message) {
 			"error": "account missing",
 		})
 		log.Add("Error", err).Error("account missing")
-	} else if password := api.HashPassword(m.Data.GetS("password"), rt.Runtime.Salt); password != account.Password {
+	} else if password := internal.HashPassword(m.Data.GetS("password"), rt.Runtime.Salt); password != account.Password {
 		socket.Message("/error", cast.JSON{
 			"error": "wrong password",
 		})
 		log.Add("Error", err).Error("wrong password")
-	} else if s, err := api.Login(rt.Runtime, account); s == nil {
+	} else if s, err := internal.Login(rt.Runtime.Root, rt.Runtime.Sessions, account); s == nil {
 		socket.Message("/error", cast.JSON{
 			"error": "(500) login failed", // censored
 		})

@@ -24,7 +24,7 @@ func Game(rt *Runtime) websocket.Handler {
 		} else if uri == "" {
 			log.Warn("uri missing")
 		} else {
-			socket.Session.UpdateTime()
+			socket.Session.Refresh()
 			g.Request(socket.Session.Name(), uri, m.Data)
 		}
 	})

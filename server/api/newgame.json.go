@@ -12,7 +12,7 @@ import (
 func NewGameHandler(rt *Runtime) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := rt.Root.Logger.New().Tag("api/newgame")
-		session := rt.Sessions.Cookie(r)
+		session, _ := rt.Sessions.Cookie(r)
 		if session == nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			log.Add("RemoteAddr", r.RemoteAddr).Warn("session required")

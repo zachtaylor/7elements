@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/zachtaylor/7elements/server/api"
-	"github.com/zachtaylor/7elements/server/api/apiws"
+	"github.com/zachtaylor/7elements/server/apiws"
 	"ztaylor.me/cast"
 	"ztaylor.me/http/handler"
 	"ztaylor.me/http/mux"

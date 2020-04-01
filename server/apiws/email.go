@@ -31,6 +31,6 @@ func email(rt *Runtime, socket *websocket.T, m *websocket.Message) {
 		if err := rt.Runtime.Root.Accounts.UpdateEmail(account); err != nil {
 			update.ErrorSock(socket, "email change", err.Error())
 		}
-		socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(account.Username))
+		socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(account))
 	}
 }
