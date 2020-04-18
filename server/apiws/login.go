@@ -51,6 +51,7 @@ func login(rt *Runtime, socket *websocket.T, m *websocket.Message) {
 		socket.Session = s
 		redirect(socket, "/")
 		connect(rt, socket)
+		go rt.SendPing()
 	}
 }
 

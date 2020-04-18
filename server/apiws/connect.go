@@ -6,8 +6,8 @@ func Connect(rt *Runtime) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, _ *websocket.Message) {
 		rt.Runtime.Root.Logger.New().Add("Socket", socket).Source().Info()
 		rt.Runtime.Ping.Add()
-		go ping(rt)
 		connect(rt, socket)
+		go rt.SendPing()
 	})
 }
 

@@ -24,7 +24,7 @@ func Signup(rt *Runtime) websocket.Handler {
 		} else if account, session, err := internal.Signup(rt.Runtime.Root, rt.Runtime.Sessions, username, email, password1); err != nil {
 			log.Add("Error", err).Error("signup failed")
 		} else {
-			go ping(rt)
+			go rt.SendPing()
 			redirect(socket, "/")
 			socket.Session = session
 			socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(account))

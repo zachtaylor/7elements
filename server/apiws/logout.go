@@ -9,7 +9,7 @@ func Logout(rt *Runtime) websocket.Handler {
 			rt.Runtime.Root.Logger.New().Add("Socket", socket).Source().Debug("close")
 			rt.Runtime.Sessions.Remove(socket.Session)
 			socket.Session = nil
-			go ping(rt)
+			go rt.SendPing()
 		} else {
 			rt.Runtime.Root.Logger.New().Add("Socket", socket).Source().Warn("cookie missing")
 		}
