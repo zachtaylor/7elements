@@ -1,14 +1,10 @@
 package game
 
-import (
-	"time"
-
-	"ztaylor.me/cast"
-)
+import "ztaylor.me/cast"
 
 type State struct {
 	id     string
-	Timer  time.Duration
+	Timer  cast.Duration
 	Reacts map[string]string
 	R      Stater
 	Stack  *State

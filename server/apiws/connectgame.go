@@ -11,7 +11,7 @@ func connectgame(rt *Runtime, socket *websocket.T) {
 	} else if seat := g.GetSeat(socket.Session.Name()); seat == nil || seat.Receiver != nil {
 		log.Source().Warn("no game")
 	} else {
-		log.Add("GameID", g.ID).Source().Debug()
+		log.Add("GameID", g.ID()).Source().Debug()
 		seat.Receiver = &WebsocketReceiver{socket}
 		chat := g.GetChat()
 		go g.Request(seat.Username, "connect", nil)

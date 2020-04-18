@@ -3,11 +3,11 @@ package engine
 import "github.com/zachtaylor/7elements/game"
 
 func finish(g *game.T) []game.Stater {
-	log := g.Log().Add("State", g.State).Source()
+	log := g.Log().Add("State", g.State)
 	if finisher, _ := g.State.R.(game.FinishStater); finisher != nil {
-		log.Debug()
+		log.Source().Debug()
 		return finisher.Finish(g)
 	}
-	log.Debug("empty")
+	log.Source().Debug("empty")
 	return nil
 }

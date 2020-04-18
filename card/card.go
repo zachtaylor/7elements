@@ -20,10 +20,10 @@ func (c *T) String() string {
 		return `<nil>`
 	}
 	return cast.StringN(
-		`{`,
+		`card.T{`,
 		c.ID,
-		` card:`, c.Proto.String(),
-		` user:`, c.Username,
+		`card:`, c.Proto.String(),
+		`user:`, c.Username,
 		`}`,
 	)
 }

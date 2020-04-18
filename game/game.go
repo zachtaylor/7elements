@@ -83,6 +83,33 @@ func (game *T) Monitor() <-chan *Request {
 	return game.in
 }
 
+// GetCloser returns the game open chan
+func (game *T) Done() chan bool {
+	return game.close
+}
+
+// Close ends the game, freeing resources
+func (game *T) Close() {
+	game.Runtime.logger.New().
+		// With(log.Fields{}).
+		Info("close") // add fields later
+	game.lock.Lock()
+	close(game.in)
+	game.in = nil
+	close(game.close)
+	game.close = nil
+	game.lock.Unlock()
+	game.chat.Destroy()
+	game.Runtime.logger.Close()
+}
+
+// WriteJSON calls WriteJSON(data) for all game seats
+func (game *T) WriteJSON(json cast.JSON) {
+	for _, seat := range game.Seats {
+		seat.WriteJSON(json)
+	}
+}
+
 func (game *T) GetSeat(name string) *Seat {
 	for k, seat := range game.Seats {
 		if k == name {
@@ -160,33 +187,6 @@ func (game *T) RegisterToken(token *Token) {
 	key := game.RegisterObjectKey()
 	token.ID = key
 	game.Objects[key] = token
-}
-
-// GetCloser returns the game open chan
-func (game *T) Done() chan bool {
-	return game.close
-}
-
-// Close ends the game, freeing resources
-func (game *T) Close() {
-	game.Runtime.logger.New().
-		// With(log.Fields{}).
-		Info("close") // add fields later
-	game.lock.Lock()
-	close(game.in)
-	game.in = nil
-	close(game.close)
-	game.close = nil
-	game.lock.Unlock()
-	game.chat.Destroy()
-	game.Runtime.logger.Close()
-}
-
-// WriteJSON calls WriteJSON(data) for all game seats
-func (game *T) WriteJSON(json cast.JSON) {
-	for _, seat := range game.Seats {
-		seat.WriteJSON(json)
-	}
 }
 
 // JSON returns JSON representation of a game

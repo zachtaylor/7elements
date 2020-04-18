@@ -9,7 +9,7 @@ import (
 	"ztaylor.me/log"
 )
 
-// Runtime (game) refers for the engine
+// Runtime (game) references for the engine
 type Runtime struct {
 	Root    *vii.Runtime
 	Service Service
@@ -19,8 +19,8 @@ type Runtime struct {
 }
 
 // NewRuntime creates a new game.Runtime from base Runtime
-func NewRuntime(root *vii.Runtime, service Service, timeout time.Duration, w cast.WriteCloser, chat chat.Service) *Runtime {
-	logger := log.NewService(log.LevelDebug, log.DefaultFormatWithoutColor(), w)
+func NewRuntime(root *vii.Runtime, service Service, timeout time.Duration, logWriter cast.WriteCloser, chat chat.Service) *Runtime {
+	logger := log.NewService(log.LevelDebug, log.DefaultFormatWithoutColor(), logWriter)
 	logger.Formatter().CutSourcePath(0)
 	return &Runtime{
 		Root:    root,
