@@ -4,24 +4,22 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/zachtaylor/7elements/server/runtime"
 	httpsessions "ztaylor.me/http/session"
 )
 
-func LogoutHandler(rt *Runtime) http.Handler {
+func LogoutHandler(t *runtime.T) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := rt.Root.Logger.New().Tag("api/logout").Add("Addr", r.RemoteAddr)
+		log := t.Log().Tag("api/logout").Add("Addr", r.RemoteAddr)
 
-		if session, _ := rt.Sessions.Cookie(r); session != nil {
+		if session, _ := t.Sessions.Cookie(r); session != nil {
 			log.Debug("revoking")
-			rt.Sessions.Remove(session)
-			rt.Root.Accounts.Forget(session.Name())
-			rt.Root.AccountsCards.Forget(session.Name())
-			rt.Root.AccountsDecks.Forget(session.Name())
+			session.Close()
 		} else {
 			log.Warn("cookie missing")
 		}
 
-		httpsessions.EraseSessionID(w)
+		httpsessions.EraseSessionID(w, !t.Settings.Devenv)
 		w.Write([]byte(fmt.Sprintf(redirectHomeTpl, "Logout Success")))
 	})
 }

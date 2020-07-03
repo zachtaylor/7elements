@@ -86,7 +86,24 @@ export class GameService {
     let game = this.data$.value
     if (game) game.state = data
     this.data$.next(game)
-    this.overlay$.next(null)
+
+    // overlay
+    if (game.state.name == 'target' && game.state.seat == game.username) {
+      let me = this
+      let overlay = new Overlay(data.data.text, null)
+      overlay.important = true
+      overlay.target = data.data.helper
+      overlay.targetF = function (val: any) {
+        me.ws.send('/game', {
+          'gameid': game.id,
+          'uri': game.state.id,
+          'target': val,
+        })
+      }
+      this.overlay$.next(overlay)
+    } else {
+      this.overlay$.next(null)
+    }
   }
 
   serveSeat(data: any) {

@@ -4,7 +4,7 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const SymbiosisID = "symbiosis"
@@ -21,11 +21,11 @@ func Symbiosis(g *game.T, s *game.Seat, me interface{}, args []interface{}) (eve
 		func(val string) []game.Stater {
 			token, err := target.PresentBeing(g, s, val)
 			if err != nil {
-				g.Log().Source().Add("Error", err).Error()
+				g.Log().Add("Error", err).Error()
 			} else {
-				g.Log().Source().Add("Token", token.String()).Info()
+				g.Log().Add("Token", token.String()).Info()
 				token.Body.Attack++
-				update.Token(g, token)
+				out.GameToken(g, token.JSON())
 			}
 			return nil
 		},

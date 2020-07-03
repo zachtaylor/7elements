@@ -19,6 +19,7 @@ func email(rt *Runtime, socket *websocket.T, m *websocket.Message) {
 	session := socket.Session
 	if session == nil {
 		update.ErrorSock(socket, "email change", "no session")
+
 	} else if account := rt.Runtime.Root.Accounts.Test(session.Name()); account == nil {
 		update.ErrorSock(socket, "email change", "no account")
 	} else if newemail := m.Data.GetS("email"); newemail == "" {

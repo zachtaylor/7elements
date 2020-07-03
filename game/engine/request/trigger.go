@@ -2,9 +2,8 @@ package request
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	pkg_state "github.com/zachtaylor/7elements/game/state"
+	"github.com/zachtaylor/7elements/out"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
 	"ztaylor.me/cast"
 )
 
@@ -15,54 +14,33 @@ func trigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
 
 	token, err := target.MyPresent(g, seat, json.GetS("id"))
 	if err != nil {
-		log.Source().Add("Error", err).Source().Error()
-		update.ErrorW(seat, "trigger", err.Error())
+		log.Add("Error", err).Error()
+		out.GameError(seat.Player, "trigger", err.Error())
 		return nil
 	}
 
 	powerid := json.GetI("powerid")
 	if powerid < 1 {
-		log.Source().Error("powerid missing")
+		log.Error("powerid missing")
 		return nil
 	}
 	log.Add("PowerId", powerid)
 
 	power := token.Powers[powerid]
 	if power == nil {
-		log.Source().Error("powerid not found")
+		log.Error("powerid not found")
 		return nil
 	} else if !token.IsAwake && power.UsesTurn {
-		update.ErrorW(seat, token.Card.Proto.Name, `not awake`)
-		log.Source().Error("card is asleep")
+		log.Error("card is asleep")
+		out.GameError(seat.Player, token.Card.Proto.Name, `not awake`)
 		return nil
 	} else if !seat.Karma.Active().Test(power.Costs) {
-		update.ErrorW(seat, token.Card.Proto.Name, `not enough elements`)
-		log.Add("Costs", power.Costs).Source().Error("cannot afford")
+		log.Add("Costs", power.Costs).Error("cannot afford")
+		out.GameError(seat.Player, token.Card.Proto.Name, `not enough elements`)
 		return nil
 	}
 
-	// exec
-	log.Add("Token", token).Add("Power", power).Source().Debug()
-
-	dirty := false
-	if power.Costs.Total() > 0 {
-		dirty = true
-		seat.Karma.Deactivate(power.Costs)
-	}
-	if power.UsesTurn {
-		token.IsAwake = false
-		update.Token(g, token)
-	}
-	if power.UsesKill {
-		dirty = true
-		delete(seat.Present, token.ID)
-	}
-	if dirty {
-		update.Seat(g, seat)
-	}
-
-	if power.Target == "self" {
-		return []game.Stater{pkg_state.NewTrigger(seat.Username, token, power, token)}
-	}
-	return []game.Stater{pkg_state.NewTrigger(seat.Username, token, power, json["target"])}
+	// approved
+	log.Add("Token", token).Add("Power", power).Trace()
+	return g.Runtime.Engine.TriggerTokenPower(g, seat, token, power, json["target"])
 }

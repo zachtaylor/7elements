@@ -1,12 +1,15 @@
 package game
 
-import "ztaylor.me/cast"
+import (
+	"github.com/zachtaylor/7elements/out"
+	"ztaylor.me/cast"
+)
 
 type State struct {
 	id     string
+	r      Stater
 	Timer  cast.Duration
 	Reacts map[string]string
-	R      Stater
 	Stack  *State
 }
 
@@ -15,16 +18,100 @@ func (s *State) ID() string {
 }
 
 func (s *State) Name() string {
-	return s.R.Name()
+	return s.r.Name()
+}
+
+func (s *State) Seat() string {
+	return s.r.Seat()
+}
+
+func (s *State) GetNextStater(game *T) Stater {
+	return s.r.GetNext(game)
+}
+
+func (s *State) Connect(game *T, seat *Seat) {
+	log := game.Log().With(cast.JSON{
+		"State": game.State,
+		"Seat":  seat,
+	}).Tag("connect")
+	// out.GameData(s.Player, g, s)
+	if connector, ok := s.r.(ConnectStater); ok {
+		connector.OnConnect(game, seat)
+		log.Trace()
+	} else {
+		log.Trace("none")
+	}
+}
+
+func (s *State) Disconnect(game *T, seat *Seat) {
+	log := game.Log().With(cast.JSON{
+		"State": game.State,
+		"Seat":  seat,
+	}).Tag("disconnect")
+
+	if disconnector, ok := s.r.(DisconnectStater); ok {
+		disconnector.OnDisconnect(game, seat)
+		log.Trace()
+	} else {
+		log.Trace("none")
+	}
+}
+
+func (s *State) Activate(game *T) (events []Stater) {
+	log := game.Log().With(cast.JSON{
+		"State": game.State,
+	}).Tag("activate")
+
+	if activator, ok := s.r.(ActivateStater); ok {
+		events = activator.OnActivate(game)
+		log.Trace()
+	} else {
+		log.Trace("none")
+	}
+	s.Reactivate(game)
+	return
+}
+
+func (s *State) Reactivate(game *T) {
+	game.Log().With(cast.JSON{
+		"State": game.State,
+	}).Trace("reactivate")
+	game.State.Timer = game.Settings.Timeout
+	game.State.Reacts = make(map[string]string)
+	out.GameState(game, game.State.JSON())
+	s.Connect(game, nil)
+}
+
+func (s *State) Finish(game *T) (events []Stater) {
+	log := game.Log().With(cast.JSON{
+		"State": game.State,
+	}).Tag("finish")
+
+	if finisher, _ := game.State.r.(FinishStater); finisher != nil {
+		events = finisher.Finish(game)
+		log.Trace()
+	} else {
+		log.Trace("none")
+	}
+	return
+}
+
+func (s *State) Request(game *T, seat *Seat, json cast.JSON) {
+	log := game.Log().With(cast.JSON{
+		"Username": seat.Username,
+		"State":    game.State,
+	})
+
+	if requester, ok := game.State.r.(RequestStater); ok {
+		requester.Request(game, seat, json)
+		log.Trace("ok")
+	} else {
+		log.Trace("none")
+	}
 }
 
 func (s *State) String() string {
-	return `game.State{` + s.Print() + `}`
-}
-
-// Print returns a detailed compressed string representation
-func (s *State) Print() string {
-	return s.R.Name() + `#` + s.id + `(` + s.R.Seat() + `)`
+	return `game.State{#` + s.id + `(` + s.Name() + `:` + s.Seat() + `)` + `}`
 }
 
 // JSON returns a a representation of game state
@@ -35,53 +122,10 @@ func (s *State) JSON() cast.JSON {
 	}
 	return cast.JSON{
 		"id":     s.ID(),
-		"name":   s.R.Name(),
-		"seat":   s.R.Seat(),
-		"data":   s.R.JSON(),
+		"seat":   s.Seat,
+		"name":   s.Name(),
+		"data":   s.r.JSON(),
 		"timer":  int(s.Timer.Seconds()),
 		"reacts": reactsJSON,
 	}
-}
-
-// Stater is a behavior of a State
-type Stater interface {
-	// Name is the refferential name of the game State
-	Name() string
-	// Seat is the priority holder
-	Seat() string
-	// GetNext is called by the engine if state.Stack is unavailable
-	GetNext(*T) Stater
-	// JSON() create a representation of this State's extra data
-	JSON() cast.JSON
-}
-
-// ActivateStater is a Stater that is triggered by the engine activating a State only the 1st time
-type ActivateStater interface {
-	// OnActivate is called by the engine exactly once, when the State is mounted the 1st time
-	OnActivate(*T) []Stater
-}
-
-// ConnectStater is a Stater that is triggered when a player agent (re)connects
-type ConnectStater interface {
-	// OnConnect is called by the engine whenever a Seat (re)joins, and when the
-	// Stater re-mounts, as indicated by OnConnect(*T, nil)
-	OnConnect(*T, *Seat)
-}
-
-// DisconnectStater is a Stater that is triggered when a player agent disconnects
-type DisconnectStater interface {
-	// OnDisconnect is called by the engine whenever a Seat disconnects
-	OnDisconnect(*T, *Seat)
-}
-
-// FinishStater is a Stater that is triggered by the engine finally resolving a State
-type FinishStater interface {
-	// Finish is called by the engine exactly once, after all responses, or timeout
-	Finish(*T) []Stater
-}
-
-// RequestStater is a Stater that is triggered by the engine when a Request targets the game state ID
-type RequestStater interface {
-	// Request is called when a request is sent to this State
-	Request(*T, *Seat, cast.JSON)
 }

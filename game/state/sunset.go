@@ -25,7 +25,7 @@ func (r *Sunset) Name() string {
 func (r *Sunset) OnActivate(g *game.T) []game.Stater {
 	events := make([]game.Stater, 0)
 	for _, seat := range g.Seats {
-		events = append(events, trigger.Name(g, seat, "sunset")...)
+		events = append(events, trigger.AllPresent(g, seat, "sunset")...)
 	}
 	return events
 }
@@ -36,7 +36,7 @@ func _sunsetIsActivateEventer(r *Sunset) game.ActivateStater {
 // OnConnect implements game.ConnectStater
 func (r *Sunset) OnConnect(g *game.T, seat *game.Seat) {
 	if seat == nil {
-		go g.GetChat().AddMessage(chat.NewMessage("sunset", r.Seat()))
+		go g.Settings.Chat.AddMessage(chat.NewMessage("sunset", r.Seat()))
 	}
 }
 func (r *Sunset) _isConnectStater() game.ConnectStater {

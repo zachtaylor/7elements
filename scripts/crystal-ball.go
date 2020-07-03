@@ -3,7 +3,7 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/state"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -31,7 +31,7 @@ func CrystalBall(g *game.T, s *game.Seat, me interface{}, args []interface{}) (e
 			func(val interface{}) {
 				if cast.Bool(val) {
 					s.Deck.Shuffle()
-					update.Seat(g, s)
+					out.GameSeat(g, s.JSON())
 				} else {
 				}
 			},

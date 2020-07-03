@@ -3,26 +3,22 @@ package target
 import (
 	"errors"
 
-	"ztaylor.me/cast"
-
 	"github.com/zachtaylor/7elements/game"
 )
 
-func OtherPresentBeing(g *game.T, seat *game.Seat, token *game.Token, arg interface{}) (*game.Token, error) {
-	if tid, ok := arg.(string); !ok {
-		return nil, errors.New("no tid")
-	} else if t := g.Objects[tid]; t == nil {
-		return nil, errors.New("no token: " + tid)
-	} else if target, ok := t.(*game.Token); !ok {
-		return nil, errors.New("not token: " + cast.String(t))
+func OtherPresentBeing(g *game.T, seat *game.Seat, me_tok *game.Token, arg interface{}) (*game.Token, error) {
+	if id, ok := arg.(string); !ok {
+		return nil, errors.New("no id")
+	} else if target := g.GetToken(id); target == nil {
+		return nil, errors.New("no token: " + id)
 	} else if s := g.GetSeat(target.Username); s == nil {
-		return nil, errors.New("no seat")
+		return nil, errors.New("no seat: " + target.Card.Proto.Name)
 	} else if !s.HasPresent(target.ID) {
-		return nil, errors.New("not present")
+		return nil, errors.New("not present: " + target.Card.Proto.Name)
 	} else if target.Body == nil {
-		return nil, errors.New("not being")
-	} else if target.ID == token.ID {
-		return nil, errors.New("not other")
+		return nil, errors.New("not being: " + target.Card.Proto.Name)
+	} else if me_tok.ID == target.ID {
+		return nil, errors.New("is me: " + target.Card.Proto.Name)
 	} else {
 		return target, nil
 	}

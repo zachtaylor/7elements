@@ -8,21 +8,25 @@ import (
 func InResponse(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Stater {
 	switch uri {
 	case "connect":
-		connect(g, seat)
+		g.State.Connect(g, seat)
 	case "disconnect":
-		disconnect(g, seat)
+		g.State.Disconnect(g, seat)
+	case g.State.ID():
+		g.State.Request(g, seat, json)
 	case "chat":
 		chat(g, seat, json)
 	case "pass":
 		pass(g, seat, json)
-	case g.State.ID():
-		state(g, seat, json)
 	case "trigger":
 		return trigger(g, seat, json)
 	case "play":
 		return play(g, seat, json, true)
 	default:
-		g.Log().Add("Data", json).Source().Warn("404")
+		g.Log().With(cast.JSON{
+			"URI":   uri,
+			"Seat":  seat,
+			"State": g.State,
+		}).Warn("engine/request: 404")
 	}
 	return nil
 }

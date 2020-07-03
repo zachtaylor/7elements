@@ -4,7 +4,7 @@ import (
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -29,10 +29,10 @@ func (r *Combat) Name() string {
 // OnActivate implements game.ActivateStater
 func (r *Combat) OnActivate(g *game.T) []game.Stater {
 	if r.B != nil {
-		go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "vs "+r.B.Card.Proto.Name))
+		go g.Settings.Chat.AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "vs "+r.B.Card.Proto.Name))
 	} else if enemyseat := g.GetOpponentSeat(r.A.Username); enemyseat == nil {
 	} else {
-		go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "vs "+enemyseat.Username))
+		go g.Settings.Chat.AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "vs "+enemyseat.Username))
 	}
 	return nil
 }
@@ -60,11 +60,11 @@ func (r *Combat) Finish(g *game.T) []game.Stater {
 		if e := trigger.Damage(g, r.B, r.A.Body.Attack); e != nil {
 			rs = append(rs, e...)
 		}
-		update.Token(g, r.B)
+		out.GameToken(g, r.B.JSON())
 		if e := trigger.Damage(g, r.A, r.B.Body.Attack); e != nil {
 			rs = append(rs, e...)
 		}
-		update.Token(g, r.A)
+		out.GameToken(g, r.A.JSON())
 	} else if enemyseat := g.GetOpponentSeat(r.A.Username); enemyseat == nil {
 
 	} else if dmgEvents := trigger.DamageSeat(g, r.A.Card, enemyseat, r.A.Body.Attack); len(dmgEvents) > 0 {

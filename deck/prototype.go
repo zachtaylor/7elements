@@ -1,23 +1,25 @@
 package deck
 
 import (
-	"strings"
-
+	"github.com/zachtaylor/7elements/card"
 	"ztaylor.me/cast"
 )
 
 // Prototype is Deck list
 type Prototype struct {
-	ID      int
-	Name    string
-	CoverID int
-	Cards   map[int]int
+	ID    int
+	Name  string
+	User  string
+	Cover int
+	Wins  int
+	Loss  int
+	Cards card.Count
 }
 
 // NewPrototype creates a new Deck list
 func NewPrototype() *Prototype {
 	return &Prototype{
-		Cards: make(map[int]int),
+		Cards: make(card.Count),
 	}
 }
 
@@ -34,12 +36,12 @@ func (proto *Prototype) Count() int {
 func (proto *Prototype) JSON() cast.JSON {
 	cardsJSON := cast.JSON{}
 	for k, v := range proto.Cards {
-		cardsJSON[cast.StringI(int(k))] = v
+		cardsJSON[cast.StringI(k)] = v
 	}
 	return cast.JSON{
 		"id":    proto.ID,
 		"name":  proto.Name,
-		"cover": "/img/card/" + cast.StringI(proto.CoverID) + ".jpg",
+		"cover": "/img/card/" + cast.StringI(proto.Cover) + ".jpg",
 		"cards": cardsJSON,
 	}
 }
@@ -48,23 +50,18 @@ func (proto *Prototype) JSON() cast.JSON {
 type Prototypes map[int]*Prototype
 
 // JSON returns a representation of these Deck lists as type fmt.Stringer
-func (decks Prototypes) JSON() cast.IStringer {
-	json := make([]string, 0)
-	keys := make([]int, len(decks))
-	var i int
-	for k := range decks {
-		keys[i] = k
-		i++
+func (decks Prototypes) JSON() cast.JSON {
+	json := cast.JSON{}
+	for _, deck := range decks {
+		json[cast.StringI(deck.ID)] = deck.JSON()
 	}
-	cast.SortInts(keys)
-	for _, k := range keys {
-		json = append(json, decks[k].JSON().String())
-	}
-	return cast.Stringer(`[` + strings.Join(json, ",") + `]`)
+	return json
 }
 
 // PrototypeService provides access to Prototypes
 type PrototypeService interface {
-	GetAll() (Prototypes, error)
-	Get(int) (*Prototype, error)
+	GetUser(user string) (Prototypes, error)
+	UpdateName(id, newname string) error
+	Insert(p *Prototype) error
+	Delete(id string) error
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -23,16 +23,20 @@ func (r *Sunrise) Name() string {
 	return "sunrise"
 }
 
+func (r *Sunrise) sendChoice(seat *game.Seat) {
+	out.Choice(seat.Player, `Create a New Element`, out.ChoicesElements, nil)
+}
+
 // OnActivate implements game.ActivateStater
 func (r *Sunrise) OnActivate(g *game.T) []game.Stater {
 	events := make([]game.Stater, 0)
 	g.GetSeat(r.Seat()).Karma.Reactivate()
 	for _, seat := range g.Seats {
-		update.Seat(g, seat)
+		out.GameSeat(g, seat.JSON())
 		for _, token := range seat.Present {
 			events = append(events, trigger.Wake(g, token)...)
 		}
-		events = append(events, trigger.Name(g, seat, "sunrise")...)
+		events = append(events, trigger.AllPresent(g, seat, "sunrise")...)
 	}
 
 	return events
@@ -44,10 +48,10 @@ func (r *Sunrise) _isActivateStater() game.ActivateStater {
 // OnConnect implements game.ConnectStater
 func (r *Sunrise) OnConnect(g *game.T, seat *game.Seat) {
 	if seat == nil {
-		update.Choice(g, "Create a New Element", update.ChoicesNewElement, nil)
-		go g.GetChat().AddMessage(chat.NewMessage("sunrise", r.Seat()))
+		out.Choice(g, `Create a New Element`, out.ChoicesElements, nil)
+		go g.Settings.Chat.AddMessage(chat.NewMessage("sunrise", r.Seat()))
 	} else if g.State.Reacts[seat.Username] == "" {
-		update.Choice(seat, `Create a New Element`, update.ChoicesNewElement, nil)
+		out.Choice(seat.Player, `Create a New Element`, out.ChoicesElements, nil)
 	}
 }
 func (r *Sunrise) _isConnectStater() game.ConnectStater {
@@ -65,19 +69,19 @@ func (r *Sunrise) Finish(g *game.T) []game.Stater {
 		log := g.Log().Add("Username", seat.Username)
 		if card := seat.Deck.Draw(); card != nil {
 			seat.Hand[card.ID] = card
-			update.Hand(seat)
+			out.GameHand(seat.Player, seat.Hand.JSON())
 			log.Add("Hand", len(seat.Hand))
 		}
 		if react := g.State.Reacts[seat.Username]; react == "" {
-			log.Source().Warn("react is empty")
+			log.Warn("react is empty")
 		} else if el := cast.IntS(react); el < 1 || el > 7 {
-			log.Add("React", react).Source().Warn("el is out of bounds")
+			log.Add("React", react).Warn("el is out of bounds")
 			continue
 		} else {
 			seat.Karma.Append(element.T(el), false)
 		}
-		update.Seat(g, seat)
-		log.Source().Debug()
+		out.GameSeat(g, seat.JSON())
+		log.Debug()
 	}
 	return nil
 }
@@ -98,10 +102,10 @@ func (r *Sunrise) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 	elementID := json.GetI("choice")
 	log := g.Log().Add("Seat", seat).Add("Choice", elementID)
 	if elementID < 1 || elementID > 7 {
-		log.Source().Warn("elementid out of bounds")
+		log.Warn("elementid out of bounds")
 		return
 	}
-	log.Source().Info("confirm")
+	log.Info("confirm")
 	g.State.Reacts[seat.Username] = cast.StringI(elementID)
-	update.React(g, seat.Username)
+	out.GameReact(g, g.State.ID(), seat.Username, "confirm", g.State.Timer)
 }

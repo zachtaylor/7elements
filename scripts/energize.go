@@ -3,7 +3,7 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const energizeID = "energize"
@@ -20,7 +20,7 @@ func Energize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (even
 
 	} else {
 		token.IsAwake = true
-		update.Token(g, token)
+		out.GameToken(g, token.JSON())
 	}
 	return
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const IntroToNecromancyID = "intro-necromancy"
@@ -26,7 +26,7 @@ func IntroToNecromancy(g *game.T, s *game.Seat, me interface{}, args []interface
 			events = append(events, _events...)
 		}
 		token.Body.Health = 1
-		update.Token(g, token)
+		out.GameToken(g, token.JSON())
 		events = append(events, trigger.DamageSeat(g, card, s, 1)...)
 	}
 	return

@@ -1,8 +1,6 @@
 package ai
 
 import (
-	"time"
-
 	"github.com/zachtaylor/7elements/game"
 	"ztaylor.me/cast"
 )
@@ -20,7 +18,7 @@ type AI struct {
 func ConnectAI(g *game.T) {
 	seat := g.GetSeat(Username)
 	ai := &AI{g, seat, DefaultSettings()}
-	seat.Receiver = ai
+	seat.Player = &Input{ai}
 	g.Request(seat.Username, "connect", nil)
 }
 
@@ -29,43 +27,11 @@ func (ai *AI) Request(uri string, json cast.JSON) {
 	ai.Game.Request(ai.Seat.Username, uri, json)
 }
 
+// RequestPass causes the AI to submit "pass" to the current state
 func (ai *AI) RequestPass() {
 	ai.Request("pass", cast.JSON{
 		"pass": ai.Game.State.ID(),
 	})
-}
-
-// WriteJSON receives data from the game engine as a GameSeat.Listener
-func (ai *AI) WriteJSON(json cast.JSON) {
-	uri := json.GetS("uri")
-	data := json["data"]
-	switch v := data.(type) {
-	case cast.JSON:
-		go ai.receive(uri, v)
-	default:
-		ai.Game.Log().Add("data", json).Warn("ai: i don't understand")
-	}
-}
-
-func (ai *AI) receive(name string, json cast.JSON) {
-	<-time.After(ai.Delay)
-	if name == "/game/state" {
-		ai.GameState(json)
-	} else if name == "/game/choice" {
-		ai.GameChoice(json)
-	} else if name == "/game" {
-	} else if name == "/game/react" {
-	} else if name == "/game/card" {
-	} else if name == "/game/hand" {
-	} else if name == "/game/seat" {
-	} else if name == "/alert" {
-	} else {
-		ai.Game.Log().With(cast.JSON{
-			"GameId":   ai.Game.ID(),
-			"Username": ai.Seat.Username,
-			"Name":     name,
-		}).Warn("ai: event not recognized")
-	}
 }
 
 func (ai *AI) GameState(data cast.JSON) {
@@ -108,7 +74,7 @@ func (ai *AI) GameState(data cast.JSON) {
 }
 
 func (ai *AI) GameChoice(data cast.JSON) {
-	if ai.Game.State.R.Seat() != ai.Seat.Username {
+	if !ai.myturn() {
 		ai.RequestPass()
 		return
 	}

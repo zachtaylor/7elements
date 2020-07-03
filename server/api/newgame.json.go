@@ -3,15 +3,16 @@ package api
 import (
 	"net/http"
 
-	"github.com/zachtaylor/7elements/account"
+	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai"
+	"github.com/zachtaylor/7elements/server/runtime"
 	"ztaylor.me/cast"
 )
 
-func NewGameHandler(rt *Runtime) http.Handler {
+func NewGameHandler(rt *runtime.T) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := rt.Root.Logger.New().Tag("api/newgame")
+		log := rt.Log().Tag("api/newgame")
 		session, _ := rt.Sessions.Cookie(r)
 		if session == nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -19,16 +20,15 @@ func NewGameHandler(rt *Runtime) http.Handler {
 			return
 		}
 
-		a, err := rt.Root.Accounts.Get(session.Name())
-		if a == nil {
+		player := rt.Settings.Players.Get(session.Name())
+		if player == nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			log.Add("Error", err).Add("RemoteAddr", r.RemoteAddr).Warn("account missing")
-			return
+			log.Add("Error", err).Add("RemoteAddr", r.RemoteAddr).Warn("player missing")
 		}
 
-		log.Add("Username", session.Name())
+		log.Add("Username", player.Name())
 
-		var deck *account.Deck
+		var deck *deck.T
 		if _deckid := r.URL.Query().Get("deckid"); len(_deckid) < 1 {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Add("Query", r.URL.Query().Encode()).Warn("deckid missing")
@@ -37,18 +37,10 @@ func NewGameHandler(rt *Runtime) http.Handler {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Add("DeckID", _deckid).Warn("deckid parse error")
 			return
-		} else if usep2p := r.URL.Query().Get("usep2p"); len(usep2p) < 1 {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Add("Query", r.URL.Query().Encode()).Warn("usep2p missing")
-			return
-		} else if usep2p == "true" {
-			if deck = GetMyDeck(rt, log, session.Name(), deckid); deck == nil {
-				return
-			}
+		} else if d := player; d != nil {
+
 		} else {
-			if deck = GetFreeDeck(rt, log, session.Name(), deckid); deck == nil {
-				return
-			}
+
 		}
 
 		// build opponent

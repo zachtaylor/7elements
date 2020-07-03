@@ -1,10 +1,11 @@
 package game
 
 import (
-	"github.com/zachtaylor/7elements/account"
+	"time"
+
 	"github.com/zachtaylor/7elements/card"
-	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/deck"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 	"ztaylor.me/cast/charset"
 	"ztaylor.me/keygen"
@@ -12,54 +13,41 @@ import (
 )
 
 type T struct {
-	id      string
-	in      chan *Request
-	lock    cast.Mutex
-	chat    *chat.Room
-	close   chan bool
-	Objects map[string]interface{}
-	Seats   map[string]*Seat
-	State   *State
-	Runtime *Runtime
+	Settings Settings
+	id       string
+	in       chan *Request
+	close    chan bool
+	chanμ    cast.Mutex
+	obj      map[string]interface{}
+	Seats    map[string]*Seat
+	State    *State
 }
 
-func New(id string, rt *Runtime) *T {
+func New(settings Settings, id string) *T {
 	game := &T{
-		id:      id,
-		in:      make(chan *Request),
-		chat:    rt.chat.New(`game#`+id, 21),
-		close:   make(chan bool),
-		Objects: make(map[string]interface{}),
-		Seats:   make(map[string]*Seat),
-		Runtime: rt,
+		Settings: settings,
+		id:       id,
+		in:       make(chan *Request),
+		close:    make(chan bool),
+		obj:      make(map[string]interface{}),
+		Seats:    make(map[string]*Seat),
 	}
 	return game
 }
 
-func (game *T) ID() string {
-	return game.id
-}
+func (game *T) ID() string      { return game.id }
+func (game T) String() string   { return "Game#" + game.id }
+func (game *T) Log() *log.Entry { return game.Settings.Logger.New() }
 
-func (game *T) GetChat() *chat.Room {
-	return game.chat
-}
-
-func (game T) String() string {
-	return "Game#" + game.id
-}
-
-func (game *T) Log() *log.Entry {
-	return game.Runtime.logger.New()
-}
-
-func (game *T) NewState(r Stater) *State {
+func (game *T) NewState(r Stater, d time.Duration) *State {
 	id := keygen.New(3, charset.AlphaCapitalNumeric, keygen.DefaultSettings.Rand)
 
 	return &State{
-		id:     id,
-		Timer:  game.Runtime.Timeout,
+		id:    id,
+		r:     r,
+		Timer: d,
+		// Timer:  game.Runtime.Timeout,
 		Reacts: make(map[string]string),
-		R:      r,
 	}
 }
 
@@ -72,41 +60,43 @@ func (game *T) Request(username string, uri string, data cast.JSON) {
 	})
 }
 func (game *T) request(r *Request) {
-	game.lock.Lock()
+	game.chanμ.Lock()
 	if game.in != nil {
 		game.in <- r
 	}
-	game.lock.Unlock()
+	game.chanμ.Unlock()
 }
 
 func (game *T) Monitor() <-chan *Request {
 	return game.in
 }
 
-// GetCloser returns the game open chan
+// Done returns the game open chan
 func (game *T) Done() chan bool {
 	return game.close
 }
 
 // Close ends the game, freeing resources
 func (game *T) Close() {
-	game.Runtime.logger.New().
-		// With(log.Fields{}).
-		Info("close") // add fields later
-	game.lock.Lock()
-	close(game.in)
-	game.in = nil
-	close(game.close)
-	game.close = nil
-	game.lock.Unlock()
-	game.chat.Destroy()
-	game.Runtime.logger.Close()
+	// game.Runtime.logger.New().
+	// 	// With(log.Fields{}).
+	// 	Info("close") // add fields later
+	game.chanμ.Lock()
+	if game.in != nil {
+		close(game.in)
+		game.in = nil
+		close(game.close)
+		game.close = nil
+	}
+	game.chanμ.Unlock()
+	game.Settings.Logger.Close()
+	game.Settings.Chat.Destroy()
 }
 
-// WriteJSON calls WriteJSON(data) for all game seats
-func (game *T) WriteJSON(json cast.JSON) {
+// Send broadcoasts a message to all players
+func (game *T) Send(uri string, data cast.JSON) {
 	for _, seat := range game.Seats {
-		seat.WriteJSON(json)
+		seat.Player.Send(uri, data)
 	}
 }
 
@@ -128,39 +118,27 @@ func (game *T) GetOpponentSeat(name string) *Seat {
 	return nil
 }
 
-func (game *T) Register(ad *account.Deck) *Seat {
-	log := game.Log().Add("Username", ad.Username)
+func (game *T) Register(deck *deck.T) *Seat {
+	log := game.Log().Add("Username", deck.User)
 
-	if game.Seats[ad.Username] != nil {
+	if game.Seats[deck.User] != nil {
 		log.Warn("register: username already registered")
 		return nil
 	}
 
 	seat := game.NewSeat()
-	seat.Deck = deck.New()
-	seat.Username = ad.Username
-	seat.Deck.Username = ad.Username
-	seat.Deck.AccountDeckID = ad.ID
-	deckSize := 0
+	seat.Username = deck.User
+	seat.Deck = deck
 
-	for cardid, copies := range ad.Cards {
-		proto, _ := game.Runtime.Root.Cards.Get(cardid)
-		if proto == nil {
-			log.Copy().Add("CardId", cardid).Warn("register: card missing")
-			return nil
-		}
-
-		for i := 0; i < copies; i++ {
-			card := card.New(proto)
-			card.Username = ad.Username
-			game.RegisterCard(card)
-			seat.Deck.Append(card)
-		}
-		deckSize += copies
+	for _, card := range seat.Deck.Cards {
+		game.RegisterCard(card)
 	}
 
 	game.Seats[seat.Username] = seat
-	log.Add("DeckSize", deckSize).Add("Cards", ad.Cards).Debug("registered seat")
+	log.With(cast.JSON{
+		"DeckSize": seat.Deck.Count(),
+		"Username": deck.User,
+	}).Info(seat.Deck.Proto.Cards)
 	return seat
 }
 
@@ -169,24 +147,89 @@ func (game *T) RegisterObjectKey() (key string) {
 		return keygen.New(4, charset.AlphaCapitalNumeric, keygen.DefaultSettings.Rand)
 	}
 	key = newkey()
-	for _, ok := game.Objects[key]; ok; {
+	for _, ok := game.obj[key]; ok; {
 		key = newkey()
-		_, ok = game.Objects[key]
+		_, ok = game.obj[key]
 	}
-	game.Objects[key] = nil
+	game.obj[key] = nil
 	return
 }
 
 func (game *T) RegisterCard(card *card.T) {
 	key := game.RegisterObjectKey()
 	card.ID = key
-	game.Objects[key] = card
+	game.obj[key] = card
 }
 
 func (game *T) RegisterToken(token *Token) {
 	key := game.RegisterObjectKey()
 	token.ID = key
-	game.Objects[key] = token
+	game.obj[key] = token
+}
+
+func (game *T) GetCard(key string) *card.T {
+	obj := game.obj[key]
+	if card, ok := obj.(*card.T); ok {
+		return card
+	}
+	return nil
+}
+
+func (game *T) GetToken(key string) *Token {
+	obj := game.obj[key]
+	if token, ok := obj.(*Token); ok {
+		return token
+	}
+	return nil
+}
+
+func (game *T) ResolveState() {
+	log := game.Log().Add("State", game.State)
+	game.State.Timer = 0
+	states := game.State.Finish(game) // combine states
+
+	if game.State.Stack != nil {
+		log.Add("New", game.State).Debug("stackpop")
+		game.State = game.State.Stack
+		game.State.Reactivate(game)
+	} else {
+		log.Add("New", game.State).Debug("getnext")
+		game.State = game.NewState(game.State.GetNextStater(game), game.Settings.Timeout)
+		states = append(states, game.State.Activate(game)...) // combine states
+	}
+
+	game.Stack(states) // stack new states
+	out.GameState(game, game.State.JSON())
+}
+
+// Stack adds new States as Stacked States
+func (game *T) Stack(stack []Stater) {
+	if len(stack) < 1 {
+		return
+	}
+	log := game.Log().With(cast.JSON{
+		"State": game.State,
+		"Stack": stack,
+	})
+	log.Trace()
+	next := make([]Stater, 0)
+	for _, r := range stack {
+		state := game.NewState(r, game.Settings.Timeout)
+		state.Stack = game.State
+		game.State = state
+
+		if addnext := game.State.Activate(game); len(addnext) > 0 {
+			game.Log().With(cast.JSON{
+				"State": game.State,
+				"Stack": stack,
+			}).Debug("activate trigger")
+			next = append(next, addnext...)
+		}
+	}
+	if len(next) > 0 {
+		log.Debug("Hold my cards, lads, I'm going in!")
+		game.Stack(next)
+	}
 }
 
 // JSON returns JSON representation of a game

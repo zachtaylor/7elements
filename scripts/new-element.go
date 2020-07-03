@@ -5,7 +5,7 @@ import (
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/state"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -23,13 +23,13 @@ func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (ev
 			cast.JSON{
 				"card": me.JSON(),
 			},
-			update.ChoicesNewElement,
+			out.ChoicesElements,
 			func(val interface{}) {
 				if i := cast.Int(val); i < 1 || i > 7 {
-					update.ErrorW(g, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
+					out.GameError(s.Player, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
 				} else {
 					s.Karma.Append(element.T(i), false)
-					update.Seat(g, s)
+					out.GameSeat(g, s.JSON())
 				}
 			},
 		)}

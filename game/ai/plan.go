@@ -23,7 +23,7 @@ func (ai *AI) NewPlans() []Plan {
 		}
 	}
 	for _, c := range ai.Seat.Hand {
-		if ai.Game.State.Name() != `main` && ai.Game.State.R.Seat() != ai.Seat.Username && c.Proto.Type != card.SpellType {
+		if ai.Game.State.Name() != `main` && ai.Game.State.Seat() != ai.Seat.Username && c.Proto.Type != card.SpellType {
 		} else if !ai.Seat.Karma.Active().Test(c.Proto.Costs) {
 		} else if cs := ai.plansFromHand(c); len(cs) > 0 {
 			plans = append(plans, cs...)
@@ -32,10 +32,14 @@ func (ai *AI) NewPlans() []Plan {
 	return plans
 }
 
+func (ai *AI) myturn() bool {
+	return ai.Game.State.Seat() == ai.Seat.Username
+}
+
 func (ai *AI) plansFromHand(c *card.T) []Plan {
 	switch c.Proto.Type {
 	case card.BodyType:
-		if ai.Game.State.Name() != "main" || ai.Game.State.R.Seat() != ai.Seat.Username {
+		if ai.Game.State.Name() != "main" || !ai.myturn() {
 			return nil
 		}
 		return []Plan{&PlayPlan{
@@ -44,7 +48,7 @@ func (ai *AI) plansFromHand(c *card.T) []Plan {
 			score:  1,
 		}}
 	case card.ItemType:
-		if ai.Game.State.Name() != "main" || ai.Game.State.R.Seat() != ai.Seat.Username {
+		if ai.Game.State.Name() != "main" || !ai.myturn() {
 			return nil
 		}
 		return []Plan{&PlayPlan{
@@ -72,7 +76,7 @@ func (ai *AI) plansFromPresent(t *game.Token) []Plan {
 	// add attack option
 	if t.Body == nil {
 
-	} else if t.IsAwake && ai.Game.State.Name() == `main` && ai.Game.State.R.Seat() == ai.Seat.Username {
+	} else if t.IsAwake && ai.Game.State.Name() == `main` && ai.myturn() {
 		if ai.Settings.Aggro {
 			plans = append(plans, &AttackPlan{
 				TID:   t.ID,
@@ -90,17 +94,20 @@ func (ai *AI) plansFromPresent(t *game.Token) []Plan {
 
 	// add triggerable powers option
 	if ps := t.Powers.GetTrigger(``); len(ps) < 1 {
-	} else if p := ps[0]; p == nil {
-	} else if !activeElements.Test(p.Costs) {
-	} else if p.UsesTurn && !t.IsAwake {
-	} else if target, score := ai.ScoreTokenPower(t, p); score < 1 {
 	} else {
-		plans = append(plans, &TriggerPlan{
-			TID:     t.ID,
-			PowerID: p.ID,
-			Target:  target,
-			score:   score,
-		})
+		for _, p := range ps {
+			if !activeElements.Test(p.Costs) {
+			} else if p.UsesTurn && !t.IsAwake {
+			} else if target, score := ai.ScoreTokenPower(t, p); score < 1 {
+			} else {
+				plans = append(plans, &TriggerPlan{
+					TID:     t.ID,
+					PowerID: p.ID,
+					Target:  target,
+					score:   score,
+				})
+			}
+		}
 	}
 
 	return plans

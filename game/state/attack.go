@@ -3,7 +3,7 @@ package state
 import (
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -26,7 +26,8 @@ func (r *Attack) Name() string {
 
 // OnActivate implements game.ActivateStater
 func (r *Attack) OnActivate(g *game.T) []game.Stater {
-	go g.GetChat().AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "attack"))
+
+	go g.Settings.Chat.AddMessage(chat.NewMessage(r.A.Card.Proto.Name, "attack"))
 	return nil
 }
 func (e *Attack) _isActivateRer() game.ActivateStater {
@@ -63,14 +64,14 @@ func (r *Attack) JSON() cast.JSON {
 func (r *Attack) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 	log := g.Log().Add("Seat", seat.Username)
 	if seat.Username == r.Seat() {
-		log.Add("Priority", r.Seat()).Source().Warn("seat mismatch")
+		log.Add("Priority", r.Seat()).Warn("seat mismatch")
 	} else if id := json.GetS("id"); id == "" {
-		log.Add("ID", json["id"]).Source().Warn("id missing")
+		log.Add("ID", json["id"]).Warn("id missing")
 	} else if t := seat.Present[id]; t == nil {
-		log.Add("ID", id).Source().Error("id not found")
+		log.Add("ID", id).Error("id not found")
 	} else if !t.IsAwake {
-		log.Source().Warn("card asleep")
-		update.ErrorW(seat, t.Card.Proto.Name, "not awake")
+		log.Warn("token asleep")
+		out.GameError(seat.Player, t.Card.Proto.Name, "not awake")
 	} else {
 		r.B = t
 	}

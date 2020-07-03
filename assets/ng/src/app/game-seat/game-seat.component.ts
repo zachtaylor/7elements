@@ -84,12 +84,11 @@ export class GameSeatComponent implements OnInit {
     } else if (this.phaseIsMy('main')) {
       return 'Main'
     } else if (this.phaseIsMy('play')) {
-      return 'Play: ' + ''
-      //  this.game.state.data
+      return 'Play: ' + this.game.state.data.card.name
     } else if (this.phaseIsMy('target')) {
       return 'Target: '
     } else if (this.phaseIsMy('trigger')) {
-      return 'Trigger: '
+      return 'Trigger: ' + this.game.state.data.token.name
     } else if (this.phaseIsMy('attack')) {
       return 'Attack'
     } else if (this.phaseIsMy('combat')) {

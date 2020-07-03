@@ -1,23 +1,27 @@
 package scripts
 
-// const HandrailsID = "handrails"
+import (
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/target"
+	"github.com/zachtaylor/7elements/game/trigger"
+)
 
-// func init() {
-// 	game.Scripts[HandrailsID] = Handrails
-// }
+const HandrailsID = "handrails"
 
-// func Handrails(g *game.T, seat *game.Seat, arg interface{}) []game.Stater {
-// 	log := g.Log().With(log.Fields{
-// 		"Target":   arg,
-// 		"Username": seat.Username,
-// 	}).Tag(logtag + HandrailsID)
-// 	token, err := target.PresentBeing(g, seat, arg)
-// 	if err != nil {
-// 		log.Add("Error", err).Error()
-// 		return nil
-// 	}
-// 	log.Info()
-// 	token.IsAwake = true
-// 	update.Token(g, token)
-// 	return nil
-// }
+func init() {
+	game.Scripts[HandrailsID] = Handrails
+}
+
+func Handrails(g *game.T, seat *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+	if token, ok := me.(*game.Token); !ok || token == nil {
+		err = ErrMeToken
+	} else if len(args) < 1 {
+		err = ErrNoTarget
+	} else if target, targetErr := target.MyPresentBeing(g, seat, args[0]); targetErr != nil {
+		err = targetErr
+	} else {
+		events = trigger.Wake(g, target)
+
+	}
+	return
+}

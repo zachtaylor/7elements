@@ -3,7 +3,7 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const WaterDancerID = "water-dancer"
@@ -21,7 +21,7 @@ func WaterDancer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (e
 		err = ErrBadTarget
 	} else {
 		token.IsAwake = false
-		update.Token(g, token)
+		out.GameToken(g, token.JSON())
 	}
 	return
 }

@@ -1,4 +1,4 @@
-<button class="posa" style="top:7px;right:7px;" (click)="close()">&nbsp;X&nbsp;</button>
+<button *ngIf="!overlay.important" class="posa" style="top:7px;right:7px;" (click)="close()">&nbsp;X&nbsp;</button>
 <span>{{overlay.title}}</span>
 <hr/>
 <!-- token insert -->

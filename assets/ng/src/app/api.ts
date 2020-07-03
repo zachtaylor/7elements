@@ -229,6 +229,7 @@ export class Overlay {
   card: GameCard
   choices: Array<OverlayChoice> // offered choices
   stack: Overlay
+  important: boolean // hides the close button
 
   constructor(title: string, stack: Overlay) {
     this.title=title

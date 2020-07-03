@@ -4,7 +4,7 @@ import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const summonersportalID = "summoners-portal"
@@ -22,8 +22,8 @@ func SummonersPortal(g *game.T, s *game.Seat, me interface{}, args []interface{}
 			events = append(events, _events...)
 		}
 	} else {
-		update.ErrorW(g, "Summoners Portal", "Next card was "+c.Proto.Name)
-		update.Seat(g, s)
+		out.GameError(s.Player, "Summoners Portal", "Next card was "+c.Proto.Name)
+		out.GameSeat(g, s.JSON())
 	}
 	s.Past[c.ID] = c
 	return

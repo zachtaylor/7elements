@@ -13,12 +13,14 @@ func init() {
 }
 
 func FontOfLife2(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if len(args) < 1 {
+	if token, ok := me.(*game.Token); !ok || token == nil {
+		err = ErrMeToken
+	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if token, err := target.MyPresentBeing(g, s, args[0]); err != nil || token == nil {
-		err = ErrNoTarget
+	} else if target, targetErr := target.MyPresentBeing(g, s, args[0]); targetErr == nil || targetErr != nil {
+		err = targetErr
 	} else {
-		events = trigger.Heal(g, token, 1)
+		events = trigger.Heal(g, target, 1)
 	}
 	return
 }

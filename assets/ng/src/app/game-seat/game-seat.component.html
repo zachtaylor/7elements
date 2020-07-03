@@ -16,9 +16,9 @@
     <img adapt="1" *ngIf="game.state.reacts[username]" src="/img/icon/asleep.svg">
     <img adapt="1" *ngIf="!game.state.reacts[username]" src="/img/icon/awake.svg">
     <b>{{username}}</b>
-    <ng-container *ngIf="game.state.seat==game.state.username">
+    <ng-container *ngIf="game.state.seat==username">
       <img adapt="1" src="/img/icon/{{getTitleIcon()}}.svg">
-      <span>{{getTitleText}}</span>
+      <span>{{getTitleText()}}</span>
     </ng-container>
     
   </div>

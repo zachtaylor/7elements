@@ -7,7 +7,7 @@ import (
 )
 
 func request(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Stater {
-	if g.State.R.Name() == "main" && g.State.R.Seat() == seat.Username {
+	if g.State.Name() == "main" && g.State.Seat() == seat.Username {
 		return pkg_request.InMain(g, seat, uri, json)
 	}
 	return pkg_request.InResponse(g, seat, uri, json)

@@ -4,7 +4,7 @@ import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const memorializeID = "memorialize"
@@ -25,8 +25,8 @@ func Memorialize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (e
 		c.Username = s.Username
 		g.RegisterCard(c)
 		s.Hand[c.ID] = c
-		update.Seat(g, s)
-		update.Hand(s)
+		out.GameSeat(g, s.JSON())
+		out.GameHand(s.Player, s.Hand.JSON())
 	}
 	return
 }

@@ -12,7 +12,7 @@ import (
 	"ztaylor.me/http/websocket"
 )
 
-func Routes(rt *Runtime) mux.Mux {
+func Routes(rt *api.Runtime) mux.Mux {
 	m := mux.Mux{}
 	m.Add(router.Path(`/api/global.json`), api.GlobalDataHandler(rt))
 	m.Add(router.Path(`/api/myaccount.json`), api.MyAccountHandler(rt))
@@ -28,7 +28,7 @@ func Routes(rt *Runtime) mux.Mux {
 	return m
 }
 
-func WSRoutes(apirt *Runtime) http.Handler {
+func WSRoutes(apirt *api.Runtime) http.Handler {
 	mux := websocket.NewCache(apirt.Sessions)
 	rt := &apiws.Runtime{apirt, mux}
 	mux.Route(&websocket.Route{websocket.RouterLit("/connect"), apiws.Connect(rt)})
@@ -61,7 +61,7 @@ func WSRoutes(apirt *Runtime) http.Handler {
 func ping(*websocket.T, *websocket.Message) {
 }
 
-func wsroutefailed(rt *Runtime, socket *websocket.T, m *websocket.Message) {
+func wsroutefailed(rt *api.Runtime, socket *websocket.T, m *websocket.Message) {
 	rt.Root.Logger.New().With(cast.JSON{
 		"Session": socket.Session,
 		"URI":     m.URI,

@@ -5,7 +5,7 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const cloningpoolID = "cloning-pool"
@@ -30,9 +30,8 @@ func CloningPool(g *game.T, s *game.Seat, me interface{}, args []interface{}) (e
 		if e := trigger.DamageSeat(g, card, s, 1); e != nil {
 			events = append(events, e...)
 		}
-
-		update.Seat(g, s)
-		update.Token(g, token)
+		out.GameSeat(g, s.JSON())
+		out.GameToken(g, token.JSON())
 	}
 	return
 }

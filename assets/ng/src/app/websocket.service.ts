@@ -27,7 +27,7 @@ export class WebsocketService {
   public closed(): boolean {
     return this.ws && (this.ws.readyState == WebSocket.CLOSED || this.ws.readyState == WebSocket.CLOSING)
   }
-  
+
   send(uri: string, data: object) {
     console.debug('ws out:', uri, data)
     this.ws.send(JSON.stringify({

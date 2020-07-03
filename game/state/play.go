@@ -5,7 +5,7 @@ import (
 	"github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -34,7 +34,7 @@ func (r *Play) OnActivate(g *game.T) []game.Stater {
 	if r.Card.Proto.Text != "" {
 		msg = r.Card.Proto.Text
 	}
-	go g.GetChat().AddMessage(chat.NewMessage(r.Seat(), msg))
+	go g.Settings.Chat.AddMessage(chat.NewMessage(r.Seat(), msg))
 	return nil
 }
 func (r *Play) activateEventer() game.ActivateStater {
@@ -61,13 +61,11 @@ func (r *Play) Finish(g *game.T) []game.Stater {
 	if r.Card.Proto.Type == card.BodyType || r.Card.Proto.Type == card.ItemType {
 		trigger.Spawn(g, seat, r.Card)
 	}
-	update.Seat(g, seat)
+	out.GameSeat(g, seat.JSON())
 
 	powers := r.Card.Proto.Powers.GetTrigger("play")
 	events := make([]game.Stater, 0)
 	for _, power := range powers {
-		// trigger.Power(g, seat, power, r.Card, )
-
 		if power.Target == "self" {
 			if e := trigger.Power(g, seat, power, r.Card, cast.NewArray(r.Card)); e != nil {
 				events = append(events, e...)

@@ -3,7 +3,7 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const inspiregrowthID = "inspire-growth"
@@ -21,7 +21,7 @@ func InspireGrowth(g *game.T, s *game.Seat, me interface{}, args []interface{}) 
 		err = ErrNoTarget
 	} else {
 		token.Body.Attack++
-		update.Token(g, token)
+		out.GameToken(g, token.JSON())
 	}
 	return
 }

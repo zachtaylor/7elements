@@ -1,19 +1,16 @@
 package account
 
+import (
+	"github.com/zachtaylor/7elements/card"
+	"github.com/zachtaylor/7elements/deck"
+)
+
 // Service provides Accounts
 type Service interface {
-	// Test returns an account from cache only
-	Test(string) *T
-	// Cache stores an account
-	Cache(*T)
-	// Forget uncaches an account
-	Forget(string)
-	// Find uses Test/Get&Cache best effort to provide account
-	Find(string) (*T, error)
 	// Get loads an account from back end
 	Get(string) (*T, error)
-	// GetCount returns a number of registered accounts from back end
-	GetCount() (int, error)
+	// Count returns a number of registered accounts from back end
+	Count() (int, error)
 	// Insert creates an account on back end
 	Insert(*T) error
 	// UpdateCoins updates an accounts coin count on back end
@@ -26,4 +23,8 @@ type Service interface {
 	UpdatePassword(*T) error
 	// Delete removes an account
 	Delete(string) error
+	// GetCards performs a get operation to the cards associated with the username
+	GetCards(username string) (card.Count, error)
+	// DeleteDecks removes all decks for a username
+	GetDecks(username string) (deck.Prototypes, error)
 }

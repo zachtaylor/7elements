@@ -4,14 +4,14 @@ import "ztaylor.me/cast"
 
 // T is a Card
 type T struct {
-	ID       string
 	Proto    *Prototype
+	ID       string
 	Username string
 }
 
-func New(c *Prototype) *T {
+func New(proto *Prototype) *T {
 	return &T{
-		Proto: c,
+		Proto: proto,
 	}
 }
 

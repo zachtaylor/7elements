@@ -1,10 +1,10 @@
 package game
 
 import (
-	vii "github.com/zachtaylor/7elements"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -17,7 +17,7 @@ type Seat struct {
 	Present  Tokens
 	Past     card.Set
 	Color    string
-	Receiver vii.JSONWriter
+	Player   out.Target
 }
 
 func (game *T) NewSeat() *Seat {
@@ -43,12 +43,12 @@ func (seat *Seat) DiscardHand() {
 	seat.Hand = card.Set{}
 }
 
-// WriteJSON sends data to player agent if available
-func (seat *Seat) WriteJSON(json cast.JSON) {
-	if r := seat.Receiver; r != nil {
-		r.WriteJSON(json)
-	}
-}
+// // WriteJSON sends data to player agent if available
+// func (seat *Seat) WriteJSON(json cast.JSON) {
+// 	if r := seat.Receiver; r != nil {
+// 		r.WriteJSON(json)
+// 	}
+// }
 
 // func (seat *Seat) HasAwakePresentCards() bool {
 // 	for _, card := range seat.Present {

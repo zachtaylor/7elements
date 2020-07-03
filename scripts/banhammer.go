@@ -3,7 +3,7 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const banhammerID = "banhammer"
@@ -21,7 +21,7 @@ func Banhammer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (eve
 		err = ErrBadTarget
 	} else {
 		delete(s.Past, card.ID)
-		update.Seat(g, s)
+		out.GameSeat(g, s.JSON())
 	}
 	return
 }

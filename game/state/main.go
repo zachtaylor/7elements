@@ -28,7 +28,7 @@ func (r *Main) Name() string {
 // OnConnect implements game.ConnectStater
 func (r *Main) OnConnect(g *game.T, seat *game.Seat) {
 	if seat == nil {
-		go g.GetChat().AddMessage(chat.NewMessage("main", r.Seat()))
+		go g.Settings.Chat.AddMessage(chat.NewMessage("main", r.Seat()))
 	}
 }
 func (r *Main) _isConnectStater() game.ConnectStater {

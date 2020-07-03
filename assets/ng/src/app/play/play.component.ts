@@ -110,25 +110,6 @@ export class PlayComponent implements OnInit {
     return opponent
   }
 
-  showSunriseOverlay() {
-    let username = this.conn.username()
-    return this.game && username && this.game.state &&
-      this.game.state.name == "sunrise" && this.game.state.seat == username
-  }
-
-  showChoiceOverlay() {
-    let username = this.conn.username()
-    return this.game && this.game.state.name == 'choice' && this.game.state.seat == username
-  }
-
-  showEndOverlay() {
-    return this.game && this.game.state && this.game.state.name == "end"
-  }
-
-  showPlayOverlay() {
-    return this.game && this.game.state && this.game.state.name == "play"
-  }
-
   // updateTarget() {
   //   console.debug('updateTarget', this.game.state.data.helper, this.game.state.data.display)
   //   if (this.game.state.seat == this.myaccount.username) {
@@ -177,6 +158,7 @@ export class PlayComponent implements OnInit {
     } else {
       let overlay = new Overlay('Hand: ' + card.name, this.games.overlay$.value)
       overlay.card = card
+      overlay.stack = this.overlay
       this.games.overlay$.next(overlay)
     }
 
@@ -190,11 +172,11 @@ export class PlayComponent implements OnInit {
     this.games.overlay$.next(overlay.stack)
   }
 
-  clickEnd(game: Game) {
-    this.sendPass(game)
-    this.games.data$.next(null)
-    this.router.navigateByUrl('/')
-  }
+  // clickEnd(game: Game) {
+  //   this.sendPass(game)
+  //   this.games.data$.next(null)
+  //   this.router.navigateByUrl('/')
+  // }
 
   // send data
 

@@ -10,16 +10,14 @@ import (
 func PastBeing(g *game.T, seat *game.Seat, arg interface{}) (*card.T, error) {
 	if id, ok := arg.(string); !ok {
 		return nil, errors.New("no id")
-	} else if obj := g.Objects[id]; obj == nil {
-		return nil, errors.New("no object: " + id)
-	} else if c, ok := obj.(*card.T); !ok {
+	} else if c := g.GetCard(id); c == nil {
 		return nil, errors.New("not card: " + id)
 	} else if s := g.GetSeat(c.Username); s == nil {
-		return nil, errors.New("no seat")
+		return nil, errors.New("no seat: " + id)
 	} else if c.Proto.Type != card.BodyType {
-		return nil, errors.New("not being")
+		return nil, errors.New("not being: " + id)
 	} else if !s.HasPastCard(c.ID) {
-		return nil, errors.New("not past")
+		return nil, errors.New("not past: " + id)
 	} else {
 		return c, nil
 	}

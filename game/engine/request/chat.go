@@ -11,6 +11,6 @@ func chat(g *game.T, seat *game.Seat, json cast.JSON) {
 	g.Log().With(cast.JSON{
 		"Username": seat.Username,
 		"Text":     text,
-	}).Debug("engine/chat") // died after
-	go g.GetChat().AddMessage(pkg_chat.NewMessage(seat.Username, text))
+	}).Trace()
+	go g.Runtime.Chat.AddMessage(pkg_chat.NewMessage(seat.Username, text))
 }

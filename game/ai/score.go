@@ -19,12 +19,12 @@ func (ai *AI) ScoreTokenPower(t *game.Token, p *power.T) (target interface{}, sc
 		}
 	case 5:
 		if ai.Settings.Aggro {
-			if ai.Game.State.Name() != `main` || ai.Game.State.R.Seat() != ai.Seat.Username {
+			if ai.Game.State.Name() != `sunrise` || !ai.myturn() {
 			} else {
 				target, score = ai.TargetEnemyBeing("sleep")
 			}
 		} else {
-			if ai.Game.State.Name() != `sunrise` || ai.Game.State.R.Seat() == ai.Seat.Username {
+			if ai.Game.State.Name() != `main` || !ai.myturn() {
 			} else {
 				target, score = ai.TargetEnemyBeing("sleep")
 			}

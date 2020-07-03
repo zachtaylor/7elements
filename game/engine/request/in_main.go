@@ -6,18 +6,18 @@ import (
 )
 
 func InMain(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Stater {
-	g.Log().Add("Data", json).Source().Debug()
+	g.Log().Add("Data", json).Debug()
 	switch uri {
 	case "connect":
-		connect(g, seat)
+		g.State.Connect(g, seat)
 	case "disconnect":
-		disconnect(g, seat)
+		g.State.Disconnect(g, seat)
+	case g.State.ID():
+		g.State.Request(g, seat, json)
 	case "chat":
 		chat(g, seat, json)
 	case "pass":
 		pass(g, seat, json)
-	case g.State.ID():
-		state(g, seat, json)
 	case "trigger":
 		return trigger(g, seat, json)
 	case "attack":
@@ -26,9 +26,9 @@ func InMain(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.State
 		return play(g, seat, json, false)
 	default:
 		g.Log().With(cast.JSON{
-			"Seat":  seat.String(),
 			"URI":   uri,
-			"State": g.State.Print(),
+			"Seat":  seat,
+			"State": g.State,
 		}).Warn("engine/request: 404")
 	}
 	return nil

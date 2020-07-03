@@ -6,11 +6,11 @@ import (
 	"ztaylor.me/cast"
 )
 
-func NewTarget(seat, helper, display string, finish func(val string) []game.Stater) *Target {
+func NewTarget(seat, helper, text string, finish func(val string) []game.Stater) *Target {
 	return &Target{
 		R:        R(seat),
 		Helper:   helper,
-		Display:  display,
+		Text:     text,
 		Finisher: finish,
 	}
 }
@@ -18,7 +18,7 @@ func NewTarget(seat, helper, display string, finish func(val string) []game.Stat
 type Target struct {
 	R
 	Helper   string
-	Display  string
+	Text     string
 	Finisher func(val string) []game.Stater
 	answer   string
 }
@@ -29,8 +29,8 @@ func (r *Target) Name() string {
 
 func (r *Target) JSON() cast.JSON {
 	return cast.JSON{
-		"helper":  r.Helper,
-		"display": r.Display,
+		"helper": r.Helper,
+		"text":   r.Text,
 	}
 }
 
@@ -40,10 +40,20 @@ func (r *Target) GetNext(g *game.T) game.Stater {
 
 // OnActivate implements game.ActivateStater
 func (r *Target) OnActivate(g *game.T) []game.Stater {
-	go g.GetChat().AddMessage(chat.NewMessage(r.Seat(), r.Display))
+	go g.Settings.Chat.AddMessage(chat.NewMessage(r.Seat(), r.Text))
 	return nil
 }
 func (r *Target) activateEventer() game.ActivateStater {
+	return r
+}
+
+// OnConnect implements game.ConnectStater
+func (r *Target) OnConnect(g *game.T, seat *game.Seat) {
+	if seat == nil {
+		go g.Settings.Chat.AddMessage(chat.NewMessage("target", r.Seat()))
+	}
+}
+func (r *Target) _isConnectStater() game.ConnectStater {
 	return r
 }
 
@@ -51,7 +61,7 @@ func (r *Target) activateEventer() game.ActivateStater {
 func (r *Target) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 	if seat.Username != r.Seat() {
 		g.Log().With(cast.JSON{
-			"Seat": seat,
+			"seat": seat,
 			"json": json,
 		}).Warn("engine/target: receive")
 		return

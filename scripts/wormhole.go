@@ -3,7 +3,7 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 const WormholeID = "wormhole"
@@ -23,7 +23,7 @@ func Wormhole(g *game.T, s *game.Seat, me interface{}, args []interface{}) (even
 		token.IsAwake = false
 		s.Hand[token.Card.ID] = token.Card
 		delete(s.Present, token.ID)
-		update.Seat(g, s)
+		out.GameSeat(g, s.JSON())
 	}
 	return
 }

@@ -2,7 +2,7 @@ package request
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -16,9 +16,9 @@ func pass(g *game.T, seat *game.Seat, json cast.JSON) {
 	} else if pass != g.State.ID() {
 		log.Add("PassID", pass).Warn("target mismatch")
 	} else if len(g.State.Reacts[seat.Username]) > 0 {
-		update.ErrorW(seat, "pass", "response already recorded")
+		out.GameError(seat.Player, "pass", "response already recorded")
 	} else {
 		g.State.Reacts[seat.Username] = "pass"
-		update.React(g, seat.Username)
+		out.GameReact(g, g.State.ID(), seat.Username, g.State.Reacts[seat.Username], g.State.Timer)
 	}
 }

@@ -3,11 +3,12 @@ package api
 import (
 	"net/http"
 
+	"github.com/zachtaylor/7elements/runtime"
 	"ztaylor.me/cast"
 )
 
-func GlobalDataHandler(rt *Runtime) http.Handler {
+func GlobalDataHandler(t *runtime.T) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(cast.BytesS(rt.Root.JSON().String()))
+		w.Write(cast.BytesS(t.JSON().String()))
 	})
 }

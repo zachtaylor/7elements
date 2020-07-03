@@ -8,16 +8,14 @@ import (
 )
 
 func MyPastBeing(g *game.T, seat *game.Seat, arg interface{}) (*card.T, error) {
-	if cid, ok := arg.(string); !ok {
-		return nil, errors.New("no cid")
-	} else if obj := g.Objects[cid]; obj == nil {
-		return nil, errors.New("no object: " + cid)
-	} else if c, ok := obj.(*card.T); !ok {
-		return nil, errors.New("not card: " + c.String())
+	if id, ok := arg.(string); !ok {
+		return nil, errors.New("no id")
+	} else if c := g.GetCard(id); c == nil {
+		return nil, errors.New("not card: " + id)
 	} else if c.Proto.Type != card.BodyType {
-		return nil, errors.New("not being")
+		return nil, errors.New("not being: " + id)
 	} else if !seat.HasPastCard(c.ID) {
-		return nil, errors.New("not my past")
+		return nil, errors.New("not my past: " + id)
 	} else {
 		return c, nil
 	}

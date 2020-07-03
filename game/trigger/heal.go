@@ -2,11 +2,11 @@ package trigger
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 )
 
 func Heal(g *game.T, t *game.Token, n int) []game.Stater {
 	t.Body.Health += n
-	update.Token(g, t)
+	out.GameToken(g, t.JSON())
 	return nil
 }

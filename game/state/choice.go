@@ -2,7 +2,7 @@ package state
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -32,19 +32,22 @@ func (r *Choice) Name() string {
 	return "choice"
 }
 
-// OnActivate implements game.ActivateStater
-func (r *Choice) OnActivate(g *game.T) []game.Stater {
-	update.Choice(g.GetSeat(r.Seat()), r.Text, r.Choices, nil)
-	return nil
-}
-func _activateStater(r *Choice) game.ActivateStater {
-	return r
-}
+// // OnActivate implements game.ActivateStater
+// func (r *Choice) OnActivate(g *game.T) []game.Stater {
+// 	return nil
+// }
+// func _activateStater(r *Choice) game.ActivateStater {
+// 	return r
+// }
 
 // OnConnect implements game.ConnectStater
 func (r *Choice) OnConnect(g *game.T, s *game.Seat) {
-	if s == nil || s.Username == r.Seat() {
-		update.Choice(g.GetSeat(r.Seat()), r.Text, r.Choices, nil)
+	if s == nil {
+		seat := g.GetSeat(r.Seat())
+		out.Choice(seat.Player, r.Text, r.Choices, nil)
+	} else if s.Username == r.Seat() {
+		out.Choice(s.Player, r.Text, r.Choices, nil)
+
 	}
 }
 func _choiceIsConnector(r *Choice) game.ConnectStater {

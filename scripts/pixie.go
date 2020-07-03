@@ -5,7 +5,7 @@ import (
 	"github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/update"
+	"github.com/zachtaylor/7elements/out"
 	"ztaylor.me/cast"
 )
 
@@ -48,7 +48,7 @@ func Pixie(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events 
 					return nil
 				}
 				token.Body.Health += hp
-				update.Token(g, token)
+				out.GameToken(g, token.JSON())
 				return nil
 			},
 		))

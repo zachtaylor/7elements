@@ -29,21 +29,21 @@ func NewPrototype() *Prototype {
 }
 
 // JSON returns a representation of this Prototype as type cast.JSON
-func (c *Prototype) JSON() cast.JSON {
+func (proto *Prototype) JSON() cast.JSON {
 	return cast.JSON{
-		"id":     c.ID,
-		"image":  c.Image,
-		"name":   c.Name,
-		"text":   c.Text,
-		"type":   c.Type.String(),
-		"powers": c.Powers.JSON(),
-		"costs":  c.Costs.JSON(),
-		"body":   c.Body.JSON(),
+		"id":     proto.ID,
+		"image":  proto.Image,
+		"name":   proto.Name,
+		"text":   proto.Text,
+		"type":   proto.Type.String(),
+		"powers": proto.Powers.JSON(),
+		"costs":  proto.Costs.JSON(),
+		"body":   proto.Body.JSON(),
 	}
 }
 
-func (c *Prototype) String() string {
-	return cast.StringN(`{`, c.ID, ` `, c.Name, `}`)
+func (proto *Prototype) String() string {
+	return cast.StringN(`{`, proto.ID, ` `, proto.Name, `}`)
 }
 
 // Prototypes is a set of Prototype, mapped by ID number
