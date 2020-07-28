@@ -26,7 +26,7 @@ func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (ev
 			out.ChoicesElements,
 			func(val interface{}) {
 				if i := cast.Int(val); i < 1 || i > 7 {
-					out.GameError(s.Player, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
+					out.Error(s.Player, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
 				} else {
 					s.Karma.Append(element.T(i), false)
 					out.GameSeat(g, s.JSON())

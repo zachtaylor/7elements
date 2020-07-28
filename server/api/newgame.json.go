@@ -6,7 +6,7 @@ import (
 	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai"
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/runtime"
 	"ztaylor.me/cast"
 )
 
@@ -20,10 +20,11 @@ func NewGameHandler(rt *runtime.T) http.Handler {
 			return
 		}
 
-		player := rt.Settings.Players.Get(session.Name())
+		player := rt.Players.Get(session.Name())
 		if player == nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			log.Add("Error", err).Add("RemoteAddr", r.RemoteAddr).Warn("player missing")
+			log.Add("RemoteAddr", r.RemoteAddr).Warn("player missing")
+			return
 		}
 
 		log.Add("Username", player.Name())
@@ -52,7 +53,7 @@ func NewGameHandler(rt *runtime.T) http.Handler {
 			log.Add("Query", r.URL.Query().Encode()).Warn("ai missing")
 			return
 		} else if useai := cast.Bool(_ai); useai {
-			g = rt.Games.New(deck, ai.GetAccountDeck(rt.Root.Decks))
+			g = rt.Games.New(deck, ai.GetDeck(rt.Logger, rt.Cards, rt.Decks))
 			ai.ConnectAI(g)
 			log.Add("GameID", g.ID()).Info("created game vs ai")
 		} else if search := rt.Games.Search(deck); search == nil {

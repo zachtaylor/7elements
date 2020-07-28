@@ -12,6 +12,6 @@ func _connectGameWaiter(socket *websocket.T, game *game.T, seat string, log *log
 	case <-socket.DoneChan():
 	case <-socket.Session.Done():
 	}
-	log.Source().Debug()
-	game.GetSeat(seat).Receiver = nil
+	log.Debug()
+	game.GetSeat(seat).Player = nil
 }

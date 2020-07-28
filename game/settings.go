@@ -19,11 +19,11 @@ type Settings struct {
 	Cards    card.PrototypeService
 	Chat     *chat.Room
 	Logger   log.Service
-	Sockets  websocket.Service
+	Sockets  *websocket.Cache
 }
 
 // NewSettings creates a Settings struct
-func NewSettings(e Engine, timeout time.Duration, a account.Service, c card.PrototypeService, chat *chat.Room, logWriter cast.WriteCloser, s websocket.Service) Settings {
+func NewSettings(e Engine, timeout time.Duration, a account.Service, c card.PrototypeService, chat *chat.Room, logWriter cast.WriteCloser, s *websocket.Cache) Settings {
 	logger := log.NewService(log.LevelDebug, log.DefaultFormatWithoutColor(), logWriter)
 	logger.Format().CutPathSourceParent(1)
 	return Settings{

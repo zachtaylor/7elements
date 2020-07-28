@@ -1,85 +1,63 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/account"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/out"
+	"github.com/zachtaylor/7elements/runtime"
 	"ztaylor.me/http/websocket"
 )
 
-func PacksBuy(rt *Runtime) websocket.Handler {
+func PacksBuy(rt *runtime.T) websocket.Handler {
+	const msgsrc = "purchase"
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
 		if socket.Session == nil {
-			socket.Message("/error", cast.JSON{
-				"error": "session required",
-			})
+			out.Error(socket, msgsrc, "session required")
 			return
 		}
-		log := rt.Runtime.Root.Logger.New().Add("User", socket.Session.Name()).Tag("apiws/packsbuy")
-		a, err := rt.Runtime.Root.Accounts.Find(socket.Session.Name())
+		log := rt.Log().Add("User", socket.Session.Name()).Tag("apiws/packsbuy")
+		a, err := rt.Accounts.Get(socket.Session.Name())
 		if a == nil {
 			log.Add("Error", err).Error("account missing")
-			socket.Message("/error", cast.JSON{
-				"error": "account missing",
-			})
-			return
-		}
-
-		acs, err := rt.Runtime.Root.AccountsCards.Get(a.Username)
-		if acs == nil {
-			log.Add("Error", err).Error("account collection missing")
-			socket.Message("/error", cast.JSON{
-				"error": "account collection missing",
-			})
+			out.Error(socket, msgsrc, "account missing")
 			return
 		}
 
 		packid := m.Data.GetI("packid")
 		if packid < 1 {
 			log.Error("packid missing")
-			socket.Message("/error", cast.JSON{
-				"error": "packid missing",
-			})
+			out.Error(socket, msgsrc, "packid missing")
 			return
 		}
 		log.Add("PackID", packid)
 
-		pack, err := rt.Runtime.Root.Packs.Get(packid)
+		pack, err := rt.Packs.Get(packid)
 		if pack == nil {
 			log.Add("Error", err).Error("pack missing")
-			socket.Message("/error", cast.JSON{
-				"error": "pack missing",
-			})
+			out.Error(socket, msgsrc, "pack missing")
 			return
 		}
 
 		if a.Coins < pack.Cost {
 			log.Warn("insufficient")
-			socket.Message("/error", cast.JSON{
-				"error": "you don't have enough coins",
-			})
+			out.Error(socket, msgsrc, "you don't have enough coins")
 			return
 		}
 
 		a.Coins -= pack.Cost
-		rt.Runtime.Root.Accounts.UpdateCoins(a)
+		rt.Accounts.UpdateCoins(a)
 
 		cardIDs := pack.NewPack()
-		now := cast.Now()
-		for _, cardID := range cardIDs {
-			card := &account.Card{
-				Username: a.Username,
-				ProtoID:  cardID,
-				Register: now,
-			}
-			if err := rt.Runtime.Root.AccountsCards.InsertCard(card); err != nil {
-				log.Add("Error", err).Error("insertcard")
-				socket.Message("/error", cast.JSON{
-					"error": "500 internal server error",
-				})
-				return
-			}
+
+		if err := rt.Accounts.InsertCards(a, cardIDs); err != nil {
+			log.Add("Error", err).Error("insertcard")
+			out.Error(socket, msgsrc, "500 internal server error")
+			return
 		}
+
+		for _, cardID := range cardIDs {
+			a.Cards[cardID]++
+		}
+
 		log.Add("Cards", cardIDs).Info()
-		socket.Message("/myaccount", rt.Runtime.Root.AccountJSON(a))
+		socket.Send("/myaccount", rt.AccountJSON(a))
 	})
 }

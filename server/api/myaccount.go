@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/runtime"
 	"ztaylor.me/cast"
 )
 

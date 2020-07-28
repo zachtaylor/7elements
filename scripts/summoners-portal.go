@@ -22,7 +22,7 @@ func SummonersPortal(g *game.T, s *game.Seat, me interface{}, args []interface{}
 			events = append(events, _events...)
 		}
 	} else {
-		out.GameError(s.Player, "Summoners Portal", "Next card was "+c.Proto.Name)
+		out.Error(s.Player, "Summoners Portal", "Next card was "+c.Proto.Name)
 		out.GameSeat(g, s.JSON())
 	}
 	s.Past[c.ID] = c

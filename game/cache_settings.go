@@ -17,11 +17,11 @@ type CacheSettings struct {
 	Keygen   keygen.Keygener
 	Engine   Engine
 	Logger   log.Service
-	Sockets  websocket.Service
+	Sockets  *websocket.Cache
 }
 
 // NewCacheSettings creates a new CacheSettings
-func NewCacheSettings(accounts account.Service, cards card.PrototypeService, chats chat.Service, keygen keygen.Keygener, engine Engine, logger log.Service, sockets websocket.Service) CacheSettings {
+func NewCacheSettings(accounts account.Service, cards card.PrototypeService, chats chat.Service, keygen keygen.Keygener, engine Engine, logger log.Service, sockets *websocket.Cache) CacheSettings {
 	return CacheSettings{
 		Accounts: accounts,
 		Cards:    cards,

@@ -11,13 +11,6 @@ type Cache struct {
 	lock     cast.Mutex
 }
 
-func NewCache(settings CacheSettings) *Cache {
-	return &Cache{
-		Settings: settings,
-		cache:    make(map[string]*T),
-	}
-}
-
 // Login returns a player for the account
 func (cache *Cache) Login(account *account.T) (player *T, error error) {
 	log := cache.Settings.Logger.New()
@@ -40,24 +33,14 @@ func (cache *Cache) Login(account *account.T) (player *T, error error) {
 		account.SessionID = session.ID()
 	}
 
-	if ac, err := cache.Settings.Accounts.GetCards(account.Username); ac == nil {
-		log.Error(err)
-		error = cast.NewError(nil, "internal server error")
-	} else if ad, err := cache.Settings.Accounts.GetDecks(account.Username); ad == nil {
-		log.Error(err)
-		error = cast.NewError(nil, "internal server error")
-	} else {
-		account.Cards = ac
-		account.Decks = ad
-		player = &T{
-			Settings: NewSettings(cache.Settings.Sockets),
-			Session:  session,
-			Account:  account,
-			conns:    make(map[string]bool),
-		}
-		go cache.waitPlayer(player)
-		cache.Set(player)
+	player = &T{
+		Settings: NewSettings(cache.Settings.Sockets),
+		Session:  session,
+		Account:  account,
+		conns:    make(map[string]bool),
 	}
+	go cache.waitPlayer(player)
+	cache.Set(player)
 	return
 }
 

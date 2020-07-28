@@ -71,7 +71,7 @@ func (r *Attack) Request(g *game.T, seat *game.Seat, json cast.JSON) {
 		log.Add("ID", id).Error("id not found")
 	} else if !t.IsAwake {
 		log.Warn("token asleep")
-		out.GameError(seat.Player, t.Card.Proto.Name, "not awake")
+		out.Error(seat.Player, t.Card.Proto.Name, "not awake")
 	} else {
 		r.B = t
 	}

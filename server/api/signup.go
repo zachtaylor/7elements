@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
+	"github.com/zachtaylor/7elements/runtime"
 	"github.com/zachtaylor/7elements/server/internal"
-	"github.com/zachtaylor/7elements/server/runtime"
 )
 
 // SignupHandler returns a http.HandlerFunc that performs internal signup
@@ -27,8 +27,8 @@ func SignupHandler(rt *runtime.T) http.Handler {
 
 		username := r.FormValue("username")
 		email := r.FormValue("email")
-		password1 := internal.HashPassword(r.FormValue("password1"), rt.Settings.Salt)
-		password2 := internal.HashPassword(r.FormValue("password2"), rt.Settings.Salt)
+		password1 := internal.HashPassword(r.FormValue("password1"), rt.PassSalt)
+		password2 := internal.HashPassword(r.FormValue("password2"), rt.PassSalt)
 		log.Add("Username", username).Add("Email", email)
 
 		if !internal.CheckUsername(username) {
@@ -37,17 +37,17 @@ func SignupHandler(rt *runtime.T) http.Handler {
 		} else if player := rt.Players.Get(username); player != nil {
 			http.Redirect(w, r, "/signup?usernametaken&email="+email, http.StatusSeeOther)
 			log.Error("duplicate is online")
-		} else if account, err := rt.Settings.Accounts.Get(username); account != nil {
+		} else if account, err := rt.Accounts.Get(username); account != nil {
 			http.Redirect(w, r, "/signup?usernametaken&email="+email, http.StatusSeeOther)
 			log.Add("Error", err).Error("duplicate exists")
 		} else if password1 != password2 {
 			http.Redirect(w, r, "/signup?passwordmatch&email="+email+"&username="+username, http.StatusSeeOther)
 			log.Warn("password mismatch")
-		} else if player, err := rt.Signup(username, email, password1); err != nil {
+		} else if player, err := rt.Players.Signup(username, email, password1); err != nil {
 			http.Redirect(w, r, "/login?account", http.StatusSeeOther)
 			log.Add("Error", err).Warn("500")
 		} else {
-			player.Session.WriteCookie(w, !rt.Settings.Devenv)
+			player.Session.WriteCookie(w, !rt.IsDevEnv)
 			w.Write([]byte(redirectHomeTpl))
 			log.Add("SessionID", account.SessionID).Info("accept")
 		}

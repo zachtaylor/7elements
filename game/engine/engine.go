@@ -9,7 +9,7 @@ import (
 func Run(g *game.T) {
 	var tStart cast.Time
 
-	enginelog := g.Runtime.Logger.New().With(cast.JSON{
+	enginelog := g.Log().With(cast.JSON{
 		"GameID": g.ID(),
 	}).Tag("engine")
 	enginelog.Info("start")

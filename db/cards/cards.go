@@ -1,4 +1,4 @@
-package db
+package cards
 
 import (
 	"errors"
@@ -10,62 +10,57 @@ import (
 	"ztaylor.me/db"
 )
 
-func NewCardService(db *db.DB) card.PrototypeService {
-	return &CardService{
-		conn:  db,
-		cache: make(card.Prototypes),
-	}
-}
+func GetAll(conn *db.DB) card.Prototypes {
+	cards := card.Prototypes{}
 
-type CardService struct {
-	conn  *db.DB
-	cache card.Prototypes
-}
-
-func (cs *CardService) Get(id int) (*card.Prototype, error) {
-	return cs.cache[id], nil
-}
-
-func (cs *CardService) GetAll() card.Prototypes {
-	if len(cs.cache) == 0 {
-		cs.Start()
-	}
-	return cs.cache
-}
-
-func (cs *CardService) Start() error {
 	// select all cards
-	rows, err := cs.conn.Query("SELECT id, type, name, text, image FROM cards")
+	rows, err := conn.Query("SELECT id, type, name, text, image FROM cards")
 	if err != nil {
-		rows.Close()
-		return err
+		return nil
 	}
 
 	for rows.Next() {
-		c, err := cs.scanCard(rows)
+		c, err := scanCard(conn, rows)
 		if err != nil {
 			rows.Close()
-			return err
+			return nil
 		}
-		cs.cache[c.ID] = c
+		cards[c.ID] = c
 	}
 	rows.Close()
 
-	if err = cs.loadCardBodies(); err != nil {
-		return err
-	} else if err = cs.loadCardCosts(); err != nil {
-		return err
-	} else if err = cs.loadCardsPowers(); err != nil {
-		return err
-	} else if err = cs.loadCardsPowersCosts(); err != nil {
-		return err
+	if err = loadCardBodies(conn, cards); err != nil {
+		return nil
+	} else if err = loadCardCosts(conn, cards); err != nil {
+		return nil
+	} else if err = loadCardsPowers(conn, cards); err != nil {
+		return nil
+	} else if err = loadCardsPowersCosts(conn, cards); err != nil {
+		return nil
 	}
 
 	return nil
 }
 
-func (cs *CardService) loadCardBodies() error {
-	rows, err := cs.conn.Query("SELECT cardid, attack, health FROM cards_bodies")
+func scanCard(conn *db.DB, scanner db.Scanner) (*card.Prototype, error) {
+	c := card.NewPrototype()
+	var typebuff int
+
+	err := scanner.Scan(&c.ID, &typebuff, &c.Name, &c.Text, &c.Image)
+	if err != nil {
+		return nil, err
+	}
+
+	t := card.Type(typebuff)
+	if t.String() == "error" {
+		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", typebuff))
+	}
+	c.Type = t
+	return c, nil
+}
+
+func loadCardBodies(conn *db.DB, cards card.Prototypes) error {
+	rows, err := conn.Query("SELECT cardid, attack, health FROM cards_bodies")
 	if err != nil {
 		return err
 	}
@@ -78,18 +73,18 @@ func (cs *CardService) loadCardBodies() error {
 
 		if err != nil {
 			return err
-		} else if cs.cache[cardid] == nil {
+		} else if cards[cardid] == nil {
 			return errors.New(fmt.Sprintf("cards: body matching missing card#%v", cardid))
 		}
 
-		cs.cache[cardid].Body = body
+		cards[cardid].Body = body
 	}
 
 	return nil
 }
 
-func (cs *CardService) loadCardCosts() error {
-	rows, err := cs.conn.Query("SELECT cardid, element, count FROM cards_element_costs")
+func loadCardCosts(conn *db.DB, cards card.Prototypes) error {
+	rows, err := conn.Query("SELECT cardid, element, count FROM cards_element_costs")
 	if err != nil {
 		return err
 	}
@@ -103,7 +98,7 @@ func (cs *CardService) loadCardCosts() error {
 			return err
 		} else if elementid > len(element.Index) || elementid < 0 {
 			return errors.New(fmt.Sprintf("cards: invalid element#%v", elementid))
-		} else if card := cs.cache[cardid]; card == nil {
+		} else if card := cards[cardid]; card == nil {
 			return errors.New(fmt.Sprintf("cards: cost matching missed card#%v", cardid))
 		} else {
 			card.Costs[element.T(elementid)] += count
@@ -113,8 +108,8 @@ func (cs *CardService) loadCardCosts() error {
 	return nil
 }
 
-func (cs *CardService) loadCardsPowers() error {
-	rows, err := cs.conn.Query("SELECT cardid, id, usesturn, useskill, xtrigger, target, script, text FROM cards_powers")
+func loadCardsPowers(conn *db.DB, cards card.Prototypes) error {
+	rows, err := conn.Query("SELECT cardid, id, usesturn, useskill, xtrigger, target, script, text FROM cards_powers")
 	if err != nil {
 		return err
 	}
@@ -129,7 +124,7 @@ func (cs *CardService) loadCardsPowers() error {
 
 		if err != nil {
 			return err
-		} else if card := cs.cache[cardid]; card == nil {
+		} else if card := cards[cardid]; card == nil {
 			return errors.New(fmt.Sprintf("cards: unrooted power card#%v id#%v", cardid, p.ID))
 		} else if card.Powers[p.ID] != nil {
 			return errors.New(fmt.Sprintf("cards: duplicate power card#%v id#%v", cardid, p.ID))
@@ -141,8 +136,8 @@ func (cs *CardService) loadCardsPowers() error {
 	return nil
 }
 
-func (cs *CardService) loadCardsPowersCosts() error {
-	rows, err := cs.conn.Query("SELECT cardid, powerid, element, count FROM cards_powers_costs")
+func loadCardsPowersCosts(conn *db.DB, cards card.Prototypes) error {
+	rows, err := conn.Query("SELECT cardid, powerid, element, count FROM cards_powers_costs")
 	if err != nil {
 		return err
 	}
@@ -154,7 +149,7 @@ func (cs *CardService) loadCardsPowersCosts() error {
 
 		if err != nil {
 			return err
-		} else if card := cs.cache[cardid]; card == nil {
+		} else if card := cards[cardid]; card == nil {
 			return errors.New(fmt.Sprintf("cards: unrooted power cost card#%v id#%v", cardid, powerid))
 		} else if power := card.Powers[powerid]; power == nil {
 			return errors.New(fmt.Sprintf("cards: unrooted power cost card#%v id#%v", cardid, powerid))
@@ -164,22 +159,4 @@ func (cs *CardService) loadCardsPowersCosts() error {
 	}
 
 	return nil
-}
-
-func (cs *CardService) scanCard(scanner db.Scanner) (*card.Prototype, error) {
-	c := card.NewPrototype()
-	var typebuff int
-
-	err := scanner.Scan(&c.ID, &typebuff, &c.Name, &c.Text, &c.Image)
-	if err != nil {
-		return nil, err
-	}
-
-	if t := card.Type(typebuff); t.String() == "error" {
-		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", typebuff))
-	} else {
-		c.Type = t
-	}
-
-	return c, nil
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/runtime"
 	httpsessions "ztaylor.me/http/session"
 )
 
@@ -19,7 +19,7 @@ func LogoutHandler(t *runtime.T) http.Handler {
 			log.Warn("cookie missing")
 		}
 
-		httpsessions.EraseSessionID(w, !t.Settings.Devenv)
+		httpsessions.EraseSessionID(w, !t.IsDevEnv)
 		w.Write([]byte(fmt.Sprintf(redirectHomeTpl, "Logout Success")))
 	})
 }

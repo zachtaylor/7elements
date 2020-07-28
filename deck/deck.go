@@ -15,11 +15,11 @@ type T struct {
 }
 
 // New returns a new Deck
-func New(log log.Service, cards card.PrototypeService, proto *Prototype, user string) *T {
+func New(log log.Service, cards card.Prototypes, proto *Prototype, user string) *T {
 	buf := make([]*card.T, len(proto.Cards))
 	i := 0
 	for k, v := range proto.Cards {
-		if proto, err := cards.Get(k); proto == nil {
+		if proto, err := cards[k]; proto == nil {
 			log.New().Add("CardID", k).Error(err, "invalid cardid")
 		} else {
 			for j := 0; j < v; j++ {

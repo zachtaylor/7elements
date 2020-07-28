@@ -52,3 +52,5 @@ func (a *T) JSON() cast.JSON {
 		"decks":    a.Decks.JSON(),
 	}
 }
+
+//go:generate go-gengen -p=account -k=string -v=*T

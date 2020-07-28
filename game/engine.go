@@ -7,7 +7,7 @@ type Engine interface {
 	Run(*T)
 	Start(seat string) Stater
 	End(winner, loser string) Stater
-	TriggerTokenEvent(seat *Seat, token *Token, trigger string) []Stater
-	TriggerTokenPower(seat *Seat, token *Token, power *power.T, arg interface{}) []Stater
 	Target(seat *Seat, target string, text string, finish func(val string) []Stater) Stater
+	TriggerTokenEvent(game *T, seat *Seat, token *Token, trigger string) []Stater
+	TriggerTokenPower(game *T, seat *Seat, token *Token, power *power.T, arg interface{}) []Stater
 }

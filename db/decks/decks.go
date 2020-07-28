@@ -1,19 +1,9 @@
-package db
+package decks
 
 import (
 	"github.com/zachtaylor/7elements/deck"
 	"ztaylor.me/db"
 )
-
-func NewDeckService(db *db.DB) deck.PrototypeService {
-	return &DeckService{
-		conn: db,
-	}
-}
-
-type DeckService struct {
-	conn *db.DB
-}
 
 // func (ds *DeckService) Start() error {
 // 	if decks, err := ds.reloadDecks(); err != nil {
@@ -49,8 +39,37 @@ type DeckService struct {
 // 	return decks, err
 // }
 
-func (ds *DeckService) GetUser(user string) (deck.Prototypes, error) {
-	return getUserDecks(ds.conn, user)
+func Get(conn *db.DB, id int) (*deck.Prototype, error) {
+	row := conn.QueryRow(
+		"SELECT id, name, cover FROM decks WHERE id=?",
+		id,
+	)
+	deck := deck.NewPrototype()
+	err := row.Scan(&deck.ID, &deck.Name, &deck.Cover)
+	if err != nil {
+		return nil, err
+	}
+
+	// decks_items
+	rows, err := conn.Query("SELECT cardid, amount FROM decks_items WHERE deckid=?",
+		id,
+	)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var deckid, cardid, amount int
+
+		err = rows.Scan(&deckid, &cardid, &amount)
+		if err != nil {
+			return nil, err
+		}
+
+		deck.Cards[cardid] = amount
+	}
+	rows.Close()
+
+	return deck, nil
 }
 
 // func (ds *DeckService) Update(deck *deck.Prototype) (err error) {
@@ -61,8 +80,8 @@ func (ds *DeckService) GetUser(user string) (deck.Prototypes, error) {
 // 	return
 // }
 
-func (ds *DeckService) UpdateName(id, newname string) error {
-	_, err := ds.conn.Exec(
+func UpdateName(conn *db.DB, id int, newname string) error {
+	_, err := conn.Exec(
 		"UPDATE decks SET name=? WHERE id=?",
 		newname,
 		id,
@@ -70,8 +89,8 @@ func (ds *DeckService) UpdateName(id, newname string) error {
 	return err
 }
 
-func (ds *DeckService) Insert(deck *deck.Prototype) error {
-	_, err := ds.conn.Exec("INSERT INTO decks (id, name, user, cover, wins, loss) VALUES (?, ?, ?, ?, ?, ?)",
+func Insert(conn *db.DB, deck *deck.Prototype) error {
+	_, err := conn.Exec("INSERT INTO decks (id, name, user, cover, wins, loss) VALUES (?, ?, ?, ?, ?, ?)",
 		deck.ID,
 		deck.Name,
 		deck.User,
@@ -84,7 +103,7 @@ func (ds *DeckService) Insert(deck *deck.Prototype) error {
 	}
 
 	for cardId, amount := range deck.Cards {
-		_, err := ds.conn.Exec("INSERT INTO decks_items(deckid, cardid, amount) VALUES (?, ?, ?)",
+		_, err := conn.Exec("INSERT INTO decks_items(deckid, cardid, amount) VALUES (?, ?, ?)",
 			deck.ID,
 			cardId,
 			amount,
@@ -98,12 +117,12 @@ func (ds *DeckService) Insert(deck *deck.Prototype) error {
 	return nil
 }
 
-func (ds *DeckService) Delete(deckid string) (err error) {
-	_, err = ds.conn.Exec("DELETE FROM decks WHERE AND id=?",
+func Delete(conn *db.DB, deckid int) (err error) {
+	_, err = conn.Exec("DELETE FROM decks WHERE AND id=?",
 		deckid,
 	)
 	if err == nil {
-		_, err = ds.conn.Exec("DELETE FROM decks_items WHERE id=?",
+		_, err = conn.Exec("DELETE FROM decks_items WHERE id=?",
 			deckid,
 		)
 	}

@@ -1,7 +1,11 @@
 package runtime
 
 import (
+	"math/rand"
 	"net/http"
+
+	"github.com/zachtaylor/7elements/db/accounts_decks"
+	"github.com/zachtaylor/7elements/game/engine"
 
 	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/card"
@@ -12,10 +16,14 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/player"
 	"ztaylor.me/cast"
+	"ztaylor.me/cast/charset"
 	"ztaylor.me/db"
 	pkg_env "ztaylor.me/db/env"
 	"ztaylor.me/db/mysql"
+	"ztaylor.me/http/mux"
 	"ztaylor.me/http/session"
+	"ztaylor.me/http/websocket"
+	"ztaylor.me/keygen"
 	"ztaylor.me/log"
 )
 
@@ -23,18 +31,21 @@ import (
 type T struct {
 	// IsDevEnv sets development environment
 	IsDevEnv bool
-	// PassSalt is the password salt
+	// PassSalt sets the password salt
 	PassSalt string
 
+	Logger     log.Service
+	Sessions   session.Service
+	Sockets    *websocket.Cache
 	Accounts   account.Service
 	Cards      card.PrototypeService
 	Chats      chat.Service
 	Decks      deck.PrototypeService
+	Packs      pack.Service
 	FileSystem http.FileSystem
 	Games      *game.Cache
-	Logger     log.Service
-	Packs      pack.Service
 	Players    *player.Cache
+	Server     *mux.Mux
 }
 
 func New(env pkg_env.Service) (*T, error) {
@@ -55,6 +66,7 @@ func New(env pkg_env.Service) (*T, error) {
 	} else {
 		t.Sessions = session.NewCache(10 * cast.Minute)
 	}
+	t.Sockets = websocket.NewCache(t.Sessions)
 	// db
 	if conn, err := mysql.Open(pkg_env.BuildDSN(env.Match("DB_"))); err != nil {
 		return nil, &cast.Error{"db connection failed", err}
@@ -72,33 +84,51 @@ func New(env pkg_env.Service) (*T, error) {
 	// chat
 	t.Chats = &chat.MemService{}
 	// game engine
-	t.Games = game.NewCache(game.NewCacheSettings(t.Accounts, t.Cards, t.Chats))
+	t.Games = game.NewCache(game.NewCacheSettings(
+		t.Accounts,
+		t.Cards,
+		t.Chats,
+		&keygen.Settings{
+			KeySize: 7,
+			CharSet: charset.AlphaCapitalNumeric,
+			Rand:    rand.New(rand.NewSource(cast.Now().UnixNano())),
+		},
+		engine.New(),
+		t.Logger,
+		t.Sockets,
+	))
 	// filesystem
 	t.FileSystem = http.Dir(env["WWW_PATH"])
 	// combined runtime
-	t.Players = player.NewCache()
-	// players.New(t.Logger, t.Accounts, websocket.NewCache(t.Sessions))
+	t.Players = player.NewCache(t.Logger, t.Sessions, t.Sockets, t.Accounts)
 
 	return t, nil
 }
 
-func (t *T) Log() *log.Entry { return t.Settings.Logger.New() }
+func (t *T) Log() *log.Entry { return t.Logger.New() }
 
-// func (t *T) AccountJSON(rt  a *account.T) cast.JSON {
-// 	if a == nil {
-// 		return nil
-// 	} else if acs, err := rt.AccountsCards.Find(a.Username); err != nil {
-// 		return nil
-// 	} else if ads, err := rt.AccountsDecks.Find(a.Username); err != nil {
-// 		return nil
-// 	} else {
-// 		return cast.JSON{
-// 			"username": a.Username,
-// 			"email":    a.Email,
-// 			"session":  a.SessionID,
-// 			"coins":    a.Coins,
-// 			"cards":    acs.JSON(),
-// 			"decks":    ads.JSON(),
-// 		}
-// 	}
-// }
+func (t *T) GlobalJSON() cast.JSON {
+	decks, _ := accounts_decks.Get("vii")
+	packs, _ := t.Packs.GetAll()
+	users, _ := t.Accounts.Count()
+	return cast.JSON{
+		"cards": t.Cards.GetAll().JSON(),
+		"packs": packs.JSON(),
+		"decks": decks.JSON(),
+		"users": users,
+	}
+}
+
+func (t *T) AccountJSON(a *account.T) cast.JSON {
+	if a == nil {
+		return nil
+	}
+	return cast.JSON{
+		"username": a.Username,
+		"email":    a.Email,
+		"session":  a.SessionID,
+		"coins":    a.Coins,
+		"cards":    a.Cards.JSON(),
+		"decks":    a.Decks.JSON(),
+	}
+}

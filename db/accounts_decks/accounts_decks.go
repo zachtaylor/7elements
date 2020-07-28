@@ -1,4 +1,4 @@
-package db
+package accounts_decks
 
 import (
 	"github.com/zachtaylor/7elements/deck"
@@ -6,12 +6,12 @@ import (
 	"ztaylor.me/db"
 )
 
-func getUserDecks(conn *db.DB, username string) (deck.Prototypes, error) {
+func Get(conn *db.DB, username string) (deck.Prototypes, error) {
 	decks := make(deck.Prototypes)
 
 	// decks
 	rows, err := conn.Query(
-		"SELECT id, name, user, cover, wins, loss FROM decks WHERE user=?",
+		"SELECT id, name, cover FROM accounts_decks WHERE username=?",
 		username,
 	)
 	if err != nil {
@@ -19,7 +19,7 @@ func getUserDecks(conn *db.DB, username string) (deck.Prototypes, error) {
 	}
 	for rows.Next() {
 		deck := deck.NewPrototype()
-		err = rows.Scan(&deck.ID, &deck.Name, &deck.User, &deck.Cover, &deck.Wins, &deck.Loss)
+		err = rows.Scan(&deck.ID, &deck.Name, &deck.Cover)
 		if err != nil {
 			return nil, err
 		}
@@ -28,7 +28,7 @@ func getUserDecks(conn *db.DB, username string) (deck.Prototypes, error) {
 	rows.Close()
 
 	// decks_items
-	rows, err = conn.Query("SELECT deckid, cardid, amount FROM decks_items WHERE deckid IN (SELECT id FROM decks WHERE user=?)",
+	rows, err = conn.Query("SELECT id, cardid, amount FROM accounts_decks_items WHERE deckid IN (SELECT id FROM decks WHERE username=?)",
 		username,
 	)
 	if err != nil {

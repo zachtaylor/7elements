@@ -1,39 +1,45 @@
 package apiws
 
-import "ztaylor.me/http/websocket"
+import (
+	"github.com/zachtaylor/7elements/runtime"
+	"ztaylor.me/http/websocket"
+)
 
-func Connect(rt *Runtime) websocket.Handler {
+func Connect(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, _ *websocket.Message) {
-		rt.Runtime.Root.Logger.New().Add("Socket", socket).Source().Info()
-		rt.Runtime.Ping.Add()
+		rt.Logger.New().Add("Socket", socket).Info()
 		connect(rt, socket)
-		go rt.SendPing()
+		go rt.Ping()
 	})
 }
 
-func connect(rt *Runtime, socket *websocket.T) {
+func connect(rt *runtime.T, socket *websocket.T) {
 	if socket.Session == nil {
-		rt.Runtime.Root.Logger.New().Source().Debug("no session")
+		rt.Logger.New().Debug("no session")
 		return
 	}
 
-	// introduce connection service
+	player := rt.Players.Get(socket.Session.Name())
+	if player == nil {
+		rt.Log().Error("session with no player")
+		return
+	}
 
-	socket.Message("/myaccount", rt.Runtime.Root.FindAccountJSON(socket.Session.Name()))
+	socket.Send("/myaccount", rt.AccountJSON(player.Account))
 	go connectWaiter(rt, socket)
 	connectgame(rt, socket)
 }
 
-func connectWaiter(rt *Runtime, socket *websocket.T) {
+func connectWaiter(rt *runtime.T, socket *websocket.T) {
 	for socketDone, sessionDone := socket.DoneChan(), socket.Session.Done(); ; {
-		log := rt.Runtime.Root.Logger.New().Add("Socket", socket)
+		log := rt.Logger.New().Add("Socket", socket)
 		select {
 		case <-socketDone:
-			log.Source().Debug("done")
+			log.Debug("done")
 			return
 		case <-sessionDone:
-			log.Source().Warn("session")
-			socket.Message("/myaccount", nil)
+			log.Warn("session")
+			socket.Send("/myaccount", nil)
 			socket.Session = nil
 			return
 		}

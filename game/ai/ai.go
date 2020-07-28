@@ -5,6 +5,7 @@ import (
 	"ztaylor.me/cast"
 )
 
+// Username is assumed
 const Username = "A.I."
 
 var nullJSON = cast.Stringer(`null`)

@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/zachtaylor/7elements/runtime"
 	"github.com/zachtaylor/7elements/server/api"
 	"github.com/zachtaylor/7elements/server/apiws"
 	"ztaylor.me/cast"
@@ -12,7 +13,7 @@ import (
 	"ztaylor.me/http/websocket"
 )
 
-func Routes(rt *api.Runtime) mux.Mux {
+func Routes(rt *runtime.T) mux.Mux {
 	m := mux.Mux{}
 	m.Add(router.Path(`/api/global.json`), api.GlobalDataHandler(rt))
 	m.Add(router.Path(`/api/myaccount.json`), api.MyAccountHandler(rt))
@@ -28,9 +29,8 @@ func Routes(rt *api.Runtime) mux.Mux {
 	return m
 }
 
-func WSRoutes(apirt *api.Runtime) http.Handler {
-	mux := websocket.NewCache(apirt.Sessions)
-	rt := &apiws.Runtime{apirt, mux}
+func WSRoutes(rt *runtime.T) http.Handler {
+	mux := websocket.Mux{}
 	mux.Route(&websocket.Route{websocket.RouterLit("/connect"), apiws.Connect(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/disconnect"), apiws.Disconnect(rt)})
 	mux.Route(&websocket.Route{websocket.RouterLit("/ping"), websocket.HandlerFunc(ping)})
@@ -51,7 +51,7 @@ func WSRoutes(apirt *api.Runtime) http.Handler {
 			return true
 		}),
 		Handler: websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-			wsroutefailed(apirt, socket, m)
+			wsroutefailed(rt, socket, m)
 		}),
 	})
 	return websocket.UpgradeHandler(mux)
@@ -61,9 +61,9 @@ func WSRoutes(apirt *api.Runtime) http.Handler {
 func ping(*websocket.T, *websocket.Message) {
 }
 
-func wsroutefailed(rt *api.Runtime, socket *websocket.T, m *websocket.Message) {
-	rt.Root.Logger.New().With(cast.JSON{
+func wsroutefailed(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
+	rt.Log().With(cast.JSON{
 		"Session": socket.Session,
 		"URI":     m.URI,
-	}).Source().Warn("routing failed")
+	}).Warn("routing failed")
 }

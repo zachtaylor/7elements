@@ -12,5 +12,5 @@ func chat(g *game.T, seat *game.Seat, json cast.JSON) {
 		"Username": seat.Username,
 		"Text":     text,
 	}).Trace()
-	go g.Runtime.Chat.AddMessage(pkg_chat.NewMessage(seat.Username, text))
+	go g.Settings.Chat.AddMessage(pkg_chat.NewMessage(seat.Username, text))
 }

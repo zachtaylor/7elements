@@ -65,10 +65,3 @@ func (cards Prototypes) JSON() cast.IStringer {
 	}
 	return cast.Stringer(`[` + strings.Join(json, ",") + `]`)
 }
-
-// PrototypeService is used to acquire Card Prototypes
-type PrototypeService interface {
-	Start() error
-	Get(cardid int) (*Prototype, error)
-	GetAll() Prototypes
-}

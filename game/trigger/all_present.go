@@ -13,7 +13,7 @@ func AllPresent(g *game.T, seat *game.Seat, trigger string) []game.Stater {
 		"Trigger": trigger,
 	})
 	for _, token := range seat.Present {
-		if e := g.Settings.Engine.TriggerTokenEvent(seat, token, trigger); len(e) > 0 {
+		if e := g.Settings.Engine.TriggerTokenEvent(g, seat, token, trigger); len(e) > 0 {
 			log.Copy().Add("Token", trigger).Debug("trigger")
 			events = append(events, e...)
 		}

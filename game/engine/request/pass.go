@@ -16,7 +16,7 @@ func pass(g *game.T, seat *game.Seat, json cast.JSON) {
 	} else if pass != g.State.ID() {
 		log.Add("PassID", pass).Warn("target mismatch")
 	} else if len(g.State.Reacts[seat.Username]) > 0 {
-		out.GameError(seat.Player, "pass", "response already recorded")
+		out.Error(seat.Player, "pass", "response already recorded")
 	} else {
 		g.State.Reacts[seat.Username] = "pass"
 		out.GameReact(g, g.State.ID(), seat.Username, g.State.Reacts[seat.Username], g.State.Timer)

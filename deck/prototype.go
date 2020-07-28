@@ -60,8 +60,7 @@ func (decks Prototypes) JSON() cast.JSON {
 
 // PrototypeService provides access to Prototypes
 type PrototypeService interface {
-	GetUser(user string) (Prototypes, error)
-	UpdateName(id, newname string) error
+	Get(id int) (*Prototype, error)
 	Insert(p *Prototype) error
-	Delete(id string) error
+	Delete(id int) error
 }

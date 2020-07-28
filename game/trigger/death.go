@@ -12,5 +12,5 @@ func Death(g *game.T, t *game.Token) []game.Stater {
 	seat := g.GetSeat(t.Username)
 	g.Settings.Chat.AddMessage(chat.NewMessage(t.Card.Proto.Name, "died"))
 	delete(seat.Present, t.ID)
-	return g.Settings.Engine.TriggerTokenEvent(seat, t, "death")
+	return g.Settings.Engine.TriggerTokenEvent(g, seat, t, "death")
 }

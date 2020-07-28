@@ -2,25 +2,34 @@ package engine
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/out"
 	"github.com/zachtaylor/7elements/game/state"
 	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/out"
 	"github.com/zachtaylor/7elements/power"
 	"ztaylor.me/cast"
 )
 
+// Service runs this package as a plugable `game.Engine`
 type Service struct {
 }
 
-func NewService() *Service {
-	return &Service{}
+// New returns a new `game.Engine`
+func New() game.Engine { return &Service{} }
+
+func (s *Service) Run(game *game.T) {
+	Run(game)
 }
-func (s *Service) _isEngine() game.Engine {
-	return s
+
+func (s *Service) Start(seat string) game.Stater {
+	return state.NewStart(seat)
 }
 
 func (s *Service) End(winner, loser string) game.Stater {
 	return state.NewEnd(winner, loser)
+}
+
+func (s *Service) Target(seat *game.Seat, target string, text string, finish func(val string) []game.Stater) game.Stater {
+	return state.NewTarget(seat.Username, target, text, finish)
 }
 
 func (s *Service) TriggerTokenEvent(g *game.T, seat *game.Seat, token *game.Token, name string) []game.Stater {
@@ -69,8 +78,4 @@ func (s *Service) TriggerTokenPower(g *game.T, seat *game.Seat, token *game.Toke
 		return []game.Stater{state.NewTrigger(seat.Username, token, power, token)}
 	}
 	return []game.Stater{state.NewTrigger(seat.Username, token, power, arg)}
-}
-
-func (s *Service) Target(g *game.T, seat *game.Seat, target string, text string, finish func(val string) []game.Stater) game.Stater {
-	return state.NewTarget(seat.Username, target, text, finish)
 }

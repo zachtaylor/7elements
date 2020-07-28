@@ -7,7 +7,7 @@ import (
 
 // SignupSocket provides the signup mechanism from the websocket connection
 func (t *T) SignupSocket(socket *websocket.T, username, email, password string) (player *player.T, error error) {
-	p, err := t.Signup(username, email, password)
+	p, err := t.Players.Signup(username, email, password)
 	if err != nil {
 		error = err
 	} else {

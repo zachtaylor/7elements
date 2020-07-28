@@ -9,6 +9,6 @@ import (
 
 func GlobalDataHandler(t *runtime.T) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(cast.BytesS(t.JSON().String()))
+		w.Write(cast.BytesS(t.GlobalJSON().String()))
 	})
 }
