@@ -1,48 +1,35 @@
-<ng-container *ngIf="adapt.scale$ | async as scale">
-  <nav *ngIf="!game" adapt="0" class="posf w100 fnt0">
-    <div class="fltl">
-      <a class="fltl" adapt="0" [class.hilite]="breadcrumbService.path=='/'" routerLink="/">
-        <img adapt="0" src="/img/banner-white.128px.png">
-      </a>
-    </div>
-    <div class="fltl posr h100">
-      <div class="posa fnt1 nav-links">
-        <a [class.hilite]="breadcrumbService.path=='/cards'" routerLink="/cards">Cards</a>
-        <a [class.hilite]="breadcrumbService.path=='/buy'" routerLink="/buy">Buy</a>
-        <a [class.hilite]="breadcrumbService.path=='/play'" routerLink="/play">Play</a>
-      </div>
-    </div>
-    <div *ngIf="conn.isLoggedIn(); then loggedIn; else loggedOut"></div>
-    <ng-template #loggedIn>
-      <div class="fltr"><a class="fltr" adapt="0" [class.hilite]="breadcrumbService.path=='/myaccount'" routerLink="/myaccount">{{conn.username()}}</a></div>
-    </ng-template>
-    <ng-template #loggedOut>
-      <div class="fltr"><a class="fltr" adapt="0" [class.hilite]="breadcrumbService.path=='/myaccount'" routerLink="/myaccount">Login</a></div>
-    </ng-template>
-  </nav>
-  <!-- fix spacing for navbar position:fixed; -->
-  <div *ngIf="!game" adapt="0" ></div>
-</ng-container>
+<!-- nav -->
+<vii-nav></vii-nav>
+
 <!-- notifications -->
-<ng-container *ngIf="notifications.data$ | async as nots">
-  <div *ngIf="nots.length>0" class="posa flxr" style="width:100%;">
-    <div class="fltr" style="padding:21px;">
-      <button (click)="notifications.clear()">&nbsp;X&nbsp;</button>
-    </div>
+<ng-container *ngIf="vii.messages$ | async as msgs">
+  <div *ngIf="msgs.length>0" class="posa flxr" style="width:100%;">
     <div class="flx1"></div>
     <div class="talc not-panel">
-      <div class="fltl" style="padding:21px;">
-        <div *ngFor='let not of nots; let i = index'>
-          <span class="fntc">{{not.source}}</span>
+      <div style="padding:21px;">
+        <div *ngFor='let msg of msgs; let i = index'>
+          <span class="fntc">{{msg.source}}</span>
           <span>&nbsp;:&nbsp;</span>
-          <span>{{not.message}}</span>
+          <span>{{msg.message}}</span>
         </div>
+        <button (click)="vii.messages$.next([])"><label>X</label></button>
       </div>
     </div>
     <div class="flx1"></div>
   </div>
 </ng-container>
-<!-- router -->
-<div class="flx1" style="overflow:auto;">
-  <router-outlet></router-outlet>
-</div>
+
+<content>
+  <content-wrapper>
+    <router-outlet></router-outlet>
+  </content-wrapper>
+</content>
+
+<ng-container *ngIf="!cookies.check('allow')">
+  <footer>
+    <div class="fltr">
+      <a (click)="clickAllowCookies()">Click here</a> to agree!
+    </div>
+    <div>By using this site, you agree that I can store cookies in your browser</div>
+  </footer>
+</ng-container>

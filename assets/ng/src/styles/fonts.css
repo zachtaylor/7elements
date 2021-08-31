@@ -3,7 +3,7 @@
   font-family:'Open Sans';
 }
 .fntb { /* Font B is 'Macondo' */
-  font-family:'Macondo';
+  font-family:'Macondo', cursive;
 }
 
 /* [ui-font~="s"] {

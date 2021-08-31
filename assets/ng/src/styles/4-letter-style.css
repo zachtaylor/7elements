@@ -34,6 +34,9 @@
 .lft0 {
 	left:0%;
 }
+.padw {
+	padding:0 var(--pad);
+}
 .posa {
 	position:absolute;
 }
@@ -42,6 +45,9 @@
 }
 .posf {
 	position:fixed;
+}
+.ptrn {
+	pointer-events:none;
 }
 .rit0 {
 	right:0%;

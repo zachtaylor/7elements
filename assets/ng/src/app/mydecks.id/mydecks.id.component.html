@@ -1,45 +1,63 @@
-<ng-container *ngIf="conn.isLoggedIn()">
-  <article>
-    <article-header>
-      <span class="fltr" *ngIf="countDiff(diff)">
-        <button class="vii" (click)="onSubmit()"><span>Save</span></button>
-      </span>
-      <span>Edit Deck</span>
-    </article-header>
-    <article-body>
-      <span><input type="text" class="vii" formControlName="name" [value]="deck.name"></span>
-    </article-body>
-  </article>
-  <br/>
-  <article>
-    <article-header>
-      <span class="fltr">
-        <b>{{countDeck()}}</b>
-        <i *ngIf="countDiff(diff)">+{{countDiff(diff)}} = {{countLive(diff)}}</i>
-        <b>/ 21+</b>
-      </span>
-      <span>Deck Cards</span>
-    </article-header>
-    <article-body>
-      <div class="dinl" *ngFor="let cardid of getView() | mapKeys">
-        <div class="talc">
-          <span class="fltr"><button (click)="clickDown(cardid)"><span>-</span></button></span>
-          <span class="fltl"><button (click)="clickUp(cardid)"><span>+</span></button></span>
-          <span>x{{deck?.cards[cardid]}}</span>
-          <span *ngIf="diff[cardid]>0">+{{diff[cardid]}}</span>
-          <span *ngIf="diff[cardid]<0">{{diff[cardid]}}</span>
-        </div>
-        <app-card-detail [card]="conn.card(cardid)"></app-card-detail>
-      </div>
-    </article-body>
-  </article>
-  <br/>
+<ng-container *ngIf="vii.user()">
+
+<div class="dinl h100 flx1 panel">
   <article>
     <article-header>Card Collection</article-header>
     <article-body>
-      <app-card-detail *ngFor="let cardid of myaccount.cards | mapKeys" [card]="conn.card(cardid)" (click)="clickUp(cardid)">
+      <app-card-detail *ngFor="let cardid of myaccount.cards | mapKeys" [card]="glob.cards[cardid-1]">
         <div style="padding:7px">x{{myaccount.cards[cardid]}}</div>
+        <div>
+          <button adapt="1" (click)="clickUp(cardid)">&nbsp;<label>+</label>&nbsp;</button>
+        </div>
+        <div>
+          <button adapt="1" (click)="clickDown(cardid)">&nbsp;<label>-</label>&nbsp;</button>
+        </div>
       </app-card-detail>
     </article-body>
   </article>
+</div>
+<div class="dinl panel right">
+  <img class="w100" src="/img/card/{{cover()}}.jpg">
+  <form class="vii well pos-rel" [formGroup]="form">
+    <div class="form-row">
+      <input type="text" class="vii talc" [value]="deck.name" formControlName="name" placeholder="[no name]">
+    </div>
+  </form>
+  <div class="talc">
+    <b *ngIf="countDiff()==0">{{countDeck()}}</b>
+    <b>
+      <i class="flx1 talc" *ngIf="countDiff()">{{countLive()}} ({{countDiffString()}})</i>
+    </b>
+    <b *ngIf="countLive()>20"> Cards</b>
+    <i *ngIf="countLive()<21">/ 21 Cards (min)</i>
+  </div>
+  <div class="talc" *ngIf="deck.cover===0">
+    <i>cover art missing</i>
+  </div>
+  <div class="talc">
+    <button class="vii" [disabled]="!(countDiff(diff)||dname||dcover>0)" (click)="clickSave()"><label>Save</label></button>
+  </div>
+  <div *ngFor="let cardid of getView() | mapKeys">
+    <app-card-detail [card]="glob.cards[cardid-1]">
+      <div class="flxr w250">
+        &nbsp;
+        <span class="flx1">
+          <span>x{{deck?.cards[cardid]||0}}</span>
+          <span *ngIf="diff[cardid]>0">+{{diff[cardid]}}</span>
+          <span *ngIf="diff[cardid]<0">{{diff[cardid]}}</span>
+        </span>
+        <span class="talr">
+          <button adapt="1" (click)="clickCover(cardid)" [disabled]="cardid==cover()">
+            &nbsp;<img adapt="2" src="/img/icon/star.svg">&nbsp;
+          </button>
+          &nbsp;
+          <button adapt="1" (click)="clickDown(cardid)">&nbsp;<label>-</label>&nbsp;</button>
+          &nbsp;
+          <button adapt="1" (click)="clickUp(cardid)">&nbsp;<label>+</label>&nbsp;</button>
+        </span>
+      </div>
+    </app-card-detail>
+  </div>
+</div>
+
 </ng-container>

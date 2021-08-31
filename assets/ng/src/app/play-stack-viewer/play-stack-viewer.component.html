@@ -1,0 +1,25 @@
+<article *ngIf="vii.state$(viewid) | async as state">
+  <article-header>
+    <button *ngIf="state.stack" (click)="clickStackLeft()" class="fltl"><label>&lt;</label></button>
+    <button *ngIf="state.parent" (click)="clickStackRight()" class="fltr"><label>&gt;</label></button>
+    <span>{{state.seat}}</span>
+    <span *ngIf="state.data.card"> played {{vii.glob.cards[state.data.card.cardid-1].name}}</span>
+    <span *ngIf="state.data.token"> triggered {{state.data.token.name}}</span>
+    <span *ngIf="state.name=='sunrise'||state.name=='main'||state.name=='sunset'"> {{state.name}} </span>
+  </article-header>
+  <article-body>
+    <app-card-detail *ngIf="state.data.card" [card]="vii.glob.cards[state.data.card.cardid-1]"></app-card-detail>
+    <ng-container *ngIf="state.name=='trigger'">
+      <div>{{state.data.power.text}}</div>
+    </ng-container>
+    <div *ngIf="state.data.target">
+      <h2>Target: {{state.data.target}}</h2>
+      <ng-container *ngIf="vii.token$(state.data.target) | async as token">
+        <game-token *ngIf="token" [tokenid]="token.id"></game-token>
+      </ng-container>
+      <ng-container *ngIf="vii.card$(state.data.target) | async as card">
+        <app-card-detail *ngIf="card" [card]="vii.glob.cards[card.cardid-1]"></app-card-detail>
+      </ng-container>
+    </div>
+  </article-body>
+</article>

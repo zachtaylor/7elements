@@ -1,0 +1,55 @@
+<article *ngIf="glob&&myaccount">
+  <article-header>Decks</article-header>
+  <article-body>
+    <table class="w100">
+      <tr>
+        <td>
+          <div>This is your Active Deck</div>
+          <br/><br/>
+          <div>Scroll down to <img adapt="2" src="/img/icon/hand.svg">Select a different one</div>
+        </td>
+        <td class="talr">
+          <ng-container *ngIf="queue.owner=='vii'">
+            <app-deck-summary [deck]="glob.decks[queue.id]"></app-deck-summary>
+          </ng-container>
+          <ng-container *ngIf="queue.owner==vii.user()">
+            <app-deck-summary [deck]="myaccount.decks[queue.id]"></app-deck-summary>
+          </ng-container>
+        </td>
+      </tr>
+    </table>
+  </article-body>
+  <article-footer>
+    <a routerLink="/play">Click here</a> to start a new Game
+  </article-footer>
+</article>
+<br />
+<article *ngIf="myaccount">
+  <article-header>Your Decks</article-header>
+  <article-body>
+    <app-deck-summary *ngFor="let deck of myaccount?.decks | mapValues" [deck]="deck">
+    <a class="fltr" [routerLink]="['/mydecks', deck.id]" class="fltr">
+      <img adapt="2" src="/img/icon/pencil.svg">
+    </a>
+    <img adapt="2" *ngIf="queue.owner==vii.user()&&queue.id==deck.id" src="/img/icon/star.svg">
+    <a *ngIf="queue.owner=='vii'||queue.id!=deck.id" (click)="setActiveDeck(vii.user(), deck.id)">
+      <img adapt="2" src="/img/icon/hand.svg">
+    </a>
+    </app-deck-summary>
+  </article-body>
+</article>
+<br />
+<article>
+  <article-header>Free-to-Play Decks</article-header>
+  <article-body>
+    <app-deck-summary *ngFor="let deck of glob?.decks | mapValues" [deck]="deck">
+    <a class="fltr" [routerLink]="['/decks', deck.id]" class="fltr">
+      <img adapt="2" src="/img/icon/magnify.svg">
+    </a>
+    <img adapt="2" *ngIf="queue.owner=='vii'&&queue.id==deck.id" src="/img/icon/star.svg">
+    <a *ngIf="queue.owner==vii.user()||queue.id!=deck.id" (click)="setActiveDeck('vii', deck.id)">
+      <img adapt="2" src="/img/icon/hand.svg">
+    </a>
+    </app-deck-summary>
+  </article-body>
+</article>

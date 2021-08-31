@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core'
-import { Deck, MyAccount } from '../api'
+import { Deck, GlobalData, MyAccount } from '../api'
 import { Subscription, Observable, BehaviorSubject } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
-import { ConnService } from '../conn.service'
+import { VII } from '../7.service'
 import { FormGroup, FormControl } from '@angular/forms'
 
 @Component({
@@ -12,18 +12,29 @@ import { FormGroup, FormControl } from '@angular/forms'
 })
 export class MyDecksIdComponent implements OnInit {
   deck: Deck
-  myaccount: MyAccount
+  dname = ''
+  dcover = 0
   diff = new Map<number, number>()
+
   private id: number
   private $id: Subscription
+
+  glob : GlobalData
+  private $glob : Subscription
+
+  myaccount: MyAccount
   private $myaccount: Subscription
 
   form = new FormGroup({
     name: new FormControl(''),
   })
 
-  constructor(private route: ActivatedRoute, public conn: ConnService) {
-  }
+  private $input: Subscription
+
+  constructor(
+    public vii: VII,
+    private route: ActivatedRoute,
+  ) { }
 
   ngOnInit() {
     let me = this
@@ -31,41 +42,62 @@ export class MyDecksIdComponent implements OnInit {
       me.id = +params['id']
     })
 
-    this.$myaccount = this.conn.myaccount$.subscribe(myaccount => {
-      this.myaccount = myaccount
+    this.$myaccount = this.vii.account$.subscribe(myaccount => {
+      console.debug('myaccount')
+      me.myaccount = myaccount
       if (!myaccount) return;
       me.deck = myaccount.decks[me.id]
+    })
+
+    this.$glob = this.vii.global$.subscribe(glob => { this.glob = glob })
+
+    this.$input = this.form.valueChanges.subscribe(() => {
+      let val = this.form.get('name').value
+      if (val == this.deck.name) {
+        this.dname = ''
+      } else {
+        this.dname = val
+      }
     })
   }
 
   ngOnDestroy() {
     this.$id.unsubscribe()
     this.$myaccount.unsubscribe()
+    this.$glob.unsubscribe()
+    this.$input.unsubscribe()
   }
 
-  countLive(diff: Map<number, number>): number {
-    return this.countDeck()+this.countDiff(diff)
+  cover() : number {
+    if (this.dcover) return this.dcover
+    else return this.deck.cover
+  }
+
+  countLive(): number {
+    return this.countDeck()+this.countDiff()
   }
 
   countDeck(): number {
     let num = 0
-    let me = this
-    let keys = Object.keys(this.deck.cards)
+    Object.keys(this.deck.cards).forEach(v => {
+      num += this.deck.cards[v]
+    })
+    return num
+  }
+
+  countDiff(): number {
+    let num = 0
+    let keys = Object.keys(this.diff)
     for (let i = 0; i < keys.length; i++) {
-      let count = me.count(+keys[i])
-      if (count) num += count
+      num += this.diff[keys[i]]
     }
     return num
   }
 
-  
-  countDiff(diff: Map<number, number>): number {
-    let num = 0
-    let keys = Object.keys(diff)
-    for (let i = 0; i < keys.length; i++) {
-      num += diff[keys[i]]
-    }
-    return num
+  countDiffString(): string {
+    let diff = this.countDiff()
+    if (diff < 0) return ''+diff;
+    else return '+'+diff;
   }
 
   count(id: number): number {
@@ -73,10 +105,9 @@ export class MyDecksIdComponent implements OnInit {
   }
 
   getDeck(id: number): number {
-    if (this.deck[id]) {
-      return this.deck[id]
+    if (this.deck.cards[id]) {
+      return this.deck.cards[id]
     }
-    this.deck[id] = 0
     return 0
   }
 
@@ -91,15 +122,11 @@ export class MyDecksIdComponent implements OnInit {
   getView(): Map<number, number> {
     let me = this
     let view = new Map<number, number>()
-    this.conn.global$.value.cards.forEach(card => {
+    this.vii.global$.value.cards.forEach(card => {
       let count = me.count(card.id)
       if (count > 0) view[card.id] = count
     })
     return view
-  }
-
-  clickUpdate() {
-
   }
 
   clickUp(id: number) {
@@ -111,7 +138,24 @@ export class MyDecksIdComponent implements OnInit {
     this.diff[id]--
   }
 
-  onSubmit() {
-    console.warn('submit')
+  clickCover(cardid : number) {
+    if (this.deck.cover == cardid) {
+      this.dcover = 0
+    } else {
+      this.dcover = +cardid
+    }
+  }
+
+  clickSave() {
+    let obj = {
+      id: this.deck.id,
+    }
+    if (this.dname != this.deck.name) { obj["name"] = this.dname }
+    if (this.countDiff() != 0) { obj["cards"] = this.diff }
+    if (this.dcover > 0) { obj["cover"] = this.dcover }
+    this.dname = ''
+    this.diff = new Map<number, number>()
+    this.dcover = 0
+    this.vii.send('/deck', obj)
   }
 }

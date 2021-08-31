@@ -1,0 +1,21 @@
+:host {
+  display:flex;
+  flex-direction:row;
+  height:100%;
+  width:100%;
+}
+.panel {
+  overflow-y:auto;
+}
+.panel.right form {
+  width:256px;
+}
+.panel.right app-card-detail {
+  margin-bottom:-272px;
+}
+.panel.right app-card-detail .card-banner {
+  border-radius:0px;
+}
+.w250 {
+  width:250px;
+}

@@ -3,7 +3,7 @@
   <article-body>
     <h2>{{deck?.name}}</h2>
     <hr/>
-    <app-card-detail *ngFor="let cardid of deck?.cards | mapKeys" [card]="conn.card(cardid)">
+    <app-card-detail *ngFor="let cardid of deck?.cards | mapKeys" [card]="glob.cards[cardid-1]">
       <div style="padding:7px">x{{deck?.cards[cardid]}}</div>
     </app-card-detail>
   </article-body>

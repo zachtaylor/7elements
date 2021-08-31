@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { MyAccount } from '../api'
-import { ConnService } from '../conn.service'
-import { WebsocketService } from '../websocket.service'
+import { VII } from '../7.service'
 import { Subscription } from 'rxjs'
 import { FormGroup, FormControl } from '@angular/forms'
 import { Router } from '@angular/router'
@@ -12,7 +11,7 @@ import { Router } from '@angular/router'
   styleUrls: ['./myaccount.component.css']
 })
 export class MyAccountComponent implements OnInit {
-  public signup : boolean // signup mode when not logged in
+  public signup = false // signup mode when not logged in
 
   myaccount : MyAccount
   private $myaccount : Subscription
@@ -38,11 +37,11 @@ export class MyAccountComponent implements OnInit {
     return Object.keys(obj)
   }
 
-  constructor(public conn : ConnService, public ws : WebsocketService, private router : Router) {
+  constructor(public vii : VII) {
   }
 
   ngOnInit() {
-    this.$myaccount = this.conn.myaccount$.subscribe(myaccount => {
+    this.$myaccount = this.vii.account$.subscribe(myaccount => {
       this.myaccount = myaccount
     })
   }
@@ -51,20 +50,35 @@ export class MyAccountComponent implements OnInit {
     this.$myaccount.unsubscribe()
   }
 
-  logout() {
-    this.ws.send('/logout', {})
+  getLoginTitle() : string {
+    if (this.signup) return 'Signup'
+    return 'Login'
+  }
+
+  getCards() : number {
+    if (!this.myaccount) return 0
+    return Object.keys(this.myaccount.cards).length
+  }
+
+  getDecks() : number {
+    if (!this.myaccount) return 0
+    return Object.keys(this.myaccount.decks).length
+  }
+
+  onClickLogout() {
+    this.vii.send('/logout', {})
   }
 
   onSubmit() {
     if (this.signup) {
-      this.ws.send('/signup', {
+      this.vii.send('/signup', {
         username:this.form.get('username').value,
         email:this.form.get('email').value,
         password1:this.form.get('password1').value,
         password2:this.form.get('password2').value
       })
     } else {
-      this.ws.send('/login', {
+      this.vii.send('/login', {
         username:this.form.get('username').value,
         password:this.form.get('password1').value
       })
@@ -75,10 +89,11 @@ export class MyAccountComponent implements OnInit {
     let inputEmail = this.changeEmail.get('email')
     let newEmail = inputEmail.value
     inputEmail.setValue('')
-    this.ws.send('/email', {
+    this.vii.send('/email', {
       email:newEmail
     })
   }
+
   onSubmitChangePassword() {
     let inputPassword1 = this.changePassword.get('password1')
     let inputPassword2 = this.changePassword.get('password2')
@@ -86,7 +101,7 @@ export class MyAccountComponent implements OnInit {
     let newPassword2 = inputPassword1.value
     inputPassword1.setValue('')
     inputPassword2.setValue('')
-    this.ws.send('/password', {
+    this.vii.send('/password', {
       password1:newPassword1,
       password2:newPassword2,
     })

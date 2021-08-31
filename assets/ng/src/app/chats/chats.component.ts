@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { ConnService } from '../conn.service'
-import { WebsocketService } from '../websocket.service'
+import { VII } from '../7.service'
 
 @Component({
   selector: 'app-chats',
@@ -11,7 +10,7 @@ export class ChatsComponent implements OnInit {
   channel = ''
   openChats = ['all']
 
-  constructor(public conn: ConnService, public ws : WebsocketService) {
+  constructor(public vii: VII) {
   }
 
   ngOnInit() {
@@ -22,7 +21,7 @@ export class ChatsComponent implements OnInit {
     if (!name) return;
     this.openChats.push(name)
     this.channel = name
-    this.ws.send('/chat/join', {
+    this.vii.send('/chat/join', {
       'channel':name
     })
   }
@@ -33,7 +32,7 @@ export class ChatsComponent implements OnInit {
       return
     }
     this.channel = name
-    this.ws.send('/chat/join', {
+    this.vii.send('/chat/join', {
       'channel':name
     })
   }
@@ -42,7 +41,7 @@ export class ChatsComponent implements OnInit {
     let msg = inputChat.value
     if (!msg) return;
     console.debug('chat send: ', msg)
-    this.ws.send('/chat', {
+    this.vii.send('/chat', {
       "channel":this.channel,
       "message":msg
     })

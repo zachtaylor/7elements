@@ -1,10 +1,15 @@
-<article>
-  <article-header>All Available Cards</article-header>
+<article *ngIf="glob">
+  <article-header>Cards</article-header>
   <article-body>
-    <app-card-detail *ngFor="let card of cards" [card]="card">
-      <ng-container *ngIf="conn.myaccount$ | async as myaccount">
-        <div style="padding:7px" *ngIf="myaccount&&myaccount.cards[card.id]">x{{myaccount.cards[card.id]}}</div>
+    <ng-container *ngFor="let card of glob.cards">
+      <ng-container *ngIf="myaccount&&myaccount.cards&&myaccount.cards[card.id]; else showBasic">
+        <app-card-detail [card]="card">
+          <div style="padding:7px">x{{myaccount.cards[card.id]}}</div>
+        </app-card-detail>
       </ng-container>
-    </app-card-detail>
+      <ng-template #showBasic>
+        <app-card-detail [card]="card"></app-card-detail>
+      </ng-template>
+    </ng-container>
   </article-body>
 </article>

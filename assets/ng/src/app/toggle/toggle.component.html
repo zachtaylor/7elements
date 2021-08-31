@@ -1,6 +1,5 @@
-<input type="checkbox" id="checkbox" [(ngModel)]="isChecked" (change)="change(isChecked)"
-  [ngModelOptions]="{standalone: true}">
-<label for="checkbox">
+<input type="checkbox" [(ngModel)]="check" [ngModelOptions]="{standalone: true}">
+<label (click)="toggle()">
   <span class="inner"></span>
   <span class="switch"></span>
 </label>

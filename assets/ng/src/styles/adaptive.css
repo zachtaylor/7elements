@@ -1,12 +1,10 @@
 body {
 	--ui:32px;
   --pad:4px;
+  --font:18px;
   font-size:18px;
 }
 [adaptive] {
-  height:var(--ui);
-}
-.svg {
   height:var(--ui);
 }
 [adapt~="0"] {
@@ -17,6 +15,9 @@ body {
 }
 [adapt~="2"] {
   height:calc(var(--ui) / 2);
+}
+[adapt~="pad"] {
+  padding:var(--pad);
 }
 h1, .fnt0 {
   font-size:calc(var(--ui) - 5px - var(--pad));

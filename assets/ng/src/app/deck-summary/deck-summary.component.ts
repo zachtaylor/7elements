@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core'
 import { Deck } from '../api'
-import { ConnService } from '../conn.service'
 import { Subscription } from 'rxjs'
+import { SettingsService } from '../settings.service'
 
 @Component({
   selector: 'app-deck-summary',
@@ -11,21 +11,20 @@ import { Subscription } from 'rxjs'
 export class DeckSummaryComponent implements OnInit {
   @Input() deck : Deck
   @HostBinding('class.active') isActive : boolean = false
-  private $settings : Subscription
+  private $queue : Subscription
 
-  constructor(public conn : ConnService) {
-  }
+  constructor(public settings : SettingsService) { }
 
   ngOnInit() {
-    this.$settings = this.conn.settings$.subscribe(settings => {
+    this.$queue = this.settings.queue$.subscribe(queue => {
       if (!this.deck) {
         return
       }
-      this.isActive = (!!this.deck.username == settings.deck.account) && (this.deck.id == settings.deck.id)
+      this.isActive = (this.deck.username == queue.owner) && (this.deck.id == queue.id)
     })
   }
 
   ngOnDestroy() {
-    this.$settings.unsubscribe()
+    this.$queue.unsubscribe()
   }
 }

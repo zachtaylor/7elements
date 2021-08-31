@@ -2,13 +2,11 @@
   <div #header class="header fnt0">
     <ng-content select="article-header"></ng-content>
   </div>
-  <!-- <ng-container *ngIf="header.innerHTML.trim()"> -->
-    <hr/>
-  <!-- </ng-container> -->
+  <hr *ngIf="!!header.innerHTML.trim()"/>
   <div class="body">
     <ng-content select="article-body"></ng-content>
   </div>
-  <hr *ngIf="footer.innerHTML.trim()" />
+  <hr *ngIf="!!footer.innerHTML.trim()" />
   <div #footer class="footer fnt1">
     <ng-content select="article-footer"></ng-content>
   </div>

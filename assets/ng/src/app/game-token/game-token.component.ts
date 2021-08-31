@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core'
-import { GameToken, Game } from '../api'
+import { GameToken, Game, GameState } from '../api'
 import { Subscription } from 'rxjs'
-import { GameService } from '../game.service'
+import { VII } from '../7.service'
 
 @Component({
   selector: 'app-game-token',
@@ -10,35 +10,43 @@ import { GameService } from '../game.service'
 })
 export class GameTokenComponent implements OnInit {
   @Input() tokenid: string
+
+  state : GameState
+  private $state: Subscription
+
   token : GameToken
-  $token : Subscription
-  @Input() game: Game
+  private $token : Subscription
 
   @HostBinding('class.triggered') get isTriggered(): boolean {
-    let data = this.game.state.data
-    return data && this.token && (data.id == this.token.id ||
+    let data = this.state.data
+    return data && this.token && (
+      (data.id == this.token.id) ||
       (data.token && data.token.id == this.token.id) ||
       (data.attack && data.attack.id == this.token.id) ||
       (data.block && data.block.id == this.token.id) ||
-      (data.target && data.target.id == this.token.id))
+      (data.target && data.target.id == this.token.id)
+    )
   }
 
-  constructor(public games : GameService) {
+  constructor(public vii : VII) {
   }
 
   ngOnInit() {
-    let me = this
-    this.$token = this.games.token$(this.tokenid).subscribe(token => {
-      me.token = token
+    this.$state = this.vii.gamestate$.subscribe(state => {
+      this.state = state
+    })
+    this.$token = this.vii.token$(this.tokenid).subscribe(token => {
+      this.token = token
     })
   }
 
   ngOnDestroy() {
+    this.$state.unsubscribe()
     this.$token.unsubscribe()
   }
 
   getIcon(): string {
-    let data = this.game.state.data
+    let data = this.state.data
     if (!this.token) {
       return ''
     } else if (!data) {
@@ -47,12 +55,12 @@ export class GameTokenComponent implements OnInit {
       } else {
         return 'asleep.svg'
       }
-    } else if (this.game.state.name == 'combat' && (
+    } else if (this.state.name == 'combat' && (
       (data.attack.id == this.token.id) ||
       (data.block && data.block.id == this.token.id)
     )) {
       return 'combat.svg'
-    } else if (this.game.state.name == 'attack' && data.id == this.token.id) {
+    } else if (this.state.name == 'attack' && data.id == this.token.id) {
       return 'attack.svg'
     } else if (data.token && data.token.id == this.token.id) {
       return 'star.svg'

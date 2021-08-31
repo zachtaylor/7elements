@@ -14,14 +14,17 @@ label {
   display:block;
   overflow:hidden;
   cursor:pointer;
-  border:2px solid #777777;
+  border-width:2px;
+  border-style:solid;
+  border-color:#777777;
   border-radius:12px;
+  transition:all 0.25s ease-in 0s;
 }
 label .inner {
   display:block;
   width:200%;
   margin-left:-100%;
-  transition:margin 0.3s ease-in 0s;
+  transition:all 0.25s ease-in 0s;
 }
 label .inner:before, label .inner:after {
   display:block;
@@ -34,35 +37,41 @@ label .inner:before, label .inner:after {
   box-sizing:border-box;
 }
 label .inner:before {
-  content: "";
+  content:"";
   padding-left:3px;
-  background-color: #77FF77;
-  color: #FFFFFF;
+  background-color:#77FF77;
+  color:white;
 }
 label .inner:after {
   content:"";
-  padding-right: 3px;
-  background-color:#FFFFFF;
-  color:#666666;
+  padding-right:3px;
+  background-color:white;
+  color:#777777;
   text-align:right;
 }
 label .switch {
   display:block;
-  width:7px;
-  height:7px;
-  margin:9px;
-  background:#FFFFFF;
+  width:8px;
+  height:8px;
+  margin:8px;
+  background:#777777;
   position:absolute;
   top:0;
   bottom:0;
   right:25px;
-  border:2px solid #777777;
-  border-radius:7px;
-  transition:all 0.3s ease-in 0s; 
+  border-color:#777777;
+  border-width:1px;
+  border-style:solid;
+  border-radius:4px;
+  transition:all 0.25s ease-in 0s;
+}
+input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label .switch {
+  border-color:black;
 }
 input[type="checkbox"]:checked + label .inner {
   margin-left:0;
 }
 input[type="checkbox"]:checked + label .switch {
-  right: 0px; 
+  background:white;
+  right: 0px;
 }

@@ -1,128 +1,101 @@
-<div *ngIf="conn.isLoggedIn(); then loggedIn; else loggedOut">
+<div *ngIf="myaccount; then showAccount; else showLogin">
 </div>
 <!-- logged in -->
-<ng-template #loggedIn>
-  <article>
-    <article-header>Logout</article-header>
-    <article-body>Thanks for playing, <a (click)="logout()">click here to logout</a></article-body>
-  </article>
-  <br />
+<ng-template #showAccount>
   <article>
     <article-header>
-      <span class="fltr">{{myaccount.coins}} coins</span>
-      <span>Account Details</span>
+      <span>My Account</span>
     </article-header>
     <article-body>
+      <div>Your email: {{myaccount.email}}</div>
       <br/>
-      <div autosize>Your email address: {{myaccount.email}}</div>
-      <i>make sure your email is up to date to receive news</i>
+      <div>Your coins: {{myaccount.coins}}</div>
       <br/>
+      <div>Your cards: {{getCards()}}</div>
       <br/>
-      <hr/>
+      <div>Your decks: {{getDecks()}}</div>
       <br/>
-      <form class="vii well pos-rel" [formGroup]="changeEmail" (ngSubmit)="onSubmitChangeEmail()">
-        <div class="vii-form-group">
-          <span>
-            <b>Change Email</b>
-          </span>
-          <span>
-            <button class="vii" type="submit"><span>Update</span></button>
-          </span>
-        </div>
-        <div class="vii-form-group">
-          <span><b>e-mail</b></span>
+    </article-body>
+    <article-footer>
+      <a (click)="onClickLogout()">Logout</a>
+    </article-footer>
+  </article>
+  <article>
+    <article-header>
+      <span class="fltr fnt1">{{myaccount.email}}</span>
+      <span>Email</span>
+    </article-header>
+    <article-body>
+      <form [formGroup]="changeEmail" (ngSubmit)="onSubmitChangeEmail()">
+        <div class="form-row">
+          <label>new email</label>
           <input type="email" autocomplete="email" formControlName="email">
         </div>
       </form>
-      <br/>
-      <hr/>
-      <br/>
-      <form class="vii well pos-rel" [formGroup]="changePassword" (ngSubmit)="onSubmitChangePassword()">
-        <div class="vii-form-group">
-          <span><b>Change Password</b></span>
-          <span><button type="submit"><span>Update</span></button></span>
-        </div>
-        <div class="vii-form-group">
-          <span><b>password</b></span>
+    </article-body>
+    <article-footer>
+      <button (click)="onSubmitChangeEmail()">
+        <label>Update</label>
+      </button>
+    </article-footer>
+  </article>
+  <article>
+    <article-header>Change Password</article-header>
+    <article-body>
+      <form [formGroup]="changePassword" (ngSubmit)="onSubmitChangePassword()">
+        <div class="form-row">
+          <label>new password</label>
           <input type="password" autocomplete="new-password" formControlName="password1">
         </div>
-        <div class="vii-form-group">
-          <span><b>password</b></span>
+        <div class="form-row">
+          <label>new password</label>
           <input type="password" autocomplete="new-password" formControlName="password2">
         </div>
       </form>
-      <br/>
-      <hr/>
-      <br/>
-      <i>payment methods unsupported at this time</i>
-      <br/>
-      <br/>
     </article-body>
+    <article-footer>
+      <button (click)="onSubmitChangePassword()"><label>Update</label></button>
+    </article-footer>
   </article>
-  <br />
-  <article>
-    <article-header>
-      <span class="fltr">{{objectKeys(myaccount.cards).length}} cards</span>
-      <span>Your Cards</span>
-    </article-header>
-    <article-body>
-      <app-card-detail *ngFor="let cardid of myaccount.cards | mapKeys" [card]="conn.card(cardid)">
-        <div style="padding:7px">x{{myaccount.cards[cardid]}}</div>
-      </app-card-detail>
-    </article-body>
-  </article>
-  <br />
-  <article>
-    <article-header>
-      <span class="fltr">{{objectKeys(myaccount.decks).length}} decks</span>
-      <span>Your Decks</span>
-    </article-header>
-    <article-body>
-      <app-deck-summary *ngFor="let deck of myaccount?.decks | mapValues" [deck]="deck">
-        <a class="fltr" [routerLink]="['/mydecks', deck.id]" class="fltr">
-          <img adapt="1" src="/img/icon/pencil.svg"> Edit
-        </a>
-      </app-deck-summary>
-    </article-body>
-  </article>
-  <br />
 </ng-template>
 <!-- logged out -->
-<ng-template #loggedOut>
+<ng-template #showLogin>
   <article>
-    <article-header>My Account</article-header>
+    <article-header>
+      <div class="fltr">
+        <toggle [(check)]="signup"></toggle>
+        <span class="fnt1">Signup Mode</span> 
+      </div>
+      <span>7 Elements {{getLoginTitle()}}</span>
+    </article-header>
     <article-body>
-      <form class="vii well pos-rel" [formGroup]="form" (ngSubmit)="onSubmit()">
-        <fieldset class="width100">
-          <div class="talr">
-            <span>Use the Signup form</span>
-            <toggle (check)="signup=$event"></toggle>
-          </div>
-          <div *ngIf="signup" class="vii-form-detail fltr">Your username must be unique</div>
-          <div class="vii-form-group">
-            <span><b>username</b></span>
-            <input type="text" formControlName="username" autocomplete="username">
-          </div>
-          <div *ngIf="signup" class="vii-form-detail fltr">Your e-mail is optional at this point</div>
-          <div *ngIf="signup" class="vii-form-group">
-            <span><b>e-mail</b></span>
-            <input type="email" formControlName="email">
-          </div>
-          <div *ngIf="signup" class="vii-form-detail fltr">Your account password has no specific requirements</div>
-          <div class="vii-form-group" id="form-group-password1">
-            <span><b>password</b></span>
-            <input type="password" formControlName="password1" autocomplete="new-password current-password" class="vii">
-          </div>
-          <div *ngIf="signup" class="vii-form-detail fltr">Your account password must match above</div>
-          <div *ngIf="signup" class="vii-form-group" id="form-group-password2">
-            <span><b>password</b></span>
-            <input type="password" formControlName="password2" autocomplete="new-password" class="vii">
-          </div>
-          <div class="fltr">
-            <button type="submit"><span>{{signup?'Signup':'Login'}}</span></button>
-          </div>
-        </fieldset>
+      <form id="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <form-detail *ngIf="signup">Your e-mail must appear to be an e-mail address</form-detail>
+        <div *ngIf="signup" class="form-row">
+          <label>e-mail</label>
+          <input type="email" formControlName="email" autocomplete="email">
+        </div>
+        <form-detail *ngIf="signup">Your username must be unique</form-detail>
+        <div class="form-row">
+          <label>username</label>
+          <input type="text" formControlName="username" autocomplete="username">
+        </div>
+        <form-detail *ngIf="signup">Your password has no restrictions</form-detail>
+        <div class="form-row">
+          <label>password</label>
+          <input type="password" formControlName="password1" autocomplete="new-password current-password" class="vii">
+        </div>
+        <form-detail *ngIf="signup">Must match above</form-detail>
+        <div *ngIf="signup" class="form-row">
+          <label>password</label>
+          <input type="password" formControlName="password2" autocomplete="new-password" class="vii">
+        </div>
       </form>
     </article-body>
+    <article-footer>
+      <button type="submit" (click)="onSubmit()">
+        <label>{{getLoginTitle()}}</label>
+      </button>
+    </article-footer>
   </article>
 </ng-template>

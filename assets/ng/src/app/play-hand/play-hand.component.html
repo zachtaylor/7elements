@@ -1,0 +1,17 @@
+<div class="flxr">
+  <button (click)="clickToggle()">
+    <img adapt="2" src="/img/icon/hand.svg">
+  </button>
+  <input class="flx1 talr" #chatinput (keyup.enter)="sendChat(chatinput)">
+  <button (click)="sendChat(chatinput)" [disabled]="!chatinput.value">
+    <img adapt="2" src="/img/icon/chat.png">
+  </button>
+  <button (click)="vii.sendpass()" class="fntc" [disabled]="state?.reacts[vii.user()]">
+    <label>PASS</label>
+  </button>
+</div>
+<a *ngFor="let gcid of hand" (click)="clickCard(gcid)">
+  <ng-container *ngIf="vii.card$(gcid) | async as card">
+    <app-card-detail [card]="glob.cards[card.cardid-1]"></app-card-detail>
+  </ng-container>
+</a>

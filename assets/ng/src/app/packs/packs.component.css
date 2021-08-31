@@ -1,0 +1,12 @@
+:host {
+  position:relative;
+}
+.balance {
+  background-color:whitesmoke;
+  border:2px solid black;
+  border-radius:21px;
+  z-index:1;
+}
+app-card-detail {
+  margin-right: -128px;
+}

@@ -1,34 +1,23 @@
 <!-- overlay menu -->
 <overlay *ngIf="overlay && overlay.show()"></overlay>
+<vii-play-choice-viewer *ngIf="showChoiceViewer()"></vii-play-choice-viewer>
+<!-- stack viewer -->
+<vii-play-stack-viewer *ngIf="showStackViewer()"></vii-play-stack-viewer>
 <!-- choose layout -->
-<div *ngIf="conn.isLoggedIn(); then loggedIn; else loggedOut"></div>
+<div *ngIf="vii.user(); then loggedIn; else loggedOut"></div>
 <!-- logged in -->
 <ng-template #loggedIn>
-  <div *ngIf="game; then showGame; else noGame"></div>
+  <div *ngIf="state; then showGame; else noGame"></div>
   <!-- show game -->
   <ng-template #showGame>
     <!-- seats -->
-    <div class="flx1 flxc">
-      <app-game-seat [username]="getopponent(myaccount.username)"></app-game-seat>
+    <div class="flx1 flxc" *ngIf="vii.gameready()">
+      <app-game-seat *ngFor="let opponent of vii.opponents()" [username]="opponent"></app-game-seat>
       <hr />
-      <app-game-seat [username]="myaccount.username"></app-game-seat>
+      <app-game-seat [username]="vii.user()"></app-game-seat>
     </div>
     <!-- hand -->
-    <div class="hand" [style.margin-bottom.px]="settings.game.hand.open ? 0 : -319">
-      <div class="flxr">
-        <button (click)="clickHand()">
-          <img adapt="2" src="/img/icon/hand.svg">
-        </button>
-        <input class="flx1" #chatinput (keyup.enter)="sendChat(game, chatinput)">
-        <button (click)="sendPass(game)" class="fntc"
-          [disabled]="game.state.reacts[myaccount.username]"><span>PASS</span></button>
-      </div>
-      <div class="flxr">
-        <a *ngFor="let card of game.hand | mapValues" (click)="clickHandCard(card)">
-          <app-card-detail [card]="card"></app-card-detail>
-        </a>
-      </div>
-    </div>
+    <vii-play-hand></vii-play-hand>
 
     <!-- old code -->
 
@@ -169,48 +158,7 @@
   </ng-template>
   <!-- no game -->
   <ng-template #noGame>
-    <div class="h100 w100" style="overflow:auto;">
-      <article>
-        <article-header>Start a New Game</article-header>
-        <article-body>Scroll down to <img adapt="2" src="/img/icon/hand.svg">Select your <img adapt="2" src="/img/icon/star.svg">Active Deck before starting a new Game</article-body>
-        <article-footer>
-          <button (click)="startVsAiGame()"><span>Play VS AI</span></button>
-          <button (click)="startVsHumanQueue()" disabled><span>Play VS Human</span></button>
-          PvP will be enabled in a later update
-        </article-footer>
-      </article>
-      <br />
-      <article>
-        <article-header>Free-to-Play Decks</article-header>
-        <article-body>
-          <app-deck-summary *ngFor="let deck of glob?.decks | mapValues" [deck]="deck">
-            <a class="fltr" [routerLink]="['/decks', deck.id]" class="fltr">
-              <img adapt="1" src="/img/icon/magnify.svg">
-            </a>
-            <img adapt="1" *ngIf="(!settings.deck.account)&&settings.deck.id==deck.id" src="/img/icon/star.svg">
-            <button *ngIf="settings.deck.account||settings.deck.id!=deck.id" (click)="setActiveDeck(false, deck.id)">
-              <img adapt="2" src="/img/icon/hand.svg">
-            </button>
-          </app-deck-summary>
-        </article-body>
-      </article>
-      <br />
-      <article *ngIf="myaccount">
-        <article-header>Your Decks</article-header>
-        <article-body>
-          <app-deck-summary *ngFor="let deck of myaccount?.decks | mapValues" [deck]="deck">
-            <a class="fltr" [routerLink]="['/mydecks', deck.id]" class="fltr">
-              <img adapt="1" src="/img/icon/pencil.svg">
-            </a>
-            <img adapt="1" *ngIf="settings.deck.account&&settings.deck.id==deck.id" src="/img/icon/star.svg">
-            <button *ngIf="(!settings.deck.account)||settings.deck.id!=deck.id" (click)="setActiveDeck(true, deck.id)">
-              <img adapt="2" src="/img/icon/hand.svg">
-            </button>
-          </app-deck-summary>
-        </article-body>
-      </article>
-      <br />
-    </div>
+    <vii-queue-form></vii-queue-form>
   </ng-template>
 </ng-template>
 <!-- logged out -->

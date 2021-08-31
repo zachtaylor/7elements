@@ -1,0 +1,6 @@
+:host {
+  display:table-row;
+}
+span {
+  display:table-cell;
+}

@@ -1,12 +1,13 @@
 <article>
   <article-header>Welcome to 7 Elements Online</article-header>
   <article-body>
-    <h2>This is a brand new online card game</h2>
-    <br />
-    It is free to play in your browser. You may play any of the current Free to Play Decks, or collect Cards to build
-    your own Decks
-    <br/><br/>
-    <h2>Expansion 2020-01-12</h2>
+    <h2>Introduction</h2>
+    <br/>
+    <div>This is a tabletop-style online card-based game. Players use Cards to defeat their Opponents.</div>
+    <br/>
+    <div>In preparation for a game, Players must choose which Deck of Cards to play. Several free-to-play decks are available.</div>
+    <br/>
+    <div>Players can collect Cards to build their own Decks, and win Coins by playing the game.</div>
   </article-body>
   <article-footer>
     <a routerLink="/updates">Click here</a> to access update history
@@ -14,40 +15,67 @@
 </article>
 <br /><br />
 <article>
-  <article-header>Introduction</article-header>
+  <article-header>Rules</article-header>
   <article-body>
-    You begin the game with a Deck of Cards, called your Future, and 7 Life
-    <br /><br />
-    When a Players' Life reaches 0, that Player loses, and when a Player has no more Opponents, they win!
+    <ul>For each Player
+      <li>A Deck of Cards is shuffled, resulting order hidden, called Future</li>
+      <li>Draw Cards (format variable), called Hand</li>
+      <li>Set Starting Life (format variable)</li>
+      <li><ul>Choice
+          <li>Keep: Proceed</li>
+          <li>Mulligan: Put your Hand aside, called Past, Draw Cards (format variable)</li>
+      </ul></li>
+    </ul>
+    <br/>
+    <div>The game proceeds by randomly selecting an Active Player</div>
+    <br/>
+    <ul>Turn Phases
+      <li><ul>Sunrise
+        <li>All Tokens become Awake</li>
+        <li>Active Players' Elements become Active</li>
+        <li>All Players may play Spell Cards and activate Abilities</li>
+        <li>All Players create a new Element (not Active)</li>
+        <li>Active Player draws a Card if their Future is not empty</li>
+      </ul></li>
+      <li><ul>Main
+        <li>Active Player may play any type of Cards and activate Abilities</li>
+        <li>Active Player may use Awake Beings to Attack</li>
+      </ul></li>
+      <li><ul>Play
+        <li>All Players may play Spell Cards and activate Abilities</li>
+      </ul></li>
+      <li><ul>Attack
+        <li>All Players may play Spell Cards and activate Abilities</li>
+        <li>Defending Players may use Awake Beings to Combat</li>
+        <li>If no Defending Players use any Awake Beings to Combat, go to Combat</li>
+      </ul></li>
+      <li><ul>Combat
+        <li>All Players may play Spell Cards and activate Abilities</li>
+        <li>If Defending Being is declared, Attacking Being and Defending Being deal Damage to each other</li>
+        <li>If Defending Being is not declared, Attacking Being deals Damage to Defending Player</li>
+      </ul></li>
+      <li><ul>Sunset
+        <li>All Players may play Spell Cards and activate Abilities</li>
+      </ul></li>
+    </ul>
+    <br/>
+    <div>At the conclusion of Sunset, the next Player becomes the Active Player at Sunrise</div>
+    <br/>
+    <div>Reduce your Opponents' Life to 0 to win the game!</div>
   </article-body>
 </article>
 <br /><br />
-<article>
-  <article-header>Starting the Game</article-header>
-  <article-body>
-    In order to play, you must be logged in, and then you may <a routerLink="play">Click here</a> to start playing
-    <br /><br />
-    When the Game starts, you Future will be Shuffled, and you Draw 3 Cards
-    <br /><br />
-    Your first choice is whether to keep your starting Hand, or Mulligan
-    <br /><br />
-    You may keep your starting hand, by clicking "Keep"
-    <br /><br />
-    Or, you may click "Mulligan", which will put all 3 Cards from your Hand into your Past, and you will then Draw 3 Cards
-  </article-body>
-</article>
-<br /><br />
-<ng-container *ngIf="conn.global$ | async as glob">
+<ng-container *ngIf="vii.global$ | async as glob">
   <article>
     <article-header>Being Cards</article-header>
     <article-body>
       These Cards add Being Tokens to the Present, and the Card is added to your Past
       <br /><br />
-      Being Tokens in the Present have their own Health, and when this reaches 0, the Being is removed from the Present
+      Being Tokens in the Present have their own Life, and when this reaches 0, the Being is removed from the Present
       <br /><br />
       Being Tokens in the Present may be Awake or Asleep, and must be Awake to be used
       <br /><br />
-      Beings do not (re-)gain Health unless otherwise specified
+      Beings do not (re-)gain Life unless otherwise specified
       <br /><br />
       Being Tokens are Asleep when they enter the Present
       <div class="clrl">
@@ -56,7 +84,7 @@
       <app-card-detail class="fltl" [card]="glob.cards[2]"></app-card-detail>
       This Being requires a yellow Element to play
       <br/><br/>
-      It has 2 Attack, and 2 Health, notated by <img adapt="1" src="/img/icon/attack.32px.png"> and <img adapt="1" src="/img/icon/life.32px.png"> 
+      It has 2 Attack, and 2 Life, notated by <img adapt="1" src="/img/icon/attack.32px.png"> and <img adapt="1" src="/img/icon/life.32px.png"> 
       <br/><br/>
       It can be used to attack, and win the game!
       <br/>
@@ -90,7 +118,7 @@
       <br/>
       This Spell requires a violet Element to play
       <br/><br/>
-      It can be used to prevent a Being from losing all of its Health
+      It can be used to prevent a Being from losing all of its Life
       <br/>
       <div class="clrl"></div>
       <!-- <app-card-detail class="fltr" [card]="glob.cards[11]"></app-card-detail>
@@ -102,7 +130,7 @@
       <br/>
       This Spell requires a red Element to play
       <br /><br />
-      It can be used reduce the Health of a Being Token
+      It can be used reduce the Life of a Being Token
       <br/>
       <div class="clrr"></div>
     </article-body>

@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core'
-import { ActivatedRoute, Router } from '@angular/router'
-import { ConnService } from '../conn.service'
-import { PingData, Game, GameCard, MyAccount, Power, Settings, GlobalData, GameToken, GameSeat, Card, Overlay } from '../api'
-import { Subscription, Observable, interval } from 'rxjs'
-import { GameService } from '../game.service'
-import { WebsocketService } from '../websocket.service'
+import { VII } from '../7.service'
+import { PingData, Game, GameCard, MyAccount, Power, GlobalData, GameToken, GameSeat, Card, GameMenu, QueueSetting, GameState } from '../api'
+import { Subscription, interval } from 'rxjs'
+import { SettingsService } from '../settings.service'
 
 @Component({
   selector: 'app-play',
@@ -12,103 +10,75 @@ import { WebsocketService } from '../websocket.service'
   styleUrls: ['./play.component.css']
 })
 export class PlayComponent implements OnInit {
-  glob: GlobalData
-  myaccount: MyAccount
-  timer: number
-  game: Game
-  overlay: Overlay
-  settings: Settings
-  private $ticker: Subscription
-  private $glob: Subscription
-  private $myaccount: Subscription
-  private $game: Subscription
-  private $overlay: Subscription
-  private $settings: Subscription
 
-  constructor(
-    public conn: ConnService,
-    public ws: WebsocketService,
-    public games : GameService,
-    private router: Router,
-  ) { }
+  glob: GlobalData
+  private $glob: Subscription
+
+  myaccount: MyAccount
+  private $myaccount: Subscription
+
+  state : GameState
+  private $state: Subscription
+
+  overlay: GameMenu
+  private $overlay: Subscription
+  
+  timer: number
+  private $ticker: Subscription
+
+  constructor(public vii: VII, public settings : SettingsService) { }
 
   ngOnInit() {
-    console.debug('play ngOnInit')
-    this.$ticker = interval(1000).subscribe(_ => {
-      if (this.timer > 0) this.timer--
-    })
-    this.$glob = this.conn.global$.subscribe(glob => {
+    this.$glob = this.vii.global$.subscribe(glob => {
       this.glob = glob
     })
-    this.$myaccount = this.conn.myaccount$.subscribe(myaccount => {
+    this.$myaccount = this.vii.account$.subscribe(myaccount => {
       this.myaccount = myaccount
     })
-    this.$game = this.games.data$.subscribe(game => {
-      this.game = game
-      if (game) this.timer = game.state.timer
+    this.$state = this.vii.gamestate$.subscribe(state => {
+      this.state = state
+      if (state) this.timer = state.timer
     })
-    this.$overlay = this.games.overlay$.subscribe(overlay => {
+    this.$overlay = this.vii.gamemenu$.subscribe(overlay => {
       this.overlay = overlay
     })
-    this.$settings = this.conn.settings$.subscribe(settings => {
-      this.settings = settings
+    this.$ticker = interval(1000).subscribe(_ => {
+      if (this.timer > 0) this.timer--
     })
   }
 
   ngOnDestroy() {
     console.debug('play ngOnDestroy')
-    this.$ticker.unsubscribe()
     this.$glob.unsubscribe()
     this.$myaccount.unsubscribe()
-    this.$game.unsubscribe()
+    this.$state.unsubscribe()
     this.$overlay.unsubscribe()
-    this.$settings.unsubscribe()
+    this.$ticker.unsubscribe()
   }
 
-  /**
-   * setActiveDeck changes the settings, not affecting game datas
-   * @param account use p2p deck
-   * @param deckid
-   */
-  setActiveDeck(account: boolean, deckid: number) {
-    let settings = this.conn.settings$.value
-    settings.deck.account = account
-    settings.deck.id = deckid
-    this.conn.settings$.next(settings)
+  // handMouseEnter is called when the mouse enter the hand div
+  handMouseEnter() {
+    // console.log('hand mouse enter')
   }
 
-  /**
-   * startVsAiGame sends WS request to make a new game vs AI
-   */
-  startVsAiGame() {
-    this.ws.send('/game/new', {
-      ai: true,
-      account: !!this.conn.settings$.value.deck.account,
-      deckid: this.conn.settings$.value.deck.id
-    })
+  // handMouseEnter is called when the mouse leaves the hand div
+  handMouseLeave() {
+    // console.log('hand mouse leave')
   }
 
-  /**
-   * startVsHumanQueue sends WS request to make a new game vs another player
-   */
-  startVsHumanQueue() {
-    // this.conn.sendWS('/game/new', {
-    //   ai: false,
-    //   account: !!this.conn.settings$.value.deck.account,
-    //   deckid: this.conn.settings$.value.deck.id
-    // })
+  showChoiceViewer() : boolean {
+    return !!this.overlay ||
+      (this.state && this.state.name=='target' && this.state.seat==this.vii.user())
+  }
+
+  showStackViewer() : boolean {
+    return this.state && 
+      (this.state.name=='play'||this.state.name=='trigger') &&
+      (!this.state.reacts[this.vii.user()])
   }
 
   // template display macros
 
-  getopponent(username: string) : string {
-    if (!this.game) return ""
-    let opponent = ""
-    for(let key of Object.keys(this.game.seats)) {
-      if (key != username) opponent = key
-    }
-    return opponent
-  }
 
   // updateTarget() {
   //   console.debug('updateTarget', this.game.state.data.helper, this.game.state.data.display)
@@ -125,11 +95,11 @@ export class PlayComponent implements OnInit {
   //         },
   //       })
   //     }
-  //     this.settings.game.overlay = new Overlay("Target...", this.settings.game.overlay)
+  //     this.settings.game.overlay = new GameMenu("Target...", this.settings.game.overlay)
   //     this.settings.game.overlay.target = this.game.state.data.helper
   //     this.settings.game.overlay.title = this.game.state.data.display
   //     this.settings.game.overlay.choices = choices
-  //     this.conn.settings$.next(this.settings)
+  //     this.vii.settings$.next(this.settings)
   //   }
   // }
 
@@ -141,35 +111,20 @@ export class PlayComponent implements OnInit {
 
   clickDefend(game: Game, id: string) {
     this.sendGCID(game, id)
-    let overlay = this.games.overlay$.value
-    this.games.overlay$.next(overlay.stack)
+    let overlay = this.vii.gamemenu$.value
+    this.vii.gamemenu$.next(overlay.stack)
   }
 
-  clickHand() {
-    this.settings.game.hand.open=!this.settings.game.hand.open
-    this.conn.settings$.next(this.settings)
-  }
-
-  clickHandCard(card: GameCard) {
-    console.debug('click hand', card)
-    this.settings.game.hand.open = false
-    if (this.settings.game.hand.quickcast) {
-      this.games.sendplay(this.game, card)
-    } else {
-      let overlay = new Overlay('Hand: ' + card.name, this.games.overlay$.value)
-      overlay.card = card
-      overlay.stack = this.overlay
-      this.games.overlay$.next(overlay)
-    }
-
-    this.conn.settings$.next(this.settings)
-  }
+  // clickHand() {
+  //   this.play.hand=!this.play.hand
+  //   this.settings.play$.next(this.play)
+  // }
 
   clickTarget(target: any) {
-    let overlay = this.games.overlay$.value
+    let overlay = this.vii.gamemenu$.value
     let f = overlay.targetF
     if (f) f(target)
-    this.games.overlay$.next(overlay.stack)
+    this.vii.gamemenu$.next(overlay.stack)
   }
 
   // clickEnd(game: Game) {
@@ -180,25 +135,6 @@ export class PlayComponent implements OnInit {
 
   // send data
 
-  sendChat(game: Game, chatinput: any) {
-    console.debug('send chat', chatinput)
-    this.ws.send('/game', {
-      gameid: game.id,
-      uri: 'chat',
-      text: chatinput.value,
-    })
-    chatinput.value = ''
-  }
-
-  sendPass(game: Game) {
-    console.debug('send pass')
-    this.ws.send('/game', {
-      gameid: game.id,
-      uri: 'pass',
-      pass: game.state.id,
-    })
-  }
-
   zoomShowPower(token: GameToken, power: Power): boolean {
     if (power.trigger) return false
     else if (!power.usesturn) return true
@@ -206,7 +142,7 @@ export class PlayComponent implements OnInit {
   }
 
   sendChoice(game: Game, choice: string) {
-    this.ws.send('/game', {
+    this.vii.send('/game', {
       gameid: game.id,
       uri: game.state.id,
       choice: choice,
@@ -214,7 +150,7 @@ export class PlayComponent implements OnInit {
   }
 
   sendGCID(game: Game, id: string) {
-    this.ws.send('/game', {
+    this.vii.send('/game', {
       gameid: game.id,
       uri: game.state.id,
       id: id,

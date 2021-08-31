@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
-import { Deck } from '../api'
+import { Deck, GlobalData } from '../api'
 import { ActivatedRoute } from '@angular/router'
-import { ConnService } from '../conn.service'
+import { VII } from '../7.service'
 import { Subscription } from 'rxjs'
 
 @Component({
@@ -10,26 +10,29 @@ import { Subscription } from 'rxjs'
   styleUrls: ['./decks.id.component.css']
 })
 export class DecksIdComponent implements OnInit {
+  glob: GlobalData
   deck: Deck
   private id: number
   private $id: Subscription
   private $glob: Subscription
 
-  constructor(private route: ActivatedRoute, public conn : ConnService) { }
+  constructor(private route: ActivatedRoute, public vii : VII) { }
 
   ngOnInit() {
-    let me = this
-
     this.$id = this.route.params.subscribe(params => {
-       this.id = +params['id']; // (+) converts string 'id' to a number
+       this.id = +params['id']
     })
-    this.$glob = this.conn.global$.subscribe(glob => {
-      if (glob) me.deck = me.conn.deck(me.id)
+    this.$glob = this.vii.global$.subscribe(glob => {
+      if (glob) {
+        this.glob = glob
+        this.deck = glob.decks[this.id]
+      }
     })
   }
 
   ngOnDestroy() {
     this.$id.unsubscribe()
+    this.$glob.unsubscribe()
   }
 
 }

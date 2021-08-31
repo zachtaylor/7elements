@@ -7,12 +7,10 @@ html {
 	height:100%;
 }
 body {
-	user-select:none;
-	background: #f7f7f7;
-	font-family:'Open Sans',Monaco,monospace;
 	height:100%;
-	width:100%;
-	overflow:hidden;
+	user-select:none;
+	background:#aaa;
+	font-family:'Open Sans',Monaco,monospace;
 }
 img {
 	vertical-align:text-bottom;
@@ -46,25 +44,37 @@ a:hover {
   animation:background-slide 7s infinite;
 }
 button {
-	font-size:21px;
-	line-height:24px;
-	font-weight:bold;
-	color:black;
-	cursor:pointer;
-	border-radius:24px;
-	font-family:'Macondo';
+	animation:rainbowbox 7s infinite;
+	border-radius:32px;
 	background-color:white;
 	border-width:2px;
-	animation:rainbowbox 7s infinite;
+	cursor:pointer;
+	box-shadow: 0px 0px 7px #777777;
 }
 button[disabled] {
-	cursor:default;;
+	animation:none;
 	background-color:#777777;
 	border-color:black;
-	animation:none;
+	cursor:default;
+	box-shadow:none;
 }
-button span {
-	padding:16px;
+button label {
+	font-family:'Macondo';
+	font-weight:400;
+	font-size:var(--font);
+	padding:calc(var(--pad));
+	cursor:pointer;
+}
+button[disabled] label {
+	cursor:not-allowed;
+}
+button img {
+	margin-top:-2px;
+	padding:1px;
+}
+form {
+	display:table;
+	width:100%;
 }
 input {
 	border-radius:7px;

@@ -1,35 +1,43 @@
-<br/><br/>
-<article *ngIf="conn.ping$ | async as ping">
-  <article-header>7 Elements Online</article-header>
+<div class="splash"></div>
+<ng-container *ngIf="vii.ping$ | async as ping">
+  <article *ngIf="ping">
+    <article-header>
+      <span>7 Elements Online</span>
+    </article-header>
+    <article-body>
+      <h2>A brand new online card game</h2>
+      <br/>
+      <div>Free to play, in your browser! <a routerLink="/intro"> Click here </a>for an introduction</div >
+      <br/>
+      <h2>Version 0.0.3 (2021-07-10)</h2>
+      <br/>
+      <div>7 New Cards, PvP mode, and more! <a routerLink="/updates">Click here</a> for update history<br/></div>
+      <br/>
+      <span>{{ping.ping}} connected / {{ping.online}} logged in / {{ping.users}} users</span>
+      <br/>
+    </article-body>
+  </article>
+  <br/><br/>
+</ng-container>
+<article *ngIf="!myaccount">
+  <article-header>No Account</article-header>
   <article-body>
-    {{ping.ping}} connected / {{ping.online}} logged in / {{conn.global$.value?.users}} users
+    You are logged out
   </article-body>
   <article-footer>
-    <a routerLink="/intro">Click here</a> for an introduction
+    Sign up for free today! <a routerLink="/myaccount">Click here</a>
   </article-footer>
 </article>
+<!-- <article *ngIf="myaccount">
+  <article-header>Quick Play</article-header>
+  <article-body></article-body>
+</article> -->
 <br/><br/>
-<br/><br/>
-<article>
-  <article-header>Version 2</article-header>
-  <article-body>
-    New and Updated Cards
-    <br/>
-    Deck Editor
-    <br/>
-    Upgraded AI
-  </article-body>
-  <article-footer>
-    <a routerLink="/updates">Click here</a> for update history
-  </article-footer>
-</article>
-<br/><br/>
-<br/><br/>
+
+<!-- 
 <article>
   <article-header>Chat Room</article-header>
   <article-body>
     <a routerLink="/chats">Click here</a> to visit the chat room
   </article-body>
-</article>
-<br/><br/>
-<br/><br/>
+</article> -->

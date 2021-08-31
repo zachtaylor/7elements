@@ -1,0 +1,23 @@
+<nav *ngIf="!myaccount||!myaccount.game">
+  <span class="nav-item" [class.hilited]="vii.path=='/'">
+    <a routerLink="/">
+      <img adapt="0" src="/img/banner-white.64px.png">
+    </a>
+  </span>
+  <a class="nav-item" [class.hilited]="vii.path=='/cards'" routerLink="/cards">
+    <span>Cards</span>
+  </a>
+  <a class="nav-item" [class.hilited]="vii.path=='/packs'" routerLink="/packs">
+    <span>Packs</span>
+  </a>
+  <a class="nav-item" [class.hilited]="vii.path=='/decks'" routerLink="/decks">
+    <span>Decks</span>
+  </a>
+  <a class="nav-item" [class.hilited]="vii.path=='/play'" routerLink="/play">
+    <span>Play</span>
+  </a>
+  <span class="flx1"></span> <!-- spacer -->
+  <a class="nav-item" [class.hilited]="vii.path=='/myaccount'">
+    <span routerLink="/myaccount">{{getAccountLinkName()}}</span>
+  </a>
+</nav>

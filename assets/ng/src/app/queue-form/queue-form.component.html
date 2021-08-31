@@ -1,0 +1,43 @@
+<article *ngIf="glob && myaccount">
+  <article-header>Start a New Game</article-header>
+  <article-body>
+    <div class="fltr talr">
+      <div>This is your Active Deck</div>
+      <br/>
+      <a routerLink="/decks">Click here</a> to choose a different deck
+      <br/><br/>
+      <ng-container *ngIf="queue.owner=='vii'">
+      <app-deck-summary [deck]="glob.decks[queue.id]"></app-deck-summary>
+      </ng-container>
+      <ng-container *ngIf="queue.owner==vii.user()">
+      <app-deck-summary [deck]="myaccount.decks[queue.id]"></app-deck-summary>
+      </ng-container>
+    </div>
+    <div>
+      <div>Wait for a human</div>
+      <div class="fnt2"><i>set to ON to request to match a human player</i></div>
+      <div class="fnt2"><i>set to OFF to play against the A.I.</i></div>
+      <toggle [(check)]="queue.pvp" (checkChange)="onChangeQueue()"></toggle>
+      <br/><br/>
+      <div>Allow custom decks</div>
+      <div class="fnt2"><i>(when playing against human players, allows the use of custom decks)</i></div>
+      <div class="fnt2"><i>(this setting will be overriden by the server when choosing a custom deck)</i></div>
+      <toggle [(check)]="queue.custom" (checkChange)="onChangeQueue()"></toggle>
+      <br/><br/>
+      <div>Hand Size</div>
+      <div class="fnt2"><i>(number of cards in the starting hand)</i></div>
+      <input type="radio" value="small" name="hands" [checked]="queue.hands=='small'" (change)="onChangeHands($event.target.value)"> Small
+      <input type="radio" value="med" name="hands" [checked]="queue.hands=='med'" (change)="onChangeHands($event.target.value)"> Medium
+      <input type="radio" value="large" name="hands" [checked]="queue.hands=='large'" (change)="onChangeHands($event.target.value)"> Large
+      <br/><br/>
+      <div>Game speed</div>
+      <div class="fnt2"><i>(amount of time given for each phase of the game before timeout)</i></div>
+      <input type="radio" value="slow" name="speed" [checked]="queue.speed=='slow'" (change)="onChangeSpeed($event.target.value)"> Slow
+      <input type="radio" value="med" name="speed" [checked]="queue.speed=='med'" (change)="onChangeSpeed($event.target.value)"> Medium
+      <input type="radio" value="fast" name="speed" [checked]="queue.speed=='fast'" (change)="onChangeSpeed($event.target.value)"> Fast
+    </div>
+  </article-body>
+  <article-footer>
+  <button (click)="clickPlay()"><label>Play</label></button>
+  </article-footer>
+</article>

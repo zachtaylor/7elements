@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { Game, GameCard, GameToken, Overlay } from '../api'
-import { GameService } from '../game.service'
+import { GameSeat, GameState, GameMenu } from '../api'
+import { VII } from '../7.service'
 import { Subscription, interval } from 'rxjs'
 
 @Component({
@@ -9,52 +9,66 @@ import { Subscription, interval } from 'rxjs'
   styleUrls: ['./game-seat.component.css']
 })
 export class GameSeatComponent implements OnInit {
-  game: Game
   @Input() username: string
+
   timer: number
   private $ticker: Subscription
-  private $game: Subscription
+
+  seat: GameSeat
+  private $seat: Subscription
+
+  present: string[]
+  private $present: Subscription
+
+  state: GameState
+  private $state: Subscription
 
   objectKeys = Object.keys
 
-  constructor(private games: GameService) { }
+  constructor(private vii: VII) { }
 
   ngOnInit() {
     this.$ticker = interval(1000).subscribe(_ => {
       if (this.timer > 0) this.timer--
     })
-    this.$game = this.games.data$.subscribe(game => {
-      if (!game) {
-        return
-      }
-      this.game = game
-      this.timer = game.state.timer
+    this.$seat = this.vii.seat$(this.username).subscribe(seat => {
+      this.seat = seat
+    })
+    this.$present = this.vii.present$(this.username).subscribe(present => {
+      this.present = present
+    })
+    this.$state = this.vii.gamestate$.subscribe(state => {
+      if (!state) { return }
+      this.state = state
+      this.timer = state.timer
     })
   }
 
   ngOnDestroy() {
     console.debug('game-seat ngOnDestroy')
     this.$ticker.unsubscribe()
-    this.$game.unsubscribe()
+    this.$seat.unsubscribe()
+    this.$present.unsubscribe()
+    this.$state.unsubscribe()
   }
 
   clickToken(tokenid: string) {
-    let token = this.games.token$(tokenid).value
-    let overlay = new Overlay('Token: ' + token.name, this.games.overlay$.value)
+    let token = this.vii.token$(tokenid).value
+    let overlay = new GameMenu('Token: ' + token.name, this.vii.gamemenu$.value)
     overlay.token = token
-    this.games.overlay$.next(overlay)
+    this.vii.gamemenu$.next(overlay)
   }
 
   phaseIs(state: string): boolean {
-    return this.game.state.name == state
+    return this.state.name == state
   }
 
   phaseIsMy(state: string): boolean {
-    return this.game.state.seat == this.username && this.phaseIs(state)
+    return this.state.seat == this.username && this.phaseIs(state)
   }
 
   getTitleIcon(): string {
-    if (this.game.state.data && this.game.state.data.target && this.game.state.data.target == this.username) {
+    if (this.state.data && this.state.data.target && this.state.data.target == this.username) {
       return 'target'
     } else if (this.phaseIsMy('sunrise')) {
       return 'sunrise'
@@ -77,25 +91,24 @@ export class GameSeatComponent implements OnInit {
   }
 
   getTitleText(): string {
-    if (this.game.state.data && this.game.state.data.target && this.game.state.data.target == this.username) {
+    if (this.state.data && this.state.data.target && this.state.data.target == this.username) {
       return "Targeted"
     } else if (this.phaseIsMy('sunrise')) {
       return 'Sunrise'
     } else if (this.phaseIsMy('main')) {
       return 'Main'
     } else if (this.phaseIsMy('play')) {
-      return 'Play: ' + this.game.state.data.card.name
+      return 'Play'
     } else if (this.phaseIsMy('target')) {
-      return 'Target: '
+      return 'Target'
     } else if (this.phaseIsMy('trigger')) {
-      return 'Trigger: ' + this.game.state.data.token.name
+      return 'Trigger'
     } else if (this.phaseIsMy('attack')) {
       return 'Attack'
     } else if (this.phaseIsMy('combat')) {
       return 'Combat'
     } else if (this.phaseIsMy('sunset')) {
       return 'Sunset'
-    } else {
     }
   }
 }

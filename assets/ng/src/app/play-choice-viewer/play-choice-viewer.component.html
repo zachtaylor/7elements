@@ -1,0 +1,107 @@
+<button *ngIf="!overlay.important" class="posa" style="top:7px;right:7px;" (click)="close()"><label>X</label></button>
+<span>{{overlay.title}}</span>
+<hr/>
+<div class="fltl">
+  <!-- token insert -->
+  <div class="talc" *ngIf="overlay.token">
+    <app-game-token [tokenid]="overlay.token.id"></app-game-token>
+    <hr/>
+  </div>
+  <!-- card insert -->
+  <div class="talc" *ngIf="overlay.card">
+    <app-card-detail [card]="vii.glob.cards[overlay.card.cardid-1]"></app-card-detail>
+    <hr/>
+  </div>
+</div>
+<div class="fltr">
+  <!-- target insert -->
+  <div *ngIf="overlay.target">
+    <div *ngFor="let player of vii.players()">
+      <ng-container *ngIf="vii.seat$(player) | async as seat">
+        <ng-container *ngIf="seat">
+          <h3>
+            <span>{{player}}</span>
+            <span *ngIf="isPlayerTargetOption()">
+              <button class="vii" (click)="sendtarget(seat)">
+                <img adapt="2" src="/img/icon/target.svg">
+              </button>
+            </span>
+          </h3>
+          <div class="dinl" *ngFor="let token of vii.targetTokens(seat, overlay.target)">
+            <button class="vii" (click)="sendtarget(token.id)">
+              <img adapt="2" src="/img/icon/target.svg">
+            </button>
+            <br/>
+            <app-game-token [tokenid]="token.id" [game]="game"></app-game-token>
+          </div>
+          <div class="dinl" *ngFor="let card of vii.targetPastCards(seat, overlay.target)">
+            <button class="vii" (click)="sendtarget(card.id)">
+              <img adapt="2" src="/img/icon/target.svg">
+            </button>
+            <br/>
+            <app-card-detail [card]="vii.glob.cards[card.cardid-1]"></app-card-detail>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+  <!-- spaces and choices -->
+  <div>
+    <ng-container *ngIf="overlay.card">
+      <div *ngIf="testkarma(vii.glob.cards[overlay.card.cardid-1]); then showPlay; else showKarmaWarning"></div>
+      <ng-template #showPlay>
+        <div *ngIf="testplayspeed(); then showPlayOptions; else showPlayWarning"></div>
+        <ng-template #showPlayOptions>
+          <ng-container *ngFor="let pay of getpaychoices(vii.glob.cards[overlay.card.cardid-1].costs)">
+            <button (click)="sendplay(pay)">
+              <label><span>Play (</span>
+              <ng-container *ngFor="let el of pay | mapKeys">
+                <img adapt="2" *ngFor="let i of pay[el] | count" src="/img/icon/element-{{el}}.png">
+              </ng-container>
+              <span>)</span></label>
+            </button>
+          </ng-container>
+        </ng-template>
+        <ng-template #showPlayWarning>
+          <i>Only playable during Main</i>
+        </ng-template>
+      </ng-template>
+      <ng-template #showKarmaWarning>
+        <i>Not enough Karma</i>
+      </ng-template>
+    </ng-container>
+    <ng-container *ngIf="overlay.token&&!overlay.target">
+      <ng-container *ngFor="let power of overlay.token.powers">
+        <ng-container *ngIf="!power.trigger">
+          <img adapt="2" *ngIf="power.usesturn" src="/img/icon/timer.png">
+          <img adapt="2" *ngIf="power.useskill" src="/img/icon/trash.svg">
+          <ng-container *ngFor="let el of power.costs | mapKeys">
+            <img adapt="2" *ngFor="let i of power.costs[el] | count" src="/img/icon/element-{{el}}.png">
+          </ng-container>
+          : {{power.text}}
+          <ng-container *ngIf="testkarma(power)">
+            <button class="vii" (click)="sendpower(power)"><label>Trigger</label></button>
+          </ng-container>
+          <ng-container *ngIf="!testkarma(power)">
+            <i>not enough karma</i>
+          </ng-container>
+        </ng-container>
+        <div *ngIf="!!power.trigger" class="powerbox">
+          <img adapt="2" *ngIf="power.trigger=='sunrise'" src="/img/icon/sunrise.svg">
+          <img adapt="2" *ngIf="power.trigger=='sunset'" src="/img/icon/sunset.svg">
+          {{power.text}}
+        </div>
+      </ng-container>
+      <div *ngIf="showattack()">
+        <button class="vii" (click)="sendattack(overlay.token.id)"><label>Attack</label></button>
+      </div>
+      <div *ngIf="showdefend()">
+        <button class="vii" (click)="senddefend(overlay.token.id)"><label>Defend</label></button>
+      </div>
+      <!-- overlay.token.awake&&overlay.token.body&&game.state.name=='attack' -->
+    </ng-container>
+    <ng-container *ngFor="let choice of overlay.choices">
+      <button class="dinl" (click)="sendchoice(choice.choice)"><span [innerHTML]="choice.display | keepHtml"></span></button>
+    </ng-container>
+  </div>
+</div>

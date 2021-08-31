@@ -1,0 +1,47 @@
+<article>
+  <article-body>
+    <h2>Buy Packs</h2>
+    <ng-container *ngIf="!myaccount">
+      Please <a routerLink="/myaccount">Click here</a> to login!
+    </ng-container>
+  </article-body>
+</article>
+<article *ngFor="let pack of glob?.packs">
+  <article-header>
+    <span>{{pack.name}}</span>
+    <span class="fltr">{{pack.cost}} Coins</span>
+  </article-header>
+  <article-body>
+    <carousel>
+      <ng-container *ngFor="let cardid of pack.cards">
+        <app-card-detail *ngIf="glob" [card]="glob.cards[cardid-1]">
+          <div style="padding:7px" *ngIf="myaccount&&myaccount.cards[cardid]">x{{myaccount.cards[cardid]}}</div>
+        </app-card-detail>
+      </ng-container>
+    </carousel>
+  </article-body>
+  <article-footer>
+    <span class="fltl">
+      <span *ngIf="pack.size < 2"> 1 random Card</span>
+      <span *ngIf="pack.size > 1"> {{pack.size}} different random Cards</span>
+    </span>
+    <span *ngIf="myaccount">
+      <button *ngIf="myaccount.coins >= pack.cost" (click)="sendBuyPack(pack.id)">
+        <label> BUY </label>
+      </button>
+      <i *ngIf="myaccount.coins < pack.cost">not enough coins to buy this pack</i>
+    </span>
+    <span *ngIf="!myaccount">
+      <i>You must be logged in to purchase packs</i>
+    </span>
+  </article-footer>
+</article>
+<ng-container *ngIf="myaccount">
+  <div class="posa w100 fntb" style="top:0px;">
+    <span class="posf flxr w100 ptrn">
+      <span class="flx1"></span>
+      <span class="flx1 talc balance">{{myaccount.coins}} Coins</span>
+      <span class="flx1"></span>
+    </span>
+  </div>
+</ng-container>

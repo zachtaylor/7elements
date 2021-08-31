@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { WebsocketService } from '../websocket.service'
+import { VII } from '../7.service'
 
 @Component({
   selector: 'app-lost',
@@ -7,14 +7,14 @@ import { WebsocketService } from '../websocket.service'
   styleUrls: ['./lost.component.css']
 })
 export class LostComponent implements OnInit {
-  constructor(public ws : WebsocketService) { }
+  constructor(public vii : VII) { }
 
   ngOnInit() {
-    if (this.ws.ready()) this.ws.redirect('/')
+    if (this.vii.ready()) this.vii.goto('/')
   }
 
   restart() {
-    this.ws.init()
-    this.ws.redirect('/')
+    this.vii.goto('/')
+    setTimeout(() => { window.location.reload() })
   }
 }

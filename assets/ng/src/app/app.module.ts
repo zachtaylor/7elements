@@ -14,20 +14,27 @@ import { DeckSummaryComponent } from './deck-summary/deck-summary.component'
 import { DecksIdComponent } from './decks.id/decks.id.component'
 import { CardsComponent } from './cards/cards.component'
 import { IndexComponent } from './index/index.component'
-import { BuyComponent } from './buy/buy.component'
 import { ChatsComponent } from './chats/chats.component'
 import { PlayComponent } from './play/play.component'
 import { GameSeatComponent } from './game-seat/game-seat.component'
 import { GameTokenComponent } from './game-token/game-token.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { OverlayComponent } from './overlay/overlay.component'
 import { CarouselComponent } from './carousel/carousel.component'
 import { ToggleComponent } from './toggle/toggle.component'
 import { UpdatesComponent } from './updates/updates.component'
-import { MyDecksIdComponent } from './mydecks.id/mydecks.id.component';
-import { LostComponent } from './lost/lost.component';
-import { TodoComponent } from './todo/todo.component';
+import { MyDecksIdComponent } from './mydecks.id/mydecks.id.component'
+import { LostComponent } from './lost/lost.component'
+import { TodoComponent } from './todo/todo.component'
 import { HowtoComponent } from './howto/howto.component'
+import { PacksComponent } from './packs/packs.component'
+import { DecksComponent } from './decks/decks.component'
+import { QueueFormComponent } from './queue-form/queue-form.component'
+import { PlayStackViewerComponent } from './play-stack-viewer/play-stack-viewer.component'
+import { PlayChoiceViewerComponent } from './play-choice-viewer/play-choice-viewer.component';
+import { AdminSinkComponent } from './admin-sink/admin-sink.component';
+import { FormDetailComponent } from './form-detail/form-detail.component';
+import { NavComponent } from './nav/nav.component';
+import { PlayHandComponent } from './play-hand/play-hand.component'
 
 @NgModule({
   declarations: [
@@ -45,19 +52,26 @@ import { HowtoComponent } from './howto/howto.component'
     DecksIdComponent,
     CardsComponent,
     IndexComponent,
-    BuyComponent,
     ChatsComponent,
     PlayComponent,
     GameSeatComponent,
     GameTokenComponent,
-    OverlayComponent,
     CarouselComponent,
     ToggleComponent,
     UpdatesComponent,
     MyDecksIdComponent,
     LostComponent,
     TodoComponent,
-    HowtoComponent
+    HowtoComponent,
+    PacksComponent,
+    DecksComponent,
+    QueueFormComponent,
+    PlayStackViewerComponent,
+    PlayChoiceViewerComponent,
+    AdminSinkComponent,
+    FormDetailComponent,
+    NavComponent,
+    PlayHandComponent
   ],
   imports: [
     BrowserModule,

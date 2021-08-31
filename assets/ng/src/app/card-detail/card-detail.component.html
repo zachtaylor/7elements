@@ -6,7 +6,7 @@
     </span>
   </div>
 </div>
-<img class="art" [src]="card?.image">
+<img class="art" src="/img/card/{{card?.id||0}}.jpg">
 <div class="panel">
   <span class="panel-label">{{card?.type}}</span>
   <span *ngIf="card?.body?.health" class="fltr">
@@ -18,13 +18,15 @@
 </div>
 <div class="card-text panel">
   <div *ngFor="let power of card?.powers | mapValues">
-    <img *ngIf="power.usesturn" src="/img/icon/timer.png">
-    <img *ngIf="power.useskill" src="/img/icon/trash.svg">
-    <img *ngIf="power.trigger=='sunrise'" src="/img/icon/sunrise.svg">
-    <img *ngIf="power.trigger=='sunset'" src="/img/icon/sunset.svg">
     <span *ngFor="let e of power.costs | mapKeys">
       <img *ngFor="let i of Array(power.costs[e]).fill(1)" src="/img/icon/element-{{e}}.png">
     </span>
+    <img *ngIf="power.usesturn" src="/img/icon/timer.png">
+    <img *ngIf="power.useslife" src="/img/icon/trash.svg">
+    <b *ngIf="card.type=='being'&&!power.usesturn&&!power.useslife&&!power.trigger" class="fntb">spell</b>
+    <img *ngIf="power.trigger=='sunrise'" src="/img/icon/sunrise.svg">
+    <img *ngIf="power.trigger=='sunset'" src="/img/icon/sunset.svg">
+    <span *ngIf="card.type!='spell'">: </span>
     <span [innerHTML]="power.text | keepHtml"></span>
   </div>
   <div class="posa talr bot0 fntb" style="font-size:13px">{{card?.text}}</div>

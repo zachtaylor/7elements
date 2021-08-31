@@ -22,3 +22,23 @@
 .vii-form-detail {
 	font-size:12px;
 }
+
+.form-row {
+	display:table-row;
+	height:var(--ui);
+	width:100%;
+}
+.form-row > label, .form-row > input {
+	padding:var(--pad);
+	display:table-cell;
+}
+.form-row > label {
+	text-align:right;
+}
+.form-row > input {
+	border:1px solid #777777;
+	border-radius:7px;
+	height:100%;
+	width:100%;
+	font-size:var(--font);
+}

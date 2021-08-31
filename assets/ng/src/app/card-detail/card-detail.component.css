@@ -9,32 +9,31 @@
   position:relative;
   color:black;
   text-align:left;;
-  background-color:#a7a7a7;
 }
 :host.white {
-  background-color:white;
+  background-color:#777;
 }
 :host.blue {
-  background-color:blue;
+  background-color:#007;
 }
 :host.green {
-  background-color:green;
+  background-color:#070;
 }
 :host.yellow {
-  background-color:yellow;
+  background-color:#770;
 }
 :host.red {
-  background-color:red;
+  background-color:#700;
 }
 :host.violet {
-  background-color:violet;
+  background-color:#707;
 }
 :host.black {
-  background-color:black;
+  background-color:#000;
 }
 .panel {
   margin:2px 1px 0px 1px;
-  background-color:#E7E7E7;
+  background-color:#ddd;
   border-radius:7px;
 }
 .panel-label {
@@ -69,9 +68,7 @@
 }
 .card-banner {
   position:absolute;
-  z-index:1;
-  right:0px;
-  top:32px;
-  border-radius: 50% 0% 0% 50%;
+  top:36px;
+  border-radius:0px 21px 21px 0px;
   background-color:whitesmoke
 }

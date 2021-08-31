@@ -1,8 +1,7 @@
 import { Component, HostListener } from '@angular/core'
-import { BreadcrumbService } from './breadcrumb.service'
-import { ConnService } from './conn.service'
 import { AdaptiveService } from './adaptive.service'
-import { NotificationService } from './notification.service'
+import { CookieService } from 'ngx-cookie-service'
+import { VII } from './7.service'
 
 @Component({
   selector: 'app-root',
@@ -12,16 +11,16 @@ import { NotificationService } from './notification.service'
 export class AppComponent {
   title = '7 Elements Online'
 
-  constructor(
-    public breadcrumbService : BreadcrumbService,
-    public adapt : AdaptiveService,
-    public conn : ConnService,
-    public notifications : NotificationService,
-    ) {
-  }
+  constructor(public adapt : AdaptiveService, public cookies : CookieService, private vii: VII) { }
 
   @HostListener('window:resize', ['$event.target.innerWidth'])
-  onResize(width : number) {
-    this.adapt.onResize(width)
+  onResize(width : number) { this.adapt.onResize(width) }
+
+  ngOnInit() { }
+
+  ngOnDestroy() { }
+
+  clickAllowCookies() {
+    this.cookies.set('allow', 'true', 90, undefined, undefined, window.location.protocol == 'https:', 'Strict')
   }
 }

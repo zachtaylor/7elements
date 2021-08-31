@@ -10,22 +10,24 @@ export class ElementCount {
   length() : number {
     let length = 0, keys = Object.keys(this.items)
     for (let i = 0; i < keys.length; i++) {
-      length += this.items[keys[i]]
+      length += this.items.get(+keys[i])
     }
     return length
   }
-  test(costs: Map<number, number>) : boolean {
-    let keys = Object.keys(costs)
-    for (let i=0; i < keys.length; i++) {
-      let el = keys[i]
-      if (el=='0') {
-
-      } else if (this.items[el] < costs[el]) {
-        return false
+  test(costs: object) : boolean {
+    let ok = true
+    let count = new Map<number, number>()
+    Object.keys(costs).forEach(el => {
+      let element = +el
+      if (element==0) {
+      } else if (this.items.get(element) < costs[element]) {
+        ok = false
+      } else {
+        count.set(element, costs[element])
       }
-    }
+    })
     // guarantees costs where el==0
-    let countcosts = new ElementCount(costs)
+    let countcosts = new ElementCount(count)
     return this.length() >= countcosts.length()
   }
 }
@@ -59,30 +61,13 @@ export class Card {
   // }
 }
 
-export class Chat {
-  name: string
-  username: string
-  messages: Array<ChatMessage>
-
-  constructor() {
-    this.messages = new Array<ChatMessage>();
-  }
-}
-
-export class ChatMessage {
-  channel: string
-  username: string
-  message: string
-  time: string
-}
-
 export class Deck {
   id: number
   name: string
   username: string
   level: number
   wins: number
-  cover: string
+  cover: number
   cards: Map<number, number>
 }
 
@@ -90,10 +75,11 @@ export class Game {
   id: string
   username: string
   state: GameState
-  hand: Map<string, GameCard>
+  hand: Array<string>
   seats: Map<string, GameSeat>
 
   constructor() {
+    this.hand = new Array<string>()
     this.seats = new Map<string, GameSeat>()
   }
 }
@@ -105,6 +91,8 @@ export class GameState {
   seat: string
   timer: number
   reacts: Map<string, string>
+  stack: string
+  parent: string
 }
 
 export class GameSeat {
@@ -116,21 +104,19 @@ export class GameSeat {
   future: number
   life: number
   color: string
+
+  constructor(username : string) {
+    this.username = username
+    this.elements = new Map<number, Array<boolean>>()
+    this.present = new Array<string>()
+    this.past = new Array<string>()
+  }
 }
 
 export class GameCard {
   id: string
   cardid: number
-  name: string
-  text: string
-  username: string
-  image: string
-  powers: Array<Power>
-  body?: {
-    attack: number
-    health: number
-  }
-  type: string
+  user: string
 }
 
 export class GameToken {
@@ -138,7 +124,7 @@ export class GameToken {
   awake: boolean
   cardid: number
   name: string
-  username: string
+  user: string
   text: string
   powers: Array<Power>
   body?: {
@@ -155,13 +141,21 @@ export class MyAccount {
   coins: number
   cards: Map<number, number>
   decks: Array<Deck>
-  gameid: number
+  game: string
 }
 
-export class Notification {
-  level: string
+export class Message {
   source: string
+  channel: string
   message: string
+  time: string
+
+  constructor(source : string, channel : string, message : string, time : string) {
+    this.source = source
+    this.channel = channel
+    this.message = message
+    this.time = time
+  }
 }
 
 export class PingData {
@@ -172,8 +166,16 @@ export class PingData {
 export class GlobalData {
   cards: Array<Card>
   decks: Array<Deck>
-  packs: Array<any>
+  packs: Array<Pack>
   users: number
+}
+
+export class Pack {
+  id: number
+  name: string
+  size: number
+  cost: number
+  cards: number[]
 }
 
 export class Power {
@@ -186,52 +188,43 @@ export class Power {
   target: string
 }
 
-export class Settings {
-  deck: {
-    id: number
-    account: boolean
-  }
-  game: {
-    hand: {
-      open: boolean
-      openChangeOnUpdate: boolean
-      quickcast: boolean
-    }
-    chat: {
-      off: boolean
-      hideT: number
-    }
-  }
+export class ChatSetting {
+  off: boolean
+  hideT: number
   constructor() {
-    this.deck = {
-      id:1,
-      account:false,
-    }
-    this.game = {
-      hand: {
-        open:false,
-        openChangeOnUpdate:true,
-        quickcast:false,
-      },
-      chat: {
-        off:false,
-        hideT:7000,
-      }
-    }
+    this.off = false
+    this.hideT = 7000
   }
 }
 
-export class Overlay {
+export class QueueSetting {
+  id: number
+  owner: string
+  pvp: boolean
+  custom: boolean
+  hands: string
+  speed: string
+  constructor() {
+    this.id = 1
+    this.owner = 'vii'
+    this.pvp = false
+    this.custom = false
+    this.hands = 'small'
+    this.speed = 'slow'
+  }
+}
+
+export class GameMenu {
   title: string // text
   target: string  // targeting enum
   targetF: any // this func procs for 'target' selection
   token: GameToken
   card: GameCard
-  choices: Array<OverlayChoice> // offered choices
-  stack: Overlay
+  choices: Array<GameMenuChoice> // offered choices
+  stack: GameMenu
   important: boolean // hides the close button
 
-  constructor(title: string, stack: Overlay) {
+  constructor(title: string, stack: GameMenu) {
     this.title=title
     this.choices = []
     this.stack = stack
@@ -251,7 +244,49 @@ export class Overlay {
   }
 }
 
-export class OverlayChoice {
+export class GameMenuChoice {
+  choice: string
   display: string
-  f: any
+}
+
+export class KarmaPlanner {
+  plan: object
+  free: object
+
+  constructor(plan : object, free : object) {
+    this.plan = plan
+    this.free = free
+  }
+
+  multiply() : Array<KarmaPlanner> {
+    let me = this
+    let a = new Array<KarmaPlanner>()
+    console.log(this.free, Object.keys(this.free))
+    Object.keys(this.free).forEach(el => {
+      let element = +el
+      let freecount = me.free[element]
+      console.log('use free', element)
+
+      if (!freecount || freecount < 1) { return }
+
+      let newplan = me.copy(me.plan)
+      if (newplan[element]) {
+        newplan[element] = newplan[element] + 1
+      } else {
+        newplan[element] = 1
+      }
+      let newfree = me.copy(me.free)
+      newfree[element] = freecount-1
+      a.push(new KarmaPlanner(newplan, newfree))
+    })
+    return a
+  }
+
+  private copy(plan : object) : object {
+    let copy = {}
+    Object.keys(plan).forEach(k => {
+      copy[k] = plan[k]
+    })
+    return copy
+  }
 }

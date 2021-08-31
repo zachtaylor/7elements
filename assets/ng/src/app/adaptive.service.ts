@@ -52,17 +52,18 @@ export class AdaptiveService {
 
   onScale(scale : number) {
     if (scale <= 1) {
-      this.setProperties(32, 4, 18)
+      this.setProperties(32, 2, 18)
     } else if (scale <= 2) {
-      this.setProperties(48, 8, 24)
+      this.setProperties(36, 4, 21)
     } else {
-      this.setProperties(64, 12, 32)
+      this.setProperties(48, 8, 24)
     }
   }
 
   setProperties(uiSize : number, paddingSize : number, fontSize : number) {
     document.body.style.setProperty('--ui', uiSize+'px')
     document.body.style.setProperty('--pad', paddingSize+'px')
+    document.body.style.setProperty('--font', fontSize+'px')
     document.body.style.setProperty('font-size', fontSize+'px')
   }
 }

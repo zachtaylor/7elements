@@ -2,7 +2,7 @@
 <div adapt="1" class="talc w100 fnt1">{{deck?.name}}</div>
 <div class="talc w100">
   <img class="posa" src="/img/deck-cover{{isActive?'-active':''}}.png">
-  <img class="deck-cover" [src]="deck.cover">
+  <img class="deck-cover" src="/img/card/{{deck.cover}}.jpg">
 </div>
 <ng-content></ng-content>
 </ng-container>

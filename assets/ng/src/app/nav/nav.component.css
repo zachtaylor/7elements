@@ -1,0 +1,36 @@
+nav {
+  height:var(--ui);
+  width:100%;
+  position:relative;
+  display:flex;
+  background:linear-gradient(to bottom, #000, #333);
+  box-shadow:0px 2px 7px black;
+}
+a {
+  color:white;
+}
+.nav-item {
+  height:var(--ui);
+  padding:0 var(--pad);
+  display:flex;
+  transition:box-shadow 0.25s linear;
+}
+.nav-item:hover {
+  box-shadow:inset 0px 12px 7px -7px white;
+}
+.nav-item.hilited {
+  box-shadow:inset 0px 11px 7px -7px yellow;
+}
+.nav-item.hilited:hover {
+  box-shadow:inset 0px 10px 7px -7px #77ff77;
+}
+.nav-item > a {
+  align-self:flex-end;
+}
+.nav-item > a:hover {
+  border-color:black;
+}
+
+.nav-item > span {
+  align-self:flex-end;
+}

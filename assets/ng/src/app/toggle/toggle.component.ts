@@ -6,8 +6,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
   styleUrls: ['./toggle.component.css']
 })
 export class ToggleComponent implements OnInit {
-  @Output() check = new EventEmitter()
-  isChecked : boolean
+  @Input() check = false
+  @Output() checkChange = new EventEmitter<boolean>()
 
   constructor() {
   }
@@ -15,7 +15,8 @@ export class ToggleComponent implements OnInit {
   ngOnInit() {
   }
 
-  change(isChecked : boolean) {
-    this.check.next(isChecked)
+  toggle() {
+    this.check = !this.check
+    this.checkChange.emit(this.check)
   }
 }

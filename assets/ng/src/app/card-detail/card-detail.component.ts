@@ -38,7 +38,4 @@ export class CardDetailComponent implements OnInit {
   ngOnInit() {
   }
 
-  Array(n : number) : Array<any> {
-    return Array(n)
-  }
 }

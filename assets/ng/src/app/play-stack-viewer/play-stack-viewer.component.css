@@ -1,0 +1,9 @@
+:host {
+    position:absolute;
+    top:calc(7*var(--pad));
+    right:calc(3*var(--pad));
+    left:calc(3*var(--pad) + 50%);
+    height:70%;
+    z-index:4;
+    text-align:center;
+}

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ConnService } from '../conn.service';
+import { VII } from '../7.service';
 
 @Component({
   selector: 'app-howto',
@@ -8,7 +8,7 @@ import { ConnService } from '../conn.service';
 })
 export class HowtoComponent implements OnInit {
 
-  constructor(public conn: ConnService) { }
+  constructor(public vii: VII) { }
 
   ngOnInit() {
   }

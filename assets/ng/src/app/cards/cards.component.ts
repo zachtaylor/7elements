@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
-import { ConnService } from '../conn.service'
-import { Card } from '../api'
+import { VII } from '../7.service'
+import { Card, MyAccount, GlobalData } from '../api'
 import { Subscription } from 'rxjs'
 
 @Component({
@@ -9,28 +9,30 @@ import { Subscription } from 'rxjs'
   styleUrls: ['./cards.component.css']
 })
 export class CardsComponent implements OnInit {
-  cards : Array<Card>
+  glob : GlobalData
   private $glob : Subscription
 
-  constructor(public conn : ConnService) {
-    
-  }
+  myaccount : MyAccount
+  private $myaccount : Subscription
+
+  constructor(public vii : VII) { }
 
   ngOnInit() {
-    let me = this
-    this.$glob = this.conn.global$.subscribe(glob => {
-      if (!glob) return;
-      me.cards = Array<Card>()
-      for (let i=0; i < glob.cards.length; i++) {
-        me.cards.push(glob.cards[i])
-      }
-      me.cards.sort((a : Card, b : Card) => {
-        return a.id - b.id
-      })
+    this.$glob = this.vii.global$.subscribe(glob => {
+      this.glob = glob
+    })
+    this.$myaccount = this.vii.account$.subscribe(myaccount => {
+      this.myaccount = myaccount
     })
   }
 
   ngOnDestroy() {
     this.$glob.unsubscribe()
+    this.$myaccount.unsubscribe()
+  }
+  
+  count() : number {
+    if (!this.glob) return 0
+    return this.glob.cards.length
   }
 }
