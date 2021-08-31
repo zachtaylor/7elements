@@ -1,14 +1,14 @@
 package accounts
 
 import (
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/db/accounts_decks"
-	"ztaylor.me/cast"
-	"ztaylor.me/db"
+	"taylz.io/db"
+	"taylz.io/types"
 )
 
 func Get(conn *db.DB, username string) (*account.T, error) {
@@ -56,11 +56,11 @@ func getCards(conn *db.DB, username string) (card.Count, error) {
 	cards := card.Count{}
 
 	for rows.Next() {
-		var buf int
-		if err = rows.Scan(&buf); err != nil {
+		var cardbuf int
+		if err = rows.Scan(&cardbuf); err != nil {
 			return nil, err
 		}
-		cards[buf]++
+		cards[cardbuf]++
 	}
 	rows.Close()
 
@@ -78,8 +78,8 @@ func Count(conn *db.DB) (int, error) {
 	return ibuf, nil
 }
 
-func Insert(conn *db.DB, account *account.T) error {
-	_, err := conn.Exec(
+func Insert(conn *db.DB, account *account.T) (err error) {
+	_, err = conn.Exec(
 		"INSERT INTO accounts (username, email, password, skill, coins, register, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		account.Username,
 		account.Email,
@@ -90,11 +90,35 @@ func Insert(conn *db.DB, account *account.T) error {
 		account.LastLogin.Unix(),
 	)
 
-	return err
+	if err != nil {
+		return
+	}
+
+	if err = accounts_decks.InsertAll(conn, account.Decks); err != nil {
+		return
+	}
+
+	// new accounts have no cards
+	// err = InsertAllCards(conn, account)
+
+	return
 }
 
+// func InsertAllCards(conn *db.DB, account *account.T) (err error) {
+// 	count := make([]int, account.Cards.Count())
+// 	i := 0
+// 	for k, v := range account.Cards {
+// 		for j := 0; j < v; j++ {
+// 			count[i] = k
+// 			i++
+// 		}
+// 	}
+// 	err = InsertCards(conn, account, count)
+// 	return
+// }
+
 func InsertCards(conn *db.DB, account *account.T, cardids []int) error {
-	statement := strings.Builder{}
+	statement := types.StringBuilder{}
 	statement.WriteString("INSERT INTO accounts_cards(username, card) VALUES ")
 	for i, cardid := range cardids {
 		if i > 0 {
@@ -103,7 +127,7 @@ func InsertCards(conn *db.DB, account *account.T, cardids []int) error {
 		statement.WriteString("('")
 		statement.WriteString(account.Username)
 		statement.WriteString("',")
-		statement.WriteString(cast.StringI(cardid))
+		statement.WriteString(strconv.FormatInt(int64(cardid), 10))
 		statement.WriteByte(')')
 	}
 	if _, err := conn.Exec(statement.String()); err != nil {
@@ -115,6 +139,11 @@ func InsertCards(conn *db.DB, account *account.T, cardids []int) error {
 func UpdateCoins(conn *db.DB, account *account.T) error {
 	_, err := conn.Exec("UPDATE accounts SET coins=? WHERE username=?", account.Coins, account.Username)
 	return err
+}
+
+func UpdateSkill(conn *db.DB, account *account.T) (err error) {
+	_, err = conn.Exec("UPDATE accounts SET skill = skill + 1 WHERE username=?", account.Username)
+	return
 }
 
 func UpdateEmail(conn *db.DB, account *account.T) error {

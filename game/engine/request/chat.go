@@ -1,16 +1,16 @@
 package request
 
 import (
-	pkg_chat "github.com/zachtaylor/7elements/chat"
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/seat"
+	"taylz.io/http/websocket"
 )
 
-func chat(g *game.T, seat *game.Seat, json cast.JSON) {
-	text := json.GetS("text")
-	g.Log().With(cast.JSON{
+func Chat(game *game.T, seat *seat.T, json websocket.MsgData) {
+	text, _ := json["text"].(string)
+	game.Log().With(websocket.MsgData{
 		"Username": seat.Username,
 		"Text":     text,
 	}).Trace()
-	go g.Settings.Chat.AddMessage(pkg_chat.NewMessage(seat.Username, text))
+	go game.Chat(seat.Username, text)
 }

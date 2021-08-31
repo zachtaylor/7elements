@@ -1,63 +1,47 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/runtime"
-	"ztaylor.me/cast"
-	"ztaylor.me/cast/charset"
-	"ztaylor.me/http/websocket"
+	"strings"
+
+	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
+	"taylz.io/keygen/charset"
 )
 
-var SpeechCharset = charset.AlphaCapitalNumeric + " .-_+=!@$^&*()☺☻♥♦♣♠♂♀♪♫"
+// const SpeechCharset = charset.AlphaCapitalNumeric + " ,.-_+=!@$^&*()☺☻♥♦♣♠♂♀♪♫"
 
 func ChatJoin(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		session := socket.Session
-		channel := cast.EscapeString(m.Data.GetS("channel"))
-		if cast.OutCharset(channel, SpeechCharset) {
-			socket.Send("/error", cast.JSON{
-				"error": "bad channel name",
-			})
-			return
-		}
-		log := rt.Logger.New().With(cast.JSON{
-			"Session": session,
-			"Channel": channel,
-		})
-		if channel == "" {
-			log.Warn("channel missing")
-			return
-		}
-		room := rt.Chats.Get(channel)
-		if room == nil {
-			log.Debug("room not found")
-			if session == nil {
-				socket.Send("/error", cast.JSON{"error": "cannot create room"})
-				log.Warn("anon user new room")
-				return
-			}
-			log.Info("create")
+		if len(socket.Name()) < 1 {
+			rt.Logger.Warn("anon chat")
+			socket.Write(wsout.ErrorJSON("vii", "you must log in to chat"))
+		} else if channel, _ := m.Data["channel"].(string); len(channel) < 1 {
+			rt.Logger.Add("User", socket.Name()).Warn("channel missing")
+			socket.Write(wsout.ErrorJSON("vii", "channel missing"))
+		} else if symbols := strings.Trim(channel, charset.AlphaCapitalNumeric); len(symbols) > 1 {
+			rt.Logger.Add("User", socket.Name()).Add("Symbols", symbols).Warn("bad channel name: ", channel)
+			socket.Write(wsout.ErrorJSON("vii", "bad channel name"))
+		} else if room := rt.Chats.Get(channel); room == nil {
+			rt.Logger.Add("User", socket.Name()).Info("create")
 			room = rt.Chats.New(channel, 42)
-		}
-		user := room.AddUser(socket)
-		history := make([]cast.JSON, 0)
-		for _, msg := range room.History() {
-			if msg != nil {
-				history = append(history, newChatJSON(channel, msg))
+		} else {
+			rt.Logger.With(map[string]interface{}{
+				"User": socket.Name(),
+				"Room": channel,
+			}).Info("join")
+			room.AddUser(socket.Name())
+
+			// socket.Send("/chat/join", websocket.MsgData{
+			// // "userid":   socket.ID,
+			// 	"username": user.Session.Name,
+			// 	"channel":  channel,
+			// 	"messages": history,
+			// })
+
+			for _, data := range room.History() {
+				socket.WriteSync(data)
 			}
 		}
-		socket.Send("/chat/join", cast.JSON{
-			// "userid":   socket.ID,
-			"username": user.Name,
-			"channel":  channel,
-			"messages": history,
-		})
-		log.Info()
-		select {
-		case <-socket.DoneChan():
-			log.Debug("socket closed")
-		case <-socket.Session.Done():
-			log.Debug("session expired")
-		}
-		room.Unsubscribe(user.Name)
 	})
 }

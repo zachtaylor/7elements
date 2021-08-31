@@ -1,9 +1,6 @@
 package power
 
-import (
-	"github.com/zachtaylor/7elements/element"
-	"ztaylor.me/cast"
-)
+import "github.com/zachtaylor/7elements/element"
 
 // T is a Power, a container for scripting
 type T struct {
@@ -11,7 +8,7 @@ type T struct {
 	Text     string
 	Trigger  string
 	UsesTurn bool
-	UsesKill bool
+	UsesLife bool
 	Costs    element.Count
 	Target   string
 	Script   string
@@ -31,22 +28,22 @@ func (p *T) Copy() *T {
 		Text:     p.Text,
 		Trigger:  p.Trigger,
 		UsesTurn: p.UsesTurn,
-		UsesKill: p.UsesKill,
+		UsesLife: p.UsesLife,
 		Costs:    p.Costs.Copy(),
 		Target:   p.Target,
 		Script:   p.Script,
 	}
 }
 
-// JSON returns a representation of this Power as type cast.JSON
-func (p *T) JSON() cast.JSON {
-	return cast.JSON{
+// Data returns a representation of this Power as type websocket.MsgData
+func (p *T) Data() map[string]interface{} {
+	return map[string]interface{}{
 		"id":       p.ID,
 		"text":     p.Text,
 		"costs":    p.Costs.JSON(),
 		"trigger":  p.Trigger,
 		"target":   p.Target,
 		"usesturn": p.UsesTurn,
-		"useskill": p.UsesKill,
+		"useslife": p.UsesLife,
 	}
 }

@@ -1,11 +1,11 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/out"
-	"github.com/zachtaylor/7elements/runtime"
-	"ztaylor.me/cast"
-	"ztaylor.me/cast/charset"
-	"ztaylor.me/http/websocket"
+	"github.com/zachtaylor/7elements/db/accounts"
+	"github.com/zachtaylor/7elements/server/api"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
 )
 
 func Email(rt *runtime.T) websocket.Handler {
@@ -15,22 +15,39 @@ func Email(rt *runtime.T) websocket.Handler {
 }
 
 func email(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
-	log := rt.Logger.New().Add("Socket", socket).Add("Message", m)
-	log.Info()
-	if socket.Session == nil {
-		out.Error(socket, "email change", "no session")
-	} else if account, _ := rt.Accounts.Get(socket.Session.Name()); account == nil {
-		out.Error(socket, "email change", "no account")
-	} else if newemail := m.Data.GetS("email"); newemail == "" {
-		out.Error(socket, "email change", "no new email")
-	} else if cast.OutCharset(newemail, charset.AlphaCapitalNumeric+`-+@.`) {
-		out.Error(socket, "email change", "bad email")
-	} else {
-		log.Copy().Trace(`about to engage`)
-		account.Email = newemail
-		if err := rt.Accounts.UpdateEmail(account); err != nil {
-			out.Error(socket, "email change", err.Error())
-		}
-		socket.Send("/myaccount", rt.AccountJSON(account))
+	log := rt.Logger.Add("Socket", socket.ID())
+	if len(socket.Name()) < 1 {
+		log.Warn("anon update email")
+		socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to change email"))
+		return
 	}
+	log.Add("Name", socket.Name())
+
+	account := rt.Accounts.Get(socket.Name())
+	if account == nil {
+		log.Error("account missing")
+		socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+		return
+	}
+
+	newemail, _ := m.Data["email"].(string)
+	if newemail == "" {
+		log.Add("Data", m.Data).Warn("email missing")
+		socket.WriteSync(wsout.ErrorJSON("vii", "no new email"))
+		return
+	} else if err := api.CheckEmail(newemail); err != nil {
+		log.Add("Error", err.Error()).Warn("bad email address")
+		socket.WriteSync(wsout.ErrorJSON("vii", "bad email address"))
+		return
+	}
+	log.Add("Email", newemail).Info()
+
+	account.Email = newemail
+	if err := accounts.UpdateEmail(rt.DB, account); err != nil {
+		log.Add("Error", err.Error()).Error("update error")
+		socket.WriteSync(wsout.ErrorJSON("vii", "bad email address"))
+		return
+	}
+
+	socket.WriteSync(wsout.MyAccount(account.Data()).EncodeToJSON())
 }

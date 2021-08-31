@@ -1,35 +1,28 @@
 package scripts
 
-// import (
-// 	vii "github.com/zachtaylor/7elements"
+import (
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
+)
 
-// 	"github.com/zachtaylor/7elements/game"
-// 	"ztaylor.me/cast"
-// )
+const HardBargainID = "hard-bargain"
 
-// const HardBargainID = "hard-bargain"
+func init() {
+	script.Scripts[HardBargainID] = HardBargain
+}
 
-// func init() {
-// 	game.Scripts[HardBargainID] = HardBargain
-// }
-
-// func HardBargain(g *game.T, seat *game.Seat, target interface{}) []game.Stater {
-// 	log := g.Log().Add("Target", target).Add("Username", seat.Username)
-
-// 	gcid := cast.String(target)
-// 	card := g.Cards[gcid]
-// 	if card == nil {
-// 		log.Add("Error", "gcid not found").Error(HardBargainID)
-// 	} else if ownerSeat := g.GetSeat(card.Username); ownerSeat == nil {
-// 		log.Add("Error", "card owner not found").Error(HardBargainID)
-// 	} else if !ownerSeat.HasPresentCard(gcid) {
-// 		log.Add("Error", "card not in play").Error(HardBargainID)
-// 	} else if card.Card.Type != vii.CTYPitem {
-// 		log.Add("CardType", card.Card.Type).Add("Error", "card not type item").Error(HardBargainID)
-// 	} else {
-// 		delete(ownerSeat.Present, gcid)
-// 		g.SendAll(game.BuildCardUpdate(card))
-// 		log.Info(HardBargainID)
-// 	}
-// 	return nil
-// }
+func HardBargain(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
+		err = ErrMeCard
+	} else if len(args) < 1 {
+		err = ErrNoTarget
+	} else if token, _err := checktarget.PresentItem(game, seat, args[0]); _err != nil {
+		err = _err
+	} else {
+		rs = trigger.RemoveToken(game, token)
+	}
+	return
+}

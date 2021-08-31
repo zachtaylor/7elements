@@ -1,26 +1,31 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game/target"
-
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/token"
 )
 
 const GraveBirthID = "grave-birth"
 
 func init() {
-	game.Scripts[GraveBirthID] = GraveBirth
+	script.Scripts[GraveBirthID] = GraveBirth
 }
 
-func GraveBirth(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if len(args) < 1 {
+func GraveBirth(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
+		err = ErrMeCard
+	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if card, e := target.MyPastBeing(g, s, args[0]); e != nil {
-		err = e
+	} else if card, _err := checktarget.MyPastBeing(game, seat, args[0]); _err != nil {
+		err = _err
 	} else if card == nil {
 		err = ErrNoTarget
 	} else {
-		// TODO
+		rs = trigger.NewToken(game, seat, token.New(card, seat.Username))
 	}
 	return
 }

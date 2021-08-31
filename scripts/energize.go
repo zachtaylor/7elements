@@ -2,25 +2,27 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/out"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
 )
 
 const energizeID = "energize"
 
 func init() {
-	game.Scripts[energizeID] = Energize
+	script.Scripts[energizeID] = Energize
 }
 
-func Energize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	var token *game.Token
-	if len(args) < 1 {
+func Energize(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
+		err = ErrMeCard
+	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if token, err = target.PresentBeingItem(g, s, args[0]); err != nil {
-
+	} else if token, _err := checktarget.PresentBeingItem(game, seat, args[0]); _err != nil {
+		err = _err
 	} else {
-		token.IsAwake = true
-		out.GameToken(g, token.JSON())
+		rs = trigger.WakeToken(game, token)
 	}
 	return
 }

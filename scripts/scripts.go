@@ -1,13 +1,11 @@
 package scripts
 
-import (
-	"errors"
+import "errors"
 
-	"ztaylor.me/cast"
+var (
+	ErrMeCard      = errors.New("script host must be a card")
+	ErrMeToken     = errors.New("script host must be a token")
+	ErrNoTarget    = errors.New("no target")
+	ErrBadTarget   = errors.New("bad target")
+	ErrFutureEmpty = errors.New("future is empty")
 )
-
-var ErrMeCard = cast.NewError(nil, "script host must be a card")
-var ErrMeToken = cast.NewError(nil, "script host must be a token")
-var ErrNoTarget = cast.NewError(nil, "no target")
-var ErrBadTarget = errors.New("bad target")
-var ErrFutureEmpty = errors.New("future is empty")

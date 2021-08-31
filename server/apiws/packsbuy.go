@@ -1,63 +1,72 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/out"
-	"github.com/zachtaylor/7elements/runtime"
-	"ztaylor.me/http/websocket"
+	"reflect"
+
+	"github.com/zachtaylor/7elements/db/accounts"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
 )
 
 func PacksBuy(rt *runtime.T) websocket.Handler {
-	const msgsrc = "purchase"
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		if socket.Session == nil {
-			out.Error(socket, msgsrc, "session required")
+		log := rt.Logger.Add("Socket", socket.ID())
+		if len(socket.Name()) < 1 {
+			log.Warn("anon pack buy")
+			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "you must log in to chat"))
 			return
 		}
-		log := rt.Log().Add("User", socket.Session.Name()).Tag("apiws/packsbuy")
-		a, err := rt.Accounts.Get(socket.Session.Name())
-		if a == nil {
-			log.Add("Error", err).Error("account missing")
-			out.Error(socket, msgsrc, "account missing")
-			return
-		}
+		log = log.Add("Name", socket.Name())
 
-		packid := m.Data.GetI("packid")
-		if packid < 1 {
-			log.Error("packid missing")
-			out.Error(socket, msgsrc, "packid missing")
+		account := rt.Accounts.Get(socket.Name())
+		if account == nil {
+			log.Warn("account missing")
+			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "you must log in to chat"))
 			return
 		}
-		log.Add("PackID", packid)
+		log = log.Add("Session", account.SessionID)
 
-		pack, err := rt.Packs.Get(packid)
+		var packid int
+		if packidbuff, _ := m.Data["packid"].(float64); packidbuff < 1 {
+			log.Add("packid", m.Data["packid"]).Add("type", reflect.TypeOf(m.Data["packid"])).Warn("packid missing")
+			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "packid missing"))
+			return
+		} else {
+			packid = int(packidbuff)
+		}
+		log = log.Add("Pack", packid)
+
+		pack := rt.Packs[packid]
 		if pack == nil {
-			log.Add("Error", err).Error("pack missing")
-			out.Error(socket, msgsrc, "pack missing")
+			log.Warn("pack missing")
+			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "internal error"))
 			return
 		}
 
-		if a.Coins < pack.Cost {
-			log.Warn("insufficient")
-			out.Error(socket, msgsrc, "you don't have enough coins")
+		if account.Coins < pack.Cost {
+			log.Add("Coins", account.Coins).Add("Cost", pack.Cost).Warn("insufficient")
+			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "not enough coins"))
 			return
 		}
 
-		a.Coins -= pack.Cost
-		rt.Accounts.UpdateCoins(a)
+		account.Coins -= pack.Cost
+		accounts.UpdateCoins(rt.DB, account)
 
 		cardIDs := pack.NewPack()
+		log = log.Add("Cards", cardIDs)
 
-		if err := rt.Accounts.InsertCards(a, cardIDs); err != nil {
+		if err := accounts.InsertCards(rt.DB, account, cardIDs); err != nil {
 			log.Add("Error", err).Error("insertcard")
-			out.Error(socket, msgsrc, "500 internal server error")
+			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "internal error"))
 			return
 		}
 
 		for _, cardID := range cardIDs {
-			a.Cards[cardID]++
+			account.Cards[cardID]++
 		}
 
-		log.Add("Cards", cardIDs).Info()
-		socket.Send("/myaccount", rt.AccountJSON(a))
+		log.Info()
+		socket.WriteSync(wsout.MyAccount(account.Data()).EncodeToJSON())
 	})
 }

@@ -1,6 +1,11 @@
 package element
 
-import "ztaylor.me/cast"
+import (
+	"strconv"
+
+	"taylz.io/http/websocket"
+	"taylz.io/types"
+)
 
 // Karma is a set of active and inactive elements
 type Karma map[T][]bool
@@ -43,7 +48,7 @@ func (k Karma) Reactivate() {
 // Deactivate sets the specified Elements in this Karma to unactive
 func (k Karma) Deactivate(c Count) error {
 	if c[Nil] > 0 {
-		return cast.NewError(nil, `vii.Karma.Deactivate`)
+		return types.NewErr("vii.Karma.Deactivate")
 	}
 	ok := true
 	for e, count := range c {
@@ -61,7 +66,7 @@ func (k Karma) Deactivate(c Count) error {
 		}
 	}
 	if !ok {
-		return cast.NewError(nil, "requires more karma")
+		return types.NewErr("requires more karma")
 	}
 	for e, count := range c {
 		for i, active := range k[e] {
@@ -95,14 +100,14 @@ func (k Karma) String() string {
 			i++
 		}
 	}
-	return cast.StringBytes(code)
+	return string(code)
 }
 
 // JSON returns a JSON representation of this Karma
-func (k Karma) JSON() cast.JSON {
-	json := cast.JSON{}
+func (k Karma) JSON() websocket.MsgData {
+	json := websocket.MsgData{}
 	for e, stack := range k {
-		json[cast.StringI(int(e))] = stack
+		json[strconv.FormatInt(int64(e), 10)] = stack
 	}
 	return json
 }

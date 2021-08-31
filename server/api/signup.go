@@ -1,55 +1,44 @@
 package api
 
 import (
-	"net/http"
+	"database/sql"
+	"errors"
 
-	"github.com/zachtaylor/7elements/runtime"
-	"github.com/zachtaylor/7elements/server/internal"
+	"github.com/zachtaylor/7elements/account"
+	"github.com/zachtaylor/7elements/db/accounts"
+	"github.com/zachtaylor/7elements/deck"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"taylz.io/http/session"
 )
 
-// SignupHandler returns a http.HandlerFunc that performs internal signup
-func SignupHandler(rt *runtime.T) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := rt.Log().Add("Addr", r.RemoteAddr)
+var (
+	ErrSignupExists = errors.New("username exists")
+)
 
-		if r.Method != "POST" {
-			w.WriteHeader(404)
-			log.Add("Method", r.Method).Warn("only POST allowed")
-			return
-		}
+func Signup(rt *runtime.T, username, email, password string) (account *account.T, session *session.T, err error) {
+	if err = CheckUsername(username); err != nil {
+		return
+	} else if err = CheckEmail(email); err != nil {
+		return
+	} else if _, err = accounts.Get(rt.DB, username); err != sql.ErrNoRows {
+		return nil, nil, ErrSignupExists
+	} else {
+		session = rt.Sessions.Grant(username)
+	}
 
-		session, _ := rt.Sessions.Cookie(r)
-		if session != nil {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-			log.Add("SessionId", session.ID).Info("request has valid session cookie")
-			return
-		}
+	account = account.Make(username, email, password, session.ID())
+	for i := 0; i < 3; i++ {
+		proto := deck.NewPrototype(username)
+		proto.ID = i + 1
+		account.Decks[proto.ID] = proto
+	}
 
-		username := r.FormValue("username")
-		email := r.FormValue("email")
-		password1 := internal.HashPassword(r.FormValue("password1"), rt.PassSalt)
-		password2 := internal.HashPassword(r.FormValue("password2"), rt.PassSalt)
-		log.Add("Username", username).Add("Email", email)
+	err = accounts.Insert(rt.DB, account)
+	if err != nil {
+		rt.Sessions.Remove(session.ID())
+		return nil, nil, err
+	}
+	rt.Accounts.Set(username, account)
 
-		if !internal.CheckUsername(username) {
-			http.Redirect(w, r, "/signup?username", http.StatusSeeOther)
-			log.Warn("invalid username")
-		} else if player := rt.Players.Get(username); player != nil {
-			http.Redirect(w, r, "/signup?usernametaken&email="+email, http.StatusSeeOther)
-			log.Error("duplicate is online")
-		} else if account, err := rt.Accounts.Get(username); account != nil {
-			http.Redirect(w, r, "/signup?usernametaken&email="+email, http.StatusSeeOther)
-			log.Add("Error", err).Error("duplicate exists")
-		} else if password1 != password2 {
-			http.Redirect(w, r, "/signup?passwordmatch&email="+email+"&username="+username, http.StatusSeeOther)
-			log.Warn("password mismatch")
-		} else if player, err := rt.Players.Signup(username, email, password1); err != nil {
-			http.Redirect(w, r, "/login?account", http.StatusSeeOther)
-			log.Add("Error", err).Warn("500")
-		} else {
-			player.Session.WriteCookie(w, !rt.IsDevEnv)
-			w.Write([]byte(redirectHomeTpl))
-			log.Add("SessionID", account.SessionID).Info("accept")
-		}
-	})
+	return account, session, nil
 }

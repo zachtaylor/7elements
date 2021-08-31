@@ -1,11 +1,11 @@
 package game
 
-import "ztaylor.me/cast"
+import "taylz.io/http/websocket"
 
 type Request struct {
 	Username string
 	URI      string
-	Data     cast.JSON
+	Data     websocket.MsgData
 }
 
 func (r *Request) String() string {

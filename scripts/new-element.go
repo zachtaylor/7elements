@@ -1,38 +1,50 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/card"
+	"reflect"
+	"strconv"
+
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/state"
-	"github.com/zachtaylor/7elements/out"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/phase"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/wsout"
 )
 
 func init() {
-	game.Scripts["new-element"] = NewElement
+	script.Scripts["new-element"] = NewElement
 }
 
-func NewElement(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if me, ok := me.(*card.T); !ok {
+func NewElement(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
 		err = ErrMeCard
+	} else if len(args) < 1 {
+		err = ErrNoTarget
+	} else if meAsCard := game.GetCard(args[0]); meAsCard == nil {
+		err = ErrBadTarget
 	} else {
-		events = []game.Stater{state.NewChoice(
-			s.Username,
+		rs = append(rs, phase.NewChoice(
+			seat.Username,
 			"Create a New Element",
-			cast.JSON{
-				"card": me.JSON(),
+			map[string]interface{}{
+				"card": meAsCard.Data(),
 			},
-			out.ChoicesElements,
+			wsout.GameChoiceElementsData,
 			func(val interface{}) {
-				if i := cast.Int(val); i < 1 || i > 7 {
-					out.Error(s.Player, "New Element", "invalid element: "+cast.EscapeString(cast.String(val)))
+				log := game.Log().Add("val", val)
+				if v, _ := val.(string); len(v) < 1 {
+					log.Add("type", reflect.TypeOf(val)).Warn()
+					seat.Writer.Write(wsout.ErrorJSON("vii", "elementid failed"))
+				} else if i, _ := strconv.ParseInt(v, 10, 0); i < 1 || i > 7 {
+					seat.Writer.Write(wsout.ErrorJSON("vii", "elementid out of bounds"))
 				} else {
-					s.Karma.Append(element.T(i), false)
-					out.GameSeat(g, s.JSON())
+					seat.Karma.Append(element.T(i), false)
+					game.Seats.Write(wsout.GameSeatJSON(seat.Data()))
 				}
 			},
-		)}
+		))
 	}
 	return
 }

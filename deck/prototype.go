@@ -1,8 +1,10 @@
 package deck
 
 import (
+	"strconv"
+
 	"github.com/zachtaylor/7elements/card"
-	"ztaylor.me/cast"
+	"taylz.io/http/websocket"
 )
 
 // Prototype is Deck list
@@ -17,8 +19,9 @@ type Prototype struct {
 }
 
 // NewPrototype creates a new Deck list
-func NewPrototype() *Prototype {
+func NewPrototype(user string) *Prototype {
 	return &Prototype{
+		User:  user,
 		Cards: make(card.Count),
 	}
 }
@@ -32,16 +35,19 @@ func (proto *Prototype) Count() int {
 	return total
 }
 
-// JSON returns a representation of this Prototype as type cast.JSON
-func (proto *Prototype) JSON() cast.JSON {
-	cardsJSON := cast.JSON{}
+// JSON returns a representation of this Prototype as type websocket.MsgData
+func (proto *Prototype) JSON() websocket.MsgData {
+	cardsJSON := websocket.MsgData{}
+	size := 0
 	for k, v := range proto.Cards {
-		cardsJSON[cast.StringI(k)] = v
+		cardsJSON[strconv.FormatInt(int64(k), 10)] = v
+		size += v
 	}
-	return cast.JSON{
+	return websocket.MsgData{
 		"id":    proto.ID,
 		"name":  proto.Name,
-		"cover": "/img/card/" + cast.StringI(proto.Cover) + ".jpg",
+		"size":  size,
+		"cover": proto.Cover,
 		"cards": cardsJSON,
 	}
 }
@@ -50,17 +56,17 @@ func (proto *Prototype) JSON() cast.JSON {
 type Prototypes map[int]*Prototype
 
 // JSON returns a representation of these Deck lists as type fmt.Stringer
-func (decks Prototypes) JSON() cast.JSON {
-	json := cast.JSON{}
+func (decks Prototypes) JSON() websocket.MsgData {
+	json := websocket.MsgData{}
 	for _, deck := range decks {
-		json[cast.StringI(deck.ID)] = deck.JSON()
+		json[strconv.FormatInt(int64(deck.ID), 10)] = deck.JSON()
 	}
 	return json
 }
 
-// PrototypeService provides access to Prototypes
-type PrototypeService interface {
-	Get(id int) (*Prototype, error)
-	Insert(p *Prototype) error
-	Delete(id int) error
-}
+// // PrototypeService provides access to Prototypes
+// type PrototypeService interface {
+// 	Get(id int) (*Prototype, error)
+// 	Insert(p *Prototype) error
+// 	Delete(id int) error
+// }

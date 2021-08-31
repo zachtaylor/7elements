@@ -1,46 +1,79 @@
 package request
 
 import (
+	"reflect"
+
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/out"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/phase"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
 )
 
-func trigger(g *game.T, seat *game.Seat, json cast.JSON) []game.Stater {
-	log := g.Log().Add("Seat", seat)
+func Trigger(game *game.T, seat *seat.T, json websocket.MsgData) (rs []game.Phaser) {
+	log := game.Log().Add("Seat", seat)
 
 	// validation
 
-	token, err := target.MyPresent(g, seat, json.GetS("id"))
+	tokenID, _ := json["id"].(string)
+	if len(tokenID) < 1 {
+		log.Error("id: ", json["id"])
+		return
+	}
+
+	log = log.Add("TokenID", tokenID)
+
+	token, err := checktarget.MyPresent(game, seat, tokenID)
 	if err != nil {
 		log.Add("Error", err).Error()
-		out.Error(seat.Player, "trigger", err.Error())
+		seat.Writer.Write(wsout.ErrorJSON("trigger", err.Error()))
 		return nil
 	}
 
-	powerid := json.GetI("powerid")
-	if powerid < 1 {
-		log.Error("powerid missing")
+	var powerID int
+	if poweridbuff, _ := json["powerid"].(float64); int(poweridbuff) < 1 {
+		game.Log().Add("powerid", json["powerid"]).Add("type", reflect.TypeOf(json["powerid"])).Warn("powerid missing")
 		return nil
+	} else {
+		powerID = int(poweridbuff)
 	}
-	log.Add("PowerId", powerid)
 
-	power := token.Powers[powerid]
+	log = log.Add("PowerId", powerID)
+
+	power := token.Powers[powerID]
 	if power == nil {
-		log.Error("powerid not found")
-		return nil
+		log.Add("Keys", token.Powers.Keys()).Error("power not found")
+		return
 	} else if !token.IsAwake && power.UsesTurn {
 		log.Error("card is asleep")
-		out.Error(seat.Player, token.Card.Proto.Name, `not awake`)
-		return nil
+		seat.Writer.Write(wsout.ErrorJSON(token.Card.Proto.Name, "not awake"))
+		return
 	} else if !seat.Karma.Active().Test(power.Costs) {
 		log.Add("Costs", power.Costs).Error("cannot afford")
-		out.Error(seat.Player, token.Card.Proto.Name, `not enough elements`)
-		return nil
+		seat.Writer.Write(wsout.ErrorJSON(token.Card.Proto.Name, "not enough elements"))
+		return
 	}
 
-	// approved
-	log.Add("Token", token).Add("Power", power).Trace()
-	return g.Settings.Engine.TriggerTokenPower(g, seat, token, power, json["target"])
+	targetID, _ := json["target"].(string)
+	if !checktarget.IsValid(game, seat, power.Target, targetID) {
+		log.Error("targetid: ", json["target"])
+	}
+
+	seat.Karma.Deactivate(power.Costs)
+	if power.Costs.Total() > 0 {
+		game.Seats.Write(wsout.GameSeatJSON(seat.Data()))
+	}
+	if power.UsesTurn {
+		rs = append(rs, trigger.SleepToken(game, token)...)
+	}
+	if power.UsesLife {
+		rs = append(rs, trigger.RemoveToken(game, token)...)
+	}
+
+	log.Add("TargetID", targetID).Add("Power", power).Trace()
+
+	rs = append(rs, phase.NewTrigger(seat.Username, token, power, targetID))
+	return
 }

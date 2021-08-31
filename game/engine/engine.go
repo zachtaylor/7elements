@@ -2,74 +2,115 @@ package engine
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/phase"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/power"
 )
 
-// Run the engine
-func Run(g *game.T) {
-	var tStart cast.Time
+// T runs this package as a plugable `game.Engine`
+type T struct{}
 
-	enginelog := g.Log().With(cast.JSON{
-		"GameID": g.ID(),
-	}).Tag("engine")
-	enginelog.Info("start")
+// New returns a new `game.Engine`
+func New() game.Engine { return &T{} }
 
-	// bootstrap
-	g.State.Activate(g)
-	timer := cast.NewTimer(g.State.Timer)
-
-loop: // nested break
-	for { // event loop
-		tStart = cast.Now()
-		select { // read request chan or timeout
-		case <-timer.C: // timeout
-			g.Log().Tag("engine/timeout")
-			g.ResolveState()
-		case r, ok := <-g.Monitor(): // player noise
-			if !timer.Stop() {
-				<-timer.C
-			}
-			g.State.Timer -= cast.Now().Sub(tStart)
-
-			if !ok {
-				g.Log().Info("stopping")
-				break loop // nested break
-			}
-
-			log := g.Log().With(cast.JSON{
-				"Path":     r.URI,
-				"Username": r.Username,
-				"State":    g.State.Name(),
-			}).Tag("engine/request")
-
-			if states := request(g, g.GetSeat(r.Username), r.URI, r.Data); len(states) < 1 {
-				log.Debug("no stack")
-			} else {
-				log.Copy().Add("Stack", states).Debug("stacking")
-				g.Stack(states)
-			}
-
-			if len(g.State.Reacts) == len(g.Seats) {
-				log.Info("resolve")
-				g.ResolveState()
-			} else if g.State.Timer < cast.Second {
-				log.Warn("timeout")
-				g.ResolveState()
-			} else {
-				log.Debug()
-			}
-		}
-		timer.Reset(g.State.Timer)
-	} // event loop
-
-	enginelog.With(cast.JSON{
-		"Time":  cast.Now().Sub(tStart),
-		"State": g.State,
-	}).Info("end")
-	for _, seat := range g.Seats {
-		if seat.Player != nil {
-			seat.Player.Send("/game", nil)
-		}
-		seat.Player = nil
-	}
+func (t *T) NewEnding(game *game.T, results game.Resulter) game.Phaser {
+	return phase.NewEnd(results)
 }
+
+func (t *T) NewTrigger(game *game.T, seat *seat.T, token *token.T, power *power.T) game.Phaser {
+	if power.Target == "self" {
+		return phase.NewTrigger(seat.Username, token, power, token.ID)
+	}
+	return phase.NewTarget(seat.Username, power, token)
+}
+
+func (t *T) NewToken(game *game.T, seat *seat.T, token *token.T) (rs []game.Phaser) {
+	rs = trigger.NewToken(game, seat, token)
+	return
+}
+
+func (t *T) RemoveToken(game *game.T, token *token.T) (rs []game.Phaser) {
+	return trigger.RemoveToken(game, token)
+}
+
+func (t *T) WakeToken(game *game.T, token *token.T) (rs []game.Phaser) {
+	return trigger.WakeToken(game, token)
+}
+
+func (t *T) SleepToken(game *game.T, token *token.T) (rs []game.Phaser) {
+	return trigger.SleepToken(game, token)
+}
+
+func (t *T) HealToken(game *game.T, token *token.T, n int) []game.Phaser {
+	return trigger.HealToken(game, token, n)
+}
+
+func (t *T) DamageToken(game *game.T, token *token.T, n int) []game.Phaser {
+	return trigger.DamageToken(game, token, n)
+}
+
+func (t *T) HealSeat(game *game.T, seat *seat.T, n int) []game.Phaser {
+	return trigger.HealSeat(game, seat, n)
+}
+
+func (t *T) DamageSeat(game *game.T, seat *seat.T, n int) (rs []game.Phaser) {
+	return trigger.DamageSeat(game, seat, n)
+}
+
+func (t *T) DrawCard(game *game.T, seat *seat.T, n int) []game.Phaser {
+	return trigger.DrawCard(game, seat, n)
+}
+
+// func (t *T) Target(seat *game.Seat, target string, text string, finish func(val string) []game.Phaser) game.Phaser {
+// 	return state.NewTarget(seat.Username, target, text, finish)
+// }
+
+// func (t *T) TriggerTokenEvent(g *game.T, seat *seat.T, token *token.T, name string) (rs []game.Phaser) {
+// 	powers := token.Powers.GetTrigger(name)
+// 	if len(powers) < 1 {
+// 		return
+// 	}
+// 	for _, p := range powers {
+// 		if p.Target != "self" {
+// 			power := p
+// 			rs = append(rs, phase.NewTarget(
+// 				seat.Username,
+// 				power,
+// 				token,
+// 			))
+// 		} else {
+// 			rs = append(rs, state.NewTrigger(seat.Username, token, p, token))
+// 		}
+// 	}
+// 	return
+// }
+
+// func (t *T) TriggerTokenPower(g *game.T, seat *game.Seat, token *game.Token, power *power.T, arg interface{}) []game.Phaser {
+// 	dirty := false
+// 	if power.Costs.Total() > 0 {
+// 		dirty = true
+// 		seat.Karma.Deactivate(power.Costs)
+// 	}
+// 	if power.UsesTurn {
+// 		token.IsAwake = false
+// 		out.GameToken(g, token.JSON())
+// 	}
+// 	if power.UsesKill {
+// 		dirty = true
+// 		delete(seat.Present, token.ID)
+// 	}
+// 	if dirty {
+// 		out.GameSeat(g, seat.JSON())
+// 	}
+
+// 	if power.Target == "self" {
+// 		return []game.Phaser{state.NewTrigger(seat.Username, token, power, token)}
+// 	}
+// 	return []game.Phaser{state.NewTrigger(seat.Username, token, power, arg)}
+// }
+
+// func (*T) Target(seat *seat.T, target string, text string, finish func(val string) []state.Phaser) state.Phaser {
+// 	return phase.NewTarget(seat.Username, target, text, finish)
+// }

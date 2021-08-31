@@ -3,30 +3,31 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/out"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/wsout"
 )
 
 const memorializeID = "memorialize"
 
 func init() {
-	game.Scripts[memorializeID] = Memorialize
+	script.Scripts[memorializeID] = Memorialize
 }
 
-func Memorialize(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if len(args) < 1 {
+func Memorialize(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
+		err = ErrMeCard
+	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if c, e := target.MyPastBeing(g, s, args[0]); e != nil {
-		err = e
-	} else if c == nil {
-		err = ErrNoTarget
+	} else if targetCard, _err := checktarget.MyPastBeing(game, seat, args[0]); _err != nil {
+		err = _err
 	} else {
-		c := card.New(c.Proto)
-		c.Username = s.Username
-		g.RegisterCard(c)
-		s.Hand[c.ID] = c
-		out.GameSeat(g, s.JSON())
-		out.GameHand(s.Player, s.Hand.JSON())
+		card := card.New(targetCard.Proto, seat.Username)
+		game.RegisterCard(card)
+		seat.Hand[card.ID] = card
+		game.Seats.Write(wsout.GameSeatJSON(seat.Data()))
+		seat.Writer.Write(wsout.GameHand(seat.Hand.Keys()).EncodeToJSON())
 	}
 	return
 }

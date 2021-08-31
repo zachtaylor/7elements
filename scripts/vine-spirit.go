@@ -2,21 +2,24 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/out"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/wsout"
 )
 
 const vinespiritID = "vine-spirit"
 
 func init() {
-	game.Scripts[vinespiritID] = VineSpirit
+	script.Scripts[vinespiritID] = VineSpirit
 }
 
-func VineSpirit(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if token, ok := me.(*game.Token); !ok || token == nil {
+func VineSpirit(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if token, ok := me.(*token.T); !ok || token == nil {
 		err = ErrMeToken
 	} else {
 		token.Body.Attack++
-		out.GameToken(g, token.JSON())
+		game.Seats.WriteSync(wsout.GameToken(token.Data()).EncodeToJSON())
 	}
 	return
 }

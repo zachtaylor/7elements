@@ -10,10 +10,10 @@ package scripts
 // const WandOfSuppressionID = "wand-of-suppression"
 
 // func init() {
-// 	game.Scripts[WandOfSuppressionID] = WandOfSuppression
+// 	script.Scripts[WandOfSuppressionID] = WandOfSuppression
 // }
 
-// func WandOfSuppression(g *game.T, seat *game.Seat, target interface{}) []game.Stater {
+// func WandOfSuppression(g *game.T, seat *seat.T, target interface{}) []game.Phaser {
 // 	log := g.Log().Add("Target", target).Add("Username", seat.Username)
 
 // 	gcid := cast.String(target)

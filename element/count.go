@@ -1,6 +1,11 @@
 package element
 
-import "ztaylor.me/cast"
+import (
+	"strconv"
+
+	"taylz.io/http/websocket"
+	"taylz.io/types"
+)
 
 // Count is a count of elements
 type Count map[T]int
@@ -28,59 +33,61 @@ func (c Count) Total() (x int) {
 //
 // nil elements in `c2` are satisfied by remaining element counts of `c`
 func (c Count) Test(c2 Count) bool {
-	c2 = c2.Copy()
+	nilcount := 0
 
-	for element, count := range c {
-		for i := 0; i < count; i++ {
-			if c2[element] > 0 {
-				c2[element]--
-			} else {
-				c2[Nil]--
-			}
-		}
-	}
-
-	for _, count := range c2 {
-		if count > 0 {
+	for element := Nil; element <= Black; element++ {
+		if element == Nil {
+			nilcount += c[element]
+		} else if c[element] > c2[element] {
+			nilcount += c[element] - c2[element]
+		} else if c[element] < c2[element] {
 			return false
 		}
 	}
 
-	return true
+	return c2[Nil] <= nilcount
 }
 
 // Remove will reduce the individual values of this count
-func (c Count) Remove(c2 Count) {
-	c2 = c2.Copy()
+func (c Count) Remove(c2 Count) error {
+	if c2[Nil] > 0 {
+		return types.NewErr("cannot remove nil element")
+	}
 
 	for element, count := range c2 {
 		if element == Nil {
 			continue
 		}
 
+		if c[element] < count {
+			return types.NewErr("requires more element: " + element.String())
+		}
 		c[element] -= count
 	}
 
-	for element := Nil; c2[Nil] > 0; element++ {
-		if element > Black {
-			panic("RemoveElements missing count for any type")
-		}
-
-		if c[element] < c2[Nil] {
-			c2[Nil] -= c[element]
-			delete(c, element)
-		} else {
-			c[element] -= c2[Nil]
-			delete(c2, Nil)
-		}
-	}
+	return nil
 }
 
-// JSON returns a representation of this count as type `cast.JSON`
-func (c Count) JSON() cast.JSON {
-	json := cast.JSON{}
+// JSON returns a representation of this count as type `websocket.MsgData`
+func (c Count) JSON() websocket.MsgData {
+	json := websocket.MsgData{}
 	for k, v := range c {
-		json[cast.StringI(int(k))] = v
+		json[strconv.FormatInt(int64(k), 10)] = v
 	}
 	return json
+}
+
+func (c Count) String() string {
+	var buf types.StringBuilder
+	buf.Grow(c.Total())
+	for e := Nil; e <= Black; e++ {
+		if c[e] < 1 {
+			continue
+		}
+		char := e.ToChar()
+		for i := 0; i < c[e]; i++ {
+			buf.WriteByte(char)
+		}
+	}
+	return buf.String()
 }

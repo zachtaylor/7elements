@@ -3,19 +3,19 @@ package server
 import (
 	"net/http"
 
-	"github.com/zachtaylor/7elements/runtime"
-	"ztaylor.me/http/handler"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"taylz.io/http/handler"
 )
 
-func Start(runtime *runtime.T, port string) {
-	server := Routes(runtime)
+func Start(runtime *runtime.T, fs http.FileSystem, port string) {
+	Routes(runtime, fs)
 	runtime.Log().Add("port", port).Info("elemen7s server started!")
-	http.ListenAndServe(port, server)
+	http.ListenAndServe(port, runtime.Server)
 }
 
-func StartTLS(runtime *runtime.T, cert string, key string) {
-	server := Routes(runtime)
+func StartTLS(runtime *runtime.T, fs http.FileSystem, cert string, key string) {
+	Routes(runtime, fs)
 	runtime.Log().Info("elemen7s server started!")
 	go http.ListenAndServe(":80", handler.RedirectHTTPS)
-	http.ListenAndServeTLS(":443", cert, key, server)
+	http.ListenAndServeTLS(":443", cert, key, runtime.Server)
 }

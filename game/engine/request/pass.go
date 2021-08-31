@@ -2,23 +2,24 @@ package request
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/out"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
 )
 
-func pass(g *game.T, seat *game.Seat, json cast.JSON) {
-	log := g.Log().With(cast.JSON{
-		"State":    g.State.String(),
+func Pass(game *game.T, seat *seat.T, json websocket.MsgData) {
+	log := game.Log().With(websocket.MsgData{
+		"State":    game.State,
 		"Username": seat.Username,
-	}).Tag("engine/pass")
-	if pass := json.GetS("pass"); pass == "" {
+	})
+	if pass, _ := json["pass"].(string); pass == "" {
 		log.Warn("target missing")
-	} else if pass != g.State.ID() {
+	} else if pass != game.State.ID() {
 		log.Add("PassID", pass).Warn("target mismatch")
-	} else if len(g.State.Reacts[seat.Username]) > 0 {
-		out.Error(seat.Player, "pass", "response already recorded")
+	} else if len(game.State.Reacts[seat.Username]) > 0 {
+		seat.Writer.Write(wsout.ErrorJSON("pass", "response already recorded"))
 	} else {
-		g.State.Reacts[seat.Username] = "pass"
-		out.GameReact(g, g.State.ID(), seat.Username, g.State.Reacts[seat.Username], g.State.Timer)
+		game.State.Reacts[seat.Username] = "pass"
+		game.Seats.Write(wsout.GameReact(game.State.ID(), seat.Username, "pass", game.State.Timer).EncodeToJSON())
 	}
 }

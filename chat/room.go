@@ -1,85 +1,78 @@
 package chat
 
 import (
-	"ztaylor.me/cast"
-	"ztaylor.me/http/websocket"
+	"sync"
+
+	"github.com/zachtaylor/7elements/wsout"
 )
 
 type Room struct {
-	Service Service
-	id      string
-	name    string
-	users   map[string]*User
-	history []*Message
-	lock    cast.Mutex
+	id    string
+	name  string
+	users map[string]bool
+	mu    sync.Mutex
+	hist  *History
+	man   *Manager
 }
 
 // NewRoom creates a chat room
 //
 // messageBuffer must be > 0
-func NewRoom(service Service, id, name string, messageBuffer int) *Room {
+func NewRoom(man *Manager, id, name string, messageBuffer int) *Room {
 	room := &Room{
-		Service: service,
-		id:      id,
-		name:    name,
-		users:   make(map[string]*User),
-		history: make([]*Message, messageBuffer),
+		id:   id,
+		name: name,
+		hist: NewHistory(messageBuffer),
+		man:  man,
 	}
 	return room
 }
 
-func (r *Room) Name() string {
-	return r.name
+func (r *Room) ID() string { return r.id }
+
+func (r *Room) Name() string { return r.name }
+
+func (r *Room) Add(username, message string) {
+	go r.AddSync(NewMessage(username, message))
 }
 
-func (r *Room) AddMessage(msg *Message) {
-	r.lock.Lock()
-	r.addMessage(msg)
-	r.lock.Unlock()
-}
-func (r *Room) addMessage(msg *Message) {
-	for i := len(r.history) - 1; i > 0; i-- {
-		r.history[i] = r.history[i-1]
+func (r *Room) AddSync(msg *Message) {
+	r.mu.Lock()
+	r.hist.Add(msg)
+	i, keys := 0, make([]string, len(r.users))
+	for k := range r.users {
+		keys[i] = k
+		i++
 	}
-	r.history[0] = msg
-	for _, user := range r.users {
-		if msg != nil {
-			user.Socket.Send("/chat/game", msg.JSON())
-		}
+	r.mu.Unlock()
+	data := wsout.Chat(msg.Data()).EncodeToJSON()
+	for _, username := range keys {
+		r.man.Users.Get(username).Write(data)
 	}
 }
 
-func (r *Room) History() []*Message {
-	return r.history
+func (r *Room) AddUser(username string) {
+	r.mu.Lock()
+	r.users[username] = true
+	r.mu.Unlock()
 }
 
-func (r *Room) AddUser(socket *websocket.T) *User {
-	username := ""
-	if socket.Session != nil {
-		username = socket.Session.Name()
-	} else {
-		username = "anon"
-	}
-	r.lock.Lock()
-	user := NewUser(username, socket)
-	r.users[socket.ID()] = user
-	r.lock.Unlock()
-	return user
-}
-
-func (r *Room) User(key string) (user *User) {
-	return r.users[key]
-}
-
-func (r *Room) Unsubscribe(key string) {
-	r.lock.Lock()
-	delete(r.users, key)
-	r.lock.Unlock()
+func (r *Room) RemoveUser(username string) {
+	r.mu.Lock()
+	delete(r.users, username)
+	r.mu.Unlock()
 	if len(r.users) < 1 {
 		r.Destroy()
 	}
 }
 
+func (r *Room) History() (data [][]byte) {
+	for _, msg := range r.hist.Data() {
+		data = append(data, wsout.Chat(msg.Data()).EncodeToJSON())
+	}
+	return
+}
+
 func (r *Room) Destroy() {
-	r.Service.Remove(r.id)
+	r.man.cache.Remove(r.id)
 }

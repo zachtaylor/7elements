@@ -1,51 +1,53 @@
 package api
 
 import (
-	"net/http"
+	"errors"
 
-	"github.com/zachtaylor/7elements/runtime"
-	"github.com/zachtaylor/7elements/server/internal"
-	"ztaylor.me/cast"
-	"ztaylor.me/cast/charset"
+	"github.com/zachtaylor/7elements/account"
+	"github.com/zachtaylor/7elements/db/accounts"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"taylz.io/http/session"
 )
 
-// LoginHandler returns a http.HandlerFunc that performs internal login
-func LoginHandler(rt *runtime.T) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := rt.Log().Tag("api/login").Add("Addr", r.RemoteAddr)
+var (
+	// ErrLoginOnline is returned as extra information
+	ErrLoginOnline = errors.New("account data is live")
+	// ErrLoginSession is returned as extra information
+	ErrLoginSession = errors.New("session exists for name")
+	// ErrLoginUsername is returned as rejection
+	ErrLoginUsername = errors.New("username not found")
+	// ErrLoginPassword is returned as rejection
+	ErrLoginPassword = errors.New("wrong password")
+)
 
-		if r.Method != "POST" {
-			w.WriteHeader(404)
-			log.Add("Method", r.Method).Warn("only POST allowed")
-			return
-		}
-
-		if session, _ := rt.Sessions.Cookie(r); session != nil {
-			session.WriteCookie(w, !rt.IsDevEnv)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			log.Add("SessionID", session.ID()).Info("request cookie exists")
-			return
-		}
-
-		username := r.FormValue("username")
-		log.Add("Username", username)
-
-		if !cast.InCharset(username, charset.AlphaCapitalNumeric) {
-			http.Redirect(w, r, "/login?username", http.StatusSeeOther)
-			log.Warn("invalid username")
-		} else if account, err := rt.Accounts.Get(username); account == nil {
-			http.Redirect(w, r, "/login?account", http.StatusSeeOther)
-			log.Add("Error", err).Warn("invalid account")
-		} else if password := internal.HashPassword(r.FormValue("password"), rt.PassSalt); password != account.Password {
-			http.Redirect(w, r, "/login?password", http.StatusSeeOther)
-			log.Warn("wrong password")
-		} else if player, err := rt.Players.Login(account); player == nil {
-			http.Redirect(w, r, "/login", http.StatusInternalServerError)
-			log.Add("Error", err).Error("update account")
+// Login saves runtime account data
+//
+// returns (*account.T, *session.T, ErrLoginOnline) when username exists in account cache
+//
+// returns (*account.T, *session.T, ErrLoginSession) when orphaned session is adopted
+func Login(rt *runtime.T, username, password string) (account *account.T, session *session.T, err error) {
+	if account = rt.Accounts.Get(username); account != nil {
+		err = ErrLoginOnline
+		if account.Password != password {
+			account = nil
 		} else {
-			player.Session.WriteCookie(w, !rt.IsDevEnv)
-			w.Write([]byte(redirectHomeTpl))
-			log.Add("SessionID", account.SessionID).Info("accept")
+			session = rt.Sessions.Get(account.SessionID)
 		}
-	})
+	} else if account, err = accounts.Get(rt.DB, username); err != nil {
+		account = nil
+	} else if account == nil {
+		err = ErrLoginUsername
+	} else if account.Password != password {
+		account = nil
+		err = ErrLoginPassword
+	} else {
+		if session = rt.Sessions.GetName(username); session != nil {
+			err = ErrLoginSession
+		} else {
+			session = rt.Sessions.Grant(username)
+		}
+		account.SessionID = session.ID()
+		rt.Accounts.Set(username, account)
+	}
+	return
 }

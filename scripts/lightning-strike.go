@@ -3,17 +3,17 @@ package scripts
 // import (
 // 	vii "github.com/zachtaylor/7elements"
 // 	"github.com/zachtaylor/7elements/game"
-// 	"github.com/zachtaylor/7elements/game/trigger"
+// 	"github.com/zachtaylor/7elements/game/engine/trigger"
 // 	"ztaylor.me/cast"
 // )
 
 // const LightningStrikeID = "lightning-strike"
 
 // func init() {
-// 	game.Scripts[LightningStrikeID] = LightningStrike
+// 	script.Scripts[LightningStrikeID] = LightningStrike
 // }
 
-// func LightningStrike(g *game.T, seat *game.Seat, target interface{}) []game.Stater {
+// func LightningStrike(g *game.T, seat *seat.T, target interface{}) []game.Phaser {
 // 	log := g.Log().Add("Target", target).Add("Username", seat.Username)
 
 // 	gcid := cast.String(target)

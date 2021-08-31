@@ -2,33 +2,36 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/state"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/out"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/phase"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/wsout"
 )
 
 const bendwillID = "bend-will"
 
 func init() {
-	game.Scripts[bendwillID] = BendWill
+	script.Scripts[bendwillID] = BendWill
 }
 
-func BendWill(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if len(args) < 1 {
+func BendWill(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
+		err = ErrMeCard
+	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if token, e := target.PresentBeing(g, s, args[0]); err != nil {
+	} else if token, e := checktarget.PresentBeing(game, seat, args[0]); err != nil {
 		err = e
 	} else {
-		events = []game.Stater{state.NewChoice(
-			s.Username,
-			cast.StringN(token.Card.Proto.Name, "-> Awake or Asleep?"),
-			cast.JSON{
-				"token": token.JSON(),
+		rs = append(rs, phase.NewChoice(
+			seat.Username,
+			token.Card.Proto.Name+"-> Awake or Asleep?",
+			map[string]interface{}{
+				"token": token.Data(),
 			},
-			[]cast.JSON{
-				cast.JSON{"choice": "awake", "display": `<a>Awake</a>`},
-				cast.JSON{"choice": "asleep", "display": `<a>Asleep</a>`},
+			[]map[string]interface{}{
+				map[string]interface{}{"choice": "awake", "display": `<a>Awake</a>`},
+				map[string]interface{}{"choice": "asleep", "display": `<a>Asleep</a>`},
 			},
 			func(val interface{}) {
 				if val == "awake" {
@@ -38,9 +41,9 @@ func BendWill(g *game.T, s *game.Seat, me interface{}, args []interface{}) (even
 				} else {
 					return
 				}
-				out.GameToken(g, token.JSON())
+				game.Seats.WriteSync(wsout.GameToken(token.Data()).EncodeToJSON())
 			},
-		)}
+		))
 	}
 	return
 }

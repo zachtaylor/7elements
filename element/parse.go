@@ -1,6 +1,23 @@
 package element
 
-import "ztaylor.me/cast"
+import (
+	"taylz.io/types"
+)
+
+// ParseCount reads a string for count code
+func ParseCount(str string) (Count, error) {
+	c := make(Count)
+
+	for _, char := range str {
+		element, _, err := Parse(byte(char))
+		if err != nil {
+			return nil, types.WrapErr(err, "parse count")
+		}
+		c[element]++
+	}
+
+	return c, nil
+}
 
 // ParseKarma reads a string for karma code
 func ParseKarma(s string) (Karma, error) {
@@ -8,11 +25,11 @@ func ParseKarma(s string) (Karma, error) {
 	for i, c := range s {
 		if i == 0 {
 			if c != '{' {
-				return nil, cast.NewError(nil, "element.ParseKarma: ", s)
+				return nil, types.NewErr("element.ParseKarma: " + s)
 			}
 		} else if i == len(s)-1 {
 			if c != '}' {
-				return nil, cast.NewError(nil, "element.ParseKarma: ", s)
+				return nil, types.NewErr("element.ParseKarma: " + s)
 			}
 		} else if el, active, err := Parse(byte(c)); err != nil {
 			return nil, err
@@ -65,6 +82,6 @@ func Parse(c byte) (T, bool, error) {
 	case 'X':
 		return Nil, true, nil
 	default:
-		return Nil, false, cast.NewError(nil, "element.Parse: ", c)
+		return Nil, false, types.NewErr("unknown element: " + string(c))
 	}
 }

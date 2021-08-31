@@ -2,35 +2,55 @@ package request
 
 import (
 	"github.com/zachtaylor/7elements/card"
+	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game"
-	pkg_state "github.com/zachtaylor/7elements/game/state"
-	"github.com/zachtaylor/7elements/out"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/phase"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
 )
 
-func play(g *game.T, seat *game.Seat, json cast.JSON, onlySpells bool) []game.Stater {
-	log := g.Log().With(cast.JSON{
+func Play(game *game.T, seat *seat.T, json websocket.MsgData, onlySpells bool) (rs []game.Phaser) {
+	log := game.Log().With(websocket.MsgData{
 		"Seat": seat.String(),
 	})
 
-	if id := json.GetS("id"); id == "" {
+	if id, _ := json["id"].(string); id == "" {
 		log.Error("no id")
 	} else if c := seat.Hand[id]; c == nil {
 		log.Error("no card")
-		out.Error(seat.Player, `vii`, `bad card id`)
+		seat.Writer.Write(wsout.ErrorJSON("vii", "bad card id"))
 	} else if c.Proto.Type != card.SpellType && onlySpells {
 		log.Add("Card", c.String()).Error("card type must be spell")
-		out.Error(seat.Player, c.Proto.Name, `not "spell" type`)
-	} else if !seat.Karma.Active().Test(c.Proto.Costs) {
-		log.Add("Card", c.String()).Error("not enough elements")
-		out.Error(seat.Player, c.Proto.Name, `not enough elements`)
+		seat.Writer.Write(wsout.ErrorJSON(c.Proto.Name, `not "spell" type`))
+	} else if pay, _ := json["pay"].(string); pay == "" {
+		log.Warn("elements payment missing")
+		seat.Writer.Write(wsout.ErrorJSON(c.Proto.Name, "requires elements payment"))
+	} else if paycount, err := element.ParseCount(pay); err != nil {
+		log.Add("Error", err).Add("Pay", pay).Error("element pay parse failed")
+	} else if activeKarma := seat.Karma.Active(); !activeKarma.Test(paycount) {
+		log.Add("PayCount", paycount).Error("karma cannot afford payment")
+		seat.Writer.Write(wsout.ErrorJSON(c.Proto.Name, "not enough elements"))
+	} else if !paycount.Test(c.Proto.Costs) {
+		log.With(websocket.MsgData{
+			"Pay":   paycount,
+			"Cost":  c.Proto.Costs,
+			"Karma": activeKarma,
+		}).Out("bogus payment detected")
+		seat.Writer.Write(wsout.ErrorJSON("vii", "internal error"))
 	} else {
-		log.Add("Card", c.String()).Info("accept")
-		seat.Karma.Deactivate(c.Proto.Costs)
+		log.With(websocket.MsgData{
+			"Pay":   paycount,
+			"Cost":  c.Proto.Costs,
+			"Karma": activeKarma,
+			"Card":  c.String(),
+		}).Info()
+		seat.Karma.Deactivate(paycount)
 		delete(seat.Hand, id)
-		out.GameSeat(g, seat.JSON())
-		out.GameHand(seat.Player, seat.Hand.JSON())
-		return []game.Stater{pkg_state.NewPlay(seat.Username, c, json["target"])}
+		game.Seats.Write(wsout.GameSeatJSON(seat.Data()))
+		seat.Writer.Write(wsout.GameHand(seat.Hand.Keys()).EncodeToJSON())
+		target, _ := json["target"].(string)
+		rs = append(rs, phase.NewPlay(seat.Username, c, target))
 	}
-	return nil
+	return
 }

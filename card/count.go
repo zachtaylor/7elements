@@ -3,10 +3,11 @@ package card
 import (
 	"errors"
 	"sort"
+	"strconv"
 	"strings"
 
-	"ztaylor.me/cast"
-	"ztaylor.me/cast/charset"
+	"taylz.io/http/websocket"
+	"taylz.io/types"
 )
 
 // Count is a map(cardid->quantity)
@@ -20,8 +21,8 @@ func ParseCount(format string) (Count, error) {
 	}
 	count := Count{}
 	for i := 0; i < lenfmt; i += 2 {
-		v := strings.Index(charset.Numeric, string([]byte{format[i]}))
-		k := 1 + strings.Index(charset.AlphaCapital, string([]byte{format[i+1]}))
+		v := strings.Index(types.CharsetNumeric, string([]byte{format[i]}))
+		k := 1 + strings.Index(types.CharsetAlphaCapital, string([]byte{format[i+1]}))
 		count[k] = v
 	}
 	return count, nil
@@ -38,17 +39,18 @@ func (c Count) Count() int {
 
 // Format writes this Count to a custom format
 func (c Count) Format() (string, error) {
+
 	keys := make([]int, len(c))
 	i := 0
 	for k, v := range c {
 		if v < 1 {
-			return "", errors.New("val too low: " + cast.StringI(v))
+			return "", errors.New("val too low: " + strconv.FormatInt(int64(v), 10))
 		} else if v > 9 {
-			return "", errors.New("val too high: " + cast.StringI(v))
+			return "", errors.New("val too high: " + strconv.FormatInt(int64(v), 10))
 		} else if k < 1 {
-			return "", errors.New("key too low: " + cast.StringI(k))
+			return "", errors.New("key too low: " + strconv.FormatInt(int64(k), 10))
 		} else if k > 52 {
-			return "", errors.New("key too high: " + cast.StringI(k))
+			return "", errors.New("key too high: " + strconv.FormatInt(int64(k), 10))
 		}
 		keys[i] = k
 		i++
@@ -58,17 +60,17 @@ func (c Count) Format() (string, error) {
 	b := strings.Builder{}
 	b.Grow(len(c) * 2)
 	for i = 0; i < len(keys); i++ {
-		b.WriteByte(charset.Numeric[c[keys[i]]])
-		b.WriteByte(charset.AlphaCapital[keys[i]-1])
+		b.WriteByte(types.CharsetNumeric[c[keys[i]]])
+		b.WriteByte(types.CharsetAlphaCapital[keys[i]-1])
 	}
 	return b.String(), nil
 }
 
-// JSON returns a representation of this count of Cards as type cast.JSON
-func (c Count) JSON() cast.JSON {
-	json := cast.JSON{}
+// JSON returns a representation of this count of Cards as type websocket.MsgData
+func (c Count) JSON() websocket.MsgData {
+	json := websocket.MsgData{}
 	for id, count := range c {
-		json[cast.StringI(id)] = count
+		json[strconv.FormatInt(int64(id), 10)] = count
 	}
 	return json
 }

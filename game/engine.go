@@ -1,13 +1,22 @@
 package game
 
-import "github.com/zachtaylor/7elements/power"
+import (
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/power"
+)
 
-// Engine is a plugin to execute game logic
 type Engine interface {
-	Run(*T)
-	Start(seat string) Stater
-	End(winner, loser string) Stater
-	Target(seat *Seat, target string, text string, finish func(val string) []Stater) Stater
-	TriggerTokenEvent(game *T, seat *Seat, token *Token, trigger string) []Stater
-	TriggerTokenPower(game *T, seat *Seat, token *Token, power *power.T, arg interface{}) []Stater
+	NewEnding(game *T, results Resulter) Phaser
+	NewTrigger(game *T, seat *seat.T, token *token.T, power *power.T) Phaser
+	NewToken(*T, *seat.T, *token.T) []Phaser
+	RemoveToken(*T, *token.T) []Phaser
+	WakeToken(*T, *token.T) []Phaser
+	SleepToken(*T, *token.T) []Phaser
+	HealToken(*T, *token.T, int) []Phaser
+	DamageToken(*T, *token.T, int) []Phaser
+	HealSeat(*T, *seat.T, int) []Phaser
+	DamageSeat(*T, *seat.T, int) []Phaser
+	DrawCard(*T, *seat.T, int) []Phaser
+	// RunScript(game *T, seat *seat.T, p *power.T, me interface{}, args []string) ([]Phaser, error)
 }

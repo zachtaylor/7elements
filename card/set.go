@@ -4,11 +4,15 @@ import (
 	"fmt"
 
 	"github.com/zachtaylor/7elements/element"
-	"ztaylor.me/cast"
 )
 
 // Set is a multiplicity of Cards, mapped by ID
 type Set map[string]*T
+
+func (set Set) Has(id string) (ok bool) {
+	_, ok = set[id]
+	return
+}
 
 // Devotion returns the ElementMap describing the devotion of this group of cards
 func (set Set) Devotion() element.Count {
@@ -35,11 +39,20 @@ func (set Set) Print() string {
 	return fmt.Sprintf("%v", collapse)
 }
 
-// JSON returns a representation of a set of game cards
-func (set Set) JSON() cast.JSON {
-	data := cast.JSON{}
-	for cid, c := range set {
-		data[cid] = c.JSON()
+func (set Set) Keys() []string {
+	i, keys := 0, make([]string, len(set))
+	for k := range set {
+		keys[i] = k
+		i++
 	}
-	return data
+	return keys
 }
+
+// // JSON returns a representation of a set of game cards
+// func (set Set) JSON() []string {
+// 	data :=
+// 	for cid, c := range set {
+// 		data[cid] = c.Proto.ID
+// 	}
+// 	return data
+// }

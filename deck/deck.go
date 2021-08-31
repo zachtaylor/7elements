@@ -3,8 +3,7 @@ package deck
 import (
 	"github.com/cznic/mathutil"
 	"github.com/zachtaylor/7elements/card"
-	"ztaylor.me/cast"
-	"ztaylor.me/log"
+	"taylz.io/log"
 )
 
 // T is a Deck
@@ -15,15 +14,15 @@ type T struct {
 }
 
 // New returns a new Deck
-func New(log log.Service, cards card.Prototypes, proto *Prototype, user string) *T {
-	buf := make([]*card.T, len(proto.Cards))
+func New(log *log.T, cards card.Prototypes, proto *Prototype, user string) *T {
+	buf := make([]*card.T, proto.Count())
 	i := 0
-	for k, v := range proto.Cards {
-		if proto, err := cards[k]; proto == nil {
-			log.New().Add("CardID", k).Error(err, "invalid cardid")
+	for cardid, copy := range proto.Cards {
+		if proto, err := cards[cardid]; proto == nil {
+			log.New().Add("CardID", cardid).Error(err, "invalid cardid")
 		} else {
-			for j := 0; j < v; j++ {
-				buf[i] = card.New(proto)
+			for ii := 0; ii < copy; ii++ {
+				buf[i] = card.New(proto, user)
 				i++
 			}
 		}
@@ -69,16 +68,16 @@ func (deck *T) Shuffle() {
 	deck.Cards = cp
 }
 
-func (deck *T) JSON() cast.JSON {
-	cardsJSON := cast.JSON{}
-	for cardid, count := range deck.Cards {
-		cardsJSON[cast.StringI(cardid)] = count
-	}
-	return cast.JSON{
-		"id":    deck.Proto.ID,
-		"name":  deck.Proto.Name,
-		"cards": cardsJSON,
-		"wins":  deck.Proto.Wins,
-		"cover": "/img/card/" + cast.StringI(deck.Proto.Cover) + ".jpg",
-	}
-}
+// func (deck *T) JSON() websocket.MsgData {
+// 	cardsJSON := websocket.MsgData{}
+// 	for cardid, count := range deck.Cards {
+// 		cardsJSON[strconv.FormatInt(int64(cardid), 10)] = count
+// 	}
+// 	return websocket.MsgData{
+// 		"id":    deck.Proto.ID,
+// 		"name":  deck.Proto.Name,
+// 		"cards": cardsJSON,
+// 		"wins":  deck.Proto.Wins,
+// 		"cover": deck.Proto.Cover,
+// 	}
+// }

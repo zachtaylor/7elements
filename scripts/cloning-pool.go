@@ -1,37 +1,30 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/out"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/token"
 )
 
 const cloningpoolID = "cloning-pool"
 
 func init() {
-	game.Scripts[cloningpoolID] = CloningPool
+	script.Scripts[cloningpoolID] = CloningPool
 }
 
-func CloningPool(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	var token *game.Token
-	if len(args) < 1 {
-		return nil, ErrNoTarget
-	} else if token, err = target.MyPresentBeing(g, s, args[0]); err != nil {
-		return
-	} else if token == nil {
-		return nil, ErrBadTarget
+func CloningPool(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsToken(me) {
+		err = ErrMeToken
+	} else if len(args) < 1 {
+		err = ErrNoTarget
+	} else if target, _err := checktarget.MyPresentBeing(game, seat, args[0]); _err != nil {
+		err = _err
 	} else {
-		card := card.New(token.Card.Proto)
-		card.Username = token.Username
-		token, events = trigger.Spawn(g, s, card)
-		token.Body.Health = 1
-		if e := trigger.DamageSeat(g, card, s, 1); e != nil {
-			events = append(events, e...)
-		}
-		out.GameSeat(g, s.JSON())
-		out.GameToken(g, token.JSON())
+		target.Body.Health++
+		rs = trigger.NewToken(game, seat, token.New(target.Card, seat.Username))
 	}
 	return
 }

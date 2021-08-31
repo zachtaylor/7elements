@@ -2,23 +2,25 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
 )
 
 const nightmareaderID = "nightmare-ader"
 
 func init() {
-	game.Scripts[nightmareaderID] = NightmareAder
+	script.Scripts[nightmareaderID] = NightmareAder
 }
 
-func NightmareAder(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+func NightmareAder(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
 	if len(args) < 1 {
 		err = ErrNoTarget
-	} else if token, e := target.PresentBeing(g, s, args[0]); err != nil {
-		err = e
+	} else if token, _err := checktarget.PresentBeing(game, seat, args[0]); _err != nil {
+		err = _err
 	} else {
-		events = trigger.Damage(g, token, token.Body.Attack)
+		rs = trigger.DamageToken(game, token, token.Body.Attack)
 	}
 	return
 }

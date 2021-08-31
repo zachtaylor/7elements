@@ -2,26 +2,27 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/out"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
 )
 
 const WaterDancerID = "water-dancer"
 
 func init() {
-	game.Scripts[WaterDancerID] = WaterDancer
+	script.Scripts[WaterDancerID] = WaterDancer
 }
 
-func WaterDancer(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
+func WaterDancer(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
 	if len(args) < 1 {
 		err = ErrNoTarget
-	} else if token, _err := target.PresentBeing(g, s, args[0]); _err != nil {
+	} else if token, _err := checktarget.PresentBeing(game, seat, args[0]); _err != nil {
 		err = _err
 	} else if token == nil {
 		err = ErrBadTarget
 	} else {
-		token.IsAwake = false
-		out.GameToken(g, token.JSON())
+		rs = trigger.SleepToken(game, token)
 	}
 	return
 }

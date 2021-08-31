@@ -2,7 +2,7 @@ package cards
 
 import (
 	"github.com/zachtaylor/7elements/card"
-	"ztaylor.me/db"
+	"taylz.io/db"
 )
 
 type Loader struct{ conn *db.DB }

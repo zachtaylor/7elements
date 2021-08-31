@@ -1,82 +1,173 @@
 package apiws
 
 import (
+	"reflect"
+
 	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/ai"
-	"github.com/zachtaylor/7elements/out"
-	"github.com/zachtaylor/7elements/runtime"
-	"ztaylor.me/cast"
-	"ztaylor.me/http/websocket"
+	"github.com/zachtaylor/7elements/gameserver"
+	"github.com/zachtaylor/7elements/gameserver/ai"
+	"github.com/zachtaylor/7elements/gameserver/queue"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
+	"taylz.io/types"
 )
 
 func GameNew(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		log := rt.Log().Tag("apiws/game.new").With(cast.JSON{
-			"Session": socket.Session,
-		})
-
-		if socket.Session == nil {
-			log.Warn("session required")
+		log := rt.Logger.Add("Socket", socket.ID())
+		if len(socket.Name()) < 1 {
+			log.Warn("anon update email")
+			socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to change email"))
 			return
-		} else if game := rt.Games.FindUsername(socket.Session.Name()); game != nil {
-			log.Add("GameID", game.ID).Warn("game exists")
-			connectgame(rt, socket)
+		}
+		log.Add("Name", socket.Name())
+
+		user := rt.Users.Get(socket.Name())
+		if user == nil {
+			log.Error("user missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
+		}
+
+		account := rt.Accounts.Get(socket.Name())
+		if account == nil {
+			log.Error("user missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
+		} else if account.GameID != "" {
+			log.Add("Game", account.GameID).Warn("game exists")
+			socket.WriteSync(wsout.ErrorJSON("vii", "game exists"))
+			return
+		}
+
+		if queue := rt.Queue.Get(socket.Name()); queue != nil {
+			log.Add("Queue", queue).Warn("queue exists")
+			socket.WriteSync(wsout.ErrorJSON("vii", "already searching for game"))
+			return
+		}
+
+		var deckid int
+		if deckid64, _ := m.Data["deckid"].(float64); deckid64 < 1 {
+			log.Add("Data", m.Data).Warn("deckid missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
+		} else {
+			deckid = int(deckid64)
+		}
+
+		owner, _ := m.Data["owner"].(string)
+		if owner == "" {
+			log.Add("Data", m.Data).Warn("owner missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
+		}
+
+		// search settings
+		var options queue.Options
+
+		if custom, ok := m.Data["custom"].(bool); ok && custom {
+			options.AllowCustomDecks = true
+		} else if ok {
+			// options.AllowCustomDecks = false
+		} else {
+			log.Add("val", m.Data["custom"]).Add("type", reflect.TypeOf(m.Data["custom"])).Warn("custom missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
+		}
+
+		if speed := m.Data["speed"]; speed == "fast" {
+			options.Rules.Timeout = 30 * types.Second
+		} else if speed == "med" {
+			options.Rules.Timeout = 60 * types.Second
+		} else if speed == "slow" {
+			options.Rules.Timeout = 90 * types.Second
+		} else {
+			log.Add("Data", m.Data).Warn("speed missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
+		}
+
+		if handsize := m.Data["hands"]; handsize == "small" {
+			options.Rules.StartingHand = 3
+		} else if handsize == "med" {
+			options.Rules.StartingHand = 5
+		} else if handsize == "large" {
+			options.Rules.StartingHand = 7
+		} else {
+			log.Add("Data", m.Data).Warn("handsize missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
 			return
 		}
 
 		var decklist *deck.Prototype
-		if deckid := m.Data.GetI("deckid"); deckid < 1 {
-			log.Add("DeckID", m.Data["deckid"]).Warn("deckid parse error")
-			return
-		} else if list, err := rt.Decks.Get(deckid); err != nil {
-			log.Add("Error", err).Error("account missing")
-			return
-		} else if list.User != "vii" && list.User != socket.Session.Name() {
-			log.Add("Owner", list.User).Warn("deckid is not public")
-			return
-		} else if list.Count() < 21 {
-			log.Warn("deck too small")
-			out.Error(socket, list.Name, "deck must have at least 21 cards")
+		if owner == "vii" {
+			decklist = rt.Decks[deckid]
+			if decklist == nil {
+				log.Add("Owner", owner).Warn("deckid invalid")
+				socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+				return
+			}
+			log.Add("Deck", decklist.Name)
+		} else if owner != account.Username {
+			log.Add("Owner", owner).Warn("owner unexpected")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
 			return
 		} else {
-			log.Add("DeckID", deckid)
-			decklist = list
-		}
-		deck := deck.New(rt.Logger, rt.Cards, decklist, socket.Session.Name())
-		if deck == nil {
-			log.Warn("failed to instantiate")
-			out.Error(socket, "vii", "internal server error")
-			return
+			options.AllowCustomDecks = true
+			decklist = account.Decks[deckid]
+			if decklist == nil {
+				log.Warn("deckid invalid")
+				socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+				return
+			} else if decklist.Count() < 21 {
+				log.Warn("deck too small")
+				socket.WriteSync(wsout.ErrorJSON("vii", "deck must have at least 21 cards"))
+				return
+			}
+			log.Add("Deck", decklist.ID)
 		}
 
-		// build opponent
-		// todo: bool(Query().Get("ai")) could be Query().Get("opponent") == "ai"
+		// find game
 
-		var g *game.T
-		if useai, ok := m.Data["ai"]; !ok {
-			log.Warn("ai missing")
+		deck := deck.New(rt.Logger, rt.Cards, decklist, account.Username)
+		entry := &gameserver.Entry{
+			Deck:   deck,
+			Writer: user,
+		}
+
+		var game *game.T
+
+		if pvp, ok := m.Data["pvp"].(bool); ok && !pvp {
+			ai := ai.New("A.I.")
+			game = rt.Games.New(options.Rules, rt.Logger, entry, ai.Entry(rt.Logger, rt.Cards, rt.Decks))
+			ai.Connect(game)
+			log.Info("created game vs ai")
+		} else if !ok {
+			log.Add("pvp", m.Data["pvp"]).Add("type", reflect.TypeOf(m.Data["pvp"])).Warn("pvp missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
 			return
-		} else if cast.Bool(useai) {
-			g = rt.Games.New(deck, ai.GetDeck(rt.Logger, rt.Cards, rt.Decks))
-			ai.ConnectAI(g)
-			log.Add("GameID", g.ID()).Info("created game vs ai")
-		} else if search := rt.Games.Search(deck); search == nil {
-			log.Warn("cannot start search")
+		} else if queue, err := rt.Queue.Request(options, user, deck); err != nil {
+			log.Add("Error", err).Error("queue error")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
 		} else {
-			log.Info("starting search")
-			if gameid := <-search.Done; gameid == "" {
-				log.Warn("search failed")
-			} else {
-				g = rt.Games.Get(gameid)
-				log.Info("match found")
+			select {
+			case id := <-queue.Done():
+				game = rt.Games.Get(id)
+			case <-queue.Cancel():
+				log.Trace("queue cancelled")
+				return
 			}
 		}
 
-		if g == nil {
+		if game == nil {
 			log.Error("fail")
 		} else {
-			connectgame(rt, socket)
+			log.Info("finish")
+			account.GameID = game.ID()
+			socket.Write(wsout.MyAccountGame(game.ID()).EncodeToJSON())
 		}
 	})
 }

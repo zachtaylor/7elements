@@ -1,11 +1,11 @@
 package card
 
 import (
-	"strings"
+	"sort"
+	"strconv"
 
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/power"
-	"ztaylor.me/cast"
 )
 
 // Prototype is a definition of a card
@@ -14,7 +14,6 @@ type Prototype struct {
 	Name   string
 	Text   string
 	Type   Type
-	Image  string
 	Costs  element.Count
 	Body   *Body
 	Powers power.Set
@@ -28,30 +27,29 @@ func NewPrototype() *Prototype {
 	}
 }
 
-// JSON returns a representation of this Prototype as type cast.JSON
-func (proto *Prototype) JSON() cast.JSON {
-	return cast.JSON{
+// Data returns a representation of this Prototype as type map[string]interface{}
+func (proto *Prototype) Data() map[string]interface{} {
+	return map[string]interface{}{
 		"id":     proto.ID,
-		"image":  proto.Image,
 		"name":   proto.Name,
 		"text":   proto.Text,
 		"type":   proto.Type.String(),
-		"powers": proto.Powers.JSON(),
+		"powers": proto.Powers.Data(),
 		"costs":  proto.Costs.JSON(),
-		"body":   proto.Body.JSON(),
+		"body":   proto.Body.Data(),
 	}
 }
 
 func (proto *Prototype) String() string {
-	return cast.StringN(`{`, proto.ID, ` `, proto.Name, `}`)
+	return `{` + strconv.FormatInt(int64(proto.ID), 10) + ` ` + proto.Name + `}`
 }
 
 // Prototypes is a set of Prototype, mapped by ID number
 type Prototypes map[int]*Prototype
 
-// JSON returns a representation of these Prototypes as type fmt.Stringer
-func (cards Prototypes) JSON() cast.IStringer {
-	json := make([]string, 0)
+// Data returns a representation of these Prototypes as type fmt.Stringer
+func (cards Prototypes) Data() []map[string]interface{} {
+	json := make([]map[string]interface{}, len(cards))
 	keys := make([]int, len(cards))
 
 	var i int
@@ -59,9 +57,11 @@ func (cards Prototypes) JSON() cast.IStringer {
 		keys[i] = k
 		i++
 	}
-	cast.SortInts(keys)
+	sort.Ints(keys)
+	var j int
 	for _, id := range keys {
-		json = append(json, cards[id].JSON().String())
+		json[j] = cards[id].Data()
+		j++
 	}
-	return cast.Stringer(`[` + strings.Join(json, ",") + `]`)
+	return json
 }

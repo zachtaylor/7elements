@@ -3,24 +3,25 @@ package cards
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/power"
-	"ztaylor.me/db"
+	"taylz.io/db"
 )
 
 func GetAll(conn *db.DB) card.Prototypes {
 	cards := card.Prototypes{}
 
 	// select all cards
-	rows, err := conn.Query("SELECT id, type, name, text, image FROM cards")
+	rows, err := conn.Query("SELECT id, type, name, text FROM cards")
 	if err != nil {
 		return nil
 	}
 
 	for rows.Next() {
-		c, err := scanCard(conn, rows)
+		c, err := scanCard(rows)
 		if err != nil {
 			rows.Close()
 			return nil
@@ -39,21 +40,21 @@ func GetAll(conn *db.DB) card.Prototypes {
 		return nil
 	}
 
-	return nil
+	return cards
 }
 
-func scanCard(conn *db.DB, scanner db.Scanner) (*card.Prototype, error) {
+func scanCard(scanner db.Scanner) (*card.Prototype, error) {
 	c := card.NewPrototype()
 	var typebuff int
 
-	err := scanner.Scan(&c.ID, &typebuff, &c.Name, &c.Text, &c.Image)
+	err := scanner.Scan(&c.ID, &typebuff, &c.Name, &c.Text)
 	if err != nil {
 		return nil, err
 	}
 
 	t := card.Type(typebuff)
 	if t.String() == "error" {
-		return nil, errors.New(fmt.Sprintf("cards: cardtype not recognized #%v", typebuff))
+		return nil, errors.New("cards: cardtype not recognized #" + strconv.FormatInt(int64(typebuff), 10))
 	}
 	c.Type = t
 	return c, nil
@@ -120,7 +121,7 @@ func loadCardsPowers(conn *db.DB, cards card.Prototypes) error {
 		p := power.New()
 		err = rows.Scan(&cardid, &p.ID, &usesturn, &useskill, &p.Trigger, &p.Target, &p.Script, &p.Text)
 		p.UsesTurn = usesturn > 0
-		p.UsesKill = useskill > 0
+		p.UsesLife = useskill > 0
 
 		if err != nil {
 			return err

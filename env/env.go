@@ -1,16 +1,17 @@
 package env
 
-import "ztaylor.me/db/env"
+import "taylz.io/env"
 
-// Service exports `env.Service`
-type Service = env.Service
-
-func NewService() env.Service {
+func New() env.Service {
 	return env.Service{
-		"ENV":       "dev",
-		"PORT":      "80",
-		"LOG_LEVEL": "info",
-		"LOG_PATH":  "./",
-		"DB_PWSALT": "",
-	}.Merge("DB_", env.NewService())
+		"ENV":         "dev",
+		"PORT":        "80",
+		"LOG_LEVEL":   "info",
+		"LOG_PATH":    "./",
+		"DB_PWSALT":   "",
+		"DB_USER":     "",
+		"DB_PASSWORD": "",
+		"DB_HOST":     "",
+		"DB_PORT":     "",
+	}
 }

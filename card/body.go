@@ -1,7 +1,5 @@
 package card
 
-import "ztaylor.me/cast"
-
 // Body contains stats for Body Cards
 type Body struct {
 	Attack int
@@ -19,12 +17,12 @@ func (b *Body) Copy() *Body {
 	}
 }
 
-// JSON returns a representation of this Body as type fmt.Stringer
-func (b *Body) JSON() cast.IStringer {
+// Data returns a representation of this Body as type fmt.Stringer
+func (b *Body) Data() map[string]interface{} {
 	if b == nil {
-		return cast.Stringer(`null`)
+		return nil
 	}
-	return cast.JSON{
+	return map[string]interface{}{
 		"attack": b.Attack,
 		"health": b.Health,
 	}

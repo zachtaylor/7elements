@@ -1,10 +1,7 @@
 // Package notify provides a simple cache to place user notices
 package notify // import "github.com/zachtaylor/7elements/notify"
 
-import (
-	"sync"
-	"time"
-)
+import "sync"
 
 var cache = make(map[string][]*Notification)
 var mu sync.Mutex

@@ -2,26 +2,30 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/out"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/wsout"
 )
 
 const inspiregrowthID = "inspire-growth"
 
 func init() {
-	game.Scripts[inspiregrowthID] = InspireGrowth
+	script.Scripts[inspiregrowthID] = InspireGrowth
 }
 
-func InspireGrowth(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if len(args) < 1 {
+func InspireGrowth(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
+		err = ErrMeCard
+	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if token, e := target.PresentBeing(g, s, args[0]); e != nil {
-		err = e
+	} else if token, _err := checktarget.PresentBeing(game, seat, args[0]); _err != nil {
+		err = _err
 	} else if token == nil {
 		err = ErrNoTarget
 	} else {
 		token.Body.Attack++
-		out.GameToken(g, token.JSON())
+		game.Seats.WriteSync(wsout.GameToken(token.Data()).EncodeToJSON())
 	}
 	return
 }

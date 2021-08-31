@@ -10,10 +10,10 @@ package scripts
 // const BoenID = "boen"
 
 // func init() {
-// 	game.Scripts[BoenID] = Boen
+// 	script.Scripts[BoenID] = Boen
 // }
 
-// func Boen(g *game.T, seat *game.Seat, target interface{}) []game.Stater {
+// func Boen(g *game.T, seat *seat.T, target interface{}) []game.Phaser {
 // 	log := g.Log().With(log.Fields{
 // 		"Username": seat.Username,
 // 		"Card":     target,

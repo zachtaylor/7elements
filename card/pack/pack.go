@@ -1,10 +1,10 @@
 package pack
 
 import (
-	"strings"
+	"sort"
 
 	"github.com/cznic/mathutil"
-	"ztaylor.me/cast"
+	"taylz.io/http/websocket"
 )
 
 // Prototype is a definition of a Pack of Cards
@@ -13,7 +13,6 @@ type Prototype struct {
 	Name  string
 	Size  int
 	Cost  int
-	Image string
 	Cards []*Chance
 }
 
@@ -57,19 +56,18 @@ func newPackSkipProtoID(pack []int, id int) bool {
 	return false
 }
 
-// JSON returns a representation of this Prototype as type cast.JSON
-func (p *Prototype) JSON() cast.JSON {
-	cards := make([]string, 0)
+// JSON returns a representation of this Prototype as type websocket.MsgData
+func (p *Prototype) JSON() websocket.MsgData {
+	cards := make([]int, 0)
 	for _, card := range p.Cards {
-		cards = append(cards, cast.StringI(card.CardID))
+		cards = append(cards, card.CardID)
 	}
-	return cast.JSON{
+	return websocket.MsgData{
 		"id":    p.ID,
 		"name":  p.Name,
 		"size":  p.Size,
 		"cost":  p.Cost,
-		"image": p.Image,
-		"cards": cast.Stringer(`[` + strings.Join(cards, ",") + `]`),
+		"cards": cards,
 	}
 }
 
@@ -77,19 +75,21 @@ func (p *Prototype) JSON() cast.JSON {
 type Prototypes map[int]*Prototype
 
 // JSON returns a representation of these Prototypes as type fmt.Stringer
-func (packs Prototypes) JSON() cast.IStringer {
-	json := make([]string, 0)
+func (packs Prototypes) JSON() []websocket.MsgData {
+	json := make([]websocket.MsgData, len(packs))
 	keys := make([]int, len(packs))
 	var i int
 	for k := range packs {
 		keys[i] = k
 		i++
 	}
-	cast.SortInts(keys)
+	sort.Ints(keys)
+	var j int
 	for _, k := range keys {
-		json = append(json, packs[k].JSON().String())
+		json[j] = packs[k].JSON()
+		j++
 	}
-	return cast.Stringer(`[` + strings.Join(json, ",") + `]`)
+	return json
 }
 
 // Service is used to acquire Pack Prototypes

@@ -2,26 +2,28 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/token"
 )
 
 const HandrailsID = "handrails"
 
 func init() {
-	game.Scripts[HandrailsID] = Handrails
+	script.Scripts[HandrailsID] = Handrails
 }
 
-func Handrails(g *game.T, seat *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if token, ok := me.(*game.Token); !ok || token == nil {
+func Handrails(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if token, ok := me.(*token.T); !ok || token == nil {
 		err = ErrMeToken
 	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if target, targetErr := target.MyPresentBeing(g, seat, args[0]); targetErr != nil {
-		err = targetErr
+	} else if token, _err := checktarget.MyPresentBeing(game, seat, args[0]); _err != nil {
+		err = _err
 	} else {
-		events = trigger.Wake(g, target)
-
+		rs = trigger.WakeToken(game, token)
 	}
 	return
 }

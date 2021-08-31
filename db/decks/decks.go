@@ -1,76 +1,77 @@
 package decks
 
 import (
+	"strconv"
+
 	"github.com/zachtaylor/7elements/deck"
-	"ztaylor.me/db"
+	"taylz.io/db"
+	"taylz.io/types"
 )
 
-// func (ds *DeckService) Start() error {
-// 	if decks, err := ds.reloadDecks(); err != nil {
-// 		return err
-// 	} else if deckscards, err := ds.reloadDecksCards(); err != nil {
-// 		return err
-// 	} else {
-// 		for deckid, cards := range deckscards {
-// 			if d := decks[deckid]; d != nil {
-// 				d.Cards = cards
-// 			}
-// 		}
-// 		ds.cache = decks
-// 	}
-// 	return nil
-// }
-
-// func (ds *DeckService) reloadDecks() (deck.Prototypes, error) {
-// 	decks := make(deck.Prototypes)
-// 	rows, err := ds.conn.Query("SELECT id, name, cover FROM decks")
-// 	if err != nil {
-// 		return decks, err
-// 	}
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		d := &deck.Prototype{}
-// 		if err = rows.Scan(&d.ID, &d.Name, &d.CoverID); err == nil {
-// 			decks[d.ID] = d
-// 		} else {
-// 			break
-// 		}
-// 	}
-// 	return decks, err
-// }
-
-func Get(conn *db.DB, id int) (*deck.Prototype, error) {
-	row := conn.QueryRow(
-		"SELECT id, name, cover FROM decks WHERE id=?",
-		id,
-	)
-	deck := deck.NewPrototype()
-	err := row.Scan(&deck.ID, &deck.Name, &deck.Cover)
+func GetAll(conn *db.DB) (deck.Prototypes, error) {
+	rows, err := conn.Query("SELECT id, name, cover FROM decks")
 	if err != nil {
 		return nil, err
 	}
+	decks := make(deck.Prototypes)
+	for rows.Next() {
+		d := deck.NewPrototype("vii")
+		if err = rows.Scan(&d.ID, &d.Name, &d.Cover); err == nil {
+			decks[d.ID] = d
+		} else {
+			rows.Close()
+			return nil, err
+		}
+	}
+	rows.Close()
 
+	if err = getItems(conn, decks); err != nil {
+		return nil, err
+	}
+
+	return decks, err
+}
+
+func getItems(conn *db.DB, decks deck.Prototypes) error {
 	// decks_items
-	rows, err := conn.Query("SELECT cardid, amount FROM decks_items WHERE deckid=?",
-		id,
-	)
+	rows, err := conn.Query("SELECT deckid, cardid, amount FROM decks_items")
 	if err != nil {
-		return nil, err
+		return err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var deckid, cardid, amount int
 
 		err = rows.Scan(&deckid, &cardid, &amount)
 		if err != nil {
-			return nil, err
+			return err
+		}
+
+		deck := decks[deckid]
+		if deck == nil {
+			return types.NewErr("deckid missing: " + strconv.FormatInt(int64(deckid), 10))
 		}
 
 		deck.Cards[cardid] = amount
 	}
-	rows.Close()
 
-	return deck, nil
+	return nil
 }
+
+// func Get(conn *db.DB, id int) (*deck.Prototype, error) {
+// 	row := conn.QueryRow(
+// 		"SELECT id, name, cover FROM decks WHERE id=?",
+// 		id,
+// 	)
+// 	deck := deck.NewPrototype()
+// 	err := row.Scan(&deck.ID, &deck.Name, &deck.Cover)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return deck, nil
+// }
 
 // func (ds *DeckService) Update(deck *deck.Prototype) (err error) {
 // 	if err = ds.Delete(deck.ID); err != nil {

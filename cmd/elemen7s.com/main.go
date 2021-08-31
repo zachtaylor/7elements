@@ -1,44 +1,36 @@
 package main
 
 import (
-	pkg_env "github.com/zachtaylor/7elements/env"
+	"net/http"
+
+	"github.com/zachtaylor/7elements/env"
 	_ "github.com/zachtaylor/7elements/scripts"
 	"github.com/zachtaylor/7elements/server"
-	"ztaylor.me/cast"
-	"ztaylor.me/http/session"
-	"ztaylor.me/log"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"taylz.io/log"
 )
 
-const Patch = 3
+const Patch = 4
 
 func main() {
-	env := pkg_env.NewService().ParseDefault()
+	stdout := log.Default()
 
-	//
+	stdout.Info("vii: start")
 
-	stdout := log.StdOutService(log.LevelDebug)
-	stdout.Formatter().CutSourcePath(2)
-
-	runtime, err := pkg_env.NewRuntime(env)
-	if err != nil {
-		stdout.New().Add("Error", err).Error("failed to launch")
+	env := env.New().ParseDefault()
+	runtime, err := runtime.Parse(env, Patch)
+	if runtime == nil {
+		stdout.Add("Error", err).Error("vii: failed to parse env")
 		return
 	}
 
-	stdout.New().With(cast.JSON{
-		"Patch": Patch,
-	}).Source().Debug()
+	fs := http.FileSystem(http.Dir(env["WWW_PATH"]))
 
-	if envName := env["ENV"]; envName == "dev" {
-		runtime.Sessions = session.NewCache(7 * cast.Minute)
-		// runtime.Root.Logger = stdout
-		server.Start(runtime, ":"+env["PORT"])
-	} else if envName == "pro" {
-		runtime.Sessions = session.NewCache(7 * cast.Hour)
-		logLevel, _ := log.GetLevel(env["LOG_LEVEL"])
-		runtime.Root.Logger = log.DailyRollingService(logLevel, env["LOG_PATH"])
-		server.StartTLS(runtime, "7elements.cert", "7elements.key")
+	if runtime.IsDevEnv {
+		server.Start(runtime, fs, ":"+env["PORT"])
 	} else {
-		stdout.New().Error("7elements failed to launch, env error")
+		// production has a different binary so this is never used
+		server.StartTLS(runtime, fs, "7elements.cert", "7elements.key")
 	}
+
 }

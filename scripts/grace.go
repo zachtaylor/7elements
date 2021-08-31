@@ -2,25 +2,27 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/target"
-	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/checktarget"
+	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/game/engine/trigger"
+	"github.com/zachtaylor/7elements/game/seat"
 )
 
 const GraceID = "grace"
 
 func init() {
-	game.Scripts[GraceID] = Grace
+	script.Scripts[GraceID] = Grace
 }
 
-func Grace(g *game.T, s *game.Seat, me interface{}, args []interface{}) (events []game.Stater, err error) {
-	if len(args) < 1 {
+func Grace(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
+	if !checktarget.IsCard(me) {
+		err = ErrMeCard
+	} else if len(args) < 1 {
 		err = ErrNoTarget
-	} else if token, e := target.MyPresentBeing(g, s, args[0]); e != nil {
-		err = e
-	} else if token == nil {
-		err = ErrNoTarget
+	} else if token, _err := checktarget.MyPresentBeing(game, seat, args[0]); _err != nil {
+		err = _err
 	} else {
-		events = trigger.Heal(g, token, 3)
+		rs = trigger.HealToken(game, token, 3)
 	}
 	return
 }

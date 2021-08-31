@@ -2,13 +2,44 @@ package engine
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	pkg_request "github.com/zachtaylor/7elements/game/engine/request"
-	"ztaylor.me/cast"
+	"github.com/zachtaylor/7elements/game/engine/request"
+	"github.com/zachtaylor/7elements/game/seat"
+	"taylz.io/http/websocket"
 )
 
-func request(g *game.T, seat *game.Seat, uri string, json cast.JSON) []game.Stater {
-	if g.State.Name() == "main" && g.State.Seat() == seat.Username {
-		return pkg_request.InMain(g, seat, uri, json)
+func Request(game *game.T, seat *seat.T, uri string, json websocket.MsgData) []game.Phaser {
+
+	isSeatMain := game.Phase() == "main" && game.State.Phase.Seat() == seat.Username
+
+	log := game.Log().With(websocket.MsgData{
+		"User":    seat,
+		"URI":     uri,
+		"Phase":   game.Phase(),
+		"StateID": game.State.ID(),
+		"data":    json, // lowercase so it logs last
+	})
+	log.Trace("request")
+
+	switch uri {
+	case "connect":
+		request.Connect(game, seat)
+	case game.State.ID():
+		request.Phase(game, seat, json)
+	case "chat":
+		request.Chat(game, seat, json)
+	case "pass":
+		request.Pass(game, seat, json)
+	case "trigger":
+		return request.Trigger(game, seat, json)
+	case "attack":
+		if !isSeatMain {
+			return nil
+		}
+		return request.Attack(game, seat, json)
+	case "play":
+		return request.Play(game, seat, json, !isSeatMain)
+	default:
+		log.Warn("not found")
 	}
-	return pkg_request.InResponse(g, seat, uri, json)
+	return nil
 }

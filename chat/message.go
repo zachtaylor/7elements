@@ -1,10 +1,6 @@
 package chat
 
-import (
-	"time"
-
-	"ztaylor.me/cast"
-)
+import "time"
 
 type Message struct {
 	Username string
@@ -21,11 +17,12 @@ func NewMessage(username, message string) *Message {
 	}
 }
 
-func (m *Message) JSON() cast.JSON {
-	return cast.JSON{
-		// "userid":    m.SocketID(),
-		"username": m.Username,
-		"message":  cast.EscapeString(m.Message),
-		"time":     m.Time.Format("01-02 15:04:05"),
+func (m *Message) Data() map[string]interface{} {
+	return map[string]interface{}{
+		"user": m.Username,
+		"chan": m.Channel,
+		"msg":  m.Message,
+		"date": m.Time.Format("2006-02-01"),
+		"time": m.Time.Format("15:04:05"),
 	}
 }

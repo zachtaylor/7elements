@@ -1,17 +1,16 @@
 package card
 
-import "ztaylor.me/cast"
-
 // T is a Card
 type T struct {
-	Proto    *Prototype
-	ID       string
-	Username string
+	Proto *Prototype
+	ID    string
+	User  string
 }
 
-func New(proto *Prototype) *T {
+func New(proto *Prototype, user string) *T {
 	return &T{
 		Proto: proto,
+		User:  user,
 	}
 }
 
@@ -19,29 +18,17 @@ func (c *T) String() string {
 	if c == nil {
 		return `<nil>`
 	}
-	return cast.StringN(
-		`card.T{`,
-		c.ID,
-		`card:`, c.Proto.String(),
-		`user:`, c.Username,
-		`}`,
-	)
+	return `card.T{` + c.ID + ` card:` + c.Proto.String() + ` user:` + c.User + `}`
 }
 
-// JSON returns a representation of a game card
-func (c *T) JSON() cast.JSON {
+// Data returns a representation of a game card
+func (c *T) Data() map[string]interface{} {
 	if c == nil {
 		return nil
 	}
-	return cast.JSON{
-		"id":       c.ID,
-		"cardid":   c.Proto.ID,
-		"name":     c.Proto.Name,
-		"costs":    c.Proto.Costs.JSON(),
-		"text":     c.Proto.Text,
-		"username": c.Username,
-		"image":    c.Proto.Image,
-		"type":     c.Proto.Type.String(),
-		"powers":   c.Proto.Powers.JSON(),
+	return map[string]interface{}{
+		"id":     c.ID,
+		"user":   c.User,
+		"cardid": c.Proto.ID,
 	}
 }

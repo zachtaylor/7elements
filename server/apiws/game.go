@@ -1,32 +1,45 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/runtime"
-	"ztaylor.me/cast"
-	"ztaylor.me/http/websocket"
+	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/wsout"
+	"taylz.io/http/websocket"
 )
 
 func Game(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		if socket.Session == nil {
+		log := rt.Logger.Add("Socket", socket.ID())
+		if len(socket.Name()) < 1 {
+			log.Warn("anon game")
+			socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to play game"))
 			return
 		}
-		gameid := m.Data.GetS("gameid")
-		uri := m.Data.GetS("uri")
-		log := rt.Log().Tag("api/game").With(cast.JSON{
-			"Username": socket.Session.Name(),
-			"GameID":   gameid,
-			"URI":      uri,
-		})
-		if gameid == "" {
-			log.Warn("gameid missing")
-		} else if g := rt.Games.Get(gameid); g == nil {
+		log.Add("Name", socket.Name())
+
+		account := rt.Accounts.Get(socket.Name())
+		if account == nil {
+			log.Error("account missing")
+			return
+		} else if account.GameID == "" {
+			log.Warn("no game found")
+			socket.WriteSync(wsout.ErrorJSON("vii", "you are not in a game"))
+			return
+		}
+		log.Add("Game", account.GameID)
+
+		uri, _ := m.Data["uri"].(string)
+		if len(uri) < 1 {
+			log.Add("Data", m.Data).Warn("uri missing")
+			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
+			return
+		}
+		log.Add("URI", uri)
+
+		if game := rt.Games.Get(account.GameID); game == nil {
 			log.Warn("game missing")
-		} else if uri == "" {
-			log.Warn("uri missing")
 		} else {
-			socket.Session.Refresh()
-			g.Request(socket.Session.Name(), uri, m.Data)
+			rt.Sessions.Get(account.SessionID).Update()
+			game.Request(socket.Name(), uri, m.Data)
 		}
 	})
 }
