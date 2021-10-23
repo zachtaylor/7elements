@@ -81,54 +81,52 @@ func getItems(conn *db.DB, decks deck.Prototypes) error {
 // 	return
 // }
 
-func UpdateName(conn *db.DB, id int, newname string) error {
-	_, err := conn.Exec(
-		"UPDATE decks SET name=? WHERE id=?",
-		newname,
-		id,
-	)
-	return err
-}
+// func UpdateName(conn *db.DB, id int, newname string) error {
+// 	_, err := conn.Exec(
+// 		"UPDATE decks SET name=? WHERE id=?",
+// 		newname,
+// 		id,
+// 	)
+// 	return err
+// }
 
-func Insert(conn *db.DB, deck *deck.Prototype) error {
-	_, err := conn.Exec("INSERT INTO decks (id, name, user, cover, wins, loss) VALUES (?, ?, ?, ?, ?, ?)",
-		deck.ID,
-		deck.Name,
-		deck.User,
-		deck.Cover,
-		deck.Wins,
-		deck.Loss,
-	)
-	if err != nil {
-		return err
-	}
+// func Insert(conn *db.DB, deck *deck.Prototype) error {
+// 	_, err := conn.Exec("INSERT INTO decks (id, name, user, cover) VALUES (?, ?, ?, ?)",
+// 		deck.ID,
+// 		deck.Name,
+// 		deck.User,
+// 		deck.Cover,
+// 	)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	for cardId, amount := range deck.Cards {
-		_, err := conn.Exec("INSERT INTO decks_items(deckid, cardid, amount) VALUES (?, ?, ?)",
-			deck.ID,
-			cardId,
-			amount,
-		)
+// 	for cardId, amount := range deck.Cards {
+// 		_, err := conn.Exec("INSERT INTO decks_items(deckid, cardid, amount) VALUES (?, ?, ?)",
+// 			deck.ID,
+// 			cardId,
+// 			amount,
+// 		)
 
-		if err != nil {
-			return err
-		}
-	}
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-func Delete(conn *db.DB, deckid int) (err error) {
-	_, err = conn.Exec("DELETE FROM decks WHERE AND id=?",
-		deckid,
-	)
-	if err == nil {
-		_, err = conn.Exec("DELETE FROM decks_items WHERE id=?",
-			deckid,
-		)
-	}
-	return
-}
+// func Delete(conn *db.DB, deckid int) (err error) {
+// 	_, err = conn.Exec("DELETE FROM decks WHERE AND id=?",
+// 		deckid,
+// 	)
+// 	if err == nil {
+// 		_, err = conn.Exec("DELETE FROM decks_items WHERE id=?",
+// 			deckid,
+// 		)
+// 	}
+// 	return
+// }
 
 // func (ds *DeckService) reloadDecksCards() (map[int]map[int]int, error) {
 // 	deckscards := make(map[int]map[int]int)

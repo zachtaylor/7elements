@@ -23,7 +23,7 @@ func Signup(rt *runtime.T, username, email, password string) (account *account.T
 	} else if _, err = accounts.Get(rt.DB, username); err != sql.ErrNoRows {
 		return nil, nil, ErrSignupExists
 	} else {
-		session = rt.Sessions.Grant(username)
+		session = rt.Sessions.Must(username)
 	}
 
 	account = account.Make(username, email, password, session.ID())

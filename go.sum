@@ -6,8 +6,8 @@ github.com/nine-lives-later/go-windows-terminal-sequences v1.0.4 h1:NC4H8hewgakt
 github.com/nine-lives-later/go-windows-terminal-sequences v1.0.4/go.mod h1:eUQxpEiJy001RoaLXrNa5+QQLYiEgmEafwWuA3ppJSo=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 h1:OdAsTTz6OkFY5QxjkYwrChwuRruF69c169dPK26NUlk=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
-golang.org/x/net v0.0.0-20210525063256-abc453219eb5 h1:wjuX4b5yYQnEQHzd+CBcrcC6OVR2J1CN6mUy0oSxIPo=
-golang.org/x/net v0.0.0-20210525063256-abc453219eb5/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
+golang.org/x/net v0.0.0-20211020060615-d418f374d309 h1:A0lJIi+hcTR6aajJH4YqKWwohY4aW9RO7oRMcdv+HKI=
+golang.org/x/net v0.0.0-20211020060615-d418f374d309/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210423082822-04245dca01da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
@@ -17,8 +17,8 @@ taylz.io/db v0.0.0-20210603212451-7bf2504f3b81 h1:TZsm08QQl4NIW+7iZtWZqiK65XnwtV
 taylz.io/db v0.0.0-20210603212451-7bf2504f3b81/go.mod h1:3/1S45RLhWgYv5sTjlsAC+P5TeYh/Z2dhxE4wJLkSOU=
 taylz.io/env v0.0.1 h1:45sxSWIQmc3KRcIw1xT5/L8F5Q8hrcz+agiJc+Ttr1o=
 taylz.io/env v0.0.1/go.mod h1:t4uBNWvftzSXAOb+JuCj80aI/vi/zExVh8Q1bcplWQ0=
-taylz.io/http v0.0.0-20210627031031-c09c472baaf0 h1:vpJXimBO90vKiiNCEK2xQU2P5OLKqksoLCDSL4tE8bw=
-taylz.io/http v0.0.0-20210627031031-c09c472baaf0/go.mod h1:HsTS4JPFYkxyxNmdhfb9SVOCobwmBJKApXaag3eAYnU=
+taylz.io/http v0.0.0-20211021000000-5e74ac02e26c h1:UHJMRLmKc/FkJ2/iJOFuhAXzy31HGYceVUzy10duADU=
+taylz.io/http v0.0.0-20211021000000-5e74ac02e26c/go.mod h1:no9uFcZavOAi3DO5csM5VkPHX0m/r1rgl5gNKPSqT9Y=
 taylz.io/keygen v0.0.0-20210622000548-e0f9b3decbcb h1:m9qympnoJjjiVZG05lomPBWCJkVHJCYb5rcRiO4wRgY=
 taylz.io/keygen v0.0.0-20210622000548-e0f9b3decbcb/go.mod h1:m47Mb55Ba8UxzDpPdTyQneVQWdPE4p5lz4uAK3zLcd0=
 taylz.io/log v0.0.0-20210627030701-484b89f7c184 h1:psUI18lI4IL+T04XXKonjhEpisBNAw39f3FIDOGOQs8=

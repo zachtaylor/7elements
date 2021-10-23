@@ -21,7 +21,7 @@ func (r *Main) String() string { return "main (" + r.Seat() + ")" }
 // OnConnect implements game.OnConnectPhaser
 func (r *Main) OnConnect(game *game.T, seat *seat.T) {
 	if seat == nil {
-		go game.Chat("main", r.Seat())
+		// go game.Chat("main", r.Seat())
 	}
 }
 func (r *Main) onConnectPhaser() game.OnConnectPhaser { return r }

@@ -31,11 +31,25 @@ func (r *Combat) String() string {
 
 // OnActivate implements game.OnActivatePhaser
 func (r *Combat) OnActivate(game *game.T) []game.Phaser {
+	log := game.Log().With(map[string]interface{}{
+		"StateID":  game.State.ID(),
+		"AttackID": r.A.ID,
+		"A♠":       r.A.Body.Attack,
+		"A♥":       r.A.Body.Health,
+	})
 	if r.B != nil {
-		go game.Chat(r.A.Card.Proto.Name, "vs "+r.B.Card.Proto.Name)
+		log.With(map[string]interface{}{
+			"DefendID": r.B.ID,
+			"B♠":       r.B.Body.Attack,
+			"B♥":       r.B.Body.Health,
+		}).Info("block")
+		// go game.Chat(r.A.Card.Proto.Name, "vs "+r.B.Card.Proto.Name)
 	} else if enemyseat := game.Seats.GetOpponent(r.A.User); enemyseat == nil {
 	} else {
-		go game.Chat(r.A.Card.Proto.Name, "vs "+enemyseat.Username)
+		log.With(map[string]interface{}{
+			"Life": enemyseat.Life,
+		}).Info("accept")
+		// go game.Chat(r.A.Card.Proto.Name, "vs "+enemyseat.Username)
 	}
 	return nil
 }

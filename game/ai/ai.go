@@ -5,7 +5,6 @@ import (
 	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/gameserver"
 	"taylz.io/http/websocket"
 	"taylz.io/log"
 )
@@ -17,12 +16,14 @@ type AI struct {
 	Request RequestFunc
 	Game    *game.T
 	Seat    *seat.T
+	done    chan bool
 }
 
 func New(name string) *AI {
 	return &AI{
 		Settings: DefaultSettings(),
 		Name:     name,
+		done:     make(chan bool),
 	}
 }
 
@@ -33,11 +34,8 @@ func (ai *AI) Connect(game *game.T) {
 	ai.Request("connect", nil)
 }
 
-func (ai *AI) Entry(log *log.T, cards card.Prototypes, decks deck.Prototypes) *gameserver.Entry {
-	return &gameserver.Entry{
-		Deck:   GetDeck(log, cards, decks, ai.Name),
-		Writer: &Input{ai},
-	}
+func (ai *AI) Entry(log log.Writer, cards card.Prototypes, decks deck.Prototypes) *game.Entry {
+	return game.NewEntry(GetDeck(log, cards, decks, ai.Name), &Input{ai})
 }
 
 // RequestPass causes the AI to submit "pass" to the current state

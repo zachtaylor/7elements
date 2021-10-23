@@ -36,10 +36,10 @@ func (r *Start) onActivatePhaser() game.OnActivatePhaser { return r }
 
 // OnConnect implements game.OnConnectPhaser
 func (r *Start) OnConnect(game *game.T, seat *seat.T) {
-	if seat == nil {
-		game.Log().Trace("announce")
-		go game.Chat("sunrise", r.Seat())
-	}
+	// if seat == nil {
+	// game.Log().Trace("announce")
+	// go game.Chat("sunrise", r.Seat())
+	// }
 }
 func (r *Start) onConnectPhaser() game.OnConnectPhaser { return r }
 

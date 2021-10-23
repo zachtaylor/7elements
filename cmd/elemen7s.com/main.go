@@ -32,5 +32,4 @@ func main() {
 		// production has a different binary so this is never used
 		server.StartTLS(runtime, fs, "7elements.cert", "7elements.key")
 	}
-
 }

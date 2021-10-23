@@ -11,7 +11,7 @@ func RemoveToken(game *game.T, token *token.T) (rs []game.Phaser) {
 		token.Body.Health = 0
 	}
 	seat := game.Seats.Get(token.User)
-	game.Chat("vii", token.Card.Proto.Name+" died")
+	// game.Chat("vii", token.Card.Proto.Name+" died")
 	delete(seat.Present, token.ID)
 	game.Seats.Write(wsout.GamePresentJSON(seat.Username, seat.Present.Keys()))
 

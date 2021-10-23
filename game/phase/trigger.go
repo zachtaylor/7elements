@@ -2,7 +2,6 @@ package phase
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine/script"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/game/token"
 	"github.com/zachtaylor/7elements/power"
@@ -54,9 +53,9 @@ func (r *Trigger) Data() map[string]interface{} {
 
 // OnConnect implements OnConnectPhaser
 func (r *Trigger) OnConnect(game *game.T, seat *seat.T) {
-	if seat == nil {
-		go game.Chat(game.State.Phase.Seat(), "Trigger "+r.Token.Card.Proto.Name)
-	}
+	// if seat == nil {
+	// go game.Chat(game.State.Phase.Seat(), "Trigger "+r.Token.Card.Proto.Name)
+	// }
 }
 func (r *Trigger) onConnectPhaser() game.OnConnectPhaser { return r }
 
@@ -68,7 +67,7 @@ func (r *Trigger) OnFinish(game *game.T) []game.Phaser {
 		"Token":    r.Token,
 		"Stack":    game.State.Stack,
 	}).Debug("engine/trigger: finish")
-	return script.Run(game, seat, r.Power, r.Token, []string{r.Target})
+	return game.Engine().Script(game, seat, r.Power.Script, r.Token, []string{r.Target})
 }
 func (r *Trigger) onFinishPhaser() game.OnFinishPhaser { return r }
 

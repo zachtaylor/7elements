@@ -1,6 +1,6 @@
 package ai
 
-import "github.com/zachtaylor/7elements/gameserver/ai/plan"
+import "github.com/zachtaylor/7elements/game/ai/plan"
 
 // Plan is a kind of thing an AI may elect to do in game
 type Plan interface {

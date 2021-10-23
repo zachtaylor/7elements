@@ -6,6 +6,7 @@ import (
 	"github.com/zachtaylor/7elements/db/accounts"
 	"github.com/zachtaylor/7elements/server/api"
 	"github.com/zachtaylor/7elements/server/runtime"
+	"taylz.io/http/session"
 )
 
 // LoginHandler returns a http.HandlerFunc that performs internal login
@@ -19,9 +20,13 @@ func LoginHandler(rt *runtime.T) http.Handler {
 			return
 		}
 
-		if session := rt.Sessions.RequestSessionCookie(r); session != nil {
+		if s, err := rt.Sessions.GetRequestCookie(r); s == nil {
+			if err == session.ErrNoCookie {
+				log.Add("Remote", r.RemoteAddr).Out("first time login")
+			}
+		} else {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
-			log.Add("SessionID", session.ID()).Info("request cookie exists")
+			log.Add("SessionID", s.ID()).Warn("request cookie exists")
 			return
 		}
 
@@ -30,7 +35,7 @@ func LoginHandler(rt *runtime.T) http.Handler {
 			http.Redirect(w, r, "/login?username", http.StatusSeeOther)
 			log.Add("Error", err.Error()).Warn("invalid username")
 		}
-		log.Add("Username", username)
+		log = log.Add("Username", username)
 
 		if account, err := accounts.Get(rt.DB, username); account == nil {
 			http.Redirect(w, r, "/login?account", http.StatusSeeOther)
@@ -39,12 +44,12 @@ func LoginHandler(rt *runtime.T) http.Handler {
 			http.Redirect(w, r, "/login?password", http.StatusSeeOther)
 			log.Warn("wrong password")
 		} else {
-			session := rt.Sessions.Grant(username)
+			session := rt.Sessions.Must(username)
 			account.SessionID = session.ID()
 			rt.Accounts.Set(username, account)
-			rt.Sessions.WriteSessionCookie(w, session)
+			rt.Sessions.WriteSetCookie(w, session)
 			w.Write([]byte(redirectHomeTpl))
-			log.Add("SessionID", account.SessionID).Info("accept")
+			log.Add("SessionID", account.SessionID).Info("ok")
 		}
 	})
 }

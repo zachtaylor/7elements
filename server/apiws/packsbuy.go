@@ -11,21 +11,29 @@ import (
 
 func PacksBuy(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		log := rt.Logger.Add("Socket", socket.ID())
-		if len(socket.Name()) < 1 {
-			log.Warn("anon pack buy")
-			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "you must log in to chat"))
+		log := rt.Log().Add("Socket", socket.ID())
+
+		if len(socket.SessionID()) < 1 {
+			log.Warn("no session")
+			socket.Write(wsout.ErrorJSON("vii", "no user"))
 			return
 		}
-		log = log.Add("Name", socket.Name())
+		log = log.Add("Session", socket.SessionID())
 
-		account := rt.Accounts.Get(socket.Name())
+		user, _, err := rt.Users.GetSession(socket.SessionID())
+		if user == nil {
+			log.Add("Error", err).Error("user missing")
+			socket.Write(wsout.ErrorJSON("vii", "internal error"))
+			return
+		}
+		log = log.Add("Username", user.Name())
+
+		account := rt.Accounts.Get(user.Name())
 		if account == nil {
 			log.Warn("account missing")
 			socket.WriteSync(wsout.ErrorJSON("vii: purchase", "you must log in to chat"))
 			return
 		}
-		log = log.Add("Session", account.SessionID)
 
 		var packid int
 		if packidbuff, _ := m.Data["packid"].(float64); packidbuff < 1 {

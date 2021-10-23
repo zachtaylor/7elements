@@ -6,5 +6,5 @@ import "github.com/zachtaylor/7elements/game/seat"
 //
 // - me may be *game.Token or *game.Card
 //
-// - returns Staters which create new States to stack
+// - returns Phasers which create new States to stack
 type Script = func(game *T, seat *seat.T, me interface{}, args []string) ([]Phaser, error)

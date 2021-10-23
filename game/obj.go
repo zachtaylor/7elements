@@ -14,12 +14,23 @@ func (t *T) objSave(i interface{}) (key string) {
 	return
 }
 
+func (t *T) RegisterState(state *State) {
+	state.id = t.objSave(state)
+}
+
 func (t *T) RegisterCard(card *card.T) {
 	card.ID = t.objSave(card)
 }
 
 func (t *T) RegisterToken(token *token.T) {
 	token.ID = t.objSave(token)
+}
+
+func (t *T) GetState(key string) *State {
+	if state, ok := t.obj[key].(*State); ok {
+		return state
+	}
+	return nil
 }
 
 func (t *T) GetCard(key string) *card.T {

@@ -3,7 +3,6 @@ package phase
 import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine/script"
 	"github.com/zachtaylor/7elements/game/token"
 	"github.com/zachtaylor/7elements/wsout"
 	"taylz.io/http/websocket"
@@ -32,11 +31,11 @@ func (r *Play) String() string {
 
 // OnActivate implements game.OnActivatePhaser
 func (r *Play) OnActivate(game *game.T) []game.Phaser {
-	msg := r.Card.Proto.Name
-	if r.Card.Proto.Text != "" {
-		msg = r.Card.Proto.Text
-	}
-	go game.Chat(r.Seat(), msg)
+	// msg := r.Card.Proto.Name
+	// if r.Card.Proto.Text != "" {
+	// 	msg = r.Card.Proto.Text
+	// }
+	// go game.Chat(r.Seat(), msg)
 	return nil
 }
 func (r *Play) onActivatePhaser() game.OnActivatePhaser { return r }
@@ -67,10 +66,10 @@ func (r *Play) OnFinish(g *game.T) (rs []game.Phaser) {
 	powers := r.Card.Proto.Powers.GetTrigger("play")
 	for _, power := range powers {
 		if power.Target == "self" {
-			if events := script.Run(g, seat, power, r.Card, []string{r.Card.ID}); events != nil {
+			if events := g.Engine().Script(g, seat, power.Script, r.Card, []string{r.Card.ID}); len(events) > 0 {
 				rs = append(rs, events...)
 			}
-		} else if events := script.Run(g, seat, power, r.Card, []string{r.Target}); len(events) > 0 {
+		} else if events := g.Engine().Script(g, seat, power.Script, r.Card, []string{r.Target}); len(events) > 0 {
 			rs = append(rs, events...)
 		}
 		// } else if r.Target != nil {

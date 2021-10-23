@@ -2,18 +2,30 @@ package engine
 
 import (
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine/script"
 	"github.com/zachtaylor/7elements/game/engine/trigger"
 	"github.com/zachtaylor/7elements/game/phase"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/game/token"
 	"github.com/zachtaylor/7elements/power"
+	"taylz.io/log"
 )
 
-// T runs this package as a plugable `game.Engine`
+// T is a game engine
 type T struct{}
 
-// New returns a new `game.Engine`
+// New returns a new game engine
 func New() game.Engine { return &T{} }
+
+func (t *T) Run(logger *log.T, game *game.T) {
+	t.run(logger, game)
+}
+
+func (t *T) NewState(game *game.T, phase game.Phaser) *game.State {
+	state := game.NewState(game.Rules().Timeout, phase)
+	game.RegisterState(state)
+	return state
+}
 
 func (t *T) NewEnding(game *game.T, results game.Resulter) game.Phaser {
 	return phase.NewEnd(results)
@@ -61,6 +73,10 @@ func (t *T) DamageSeat(game *game.T, seat *seat.T, n int) (rs []game.Phaser) {
 
 func (t *T) DrawCard(game *game.T, seat *seat.T, n int) []game.Phaser {
 	return trigger.DrawCard(game, seat, n)
+}
+
+func (t *T) Script(game *game.T, seat *seat.T, scriptName string, me interface{}, args []string) []game.Phaser {
+	return script.Run(game, seat, scriptName, me, args)
 }
 
 // func (t *T) Target(seat *game.Seat, target string, text string, finish func(val string) []game.Phaser) game.Phaser {

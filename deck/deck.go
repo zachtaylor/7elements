@@ -1,9 +1,10 @@
 package deck
 
 import (
+	"errors"
+
 	"github.com/cznic/mathutil"
 	"github.com/zachtaylor/7elements/card"
-	"taylz.io/log"
 )
 
 // T is a Deck
@@ -13,25 +14,27 @@ type T struct {
 	Cards []*card.T
 }
 
-// New returns a new Deck
-func New(log *log.T, cards card.Prototypes, proto *Prototype, user string) *T {
+var ErrInvalidCardID = errors.New("invalid card id")
+
+// BuildNew returns a new Deck
+func BuildNew(username string, proto *Prototype, cards card.Prototypes) (*T, error) {
 	buf := make([]*card.T, proto.Count())
 	i := 0
 	for cardid, copy := range proto.Cards {
-		if proto, err := cards[cardid]; proto == nil {
-			log.New().Add("CardID", cardid).Error(err, "invalid cardid")
+		if proto := cards[cardid]; proto == nil {
+			return nil, ErrInvalidCardID
 		} else {
 			for ii := 0; ii < copy; ii++ {
-				buf[i] = card.New(proto, user)
+				buf[i] = card.New(proto, username)
 				i++
 			}
 		}
 	}
 	return &T{
 		Proto: proto,
-		User:  user,
+		User:  username,
 		Cards: buf,
-	}
+	}, nil
 }
 
 func (deck *T) Count() int {

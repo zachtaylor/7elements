@@ -49,7 +49,7 @@ func (r *Sunrise) onActivatePhaser() game.OnActivatePhaser { return r }
 func (r *Sunrise) OnConnect(game *game.T, seat *seat.T) {
 	game.Log().Add("Seat", seat).Trace("connect")
 	if seat == nil {
-		go game.Chat("sunrise", r.Seat())
+		// go game.Chat("sunrise", r.Seat())
 	}
 }
 func (r *Sunrise) onConnectPhaser() game.OnConnectPhaser { return r }

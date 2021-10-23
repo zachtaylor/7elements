@@ -2,6 +2,8 @@ package wsout
 
 import "taylz.io/http/websocket"
 
+func Ping(data websocket.MsgData) []byte { return websocket.NewMessage("/ping", data).EncodeToJSON() }
+
 func Chat(data websocket.MsgData) *websocket.Message {
 	return websocket.NewMessage("/chat", data)
 }
@@ -19,11 +21,15 @@ func MyAccount(data websocket.MsgData) *websocket.Message {
 	return websocket.NewMessage("/myaccount", data)
 }
 
-func MyAccountGame(id string) *websocket.Message {
-	return websocket.NewMessage("/myaccount/game", websocket.MsgData{
-		"game": id,
-	})
+func Queue(data websocket.MsgData) []byte {
+	return websocket.NewMessage("/queue", data).EncodeToJSON()
 }
+
+// func MyAccountGame(id string) *websocket.Message {
+// 	return websocket.NewMessage("/myaccount/game", websocket.MsgData{
+// 		"game": id,
+// 	})
+// }
 
 // Redirect sends a "/redirect" message
 //

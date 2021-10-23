@@ -3,7 +3,6 @@ package apihttp
 import (
 	"net/http"
 
-	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/db/accounts"
 	"github.com/zachtaylor/7elements/server/api"
 	"github.com/zachtaylor/7elements/server/runtime"
@@ -20,10 +19,10 @@ func SignupHandler(rt *runtime.T) http.Handler {
 			return
 		}
 
-		session := rt.Sessions.RequestSessionCookie(r)
+		session, _ := rt.Sessions.GetRequestCookie(r)
 		if session != nil {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-			log.Add("SessionId", session.ID).Info("request has valid session cookie")
+			log.Add("SessionID", session.ID).Warn("session exists")
 			return
 		}
 
@@ -42,18 +41,11 @@ func SignupHandler(rt *runtime.T) http.Handler {
 		} else if password1 != password2 {
 			http.Redirect(w, r, "/signup?passwordmatch&email="+email+"&username="+username, http.StatusSeeOther)
 			log.Warn("password mismatch")
+		} else if _, _, err := api.Signup(rt, username, email, password1); err != nil {
+			http.Redirect(w, r, "/signup", http.StatusSeeOther)
+			log.Add("Error", err).Error("internal error")
 		} else {
-			session := rt.Sessions.Grant(username)
-			account := account.Make(username, email, password1, session.ID())
-			if err := accounts.Insert(rt.DB, account); err != nil {
-				log.Add("Error", err).Error("signup failed")
-				return
-			}
-			rt.Accounts.Set(username, account)
-			rt.Sessions.WriteSessionCookie(w, session)
-			w.Write([]byte(redirectHomeTpl))
-			go rt.Ping()
-			log.Info()
+			log.Info("ok")
 		}
 	})
 }

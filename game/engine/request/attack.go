@@ -2,7 +2,6 @@ package request
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
 	"github.com/zachtaylor/7elements/game/phase"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/wsout"
@@ -28,7 +27,7 @@ func Attack(game *game.T, seat *seat.T, json websocket.MsgData) (rs []game.Phase
 		seat.Writer.Write(wsout.ErrorJSON(token.Card.Proto.Name, "not awake"))
 	} else {
 		log.Add("Token", token.String()).Info("accept")
-		rs = append(rs, trigger.SleepToken(game, token)...)
+		rs = append(rs, game.Engine().SleepToken(game, token)...)
 		rs = append(rs, phase.NewAttack(seat.Username, token))
 	}
 	return

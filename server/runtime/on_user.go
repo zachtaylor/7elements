@@ -1,22 +1,27 @@
 package runtime
 
-import (
-	"taylz.io/http/user"
-	"taylz.io/http/websocket"
-)
+import "taylz.io/http/user"
 
-func (t *T) OnUser(name string, oldUser, newUser *user.T) {
-	go t.onUser(name, oldUser, newUser)
+func (rt *T) OnUser(name string, oldUser, newUser *user.T) {
+	go rt.onUser(name, oldUser, newUser)
 }
 
-func (t *T) onUser(name string, oldUser, newUser *user.T) {
-	t.Log().With(websocket.MsgData{
-		"Name":    name,
-		"OldUser": oldUser != nil,
-		"NewUser": newUser != nil,
-	}).Trace("observe")
-	if newUser == nil {
-		t.Accounts.Remove(name)
+func (rt *T) onUser(name string, oldUser, newUser *user.T) {
+	log := rt.Logger.Add("User", name)
+	if oldUser == nil && newUser != nil {
+		log.Debug("new")
+	} else if oldUser != nil && newUser == nil {
+		log.Debug("old")
+		if rt.MatchMaker.Get(name) != nil {
+			log.Warn("expire queue")
+			rt.MatchMaker.Cancel(name)
+		}
+		rt.Accounts.Remove(name)
+	} else {
+		log.With(map[string]interface{}{
+			"Old": oldUser,
+			"New": newUser,
+		}).Warn("weird")
 	}
-	go t.Ping()
+	go rt.Ping()
 }

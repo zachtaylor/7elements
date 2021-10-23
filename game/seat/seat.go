@@ -7,7 +7,7 @@ import (
 	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game/token"
-	"taylz.io/http/websocket"
+	"taylz.io/http/user"
 )
 
 type T struct {
@@ -19,10 +19,10 @@ type T struct {
 	Present  token.Map
 	Past     card.Set
 	Color    string
-	Writer   websocket.Writer
+	Writer   user.Writer
 }
 
-func New(life int, deck *deck.T, writer websocket.Writer) *T {
+func New(life int, deck *deck.T, writer user.Writer) *T {
 	return &T{
 		Username: deck.User,
 		Life:     life,
@@ -36,11 +36,11 @@ func New(life int, deck *deck.T, writer websocket.Writer) *T {
 }
 
 // Message sends data to player agent if available
-func (seat *T) Message(uri string, json websocket.MsgData) {
-	if seat.Writer != nil {
-		seat.Writer.Message(uri, json)
-	}
-}
+// func (seat *T) Message(uri string, json map[string]interface{}) {
+// 	if seat.Writer != nil {
+// 		seat.Writer.Write(websocket.Message{URI: uri, Data: json}.EncodeToJSON())
+// 	}
+// }
 
 func (seat *T) String() string {
 	if seat == nil {
@@ -55,8 +55,8 @@ func (seat *T) String() string {
 }
 
 // Data returns JSON representation of a game seat
-func (seat *T) Data() websocket.MsgData {
-	return websocket.MsgData{
+func (seat *T) Data() map[string]interface{} {
+	return map[string]interface{}{
 		"username": seat.Username,
 		"deck":     len(seat.Deck.Cards),
 		"life":     seat.Life,

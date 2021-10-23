@@ -10,8 +10,6 @@ import (
 )
 
 var (
-	// ErrLoginOnline is returned as extra information
-	ErrLoginOnline = errors.New("account data is live")
 	// ErrLoginSession is returned as extra information
 	ErrLoginSession = errors.New("session exists for name")
 	// ErrLoginUsername is returned as rejection
@@ -22,16 +20,15 @@ var (
 
 // Login saves runtime account data
 //
-// returns (*account.T, *session.T, ErrLoginOnline) when username exists in account cache
-//
-// returns (*account.T, *session.T, ErrLoginSession) when orphaned session is adopted
+// returns (*account.T, *session.T, ErrLoginSession) when a session is joined
 func Login(rt *runtime.T, username, password string) (account *account.T, session *session.T, err error) {
 	if account = rt.Accounts.Get(username); account != nil {
-		err = ErrLoginOnline
 		if account.Password != password {
 			account = nil
+			err = ErrLoginPassword
 		} else {
 			session = rt.Sessions.Get(account.SessionID)
+			err = ErrLoginSession
 		}
 	} else if account, err = accounts.Get(rt.DB, username); err != nil {
 		account = nil
@@ -44,7 +41,7 @@ func Login(rt *runtime.T, username, password string) (account *account.T, sessio
 		if session = rt.Sessions.GetName(username); session != nil {
 			err = ErrLoginSession
 		} else {
-			session = rt.Sessions.Grant(username)
+			session = rt.Sessions.Must(username)
 		}
 		account.SessionID = session.ID()
 		rt.Accounts.Set(username, account)

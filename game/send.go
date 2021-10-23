@@ -2,7 +2,6 @@ package game
 
 import (
 	"github.com/zachtaylor/7elements/wsout"
-	"taylz.io/http/websocket"
 )
 
 // SendData populates game data in multiple writes to stay under ws frame limit
@@ -12,8 +11,8 @@ func (game *T) SendData(username string) {
 		return
 	}
 
-	seat.Writer.Write(websocket.NewMessage("/game", game.Data(seat)).EncodeToJSON())
-	seat.Writer.Write(wsout.GameState(game.State.MessageData()).EncodeToJSON())
+	seat.Writer.Write(wsout.Game(game.Data(seat)))
+	seat.Writer.Write(wsout.GameState(game.State.Data()).EncodeToJSON())
 
 	seat.Writer.Write(wsout.GameHand(seat.Hand.Keys()).EncodeToJSON())
 	for _, c := range seat.Hand {

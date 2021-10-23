@@ -71,8 +71,8 @@ func (a *T) Data() map[string]interface{} {
 		"email":    a.Email,
 		"session":  a.SessionID,
 		"coins":    a.Coins,
-		"cards":    a.Cards.JSON(),
-		"decks":    a.Decks.JSON(),
+		"cards":    a.Cards.Data(),
+		"decks":    a.Decks.Data(),
 		"game":     a.GameID,
 	}
 }

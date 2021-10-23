@@ -5,7 +5,7 @@ import (
 	"github.com/zachtaylor/7elements/game/phase"
 )
 
-func Resolve(game *game.T) {
+func (t *T) resolve(game *game.T) {
 	log := game.Log().Add("State", game.State)
 	log.Trace("done")
 	game.State.Timer = 0
@@ -19,9 +19,9 @@ func Resolve(game *game.T) {
 		return // that's a wrap
 	} else {
 		log.Add("Next", next).Debug("getnext")
-		game.State = game.NewState(next)
+		game.State = t.NewState(game, next)
 		states = append(states, phase.TryOnActivate(game)...) // combine states
 	}
 
-	Stack(game, states) // stack new states
+	t.stack(game, states) // stack new states
 }

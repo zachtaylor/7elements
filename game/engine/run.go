@@ -6,25 +6,24 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
 	"github.com/zachtaylor/7elements/game/seat"
-	"taylz.io/http/websocket"
+	"github.com/zachtaylor/7elements/wsout"
 	"taylz.io/log"
 )
 
 func randomfirstturn(seats *seat.List) string { return seats.Keys()[0] }
 
 // Run the engine
-func Run(syslog log.Writer, game *game.T) {
+func (t *T) run(logger *log.T, game *game.T) {
 	tBeginning := time.Now()
 
-	syslog = syslog.Add("GameID", game.ID())
+	syslog := logger.Add("GameID", game.ID())
 	syslog.Info("start")
 
 	// bootstrap
-
-	game.State = game.NewState(phase.NewStart(randomfirstturn(game.Seats)))
+	game.State = t.NewState(game, phase.NewStart(randomfirstturn(game.Seats)))
 	for _, name := range game.Seats.Keys() {
 		seat := game.Seats.Get(name)
-		seat.Writer.Write(websocket.NewMessage("/game", game.Data(seat)).EncodeToJSON())
+		seat.Writer.Write(wsout.Game(game.Data(seat)))
 	}
 	phase.TryOnActivate(game)
 
@@ -34,7 +33,7 @@ func Run(syslog log.Writer, game *game.T) {
 		select { // read request chan or timeout
 		case <-timer.C: // timeout
 			game.Log().Warn("timeout")
-			Resolve(game)
+			t.resolve(game)
 		case r, ok := <-game.RequestChan(): // player noise
 			if !timer.Stop() {
 				<-timer.C
@@ -45,18 +44,16 @@ func Run(syslog log.Writer, game *game.T) {
 				break
 			}
 
+			td := time.Now().Sub(tStart)
+			game.State.Timer -= td
+
 			logger := game.Log().With(log.Fields{
 				"Path":     r.URI,
 				"Username": r.Username,
+				"Timer":    int(game.State.Timer.Seconds()),
 			})
-			logger.Trace("received")
-
-			td := time.Now().Sub(tStart)
-			game.State.Timer -= td
-			game.Log().With(log.Fields{
-				"Elapsed":   td.Seconds(),
-				"Remaining": game.State.Timer.Seconds(),
-			}).Trace("updated timer")
+			logger.Info("received")
+			logger.Trace("td:", int(td.Seconds()))
 
 			seat := game.Seats.Get(r.Username)
 			if seat == nil {
@@ -67,12 +64,12 @@ func Run(syslog log.Writer, game *game.T) {
 			}
 
 			if rs := Request(game, seat, r.URI, r.Data); len(rs) > 0 {
-				Stack(game, rs)
+				t.stack(game, rs)
 			}
 
 			if len(game.State.Reacts) == game.Seats.Count() {
 				logger.Info("resolve")
-				Resolve(game)
+				t.resolve(game)
 			}
 		}
 		if game.State == nil {
@@ -83,7 +80,7 @@ func Run(syslog log.Writer, game *game.T) {
 
 	for _, seatName := range game.Seats.Keys() {
 		seat := game.Seats.Get(seatName)
-		seat.Message("/game", nil)
+		seat.Writer.Write(wsout.Game(nil))
 		seat.Writer = nil
 	}
 

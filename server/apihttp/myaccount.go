@@ -9,11 +9,11 @@ import (
 
 func MyAccountHandler(rt *runtime.T) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := rt.Log()
-		if s := rt.Sessions.RequestSessionCookie(r); s == nil {
-			log.Add("RemoteAddr", r.RemoteAddr).Warn("session required")
+		log := rt.Logger.Add("Addr", r.RemoteAddr)
+		if s, err := rt.Sessions.GetRequestCookie(r); s == nil {
+			log.Add("Error", err).Warn("session required")
 		} else if account := rt.Accounts.Get(s.Name()); account == nil {
-			log.Add("RemoteAddr", r.RemoteAddr).Warn("account missing")
+			log.Warn("account missing")
 		} else {
 			bytes, _ := json.Marshal(account.Data())
 			w.Write(bytes)

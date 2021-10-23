@@ -6,6 +6,8 @@ import (
 	"taylz.io/http/websocket"
 )
 
+func Game(data websocket.MsgData) []byte { return websocket.NewMessage("/game", data).EncodeToJSON() }
+
 func GameCardJSON(data websocket.MsgData) []byte { return GameCard(data).EncodeToJSON() }
 
 func GameCard(data websocket.MsgData) *websocket.Message {

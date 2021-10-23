@@ -10,8 +10,8 @@ import (
 func Signup(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
 		log := rt.Logger.Add("Socket", socket.ID())
-		if len(socket.Name()) > 1 {
-			log.Add("Name", socket.Name()).Warn("signup")
+		if len(socket.SessionID()) > 1 {
+			log.Add("Session", socket.SessionID()).Warn("signup")
 			socket.WriteSync(wsout.ErrorJSON("vii", "you are already logged in"))
 			return
 		}
@@ -61,9 +61,9 @@ func Signup(rt *runtime.T) websocket.Handler {
 			return
 		}
 
-		log.Add("Session", session.ID()).Info("accept")
+		log.Add("Session", session.ID()).Info("ok")
 
-		rt.Users.Authorize(session, socket)
+		rt.Users.Authorize(username, socket)
 		socket.WriteSync(wsout.MyAccount(account.Data()).EncodeToJSON())
 		socket.WriteSync(wsout.Redirect("/").EncodeToJSON())
 		rt.Ping()

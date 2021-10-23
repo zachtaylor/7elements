@@ -26,9 +26,9 @@ func (r *Sunset) String() string {
 
 // OnConnect implements game.OnConnectPhaser
 func (r *Sunset) OnConnect(game *game.T, seat *seat.T) {
-	if seat == nil {
-		go game.Chat("sunset", r.Seat())
-	}
+	// if seat == nil {
+	// go game.Chat("sunset", r.Seat())
+	// }
 }
 func (r *Sunset) onConnectPhaser() game.OnConnectPhaser { return r }
 

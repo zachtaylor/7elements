@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"taylz.io/http/websocket"
 	"taylz.io/types"
 )
 
@@ -66,9 +65,9 @@ func (c Count) Format() (string, error) {
 	return b.String(), nil
 }
 
-// JSON returns a representation of this count of Cards as type websocket.MsgData
-func (c Count) JSON() websocket.MsgData {
-	json := websocket.MsgData{}
+// Data returns a representation of this count of Cards as type websocket.MsgData
+func (c Count) Data() map[string]interface{} {
+	json := map[string]interface{}{}
 	for id, count := range c {
 		json[strconv.FormatInt(int64(id), 10)] = count
 	}

@@ -1,19 +1,29 @@
 package runtime
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/card/pack"
 	"github.com/zachtaylor/7elements/chat"
+	"github.com/zachtaylor/7elements/db/accounts"
+	"github.com/zachtaylor/7elements/db/cards"
+	"github.com/zachtaylor/7elements/db/decks"
+	"github.com/zachtaylor/7elements/db/packs"
 	"github.com/zachtaylor/7elements/deck"
-	"github.com/zachtaylor/7elements/gameserver"
-	"github.com/zachtaylor/7elements/gameserver/queue"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/engine"
+	"github.com/zachtaylor/7elements/match"
+	"github.com/zachtaylor/7elements/wsout"
 	"taylz.io/db"
 	"taylz.io/http"
 	"taylz.io/http/hash"
 	"taylz.io/http/session"
 	"taylz.io/http/user"
 	"taylz.io/http/websocket"
+	"taylz.io/keygen"
 	"taylz.io/log"
 	"taylz.io/types"
 )
@@ -36,38 +46,101 @@ type T struct {
 	Decks deck.Prototypes
 	// Packs stores packs
 	Packs pack.Prototypes
-	// Chats is a chat.Service
-	Chats *chat.Manager
-	// Games is a game.Server
-	Games *gameserver.T
-	// Server is handler
-	Server *http.Fork
-	// WSServer is ws handler
-	WSServer *websocket.Fork
+	// Handler is http handler
+	Handler *http.Fork
+	// WSHandler is ws handler
+	WSHandler *websocket.Fork
 	// Sessions is *session.Manager
 	Sessions *session.Manager
 	// Sockets is *websocket.Manager
 	Sockets *websocket.Manager
 	// Users is *user.Manager
 	Users *user.Manager
-	// Queue is a queue.Server
-	Queue *queue.Server
+	// Chats is a chat.Service
+	Chats *chat.Manager
+	// Games is a game.Server
+	Games *game.Manager
+	// MatchMaker is a *matchmaker.T
+	MatchMaker *match.Maker
 	// glob is cached global data
 	glob types.Bytes
 }
 
-func (t *T) Log() log.Writer { return t.Logger.New() }
+// New is the canonical way to create a runtime
+func New(
+	isdev bool,
+	passhash hash.Func,
+	db *db.DB,
+	log *log.T,
+	sessionSettings session.Settings,
+	wsKeygen keygen.Func,
+	chatRoomKeygen keygen.Func,
+) (rt *T, err error) {
 
-// func (t *T) AccountJSON(a *account.T) websocket.MsgData {
-// 	if a == nil {
-// 		return nil
+	rt = &T{
+		IsDevEnv:  isdev,
+		PassHash:  passhash,
+		DB:        db,
+		Logger:    log,
+		Handler:   &http.Fork{},
+		WSHandler: &websocket.Fork{},
+	}
+
+	if rt.Cards = cards.GetAll(db); rt.Cards == nil {
+		return nil, errors.New("failed to load cards")
+	} else if rt.Decks, err = decks.GetAll(db); rt.Decks == nil {
+		return nil, err
+	} else if rt.Packs, err = packs.GetAll(db); err != nil {
+		return nil, err
+	} else if rt.glob, err = json.Marshal(websocket.MsgData{
+		"cards": rt.Cards.Data(),
+		"decks": rt.Decks.Data(),
+		"packs": rt.Packs.Data(),
+	}); err != nil {
+		return nil, err
+	}
+
+	rt.Accounts = account.NewCache()
+
+	rt.Sessions = session.NewManager(sessionSettings)
+
+	rt.Sockets = websocket.NewManager(websocket.NewSettings(rt.Sessions, wsKeygen, rt.WSHandler))
+
+	rt.Users = user.NewManager(user.NewSettings(rt.Sessions, rt.Sockets))
+
+	rt.Chats = chat.NewManager(chat.NewSettings(rt.Users, chatRoomKeygen))
+
+	rt.Games = game.NewManager(game.NewSettings("./game/", rt.Cards, rt.Logger, engine.New(), keygen.NewFunc(21)))
+
+	rt.MatchMaker = match.NewMaker(match.NewSettings(rt.Logger, rt.Cards, rt.Decks, rt.Games))
+
+	rt.Sessions.Observe(rt.OnSession)
+	rt.Sockets.Observe(rt.OnSocket)
+	rt.Users.Observe(rt.OnUser)
+
+	return
+}
+
+// Ping sends updated user counts
+func (rt *T) Ping() {
+	users, _ := accounts.Count(rt.DB)
+	bytes := wsout.Ping(websocket.MsgData{
+		"ping":   rt.Sockets.Count(),
+		"online": rt.Sessions.Count(),
+		"users":  users,
+	})
+	rt.Sockets.Each(func(id string, ws *websocket.T) {
+		ws.Write(bytes)
+	})
+}
+
+func (rt *T) GlobalData() []byte { return rt.glob }
+
+func (rt *T) Log() log.Writer { return rt.Logger }
+
+// func (rt *T) UpdateSession(id string) error {
+// 	if s := rt.Sessions.Get(id); s != nil {
+// 		s.Update()
 // 	}
-// 	return websocket.MsgData{
-// 		"username": a.Username,
-// 		"email":    a.Email,
-// 		"session":  a.SessionID,
-// 		"coins":    a.Coins,
-// 		"cards":    a.Cards.JSON(),
-// 		"decks":    a.Decks.JSON(),
-// 	}
+// 	return session.ErrExpired
 // }

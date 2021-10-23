@@ -8,15 +8,24 @@ import (
 
 func Game(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		log := rt.Logger.Add("Socket", socket.ID())
-		if len(socket.Name()) < 1 {
-			log.Warn("anon game")
-			socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to play game"))
+		log := rt.Log().Add("Socket", socket.ID())
+
+		if len(socket.SessionID()) < 1 {
+			log.Warn("no session")
+			socket.Write(wsout.ErrorJSON("vii", "no user"))
 			return
 		}
-		log.Add("Name", socket.Name())
+		log = log.Add("Session", socket.SessionID())
 
-		account := rt.Accounts.Get(socket.Name())
+		user, _, err := rt.Users.GetSession(socket.SessionID())
+		if err == nil {
+			log.Add("Error", err).Error("user missing")
+			socket.Write(wsout.ErrorJSON("vii", "internal error"))
+			return
+		}
+		log = log.Add("Username", user.Name())
+
+		account := rt.Accounts.Get(user.Name())
 		if account == nil {
 			log.Error("account missing")
 			return
@@ -39,7 +48,7 @@ func Game(rt *runtime.T) websocket.Handler {
 			log.Warn("game missing")
 		} else {
 			rt.Sessions.Get(account.SessionID).Update()
-			game.Request(socket.Name(), uri, m.Data)
+			game.Request(user.Name(), uri, m.Data)
 		}
 	})
 }

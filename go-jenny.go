@@ -4,4 +4,6 @@ package vii
 
 //go:generate go-jenny -f=chat/cache.go -p=chat -t=Cache -k=string -v=*Room
 
-//go:generate go-jenny -f=gameserver/cache.go -p=gameserver -i=github.com/zachtaylor/7elements/game, -t=Cache -k=string -v=*game.T
+//go:generate go-jenny -f=match/cache.go -p=match -t=Cache -k=string -v=*Queue
+
+//go:generate go-jenny -f=game/cache.go -p=game -t=Cache -k=string -v=*T

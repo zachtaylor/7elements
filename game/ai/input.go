@@ -13,11 +13,14 @@ type Input struct {
 	AI *AI
 }
 
-func (i *Input) Message(uri string, data map[string]interface{}) {
-	i.Receive(uri, data)
-}
+func (i *Input) Name() string { return i.AI.Name }
+
+func (i *Input) Done() <-chan bool { return i.AI.done }
 
 func (i *Input) Write(data []byte) {
+	i.WriteSync(data)
+}
+func (i *Input) WriteSync(data []byte) {
 	msg := &websocket.Message{}
 	if err := json.NewDecoder(bytes.NewBufferString(string(data))).Decode(msg); err != nil {
 		i.AI.Game.Log().Add("Error", err).Warn("failed to parse message")

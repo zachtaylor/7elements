@@ -25,8 +25,8 @@ func Request(game *game.T, seat *seat.T, uri string, json websocket.MsgData) []g
 		request.Connect(game, seat)
 	case game.State.ID():
 		request.Phase(game, seat, json)
-	case "chat":
-		request.Chat(game, seat, json)
+	// case "chat":
+	// 	request.Chat(game, seat, json)
 	case "pass":
 		request.Pass(game, seat, json)
 	case "trigger":

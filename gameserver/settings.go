@@ -5,7 +5,6 @@ import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/chat"
 	"taylz.io/db"
-	"taylz.io/env"
 	"taylz.io/log"
 )
 
@@ -14,8 +13,17 @@ type Settings struct {
 	Cards    card.Prototypes
 	Chats    *chat.Manager
 	DB       *db.DB
-	ENV      env.Service
 	Logger   *log.T
+}
+
+func NewSettings(accounts *account.Cache, cards card.Prototypes, chats *chat.Manager, db *db.DB, logger *log.T) Settings {
+	return Settings{
+		Accounts: accounts,
+		Cards:    cards,
+		Chats:    chats,
+		DB:       db,
+		Logger:   logger,
+	}
 }
 
 // // NewCacheSettings creates a new CacheSettings

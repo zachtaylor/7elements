@@ -10,8 +10,8 @@ import (
 func Login(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
 		log := rt.Logger.Add("Socket", socket.ID()).Add("Data", m.Data)
-		if len(socket.Name()) > 0 {
-			log.Add("User", socket.Name()).Warn("session exists")
+		if len(socket.SessionID()) > 0 {
+			log.Add("Session", socket.SessionID()).Warn("session exists")
 			socket.WriteSync(wsout.ErrorJSON("vii", "you are already logged in!"))
 			return
 		}
@@ -45,15 +45,11 @@ func Login(rt *runtime.T) websocket.Handler {
 			log.Add("Error", err).Error("failed")
 			socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
 			return
-		} else if err != nil {
-			log.Warn(err)
 		}
 
-		log.Info("accept")
-
-		rt.Users.Authorize(session, socket)
+		log.Info("ok")
+		rt.Users.Authorize(username, socket)
 		socket.Write(wsout.MyAccount(account.Data()).EncodeToJSON())
 		socket.Write(wsout.Redirect("/").EncodeToJSON())
-		rt.Ping()
 	})
 }

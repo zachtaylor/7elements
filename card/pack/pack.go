@@ -4,7 +4,6 @@ import (
 	"sort"
 
 	"github.com/cznic/mathutil"
-	"taylz.io/http/websocket"
 )
 
 // Prototype is a definition of a Pack of Cards
@@ -56,13 +55,13 @@ func newPackSkipProtoID(pack []int, id int) bool {
 	return false
 }
 
-// JSON returns a representation of this Prototype as type websocket.MsgData
-func (p *Prototype) JSON() websocket.MsgData {
+// Data returns a representation of this Prototype as type websocket.MsgData
+func (p *Prototype) Data() map[string]interface{} {
 	cards := make([]int, 0)
 	for _, card := range p.Cards {
 		cards = append(cards, card.CardID)
 	}
-	return websocket.MsgData{
+	return map[string]interface{}{
 		"id":    p.ID,
 		"name":  p.Name,
 		"size":  p.Size,
@@ -74,9 +73,9 @@ func (p *Prototype) JSON() websocket.MsgData {
 // Prototypes is a set of Prototypes mapped by id
 type Prototypes map[int]*Prototype
 
-// JSON returns a representation of these Prototypes as type fmt.Stringer
-func (packs Prototypes) JSON() []websocket.MsgData {
-	json := make([]websocket.MsgData, len(packs))
+// Data returns a representation of these Prototypes as type fmt.Stringer
+func (packs Prototypes) Data() []map[string]interface{} {
+	json := make([]map[string]interface{}, len(packs))
 	keys := make([]int, len(packs))
 	var i int
 	for k := range packs {
@@ -86,7 +85,7 @@ func (packs Prototypes) JSON() []websocket.MsgData {
 	sort.Ints(keys)
 	var j int
 	for _, k := range keys {
-		json[j] = packs[k].JSON()
+		json[j] = packs[k].Data()
 		j++
 	}
 	return json

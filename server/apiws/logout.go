@@ -8,17 +8,29 @@ import (
 
 func Logout(rt *runtime.T) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		if len(socket.Name()) < 1 {
-			rt.Logger.Warn("anon logout")
-			socket.Write(wsout.ErrorJSON("vii", "you must log in to log out"))
+		log := rt.Log().Add("Socket", socket.ID())
+
+		if len(socket.SessionID()) < 1 {
+			log.Warn("anon logout")
+			socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to log out"))
 			return
 		}
-		if session := rt.Sessions.GetName(socket.Name()); session != nil {
-			rt.Sessions.Remove(session.ID())
-		} else {
 
+		session := rt.Sessions.Get(socket.SessionID())
+		if session == nil {
+			log.Add("Session", socket.SessionID()).Warn("session not found")
+			socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to log out"))
+			return
 		}
-		socket.SetName("")
+
+		if rt.MatchMaker.Get(session.Name()) != nil {
+			log.Debug("cancel queue")
+			rt.MatchMaker.Cancel(session.Name())
+			socket.WriteSync(wsout.Queue(nil))
+		}
+
+		log.Info("ok")
+		rt.Sessions.Remove(session.ID())
 		socket.WriteSync(wsout.MyAccount(nil).EncodeToJSON())
 	})
 }

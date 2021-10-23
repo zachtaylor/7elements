@@ -2,7 +2,6 @@ package phase
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine/script"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/power"
 	"taylz.io/http/websocket"
@@ -46,16 +45,16 @@ func (r *Target) GetNext(game *game.T) game.Phaser {
 
 // OnActivate implements game.OnActivatePhaser
 func (r *Target) OnActivate(game *game.T) []game.Phaser {
-	go game.Chat(r.Seat(), r.power.Text)
+	// go game.Chat(r.Seat(), r.power.Text)
 	return nil
 }
 func (r *Target) onActivatePhaser() game.OnActivatePhaser { return r }
 
 // OnConnect implements game.OnConnectPhaser
 func (r *Target) OnConnect(game *game.T, seat *seat.T) {
-	if seat == nil {
-		go game.Chat("target", r.Seat())
-	}
+	// if seat == nil {
+	// go game.Chat("target", r.Seat())
+	// }
 }
 func (r *Target) onConnectPhaser() game.OnConnectPhaser { return r }
 
@@ -77,6 +76,6 @@ func (r *Target) onRequestPhaser() game.OnRequestPhaser { return r }
 
 // Finish implements game.OnFinishPhaser
 func (r *Target) OnFinish(game *game.T) []game.Phaser {
-	return script.Run(game, game.Seats.Get(r.Seat()), r.power, r.this, []string{game.State.Reacts[r.Seat()]})
+	return game.Engine().Script(game, game.Seats.Get(r.Seat()), r.power.Script, r.this, []string{game.State.Reacts[r.Seat()]})
 }
 func (r *Target) onFinishPhaser() game.OnFinishPhaser { return r }

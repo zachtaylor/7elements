@@ -18,21 +18,29 @@ func UpdateDeck(rt *runtime.T) websocket.Handler {
 }
 
 func updateDeck(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
-	log := rt.Log()
+	log := rt.Log().Add("Socket", socket.ID())
 
-	if socket.Name() == "" {
-		log.Add("Socket", socket.ID()).Warn("no user")
+	if len(socket.SessionID()) < 1 {
+		log.Warn("no session")
 		socket.Write(wsout.ErrorJSON("vii", "no user"))
 		return
 	}
+	log = log.Add("Session", socket.SessionID())
 
-	account := rt.Accounts.Get(socket.Name())
+	user, _, err := rt.Users.GetSession(socket.SessionID())
+	if user == nil {
+		log.Add("Error", err).Error("user missing")
+		socket.Write(wsout.ErrorJSON("vii", "internal error"))
+		return
+	}
+	log = log.Add("Username", user.Name())
+
+	account := rt.Accounts.Get(user.Name())
 	if account == nil {
-		log.Add("User", socket.Name()).Error("no account")
+		log.Add("User", user.Name()).Error("no account")
 		socket.Write(wsout.ErrorJSON("vii", "no account"))
 		return
 	}
-	log = log.Add("User", account.Username)
 
 	var id int
 	if idbuff, _ := m.Data["id"].(float64); idbuff < 1 {
@@ -42,7 +50,7 @@ func updateDeck(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
 	} else {
 		id = int(idbuff)
 	}
-	log = log.Add("ID", id)
+	log = log.Add("DeckID", id)
 
 	deck := account.Decks[id]
 	if deck == nil {

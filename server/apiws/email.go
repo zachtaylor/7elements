@@ -16,14 +16,24 @@ func Email(rt *runtime.T) websocket.Handler {
 
 func email(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
 	log := rt.Logger.Add("Socket", socket.ID())
-	if len(socket.Name()) < 1 {
+
+	if len(socket.SessionID()) < 1 {
+		log.Warn("no session")
 		log.Warn("anon update email")
 		socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to change email"))
 		return
 	}
-	log.Add("Name", socket.Name())
+	log = log.Add("Session", socket.SessionID())
 
-	account := rt.Accounts.Get(socket.Name())
+	user, _, err := rt.Users.GetSession(socket.SessionID())
+	if user == nil {
+		log.Add("Error", err).Error("user missing")
+		socket.Write(wsout.ErrorJSON("vii", "internal error"))
+		return
+	}
+	log = log.Add("Username", user.Name())
+
+	account := rt.Accounts.Get(user.Name())
 	if account == nil {
 		log.Error("account missing")
 		socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))

@@ -9,11 +9,11 @@ type Manager struct {
 
 func NewManager(settings Settings) (manager *Manager) {
 	manager = &Manager{Settings: settings, cache: NewCache()}
-	settings.Users.Observe(manager.OnUser)
+	settings.Users.Observe(manager.onUser)
 	return
 }
 
-func (m *Manager) OnUser(id string, oldUser, newUser *user.T) {
+func (m *Manager) onUser(id string, oldUser, newUser *user.T) {
 	if oldUser != nil && newUser == nil {
 		go m.RemoveUser(id)
 	}

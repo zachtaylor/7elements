@@ -6,29 +6,28 @@ import (
 	"taylz.io/http/websocket"
 )
 
-// Stack adds new States as Stacked States
-func Stack(g *game.T, stack []game.Phaser) {
-	log := g.Log().With(websocket.MsgData{
-		"State": g.State,
-		"Stack": stack,
-	})
-	log.Trace()
-	next := make([]game.Phaser, 0)
-	for _, r := range stack {
-		state := g.NewState(r)
-		state.Stack = g.State
-		g.State = state
+func stackbuff() []game.Phaser { return nil }
 
-		if addnext := phase.TryOnActivate(g); len(addnext) > 0 {
-			g.Log().With(websocket.MsgData{
-				"State": g.State,
-				"Stack": stack,
+// stack adds new States as Stacked States
+func (t *T) stack(game *game.T, stack []game.Phaser) {
+	log := game.Log().Add("State", game.State)
+	log.Add("Stack", stack).Trace("root")
+	next := stackbuff()
+	for _, r := range stack {
+		state := t.NewState(game, r)
+		state.Stack = game.State
+		game.State = state
+
+		if addnext := phase.TryOnActivate(game); len(addnext) > 0 {
+			game.Log().With(websocket.MsgData{
+				"State": game.State,
+				"Stack": addnext,
 			}).Debug("activate trigger")
 			next = append(next, addnext...)
 		}
 	}
 	if len(next) > 0 {
 		log.Debug("Hold my cards, lads, I'm going in!")
-		Stack(g, next)
+		t.stack(game, next)
 	}
 }

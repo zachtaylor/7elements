@@ -17,7 +17,8 @@ func DefaultRules() Rules {
 		DeckMaximum:  -1,
 		DeckMinimum:  21,
 		DeckDupes:    3,
+		Timeout:      60 * time.Second,
 		StartingLife: 7,
-		StartingHand: 3,
+		StartingHand: 4,
 	}
 }

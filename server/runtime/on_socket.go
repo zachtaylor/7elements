@@ -1,38 +1,26 @@
 package runtime
 
-import (
-	"github.com/zachtaylor/7elements/wsout"
-	"taylz.io/http/websocket"
-)
+import "taylz.io/http/websocket"
 
-func (t *T) OnWebsocket(id string, oldWS, newWS *websocket.T) {
-	go t.onWebsocket(id, oldWS, newWS)
+func (rt *T) OnSocket(id string, oldWS, newWS *websocket.T) {
+	go rt.onSocket(id, oldWS, newWS)
 }
 
-func (t *T) onWebsocket(id string, oldWS, newWS *websocket.T) {
-	log := t.Logger.Add("Socket", id)
-	t.Ping()
-	if newWS == nil {
-		log.Add("Name", oldWS.Name()).Trace("close")
-	} else if session := t.Sessions.GetName(newWS.Name()); session == nil {
-		log.Trace("open")
-	} else if account := t.Accounts.Get(session.Name()); account == nil {
-		log.Warn("open account missing")
-	} else {
-		log.Add("Account", account.Username).Add("Game", account.GameID).Trace("open")
-		session.Update()
-
-		if account.GameID == "" {
-		} else if game := t.Games.Get(account.GameID); game == nil {
-			log.Add("Game", account.GameID).Trace("game expired")
-			account.GameID = ""
-		} else if seat := game.Seats.Get(account.Username); seat == nil {
-			log.Add("Seats", game.Seats.Keys()).Add("Game", account.GameID).Warn("seat expired")
-			account.GameID = ""
-		} else {
-			game.Request(account.Username, "connect", map[string]interface{}{})
+func (rt *T) onSocket(id string, oldWS, newWS *websocket.T) {
+	log := rt.Logger.Add("Socket", id)
+	if oldWS == nil && newWS != nil {
+		if len(newWS.SessionID()) > 0 {
+			log = log.Add("SessionID", newWS.SessionID())
+			go rt.hydrate(newWS)
 		}
-
-		newWS.Write(wsout.MyAccount(account.Data()).EncodeToJSON())
+		log.Trace("open")
+	} else if oldWS != nil && newWS == nil {
+		if len(oldWS.SessionID()) > 0 {
+			log = log.Add("SessionID", oldWS.SessionID())
+		}
+		log.Trace("close")
+	} else {
+		log.Add("Old", oldWS).Add("New", newWS).Warn("weird")
 	}
+	rt.Ping()
 }

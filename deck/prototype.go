@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/zachtaylor/7elements/card"
-	"taylz.io/http/websocket"
 )
 
 // Prototype is Deck list
@@ -13,8 +12,6 @@ type Prototype struct {
 	Name  string
 	User  string
 	Cover int
-	Wins  int
-	Loss  int
 	Cards card.Count
 }
 
@@ -35,15 +32,15 @@ func (proto *Prototype) Count() int {
 	return total
 }
 
-// JSON returns a representation of this Prototype as type websocket.MsgData
-func (proto *Prototype) JSON() websocket.MsgData {
-	cardsJSON := websocket.MsgData{}
+// Data returns a representation of this Prototype as type websocket.MsgData
+func (proto *Prototype) Data() map[string]interface{} {
+	cardsJSON := map[string]interface{}{}
 	size := 0
 	for k, v := range proto.Cards {
 		cardsJSON[strconv.FormatInt(int64(k), 10)] = v
 		size += v
 	}
-	return websocket.MsgData{
+	return map[string]interface{}{
 		"id":    proto.ID,
 		"name":  proto.Name,
 		"size":  size,
@@ -55,11 +52,11 @@ func (proto *Prototype) JSON() websocket.MsgData {
 // Prototypes is a set of Deck lists
 type Prototypes map[int]*Prototype
 
-// JSON returns a representation of these Deck lists as type fmt.Stringer
-func (decks Prototypes) JSON() websocket.MsgData {
-	json := websocket.MsgData{}
+// Data returns a representation of these Deck lists as type fmt.Stringer
+func (decks Prototypes) Data() map[string]interface{} {
+	json := map[string]interface{}{}
 	for _, deck := range decks {
-		json[strconv.FormatInt(int64(deck.ID), 10)] = deck.JSON()
+		json[strconv.FormatInt(int64(deck.ID), 10)] = deck.Data()
 	}
 	return json
 }

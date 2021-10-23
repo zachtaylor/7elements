@@ -14,13 +14,30 @@ func Password(rt *runtime.T) websocket.Handler {
 }
 
 func password(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
-	log := rt.Logger.Add("Socket", socket.ID())
-	if len(socket.Name()) < 1 {
-		log.Warn("anon update email")
-		socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to change email"))
+	log := rt.Log().Add("Socket", socket.ID())
+
+	if len(socket.SessionID()) < 1 {
+		log.Warn("no session")
+		socket.Write(wsout.ErrorJSON("vii", "no user"))
 		return
 	}
-	log.Add("Name", socket.Name())
+	log = log.Add("Session", socket.SessionID())
+
+	user, _, err := rt.Users.GetSession(socket.SessionID())
+	if user == nil {
+		log.Add("Error", err).Error("user missing")
+		socket.Write(wsout.ErrorJSON("vii", "internal error"))
+		return
+	}
+	log = log.Add("Username", user.Name())
+
+	account := rt.Accounts.Get(user.Name())
+	if account == nil {
+		log.Add("User", user.Name()).Error("no account")
+		socket.Write(wsout.ErrorJSON("vii", "no account"))
+		return
+	}
+	log.Info()
 
 	passbuff1, _ := m.Data["password1"].(string)
 	if passbuff1 == "" {
@@ -44,19 +61,13 @@ func password(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
 		return
 	}
 
-	account := rt.Accounts.Get(socket.Name())
-	if account == nil {
-		log.Warn("password mismatch")
-		socket.WriteSync(wsout.ErrorJSON("vii", "password2 missing"))
-		return
-	}
-	log.Info()
-
-	account.Password = pass2
 	if err := accounts.UpdatePassword(rt.DB, account); err != nil {
 		log.Add("Error", err.Error()).Error("update password")
 		socket.WriteSync(wsout.ErrorJSON("vii", "internal error"))
 		return
 	}
+	account.Password = pass2
+
+	log.Info()
 	socket.WriteSync(wsout.MyAccount(account.Data()).EncodeToJSON())
 }

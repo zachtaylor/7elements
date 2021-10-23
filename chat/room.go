@@ -47,7 +47,9 @@ func (r *Room) AddSync(msg *Message) {
 	r.mu.Unlock()
 	data := wsout.Chat(msg.Data()).EncodeToJSON()
 	for _, username := range keys {
-		r.man.Users.Get(username).Write(data)
+		if user, _, _ := r.man.Users.Get(username); user != nil {
+			user.Write(data)
+		}
 	}
 }
 
@@ -62,7 +64,7 @@ func (r *Room) RemoveUser(username string) {
 	delete(r.users, username)
 	r.mu.Unlock()
 	if len(r.users) < 1 {
-		r.Destroy()
+		go r.Destroy()
 	}
 }
 

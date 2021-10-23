@@ -2,9 +2,9 @@ package plan
 
 import (
 	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/ai/aim"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/game/token"
-	"github.com/zachtaylor/7elements/gameserver/ai/aim"
 	"github.com/zachtaylor/7elements/power"
 	"taylz.io/http/websocket"
 )

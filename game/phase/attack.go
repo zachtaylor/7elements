@@ -31,7 +31,7 @@ func (r *Attack) String() string {
 
 // OnActivate implements game.OnActivatePhaser
 func (r *Attack) OnActivate(game *game.T) []game.Phaser {
-	go game.Chat(r.A.Card.Proto.Name, "attack")
+	// go game.Chat(r.A.Card.Proto.Name, "attack")
 	return nil
 }
 func (e *Attack) onActivatePhaser() game.OnActivatePhaser { return e }

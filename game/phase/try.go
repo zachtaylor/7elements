@@ -26,7 +26,7 @@ func TryOnFinish(g *game.T) (rs []game.Phaser) {
 func TryOnConnect(g *game.T, seat *seat.T) {
 	if seat == nil {
 		g.Log().Add("State", g.State).Trace("reconnect broadcast state")
-		g.Seats.Write(wsout.GameState(g.State.MessageData()).EncodeToJSON())
+		g.Seats.Write(wsout.GameState(g.State.Data()).EncodeToJSON())
 	}
 	if connector, ok := g.State.Phase.(game.OnConnectPhaser); ok {
 		connector.OnConnect(g, seat)
