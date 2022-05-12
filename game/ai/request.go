@@ -1,14 +1,11 @@
 package ai
 
-import (
-	"github.com/zachtaylor/7elements/game"
-	"taylz.io/http/websocket"
-)
+import "github.com/zachtaylor/7elements/game/v2"
 
-type RequestFunc = func(string, websocket.MsgData)
+type RequestFunc = func(string, map[string]any)
 
-func NewRequestFunc(g *game.T, username string) RequestFunc {
-	return func(uri string, json websocket.MsgData) {
+func NewRequestFunc(g *game.G, username string) RequestFunc {
+	return func(uri string, json map[string]any) {
 		g.Request(username, uri, json)
 	}
 }

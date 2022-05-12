@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/zachtaylor/7elements/element"
-	"taylz.io/http/websocket"
 )
 
 // NewElement is a plan to choose an element
@@ -18,7 +17,7 @@ func (el *NewElement) Score() int {
 }
 
 func (el *NewElement) Submit(request RequestFunc) {
-	request(el.StateID, websocket.MsgData{
+	request(el.StateID, map[string]any{
 		"choice": strconv.FormatInt(int64(el.Element), 10),
 	})
 }

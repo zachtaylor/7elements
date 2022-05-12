@@ -6,7 +6,6 @@ import (
 	"github.com/zachtaylor/7elements/game/ai/aim"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/power"
-	"taylz.io/http/websocket"
 )
 
 // Play is a plan to make a play
@@ -22,7 +21,7 @@ func (play *Play) Score() int {
 }
 
 func (play *Play) Submit(request RequestFunc) {
-	request("play", websocket.MsgData{
+	request("play", map[string]any{
 		"id":     play.card.ID,
 		"pay":    play.pay,
 		"target": play.target,
@@ -44,7 +43,7 @@ func ParsePlay(game *game.T, seat *seat.T) (play *Play) {
 			continue
 		}
 
-		game.Log().With(websocket.MsgData{
+		game.Log().With(map[string]any{
 			"Card":  p.card,
 			"Score": p.score,
 		}).Trace("potential")

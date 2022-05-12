@@ -4,14 +4,13 @@ import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/engine/request"
 	"github.com/zachtaylor/7elements/game/seat"
-	"taylz.io/http/websocket"
 )
 
-func Request(game *game.T, seat *seat.T, uri string, json websocket.MsgData) []game.Phaser {
+func Request(game *game.T, seat *seat.T, uri string, json map[string]any) []game.Phaser {
 
 	isSeatMain := game.Phase() == "main" && game.State.Phase.Seat() == seat.Username
 
-	log := game.Log().With(websocket.MsgData{
+	log := game.Log().With(map[string]any{
 		"User":    seat,
 		"URI":     uri,
 		"Phase":   game.Phase(),

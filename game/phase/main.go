@@ -1,31 +1,26 @@
 package phase
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/seat"
-	"taylz.io/http/websocket"
+	"github.com/zachtaylor/7elements/game/v2"
 )
 
-func NewMain(seat string) game.Phaser {
+func NewMain(priority game.Priority) game.Phaser {
 	return &Main{
-		R: R(seat),
+		PriorityContext: game.PriorityContext(priority),
 	}
 }
 
-type Main struct{ R }
+type Main struct{ game.PriorityContext }
 
-func (r *Main) Name() string { return "main" }
-
-func (r *Main) String() string { return "main (" + r.Seat() + ")" }
+func (r *Main) Type() string { return "main" }
 
 // OnConnect implements game.OnConnectPhaser
-func (r *Main) OnConnect(game *game.T, seat *seat.T) {
-	if seat == nil {
+func (r *Main) OnConnect(g *game.G, player *game.Player) {
+	if player == nil {
 		// go game.Chat("main", r.Seat())
 	}
 }
-func (r *Main) onConnectPhaser() game.OnConnectPhaser { return r }
 
-func (r *Main) GetNext(game *game.T) game.Phaser { return NewSunset(r.Seat()) }
+// func (r *Main) GetNext(game *game.G) game.Phaser { return NewSunset(r.Seat()) }
 
-func (r *Main) Data() websocket.MsgData { return nil }
+func (r *Main) JSON() map[string]any { return nil }

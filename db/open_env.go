@@ -1,25 +1,30 @@
 package db
 
 import (
+	"errors"
+	"strconv"
+
 	"taylz.io/db"
 	"taylz.io/db/mysql"
-	"taylz.io/env"
+	"taylz.io/db/patch"
 )
 
-// OpenEnv connects using mysql.Open db.OpenEnv and returns the conn and patch id
-func OpenEnv(env env.Service) (*db.DB, error) {
-	return mysql.Open(db.DSN(
+// OpenEnv connects using mysql.Open, and initializes the connection by
+// verifying the patch table value matches ex_patch
+func OpenEnv(env map[string]string, ex_patch int) (*db.DB, error) {
+	db, err := mysql.Open(db.DSN(
 		env["DB_USER"],
 		env["DB_PASSWORD"],
 		env["DB_HOST"],
 		env["DB_PORT"],
 		env["DB_NAME"],
 	))
-	// conn, err := db.OpenEnv(env)
-	// if conn == nil {
-	// 	log.StdOutService(log.LevelInfo).New().Warn("failed to open env")
-	// 	return conn, -1, err
-	// }
-	// patch, err := Patch(conn)
-	// return conn, patch, err
+	if err != nil {
+		return nil, err
+	} else if patch, err := patch.Get(db); err != nil {
+		return nil, err
+	} else if patch != ex_patch {
+		return nil, errors.New("Patch mismatch: " + strconv.FormatInt(int64(patch), 10))
+	}
+	return db, nil
 }

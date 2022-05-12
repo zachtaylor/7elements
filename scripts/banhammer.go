@@ -1,31 +1,24 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const banhammerID = "banhammer"
 
-func init() {
-	script.Scripts[banhammerID] = Banhammer
-}
+func init() { game.Scripts[banhammerID] = Banhammer }
 
-func Banhammer(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsToken(me) {
-		err = ErrMeToken
-	} else if len(args) < 1 {
-		err = ErrNoTarget
-	} else if card, _err := checktarget.PastCard(game, seat, args[0]); _err != nil {
-		err = _err
-	} else if owner := game.Seats.Get(card.User); owner == nil {
-		err = ErrBadTarget
+func Banhammer(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if target, err := target.PastCard(g, ctx.Targets[0]); err != nil {
+		return nil, err
+	} else if owner := g.Player(target.Player()); owner == nil {
+		return nil, ErrBadTarget
 	} else {
-		delete(owner.Past, card.ID)
-		game.Seats.WriteSync(wsout.GameSeatJSON(seat.Data()))
+		delete(owner.T.Past, target.ID())
+		g.MarkUpdate(owner.ID())
+		return nil, nil
 	}
-	return
 }

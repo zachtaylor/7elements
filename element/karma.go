@@ -1,10 +1,8 @@
 package element
 
 import (
+	"errors"
 	"strconv"
-
-	"taylz.io/http/websocket"
-	"taylz.io/types"
 )
 
 // Karma is a set of active and inactive elements
@@ -45,29 +43,29 @@ func (k Karma) Reactivate() {
 	}
 }
 
+var (
+	ErrKarmaAmbiguous    = errors.New("karma ambiguous")
+	ErrKarmaInsufficient = errors.New("karma insufficient")
+)
+
 // Deactivate sets the specified Elements in this Karma to unactive
 func (k Karma) Deactivate(c Count) error {
 	if c[Nil] > 0 {
-		return types.NewErr("vii.Karma.Deactivate")
+		return ErrKarmaAmbiguous
 	}
-	ok := true
 	for e, count := range c {
 		for _, active := range k[e] {
-			if count > 0 {
-				if active {
-					count--
-				}
-			} else {
+			if count < 1 {
 				break
+			} else if active {
+				count--
 			}
 		}
-		if count != 0 {
-			ok = false
+		if count > 0 {
+			return ErrKarmaInsufficient
 		}
 	}
-	if !ok {
-		return types.NewErr("requires more karma")
-	}
+
 	for e, count := range c {
 		for i, active := range k[e] {
 			if count > 0 {
@@ -104,8 +102,8 @@ func (k Karma) String() string {
 }
 
 // JSON returns a JSON representation of this Karma
-func (k Karma) JSON() websocket.MsgData {
-	json := websocket.MsgData{}
+func (k Karma) JSON() map[string]any {
+	json := map[string]any{}
 	for e, stack := range k {
 		json[strconv.FormatInt(int64(e), 10)] = stack
 	}

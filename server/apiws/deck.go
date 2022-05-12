@@ -6,46 +6,46 @@ import (
 
 	"github.com/zachtaylor/7elements/db/accounts_decks"
 	"github.com/zachtaylor/7elements/db/accounts_decks_items"
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/server/internal"
 	"github.com/zachtaylor/7elements/wsout"
 	"taylz.io/http/websocket"
 )
 
-func UpdateDeck(rt *runtime.T) websocket.Handler {
+func UpdateDeck(server internal.Server) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		updateDeck(rt, socket, m)
+		updateDeck(server, socket, m)
 	})
 }
 
-func updateDeck(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
-	log := rt.Log().Add("Socket", socket.ID())
+func updateDeck(server internal.Server, socket *websocket.T, m *websocket.Message) {
+	log := server.Log().Add("Socket", socket.ID())
 
 	if len(socket.SessionID()) < 1 {
 		log.Warn("no session")
-		socket.Write(wsout.ErrorJSON("vii", "no user"))
+		socket.Write(wsout.Error("vii", "no user"))
 		return
 	}
 	log = log.Add("Session", socket.SessionID())
 
-	user, _, err := rt.Users.GetSession(socket.SessionID())
+	user, _, err := server.GetUserManager().GetSession(socket.SessionID())
 	if user == nil {
 		log.Add("Error", err).Error("user missing")
-		socket.Write(wsout.ErrorJSON("vii", "internal error"))
+		socket.Write(wsout.Error("vii", "internal error"))
 		return
 	}
 	log = log.Add("Username", user.Name())
 
-	account := rt.Accounts.Get(user.Name())
+	account := server.GetAccounts().Get(user.Name())
 	if account == nil {
 		log.Add("User", user.Name()).Error("no account")
-		socket.Write(wsout.ErrorJSON("vii", "no account"))
+		socket.Write(wsout.Error("vii", "no account"))
 		return
 	}
 
 	var id int
 	if idbuff, _ := m.Data["id"].(float64); idbuff < 1 {
 		log.Add("id", m.Data["id"]).Add("type", reflect.TypeOf(m.Data["id"])).Warn("id missing")
-		socket.Write(wsout.ErrorJSON("vii", "no deck id"))
+		socket.Write(wsout.Error("vii", "no deck id"))
 		return
 	} else {
 		id = int(idbuff)
@@ -55,7 +55,7 @@ func updateDeck(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
 	deck := account.Decks[id]
 	if deck == nil {
 		log.Warn("invalid id")
-		socket.Write(wsout.ErrorJSON("vii", "invalid deck id"))
+		socket.Write(wsout.Error("vii", "invalid deck id"))
 		return
 	}
 
@@ -70,7 +70,7 @@ func updateDeck(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
 
 	var itemsDirty bool
 
-	if diff, _ := m.Data["cards"].(map[string]interface{}); diff == nil {
+	if diff, _ := m.Data["cards"].(map[string]any); diff == nil {
 		if val := m.Data["cards"]; val != nil {
 			log = log.Add("Cards", val).Add("Type", reflect.TypeOf(val))
 		}
@@ -105,20 +105,20 @@ func updateDeck(rt *runtime.T, socket *websocket.T, m *websocket.Message) {
 		}
 	}
 
-	if err := accounts_decks.Update(rt.DB, deck); err != nil {
+	if err := accounts_decks.Update(server.GetDB(), deck); err != nil {
 		log.Add("Error", err).Error("update")
-		socket.Write(wsout.ErrorJSON("vii", "internal error"))
+		socket.Write(wsout.Error("vii", "internal error"))
 		return
 	}
 
 	if itemsDirty {
-		if err := accounts_decks_items.Delete(rt.DB, account.Username, id); err != nil {
+		if err := accounts_decks_items.Delete(server.GetDB(), account.Username, id); err != nil {
 			log.Add("Error", err).Error("delete items")
-			socket.Write(wsout.ErrorJSON("vii", "internal error"))
+			socket.Write(wsout.Error("vii", "internal error"))
 		}
-		if err := accounts_decks_items.Insert(rt.DB, account.Username, id, deck.Cards); err != nil {
+		if err := accounts_decks_items.Insert(server.GetDB(), account.Username, id, deck.Cards); err != nil {
 			log.Add("Error", err).Error("insert items")
-			socket.Write(wsout.ErrorJSON("vii", "internal error"))
+			socket.Write(wsout.Error("vii", "internal error"))
 		}
 	}
 

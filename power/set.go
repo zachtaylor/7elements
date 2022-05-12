@@ -37,14 +37,14 @@ func (set Set) GetTrigger(name string) []*T {
 	return ps
 }
 
-// Data returns a representation of this Set of Powers as type []map[string]interface{}
-func (set Set) Data() []map[string]interface{} {
+// JSON returns a representation of this Set of Powers as type []map[string]any
+func (set Set) JSON() []map[string]any {
 	if set == nil {
 		return nil
 	}
-	json := make([]map[string]interface{}, 0)
+	json := make([]map[string]any, 0)
 	for _, power := range set {
-		json = append(json, power.Data())
+		json = append(json, power.JSON())
 	}
 	return json
 }

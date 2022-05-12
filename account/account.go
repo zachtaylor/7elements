@@ -46,11 +46,6 @@ func Make(username, email, password, sessionid string) *T {
 	}
 }
 
-// Make calls package level make
-func (*T) Make(username, email, password, sessionid string) *T {
-	return Make(username, email, password, sessionid)
-}
-
 func (a *T) String() string {
 	if a == nil {
 		return ""
@@ -62,11 +57,11 @@ func (a *T) String() string {
 	return s
 }
 
-func (a *T) Data() map[string]interface{} {
+func (a *T) Data() map[string]any {
 	if a == nil {
 		return nil
 	}
-	return map[string]interface{}{
+	return map[string]any{
 		"username": a.Username,
 		"email":    a.Email,
 		"session":  a.SessionID,

@@ -1,49 +1,41 @@
 package scripts
 
 import (
-	"errors"
-
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/game/out"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const WormholeID = "wormhole"
 
-func init() {
-	script.Scripts[WormholeID] = Wormhole
-}
+func init() { game.Scripts[WormholeID] = Wormhole }
 
-func Wormhole(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsCard(me) {
-		err = ErrMeCard
-	} else if len(args) < 1 {
-		err = ErrNoTarget
-	} else if token, _err := checktarget.PresentBeing(game, seat, args[0]); _err != nil {
-		err = _err
-	} else if token == nil {
-		err = ErrBadTarget
-	} else if owner := game.Seats.Get(token.Card.User); owner == nil {
-		err = errors.New("owner missing: " + token.Card.User)
-	} else if ctrlr := game.Seats.Get(token.User); ctrlr == nil {
-		err = errors.New("ctrlr missing: " + token.Card.User)
+func Wormhole(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if token, err := target.PresentBeing(g, ctx.Targets[0]); err != nil {
+		return nil, err
+	} else if tokenOwner := g.Player(token.Player()); tokenOwner == nil {
+		return nil, ErrPlayerID
+	} else if card := g.Card(token.T.Card); card == nil {
+		return nil, ErrCardID
+	} else if cardOwner := g.Player(card.Player()); cardOwner == nil {
+		return nil, ErrPlayerID
 	} else {
-		game.Log().With(map[string]interface{}{
-			"Target": token.ID,
-			"Owner":  owner.Username,
-			"Ctrlr":  ctrlr.Username,
+		g.Log().With(map[string]any{
+			"Target":  token.ID(),
+			"T Owner": tokenOwner.ID(),
+			"C Owner": cardOwner.ID(),
 		}).Info()
-		rs = trigger.RemoveToken(game, token)
+		rs := trigger.TokenRemove(g, token)
 
-		if owner.Past.Has(token.Card.ID) {
-			delete(owner.Past, token.Card.ID)
-			owner.Hand[token.Card.ID] = token.Card
-			game.Seats.Write(wsout.GameSeatJSON(owner.Data()))
-			owner.Writer.Write(wsout.GameHand(owner.Hand.Keys()).EncodeToJSON())
+		if cardOwner.T.Past.Has(card.ID()) {
+			delete(cardOwner.T.Past, card.ID())
+			cardOwner.T.Hand.Set(card.ID())
+			g.MarkUpdate(cardOwner.ID())
+			out.PrivateCard(g, cardOwner, card.ID())
 		}
+		return rs, nil
 	}
-	return
 }

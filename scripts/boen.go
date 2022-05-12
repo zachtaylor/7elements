@@ -2,7 +2,7 @@ package scripts
 
 // import (
 // 	"github.com/zachtaylor/7elements/buildjson"
-// 	"github.com/zachtaylor/7elements/game"
+// 	"github.com/zachtaylor/7elements/game/v2"
 // 	"github.com/zachtaylor/7elements/game/engine"
 // 	"ztaylor.me/log"
 // )
@@ -10,7 +10,7 @@ package scripts
 // const BoenID = "boen"
 
 // func init() {
-// 	script.Scripts[BoenID] = Boen
+// 	game.Scripts[BoenID] = Boen
 // }
 
 // func Boen(g *game.T, seat *seat.T, target interface{}) []game.Phaser {

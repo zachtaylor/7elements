@@ -15,12 +15,13 @@ type Input struct {
 
 func (i *Input) Name() string { return i.AI.Name }
 
-func (i *Input) Done() <-chan bool { return i.AI.done }
+func (i *Input) Done() <-chan struct{} { return i.AI.done }
 
-func (i *Input) Write(data []byte) {
-	i.WriteSync(data)
+func (i *Input) WriteMessage(msg *websocket.Message) error {
+	i.Receive(msg.URI, msg.Data)
+	return nil
 }
-func (i *Input) WriteSync(data []byte) {
+func (i *Input) WriteMessageData(data []byte) error {
 	msg := &websocket.Message{}
 	if err := json.NewDecoder(bytes.NewBufferString(string(data))).Decode(msg); err != nil {
 		i.AI.Game.Log().Add("Error", err).Warn("failed to parse message")
@@ -28,15 +29,16 @@ func (i *Input) WriteSync(data []byte) {
 		i.AI.Game.Log().Trace("received ", msg.URI)
 	}
 	i.Receive(msg.URI, msg.Data)
+	return nil
 }
 
 // Receive data from the game runtime
-func (i *Input) Receive(uri string, data map[string]interface{}) {
+func (i *Input) Receive(uri string, data map[string]any) {
 	go time.AfterFunc(i.AI.Delay, func() {
 		i.receive(uri, data)
 	})
 }
-func (i *Input) receive(uri string, data map[string]interface{}) {
+func (i *Input) receive(uri string, data map[string]any) {
 	if uri == "/game/state" {
 		i.AI.GameState(data)
 	} else if uri == "/game/choice" {
@@ -48,7 +50,7 @@ func (i *Input) receive(uri string, data map[string]interface{}) {
 	} else if uri == "/game/seat" {
 	} else if uri == "/alert" {
 	} else {
-		i.AI.Game.Log().With(map[string]interface{}{
+		i.AI.Game.Log().With(map[string]any{
 			"URI":      uri,
 			"GameId":   i.AI.Game.ID(),
 			"Username": i.AI.Seat.Username,

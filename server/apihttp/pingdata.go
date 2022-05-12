@@ -5,8 +5,8 @@ package apihttp
 // 	"taylz.io/http/websocket"
 // )
 
-// func PingData(rt *runtime.T) websocket.MsgData {
-// 	return websocket.MsgData{
-// 		"online": len(rt.Sessions.Keys()),
+// func PingData(server internal.Server) map[string]any {
+// 	return map[string]any{
+// 		"online": len(server.GetSessionManager().Keys()),
 // 	}
 // }

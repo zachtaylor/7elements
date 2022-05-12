@@ -2,31 +2,36 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/card"
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/element"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/yas/slices"
 )
 
 const summonersportalID = "summoners-portal"
 
-func init() {
-	script.Scripts[summonersportalID] = SummonersPortal
-}
+func init() { game.Scripts[summonersportalID] = SummonersPortal }
 
-func SummonersPortal(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsToken(me) {
-		err = ErrMeToken
-	} else if c := seat.Deck.Draw(); c == nil {
-		err = ErrFutureEmpty
-	} else if c.Proto.Type == card.BodyType || c.Proto.Type == card.ItemType {
-		rs = append(rs, phase.NewPlay(seat.Username, c, ""))
-	} else {
-		seat.Past[c.ID] = c
-		seat.Writer.Write(wsout.ErrorJSON("Summoners Portal", "Next card was "+c.Proto.Name))
-		game.Seats.Write(wsout.GameSeatJSON(seat.Data()))
+func SummonersPortal(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	player := g.Player(ctx.Player)
+	if player == nil {
+		return nil, ErrPlayerID
+	} else if len(player.T.Future) < 1 {
+		return nil, ErrFutureEmpty
 	}
-	return
+	cardID, future := slices.Shift(player.T.Future)
+	player.T.Future = future
+	c := g.Card(cardID)
+	g.MarkUpdate(ctx.Player)
+	if c == nil {
+		return nil, ErrCardID
+	} else if c.T.Kind == card.Being || c.T.Kind == card.Item {
+		return []game.Phaser{
+			phase.NewPlay(g, ctx.Player, c, element.Count{}, []string{}),
+		}, nil
+	} else {
+		player.T.Past.Set(cardID)
+		// seat.Writer.WriteMessageData(wsout.Error("Summoners Portal", "Next card was "+c.Proto.Name))
+		return nil, nil
+	}
 }

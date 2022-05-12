@@ -1,76 +1,74 @@
 package phase
 
 import (
-	"github.com/zachtaylor/7elements/card"
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/deck"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
+	"taylz.io/yas"
 )
 
-func NewStart(seat string) game.Phaser {
+func NewStart(priority game.Priority) game.Phaser {
 	return &Start{
-		R: R(seat),
+		PriorityContext: game.PriorityContext(priority),
+		Ans:             make(map[string]string),
 	}
 }
 
-type Start struct{ R }
-
-func (r *Start) Name() string { return "start" }
-
-func (r *Start) String() string {
-	return "start (" + r.Seat() + ")"
+type Start struct {
+	game.PriorityContext
+	Ans map[string]string
 }
 
+func (r *Start) Type() string { return "start" }
+
 // OnActivate implements game.OnActivatePhaser
-func (r *Start) OnActivate(game *game.T) []game.Phaser {
-	game.Log().Trace("activate")
-	for _, seatName := range game.Seats.Keys() {
-		seat := game.Seats.Get(seatName)
-		seat.Life = 7
-		seat.Deck.Shuffle()
-		_ = game.Engine().DrawCard(game, seat, game.Rules().StartingHand)
+func (r *Start) OnActivate(g *game.G) []game.Phaser {
+	g.Log().Trace("activate")
+	priority := r.Priority()
+	for _, playerID := range priority {
+		player := g.Player(playerID)
+		player.T.Life = g.Rules().PlayerLife
+		player.T.Future = deck.Shuffle(player.T.Future)
+		_ = trigger.DrawCard(g, player, g.Rules().PlayerHand)
 	}
 	return nil
 }
-func (r *Start) onActivatePhaser() game.OnActivatePhaser { return r }
 
 // OnConnect implements game.OnConnectPhaser
-func (r *Start) OnConnect(game *game.T, seat *seat.T) {
+func (r *Start) OnConnect(g *game.G, player *game.Player) {
 	// if seat == nil {
-	// game.Log().Trace("announce")
+	// g.Log().Trace("announce")
 	// go game.Chat("sunrise", r.Seat())
 	// }
 }
-func (r *Start) onConnectPhaser() game.OnConnectPhaser { return r }
 
-func (r *Start) GetNext(game *game.T) game.Phaser { return NewSunrise(r.Seat()) }
+// func (r *Start) GetNext(game *game.G) game.Phaser { return NewSunrise(r.Seat()) }
 
-func (r *Start) Data() map[string]interface{} { return nil }
+func (r *Start) JSON() map[string]any { return nil }
 
 // Request implements Requester
-func (r *Start) OnRequest(game *game.T, seat *seat.T, json map[string]interface{}) {
+func (r *Start) OnRequest(g *game.G, state *game.State, player *game.Player, json map[string]any) {
 	choice, _ := json["choice"].(string)
-	log := game.Log().Add("Seat", seat).Add("Choice", choice)
+	log := g.Log().Add("Player", player).Add("Choice", choice)
 
-	if react := game.State.Reacts[seat.Username]; react != "" {
-		log.Add("React", react).Warn("already recorded")
+	if ans := r.Ans[player.ID()]; ans != "" {
+		log.Add("Answer", ans).Warn("already recorded")
 		return
 	} else if choice == "keep" {
-		game.State.Reacts[seat.Username] = "keep"
+		r.Ans[player.ID()] = "keep"
 	} else if choice == "mulligan" {
-		game.State.Reacts[seat.Username] = "mulligan"
-		for _, card := range seat.Hand {
-			seat.Past[card.ID] = card
+		r.Ans[player.ID()] = "mulligan"
+		for cardID := range player.T.Hand {
+			player.T.Past.Set(cardID)
 		}
-		seat.Hand = card.Set{}
-		_ = game.Engine().DrawCard(game, seat, game.Rules().StartingHand)
+		player.T.Hand = make(yas.Set[string])
+		_ = trigger.DrawCard(g, player, g.Rules().PlayerHand)
 	} else {
 		log.Warn("unrecognized")
 		return
 	}
 
-	game.State.Reacts[seat.Username] = choice
-	game.Seats.Write(wsout.GameReact(game.State.ID(), seat.Username, choice, game.State.Timer).EncodeToJSON())
+	state.T.React.Set(player.ID())
+	g.MarkUpdate(state.ID())
 	log.Info("confirm")
 }
-func (r *Start) onRequestPhaser() game.OnRequestPhaser { return r }

@@ -3,45 +3,39 @@ package scripts
 import (
 	"reflect"
 
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
+	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/v2"
 )
 
 const crystalballID = "crystal-ball"
 
-func init() {
-	script.Scripts[crystalballID] = CrystalBall
-}
+func init() { game.Scripts[crystalballID] = CrystalBall }
 
-func CrystalBall(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsToken(me) {
-		err = ErrMeToken
-	} else if len(args) < 1 {
-		err = ErrNoTarget
+func CrystalBall(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	if player := g.Player(ctx.Player); player == nil {
+		return nil, ErrPlayerID
+	} else if len(player.T.Future) < 1 {
+		return nil, ErrFutureEmpty
+	} else if card := g.Card(player.T.Future[0]); card == nil {
+		return nil, ErrBadTarget
 	} else {
-		card := seat.Deck.Cards[0]
-		rs = append(rs, phase.NewChoice(
-			seat.Username,
+		return []game.Phaser{phase.NewChoice(
+			ctx.Player,
 			"Shuffle your Future?",
-			map[string]interface{}{
-				"card": card.Data(),
+			map[string]any{"card": card.T.Data()},
+			[]map[string]any{
+				{"choice": true, "display": `<a>Yes</a>`},
+				{"choice": false, "display": `<a>No</a>`},
 			},
-			[]map[string]interface{}{
-				map[string]interface{}{"choice": true, "display": `<a>Yes</a>`},
-				map[string]interface{}{"choice": false, "display": `<a>No</a>`},
-			},
-			func(val interface{}) {
-				game.Log().Add("val", val).Add("type", reflect.TypeOf(val)).Info()
+			func(val any) {
+				g.Log().Add("val", val).Add("type", reflect.TypeOf(val)).Info()
 				if choice, ok := val.(bool); ok {
 					if choice {
-						seat.Deck.Shuffle()
+						player.T.Future = deck.Shuffle(player.T.Future)
 					}
 				}
 			},
-		))
+		)}, nil
 	}
-	return
 }

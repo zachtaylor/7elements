@@ -3,55 +3,55 @@ package scripts
 import (
 	"reflect"
 
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/yas/slices"
 )
 
 const noviceseerId = "novice-seer"
 
-func init() {
-	script.Scripts[noviceseerId] = NoviceSeer
-}
+func init() { game.Scripts[noviceseerId] = NoviceSeer }
 
-func NoviceSeer(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsToken(me) {
-		err = ErrMeToken
-	} else if len(seat.Deck.Cards) < 1 {
-		err = ErrNoTarget
-	} else if card := seat.Deck.Draw(); card == nil {
-		err = ErrBadTarget
-	} else {
-		rs = append(rs, phase.NewChoice(
-			seat.Username,
+func NoviceSeer(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	player := g.Player(ctx.Player)
+	if player == nil {
+		return nil, ErrPlayerID
+	} else if len(player.T.Future) < 1 {
+		return nil, ErrFutureEmpty
+	}
+	cardID, future := slices.Shift(player.T.Future)
+	player.T.Future = future
+	card := g.Card(cardID)
+	if card == nil {
+		return nil, ErrCardID
+	}
+
+	return []game.Phaser{
+		phase.NewChoice(
+			player.ID(),
 			"Novice Seer",
-			map[string]interface{}{
-				"card": card.Data(),
+			map[string]any{
+				"card": card.T.Data(),
 			},
-			[]map[string]interface{}{
-				map[string]interface{}{
+			[]map[string]any{
+				map[string]any{
 					"choice":  "false",
 					"display": "Put on top of your Future",
 				},
-				map[string]interface{}{
+				map[string]any{
 					"choice":  "true",
 					"display": "Put into your Past",
 				},
 			},
 			func(val interface{}) {
-				game.Log().Add("val", val).Add("type", reflect.TypeOf(val)).Info()
+				g.Log().Add("val", val).Add("type", reflect.TypeOf(val)).Info()
 				if destroy, _ := val.(bool); destroy {
-					seat.Past[card.ID] = card
+					player.T.Past.Set(card.ID())
 				} else {
-					seat.Deck.Prepend(card)
+					player.T.Future = slices.Unshift(player.T.Future, card.ID())
 				}
-				game.Seats.Write(wsout.GameSeatJSON(seat.Data()))
+				g.MarkUpdate(player.ID())
 			},
-		))
-	}
-
-	return
+		),
+	}, nil
 }

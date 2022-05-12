@@ -5,12 +5,11 @@ import (
 	"github.com/zachtaylor/7elements/game/phase"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/wsout"
-	"taylz.io/http/websocket"
 )
 
 // Attack causes phase.Attack to stack
-func Attack(game *game.T, seat *seat.T, json websocket.MsgData) (rs []game.Phaser) {
-	log := game.Log().With(websocket.MsgData{
+func Attack(game *game.T, seat *seat.T, json map[string]any) (rs []game.Phaser) {
+	log := game.Log().With(map[string]any{
 		"Seat": seat.String(),
 	})
 
@@ -18,13 +17,13 @@ func Attack(game *game.T, seat *seat.T, json websocket.MsgData) (rs []game.Phase
 		log.Error("id missing")
 	} else if token := seat.Present[id]; token == nil {
 		log.Add("ID", id).Error("id invalid")
-		seat.Writer.Write(wsout.ErrorJSON(id, "not in your present"))
+		seat.Writer.WriteMessageData(wsout.Error(id, "not in your present"))
 	} else if token.Body == nil {
 		log.Add("Token", token.String()).Error("card type must be body")
-		seat.Writer.Write(wsout.ErrorJSON(token.Card.Proto.Name, `not "body" type`))
+		seat.Writer.WriteMessageData(wsout.Error(token.Card.Proto.Name, `not "body" type`))
 	} else if !token.IsAwake {
 		log.Add("Token", token.String()).Error("card must be awake")
-		seat.Writer.Write(wsout.ErrorJSON(token.Card.Proto.Name, "not awake"))
+		seat.Writer.WriteMessageData(wsout.Error(token.Card.Proto.Name, "not awake"))
 	} else {
 		log.Add("Token", token.String()).Info("accept")
 		rs = append(rs, game.Engine().SleepToken(game, token)...)

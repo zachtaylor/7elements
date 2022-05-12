@@ -19,7 +19,7 @@ package apihttp
 // 			"coins":    account.Coins,
 // 		})
 
-// 		log.WithFields(websocket.MsgData{"Remote": r.Remote,
+// 		log.WithFields(map[string]any{"Remote": r.Remote,
 // 			"Username": r.Username,
 // 			"Coins":    account.Coins,
 // 		}).Info("coins")

@@ -3,9 +3,9 @@ package match
 import (
 	"errors"
 
-	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai"
-	"taylz.io/http/user"
+	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/v2"
 )
 
 var (
@@ -16,21 +16,21 @@ var (
 
 // Maker is a match manager
 type Maker struct {
-	settings Settings
-	cache    *Cache
-	live     map[game.Rules]string
+	server Server
+	cache  *Cache
+	live   map[game.Rules]string
 }
 
-func NewMaker(settings Settings) *Maker {
+func NewMaker(server Server) *Maker {
 	return &Maker{
-		settings: settings,
-		cache:    NewCache(),
-		live:     make(map[game.Rules]string),
+
+		cache: NewCache(),
+		live:  make(map[game.Rules]string),
 	}
 }
 
 func (m *Maker) Make(rules game.Rules, q1, q2 *Queue) (err error) {
-	game := m.settings.Games.New(rules, q1, q2)
+	game := m.server.GetGameManager().New(rules, q1, q2)
 	gameid := game.ID()
 	if !q2.Resolve(gameid) {
 		err = ErrMatchSync
@@ -40,7 +40,7 @@ func (m *Maker) Make(rules game.Rules, q1, q2 *Queue) (err error) {
 	return
 }
 
-func (m *Maker) Queue(user user.Writer, settings QueueSettings) (q *Queue, err error) {
+func (m *Maker) Queue(user seat.Writer, settings QueueSettings) (q *Queue, err error) {
 
 	username := user.Name()
 	rules := settings.Rules()
@@ -73,8 +73,8 @@ func (m *Maker) Queue(user user.Writer, settings QueueSettings) (q *Queue, err e
 	return
 }
 
-func (m *Maker) VSAI(user user.Writer, settings QueueSettings) *game.T {
-	return m.settings.Games.New(settings.Rules(), game.NewEntry(settings.Deck, user), ai.New("A.I.").Entry(m.settings.Logger, m.settings.Cards, m.settings.Decks))
+func (m *Maker) VSAI(user seat.Writer, settings QueueSettings) *game.T {
+	return m.server.GetGameManager().New(settings.Rules(), game.NewEntry(settings.Deck, user), ai.New("A.I.").Entry(m.server.GetGameVersion()))
 }
 
 // Get returns the active Queue for the given username

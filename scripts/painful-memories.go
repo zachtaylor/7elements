@@ -2,36 +2,35 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/card"
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
 )
 
 const PainfulMemoriesID = "painful-memories"
 
-func init() {
-	script.Scripts[PainfulMemoriesID] = PainfulMemories
-}
+func init() { game.Scripts[PainfulMemoriesID] = PainfulMemories }
 
-func PainfulMemories(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsCard(me) {
-		err = ErrMeCard
-	} else if len(args) < 1 {
-		err = ErrNoTarget
+func PainfulMemories(g *game.G, ctx game.ScriptContext) (rs []game.Phaser, err error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if player := g.Player(ctx.Player); player == nil {
+		return nil, ErrPlayerID
 	} else {
 		count := 0
-		for _, c := range seat.Past {
-			if c.Proto.Type == card.BodyType {
+		for cardID := range player.T.Past {
+			if c := g.Card(cardID); c == nil {
+				return nil, ErrCardID
+			} else if c.T.Kind == card.Being {
 				count++
 			}
 		}
-		for _, name := range game.Seats.Keys() {
-			if name == seat.Username {
-				continue
+		for _, playerID := range g.Players() {
+			if playerID == ctx.Player {
+			} else if target := g.Player(playerID); target == nil {
+				return nil, ErrBadTarget
+			} else if triggered := trigger.PlayerDamage(g, target, count); len(triggered) > 0 {
+				rs = append(rs, triggered...)
 			}
-			rs = append(rs, trigger.DamageSeat(game, seat, count)...)
 		}
 	}
 	return

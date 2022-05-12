@@ -7,15 +7,18 @@ import (
 	"taylz.io/http/handler"
 )
 
-func Start(runtime *runtime.T, fs http.FileSystem, port string) {
-	Routes(runtime, fs)
-	runtime.Log().Add("port", port).Info("elemen7s server started!")
+func preStart(runtime *runtime.T) {
+	runtime.Log().Info("7tcg server starting")
+	setRoutes(runtime)
+}
+
+func Start(runtime *runtime.T, port string) {
+	preStart(runtime)
 	http.ListenAndServe(port, runtime.Handler)
 }
 
-func StartTLS(runtime *runtime.T, fs http.FileSystem, cert string, key string) {
-	Routes(runtime, fs)
-	runtime.Log().Info("elemen7s server started!")
+func StartTLS(runtime *runtime.T, cert string, key string) {
+	preStart(runtime)
 	go http.ListenAndServe(":80", handler.RedirectHTTPS)
 	http.ListenAndServeTLS(":443", cert, key, runtime.Handler)
 }

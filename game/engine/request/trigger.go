@@ -4,15 +4,13 @@ import (
 	"reflect"
 
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
 	"github.com/zachtaylor/7elements/game/engine/trigger"
 	"github.com/zachtaylor/7elements/game/phase"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/wsout"
-	"taylz.io/http/websocket"
 )
 
-func Trigger(game *game.T, seat *seat.T, json websocket.MsgData) (rs []game.Phaser) {
+func Trigger(game *game.T, seat *seat.T, json map[string]any) (rs []game.Phaser) {
 	log := game.Log().Add("Seat", seat)
 
 	// validation
@@ -25,10 +23,10 @@ func Trigger(game *game.T, seat *seat.T, json websocket.MsgData) (rs []game.Phas
 
 	log = log.Add("TokenID", tokenID)
 
-	token, err := checktarget.MyPresent(game, seat, tokenID)
+	token, err := target.MyPresent(game, seat, tokenID)
 	if err != nil {
 		log.Add("Error", err).Error()
-		seat.Writer.Write(wsout.ErrorJSON("trigger", err.Error()))
+		seat.Writer.WriteMessageData(wsout.Error("trigger", err.Error()))
 		return nil
 	}
 
@@ -48,22 +46,22 @@ func Trigger(game *game.T, seat *seat.T, json websocket.MsgData) (rs []game.Phas
 		return
 	} else if !token.IsAwake && power.UsesTurn {
 		log.Error("card is asleep")
-		seat.Writer.Write(wsout.ErrorJSON(token.Card.Proto.Name, "not awake"))
+		seat.Writer.WriteMessageData(wsout.Error(token.Card.Proto.Name, "not awake"))
 		return
 	} else if !seat.Karma.Active().Test(power.Costs) {
 		log.Add("Costs", power.Costs).Error("cannot afford")
-		seat.Writer.Write(wsout.ErrorJSON(token.Card.Proto.Name, "not enough elements"))
+		seat.Writer.WriteMessageData(wsout.Error(token.Card.Proto.Name, "not enough elements"))
 		return
 	}
 
 	targetID, _ := json["target"].(string)
-	if !checktarget.IsValid(game, seat, power.Target, targetID) {
+	if !target.IsValid(game, seat, power.Target, targetID) {
 		log.Error("targetid: ", json["target"])
 	}
 
 	seat.Karma.Deactivate(power.Costs)
 	if power.Costs.Total() > 0 {
-		game.Seats.Write(wsout.GameSeatJSON(seat.Data()))
+		game.Seats.WriteMessageData(wsout.GameSeat(seat.JSON()))
 	}
 	if power.UsesTurn {
 		rs = append(rs, trigger.SleepToken(game, token)...)

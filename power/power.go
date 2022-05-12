@@ -35,9 +35,9 @@ func (p *T) Copy() *T {
 	}
 }
 
-// Data returns a representation of this Power as type websocket.MsgData
-func (p *T) Data() map[string]interface{} {
-	return map[string]interface{}{
+// JSON returns a representation of data as map[string]any
+func (p *T) JSON() map[string]any {
+	return map[string]any{
 		"id":       p.ID,
 		"text":     p.Text,
 		"costs":    p.Costs.JSON(),

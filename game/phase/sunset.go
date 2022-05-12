@@ -1,53 +1,24 @@
 package phase
 
-import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/seat"
-	"taylz.io/http/websocket"
-)
+import "github.com/zachtaylor/7elements/game/v2"
 
-func NewSunset(seat string) game.Phaser {
+func NewSunset(priority game.Priority) game.Phaser {
 	return &Sunset{
-		R: R(seat),
+		PriorityContext: game.PriorityContext(priority),
 	}
 }
 
 type Sunset struct {
-	R
+	game.PriorityContext
 }
 
-func (r *Sunset) Name() string {
-	return "sunset"
-}
-
-func (r *Sunset) String() string {
-	return "sunset (" + r.Seat() + ")"
-}
+func (r *Sunset) Type() string { return "sunset" }
 
 // OnConnect implements game.OnConnectPhaser
-func (r *Sunset) OnConnect(game *game.T, seat *seat.T) {
-	// if seat == nil {
-	// go game.Chat("sunset", r.Seat())
+func (r *Sunset) OnConnect(g *game.G, player *game.Player) {
+	// if player == nil {
+	// 	g.Chat("sunset", player.T.Username)
 	// }
 }
-func (r *Sunset) onConnectPhaser() game.OnConnectPhaser { return r }
 
-// // // Finish implements game.OnFinishPhaser
-// func (r *Sunset) Finish(game *game.T) {
-// 	// game.State.Seat = game.GetOpponentSeat(game.State.Seat).Username
-// }
-
-// // GetStack implements game.StackEventer
-// func (r *Sunset) GetStack(game *game.T) *game.State {
-// 	return nil
-// }
-
-// // Request implements Requester
-// func (r *Sunset) Request(g*game.T, seat *seat.T, json websocket.MsgData) {
-// }
-
-func (r *Sunset) GetNext(game *game.T) game.Phaser {
-	return NewSunrise(game.Seats.GetOpponent(r.Seat()).Username)
-}
-
-func (r *Sunset) Data() websocket.MsgData { return nil }
+func (r *Sunset) JSON() map[string]any { return nil }

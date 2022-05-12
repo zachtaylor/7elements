@@ -3,18 +3,18 @@ package apihttp
 import (
 	"net/http"
 
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/server/internal"
 	"taylz.io/http/session"
 )
 
-func LogoutHandler(rt *runtime.T) http.Handler {
+func LogoutHandler(server internal.Server) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := rt.Log().Add("Addr", r.RemoteAddr)
+		log := server.Log().Add("Addr", r.RemoteAddr)
 
-		if s, err := rt.Sessions.GetRequestCookie(r); err == nil {
+		if s, err := server.GetSessionManager().GetRequestCookie(r); err == nil {
 			log.Add("SessionID", s.ID()).Add("Username", s.Name()).Info("ok")
-			rt.Sessions.Remove(s.ID())
-		} else if err == session.ErrNoCookie {
+			server.GetSessionManager().Remove(s.ID())
+		} else if err == session.ErrNoID {
 			log.Warn("cookie missing")
 		} else if err == session.ErrExpired {
 			log.Warn("cookie expired")

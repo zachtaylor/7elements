@@ -32,15 +32,15 @@ func (proto *Prototype) Count() int {
 	return total
 }
 
-// Data returns a representation of this Prototype as type websocket.MsgData
-func (proto *Prototype) Data() map[string]interface{} {
-	cardsJSON := map[string]interface{}{}
+// Data returns a representation of this Prototype as type map[string]any
+func (proto *Prototype) Data() map[string]any {
+	cardsJSON := map[string]any{}
 	size := 0
 	for k, v := range proto.Cards {
 		cardsJSON[strconv.FormatInt(int64(k), 10)] = v
 		size += v
 	}
-	return map[string]interface{}{
+	return map[string]any{
 		"id":    proto.ID,
 		"name":  proto.Name,
 		"size":  size,
@@ -53,8 +53,8 @@ func (proto *Prototype) Data() map[string]interface{} {
 type Prototypes map[int]*Prototype
 
 // Data returns a representation of these Deck lists as type fmt.Stringer
-func (decks Prototypes) Data() map[string]interface{} {
-	json := map[string]interface{}{}
+func (decks Prototypes) Data() map[string]any {
+	json := map[string]any{}
 	for _, deck := range decks {
 		json[strconv.FormatInt(int64(deck.ID), 10)] = deck.Data()
 	}

@@ -1,24 +1,18 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
 )
 
 const fontoflife1ID = "font-life-1"
 
-func init() {
-	script.Scripts[fontoflife1ID] = FontOfLife1
-}
+func init() { game.Scripts[fontoflife1ID] = FontOfLife1 }
 
-func FontOfLife1(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsToken(me) {
-		err = ErrMeToken
+func FontOfLife1(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	if player := g.Player(ctx.Player); player == nil {
+		return nil, ErrPlayerID
 	} else {
-		rs = trigger.HealSeat(game, seat, 1)
+		return trigger.PlayerHeal(g, player, 1), nil
 	}
-	return
 }

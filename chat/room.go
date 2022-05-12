@@ -45,7 +45,7 @@ func (r *Room) AddSync(msg *Message) {
 		i++
 	}
 	r.mu.Unlock()
-	data := wsout.Chat(msg.Data()).EncodeToJSON()
+	data := wsout.Chat(msg.Data())
 	for _, username := range keys {
 		if user, _, _ := r.man.Users.Get(username); user != nil {
 			user.Write(data)
@@ -70,7 +70,7 @@ func (r *Room) RemoveUser(username string) {
 
 func (r *Room) History() (data [][]byte) {
 	for _, msg := range r.hist.Data() {
-		data = append(data, wsout.Chat(msg.Data()).EncodeToJSON())
+		data = append(data, wsout.Chat(msg.Data()))
 	}
 	return
 }

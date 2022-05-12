@@ -10,10 +10,10 @@ package apihttp
 // 	"taylz.io/types"
 // )
 
-// func NewGameHandler(rt *runtime.T) http.Handler {
+// func NewGameHandler(server internal.Server) http.Handler {
 // 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		log := rt.Log()
-// 		session, _ := rt.Sessions.Cookie(r)
+// 		log := server.Log()
+// 		session, _ := server.GetSessionManager().Cookie(r)
 // 		if session == nil {
 // 			w.WriteHeader(http.StatusUnauthorized)
 // 			log.Add("RemoteAddr", r.RemoteAddr).Warn("session required")
@@ -53,7 +53,7 @@ package apihttp
 // 			log.Add("Query", r.URL.Query().Encode()).Warn("ai missing")
 // 			return
 // 		} else if useai := types.Bool(_ai); useai {
-// 			g = rt.Games.New(deck, ai.GetDeck(rt.Logger, rt.Cards, rt.Decks))
+// 			g = rt.Games.New(deck, ai.GetDeck(server.Logger, rt.Cards, rt.Decks))
 // 			ai.ConnectAI(g)
 // 			log.Add("GameID", g.ID()).Info("created game vs ai")
 // 		} else if search := rt.Games.Search(deck); search == nil {

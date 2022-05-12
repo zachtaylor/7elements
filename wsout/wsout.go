@@ -1,41 +1,33 @@
 package wsout
 
-import "taylz.io/http/websocket"
+// import "taylz.io/http/websocket"
 
-func Ping(data websocket.MsgData) []byte { return websocket.NewMessage("/ping", data).EncodeToJSON() }
+// func Ping(data websocket.JSON) []byte { return encode("/ping", data) }
 
-func Chat(data websocket.MsgData) *websocket.Message {
-	return websocket.NewMessage("/chat", data)
-}
+// func Chat(data websocket.JSON) []byte { return encode("/chat", data) }
 
-func Error(source, message string) *websocket.Message {
-	return websocket.NewMessage("/error", websocket.MsgData{
-		"source": source,
-		"error":  message,
-	})
-}
-
-func ErrorJSON(source, message string) []byte { return Error(source, message).EncodeToJSON() }
-
-func MyAccount(data websocket.MsgData) *websocket.Message {
-	return websocket.NewMessage("/myaccount", data)
-}
-
-func Queue(data websocket.MsgData) []byte {
-	return websocket.NewMessage("/queue", data).EncodeToJSON()
-}
-
-// func MyAccountGame(id string) *websocket.Message {
-// 	return websocket.NewMessage("/myaccount/game", websocket.MsgData{
-// 		"game": id,
+// func Error(source, message string) []byte {
+// 	return encode("/error", websocket.JSON{
+// 		"source": source,
+// 		"error":  message,
 // 	})
 // }
 
-// Redirect sends a "/redirect" message
-//
-// path is expected to be like "/login" or something
-func Redirect(location string) *websocket.Message {
-	return websocket.NewMessage("/redirect", websocket.MsgData{
-		"location": location,
-	})
-}
+// func MyAccount(data websocket.JSON) []byte { return encode("/myaccount", data) }
+
+// func Queue(data websocket.JSON) []byte { return encode("/queue", data) }
+
+// // func MyAccountGame(id string) []byte {
+// // 	return websocket.NewMessage("/myaccount/game", websocket.JSON{
+// // 		"game": id,
+// // 	})
+// // }
+
+// // Redirect sends a "/redirect" message
+// //
+// // path is expected to be like "/login" or something
+// func Redirect(location string) []byte {
+// 	return encode("/redirect", websocket.JSON{
+// 		"location": location,
+// 	})
+// }

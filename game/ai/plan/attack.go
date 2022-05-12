@@ -5,7 +5,6 @@ import (
 	"github.com/zachtaylor/7elements/game/ai/inspection"
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/game/token"
-	"taylz.io/http/websocket"
 )
 
 // Attack is a plan to make an attack
@@ -19,7 +18,7 @@ func (attack *Attack) Score() int {
 }
 
 func (attack *Attack) Submit(request RequestFunc) {
-	request("attack", websocket.MsgData{
+	request("attack", map[string]any{
 		"id": attack.id,
 	})
 }
@@ -35,7 +34,7 @@ func ParseAttack(game *game.T, seat *seat.T) (attack *Attack) {
 	}
 
 	insme := inspection.Parse(seat)
-	insop := inspection.Parse(game.Seats.GetOpponent(seat.Username))
+	insop := inspection.Parse(g.PlayerOpponent(seat.Username))
 	for _, token := range seat.Present {
 		a := ParseAttackWith(game, seat, insme, insop, token)
 		if a == nil {
@@ -63,9 +62,9 @@ func ParseAttackWith(game *game.T, seat *seat.T, insme, insop inspection.T, toke
 	score := 0
 	score += token.Body.Attack
 	score += 2 * (seat.Life - insop.BeingsAttack)
-	score -= 2 * (game.Seats.GetOpponent(token.User).Life - insme.AwakeBeingsAttack)
+	score -= 2 * (g.PlayerOpponent(token.User).Life - insme.AwakeBeingsAttack)
 
-	game.Log().With(websocket.MsgData{
+	game.Log().With(map[string]any{
 		"Score": score,
 		"TID":   token.ID,
 	}).Trace("potential")

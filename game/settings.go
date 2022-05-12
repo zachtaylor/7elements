@@ -1,30 +1,27 @@
 package game
 
 import (
-	"github.com/zachtaylor/7elements/card"
+	"github.com/zachtaylor/7elements/content"
 	"taylz.io/keygen"
 	"taylz.io/log"
 )
 
 type Settings struct {
+	// Content is game content pointer
+	Content *content.T
 	// LogDir is a system dir path for game log files with trailing slash
 	LogDir string
-	// Cards is the card pool
-	Cards card.Prototypes
 	// Logger is a pointer to the system logger
 	Logger *log.T
-	// Engine is the dependency injection point
-	Engine Engine
-	// Keygen proposes new game keys
+	// Keygen proposes new game ids
 	Keygen keygen.Func
 }
 
-func NewSettings(logdir string, cards card.Prototypes, syslog *log.T, engine Engine, keygen keygen.Func) Settings {
+func NewSettings(content *content.T, logdir string, syslog *log.T, keygen keygen.Func) Settings {
 	return Settings{
-		LogDir: logdir,
-		Cards:  cards,
-		Logger: syslog,
-		Engine: engine,
-		Keygen: keygen,
+		Content: content,
+		LogDir:  logdir,
+		Logger:  syslog,
+		Keygen:  keygen,
 	}
 }

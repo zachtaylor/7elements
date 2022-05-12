@@ -3,7 +3,6 @@ package engine
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
-	"taylz.io/http/websocket"
 )
 
 func stackbuff() []game.Phaser { return nil }
@@ -19,7 +18,7 @@ func (t *T) stack(game *game.T, stack []game.Phaser) {
 		game.State = state
 
 		if addnext := phase.TryOnActivate(game); len(addnext) > 0 {
-			game.Log().With(websocket.MsgData{
+			game.Log().With(map[string]any{
 				"State": game.State,
 				"Stack": addnext,
 			}).Debug("activate trigger")

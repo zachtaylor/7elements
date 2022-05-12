@@ -12,7 +12,7 @@ import (
 // effect recognizes
 // - "sleep"
 func EnemyBeing(game *game.T, seat *seat.T, effect string) (target interface{}, score int) {
-	enemy := game.Seats.GetOpponent(seat.Username)
+	enemy := g.PlayerOpponent(seat.Username)
 
 	var token *token.T
 	for _, t := range enemy.Present {
@@ -39,16 +39,16 @@ func EnemyBeing(game *game.T, seat *seat.T, effect string) (target interface{}, 
 // effect recognizes
 // - "sleep"
 func EnemyPastBeingItem(game *game.T, seat *seat.T) (target interface{}, score int) {
-	enemy := game.Seats.GetOpponent(seat.Username)
+	enemy := g.PlayerOpponent(seat.Username)
 
-	var c *card.T
+	var c *card.Kind
 	for _, pc := range enemy.Past {
 		if pc.Proto.Type == card.ItemType && score < 2 {
 			c = pc
 			score = 2
-		} else if pc.Proto.Type == card.BodyType && score < pc.Proto.Body.Health {
+		} else if pc.Proto.Type == card.BodyType && score < pc.Proto.Body.Life {
 			c = pc
-			score = pc.Proto.Body.Health
+			score = pc.Proto.Body.Life
 		}
 	}
 
@@ -60,7 +60,7 @@ func EnemyPastBeingItem(game *game.T, seat *seat.T) (target interface{}, score i
 
 // MyPastBeing picks a GCID to target "mypast-being" with score
 func MyPastBeing(game *game.T, seat *seat.T) (target interface{}, score int) {
-	var c *card.T
+	var c *card.Kind
 	for _, pc := range seat.Past {
 		if pc.Proto.Type != card.BodyType {
 		} else if score < 3*pc.Proto.Body.Attack {
@@ -86,14 +86,14 @@ func MyPresentBeing(game *game.T, seat *seat.T, effect string) (target interface
 		if t.Card.Proto.Type != card.BodyType {
 		} else if t.IsAwake && effect == "wake" {
 		} else if effect == "health" {
-			if score < 5-t.Body.Health {
+			if score < 5-t.Body.Life {
 				token = t
-				score = 5 - t.Body.Health
+				score = 5 - t.Body.Life
 			}
 		} else {
-			if score < 2*t.Body.Health {
+			if score < 2*t.Body.Life {
 				token = t
-				score = 2 * t.Body.Health
+				score = 2 * t.Body.Life
 			}
 		}
 	}
@@ -117,9 +117,9 @@ func MyPresentBeingItem(game *game.T, seat *seat.T, effect string) (target inter
 			if t.Body == nil {
 				continue
 			}
-			if score < 1-t.Body.Health {
+			if score < 1-t.Body.Life {
 				token = t
-				score = 1 - t.Body.Health
+				score = 1 - t.Body.Life
 			}
 		} else if t.Card.Proto.Type == card.ItemType {
 			if len(t.Powers.GetTrigger("")) > 0 && score < 4 {

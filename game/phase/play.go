@@ -2,35 +2,32 @@ package phase
 
 import (
 	"github.com/zachtaylor/7elements/card"
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/token"
-	"github.com/zachtaylor/7elements/wsout"
-	"taylz.io/http/websocket"
+	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
 )
 
-func NewPlay(seat string, card *card.T, target string) game.Phaser {
+func NewPlay(g *game.G, playerID string, card *game.Card, karma element.Count, targets []string) game.Phaser {
 	return &Play{
-		R:      R(seat),
-		Card:   card,
-		Target: target,
+		PriorityContext: game.PriorityContext(g.NewPriority(playerID)),
+		Card:            card,
+		Karma:           karma,
+		Targets:         targets,
 	}
 }
 
 type Play struct {
-	R
-	Card        *card.T
-	Target      string
+	game.PriorityContext
+	Card        *game.Card
+	Karma       element.Count
+	Targets     []string
 	IsCancelled bool
 }
 
-func (r *Play) Name() string { return "play" }
-
-func (r *Play) String() string {
-	return "play (" + r.Seat() + ":" + r.Card.String() + ")"
-}
+func (r *Play) Type() string { return "play" }
 
 // OnActivate implements game.OnActivatePhaser
-func (r *Play) OnActivate(game *game.T) []game.Phaser {
+func (r *Play) OnActivate(game *game.G) []game.Phaser {
 	// msg := r.Card.Proto.Name
 	// if r.Card.Proto.Text != "" {
 	// 	msg = r.Card.Proto.Text
@@ -38,68 +35,45 @@ func (r *Play) OnActivate(game *game.T) []game.Phaser {
 	// go game.Chat(r.Seat(), msg)
 	return nil
 }
-func (r *Play) onActivatePhaser() game.OnActivatePhaser { return r }
 
 // Finish implements game.OnFinishPhaser
-func (r *Play) OnFinish(g *game.T) (rs []game.Phaser) {
-	seat := g.Seats.Get(r.Seat())
-	g.Log().With(websocket.MsgData{
-		"Seat":        seat.String(),
-		"Card":        r.Card.String(),
+func (r *Play) OnFinish(g *game.G, _ *game.State) (rs []game.Phaser) {
+	player := g.Player(r.Priority()[0])
+	g.Log().With(map[string]any{
+		"Player":      player,
+		"Card":        r.Card,
 		"IsCancelled": r.IsCancelled,
-	}).Debug("engine/play: finish")
-	seat.Past[r.Card.ID] = r.Card
-	g.Seats.Write(wsout.GameSeatJSON(seat.Data()))
+	}).Debug("play finish")
+	player.T.Past.Set(r.Card.ID())
+	g.MarkUpdate(player.ID())
 
 	if r.IsCancelled {
 		return nil
 	}
 
-	if r.Card.Proto.Type == card.BodyType || r.Card.Proto.Type == card.ItemType {
-		if events := g.Engine().NewToken(g, seat, token.New(r.Card, seat.Username)); events != nil {
-			rs = append(rs, events...)
+	if r.Card.T.Kind == card.Being || r.Card.T.Kind == card.Item {
+		ctx := game.NewTokenContext(r.Card)
+		if triggered := trigger.TokenAdd(g, player, ctx); len(triggered) > 0 {
+			rs = append(rs, triggered...)
 		}
-	} else {
-		g.Seats.Write(wsout.GameSeatJSON(seat.Data()))
 	}
 
-	powers := r.Card.Proto.Powers.GetTrigger("play")
-	for _, power := range powers {
-		if power.Target == "self" {
-			if events := g.Engine().Script(g, seat, power.Script, r.Card, []string{r.Card.ID}); len(events) > 0 {
-				rs = append(rs, events...)
+	if powers := r.Card.T.Powers.GetTrigger("play"); len(powers) > 0 {
+		for _, power := range powers {
+			ctx := game.NewScriptContext(power.Script, r.Card.ID(), r.Card.Player(), r.Karma, r.Targets)
+			if triggered := game.RunScript(g, ctx); len(triggered) > 0 {
+				rs = append(rs, triggered...)
 			}
-		} else if events := g.Engine().Script(g, seat, power.Script, r.Card, []string{r.Target}); len(events) > 0 {
-			rs = append(rs, events...)
 		}
-		// } else if r.Target != nil {
-		// 	if events := script.Run(g, seat, power, r.Card, []string{r.Target}); events != nil {
-		// 		rs = append(rs, events...)
-		// 	}
-		// } else {
-		// 	rs = append(rs, NewTarget(
-		// 		seat.Username,
-		// 		power.Target,
-		// 		power.Text,
-		// 		func(val string) []game.Phaser {
-		// 			return script.Run(g, seat, power, r.Card, []string{val})
-		// 		},
-		// 	))
-		// }
 	}
 
 	return
 }
-func (r *Play) onFinishPhaser() game.OnFinishPhaser { return r }
 
-func (r *Play) GetNext(game *game.T) game.Phaser {
-	return nil
-}
-
-func (r *Play) Data() websocket.MsgData {
-	json := websocket.MsgData{
-		"card":   r.Card.Data(),
-		"target": r.Target,
+func (r *Play) JSON() map[string]any {
+	json := map[string]any{
+		"card":    r.Card.T.ID,
+		"targets": r.Targets,
 	}
 	return json
 }

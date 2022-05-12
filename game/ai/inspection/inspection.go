@@ -25,11 +25,11 @@ func Parse(seat *seat.T) (t T) {
 		} else {
 			t.Beings++
 			t.BeingsAttack += token.Body.Attack
-			t.BeingsLife += token.Body.Health
+			t.BeingsLife += token.Body.Life
 			if token.IsAwake {
 				t.AwakeBeings++
 				t.AwakeBeingsAttack += token.Body.Attack
-				t.AwakeBeingsLife += token.Body.Health
+				t.AwakeBeingsLife += token.Body.Life
 			}
 		}
 	}

@@ -1,49 +1,41 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const bendwillID = "bend-will"
 
-func init() {
-	script.Scripts[bendwillID] = BendWill
-}
+func init() { game.Scripts[bendwillID] = BendWill }
 
-func BendWill(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsCard(me) {
-		err = ErrMeCard
-	} else if len(args) < 1 {
-		err = ErrNoTarget
-	} else if token, e := checktarget.PresentBeing(game, seat, args[0]); err != nil {
-		err = e
+func BendWill(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if target, err := target.PresentBeing(g, ctx.Targets[0]); err != nil {
+		return nil, err
 	} else {
-		rs = append(rs, phase.NewChoice(
-			seat.Username,
-			token.Card.Proto.Name+"-> Awake or Asleep?",
-			map[string]interface{}{
-				"token": token.Data(),
+		return []game.Phaser{phase.NewChoice(
+			ctx.Player,
+			target.T.Name+"-> Awake or Asleep?",
+			map[string]any{
+				"tokenid": target.ID(),
 			},
-			[]map[string]interface{}{
-				map[string]interface{}{"choice": "awake", "display": `<a>Awake</a>`},
-				map[string]interface{}{"choice": "asleep", "display": `<a>Asleep</a>`},
+			[]map[string]any{
+				map[string]any{"choice": "awake", "display": `<a>Awake</a>`},
+				map[string]any{"choice": "asleep", "display": `<a>Asleep</a>`},
 			},
-			func(val interface{}) {
+			func(val any) {
 				if val == "awake" {
-					token.IsAwake = true
+					target.T.Awake = true
 				} else if val == "asleep" {
-					token.IsAwake = false
+					target.T.Awake = false
 				} else {
 					return
 				}
-				game.Seats.WriteSync(wsout.GameToken(token.Data()).EncodeToJSON())
+				g.MarkUpdate(target.ID())
 			},
-		))
+		)}, nil
 	}
-	return
 }

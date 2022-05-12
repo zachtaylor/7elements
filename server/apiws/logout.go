@@ -1,36 +1,36 @@
 package apiws
 
 import (
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/server/internal"
 	"github.com/zachtaylor/7elements/wsout"
 	"taylz.io/http/websocket"
 )
 
-func Logout(rt *runtime.T) websocket.Handler {
+func Logout(server internal.Server) websocket.Handler {
 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
-		log := rt.Log().Add("Socket", socket.ID())
+		log := server.Log().Add("Socket", socket.ID())
 
 		if len(socket.SessionID()) < 1 {
 			log.Warn("anon logout")
-			socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to log out"))
+			socket.WriteSync(wsout.Error("vii", "you must log in to log out"))
 			return
 		}
 
-		session := rt.Sessions.Get(socket.SessionID())
+		session := server.GetSessionManager().Get(socket.SessionID())
 		if session == nil {
 			log.Add("Session", socket.SessionID()).Warn("session not found")
-			socket.WriteSync(wsout.ErrorJSON("vii", "you must log in to log out"))
+			socket.WriteSync(wsout.Error("vii", "you must log in to log out"))
 			return
 		}
 
-		if rt.MatchMaker.Get(session.Name()) != nil {
+		if server.GetMatchMaker().Get(session.Name()) != nil {
 			log.Debug("cancel queue")
-			rt.MatchMaker.Cancel(session.Name())
+			server.GetMatchMaker().Cancel(session.Name())
 			socket.WriteSync(wsout.Queue(nil))
 		}
 
 		log.Info("ok")
-		rt.Sessions.Remove(session.ID())
+		server.GetSessionManager().Remove(session.ID())
 		socket.WriteSync(wsout.MyAccount(nil).EncodeToJSON())
 	})
 }

@@ -1,7 +1,5 @@
 package plan
 
-import "taylz.io/http/websocket"
-
 // Pass is a plan to pass
 type Pass string
 
@@ -10,7 +8,7 @@ func (pass Pass) Score() int {
 }
 
 func (pass Pass) Submit(request RequestFunc) {
-	request("pass", websocket.MsgData{
+	request("pass", map[string]any{
 		"id": string(pass),
 	})
 }

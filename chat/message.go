@@ -17,8 +17,8 @@ func NewMessage(username, message string) *Message {
 	}
 }
 
-func (m *Message) Data() map[string]interface{} {
-	return map[string]interface{}{
+func (m *Message) Data() map[string]any {
+	return map[string]any{
 		"user": m.Username,
 		"chan": m.Channel,
 		"msg":  m.Message,

@@ -7,7 +7,7 @@ import (
 	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/db/accounts"
 	"github.com/zachtaylor/7elements/deck"
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/server/internal"
 	"taylz.io/http/session"
 )
 
@@ -15,15 +15,15 @@ var (
 	ErrSignupExists = errors.New("username exists")
 )
 
-func Signup(rt *runtime.T, username, email, password string) (account *account.T, session *session.T, err error) {
+func Signup(server internal.Server, username, email, password string) (account *account.T, session *session.T, err error) {
 	if err = CheckUsername(username); err != nil {
 		return
 	} else if err = CheckEmail(email); err != nil {
 		return
-	} else if _, err = accounts.Get(rt.DB, username); err != sql.ErrNoRows {
+	} else if _, err = accounts.Get(server.GetDB(), username); err != sql.ErrNoRows {
 		return nil, nil, ErrSignupExists
 	} else {
-		session = rt.Sessions.Must(username)
+		session = server.GetSessionManager().Must(username)
 	}
 
 	account = account.Make(username, email, password, session.ID())
@@ -33,12 +33,14 @@ func Signup(rt *runtime.T, username, email, password string) (account *account.T
 		account.Decks[proto.ID] = proto
 	}
 
-	err = accounts.Insert(rt.DB, account)
+	err = accounts.Insert(server.GetDB(), account)
 	if err != nil {
-		rt.Sessions.Remove(session.ID())
+		server.GetSessionManager().Remove(session.ID())
 		return nil, nil, err
 	}
-	rt.Accounts.Set(username, account)
+	server.GetAccounts().Set(username, account)
+
+	go server.Ping()
 
 	return account, session, nil
 }

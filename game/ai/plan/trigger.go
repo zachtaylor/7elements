@@ -6,7 +6,6 @@ import (
 	"github.com/zachtaylor/7elements/game/seat"
 	"github.com/zachtaylor/7elements/game/token"
 	"github.com/zachtaylor/7elements/power"
-	"taylz.io/http/websocket"
 )
 
 // Trigger is a plan to trigger an ability
@@ -22,7 +21,7 @@ func (trigger *Trigger) Score() int {
 }
 
 func (trigger *Trigger) Submit(request RequestFunc) {
-	request("trigger", websocket.MsgData{
+	request("trigger", map[string]any{
 		"id":      trigger.TokenID,
 		"powerid": float64(trigger.PowerID),
 		"target":  trigger.Target,
@@ -78,9 +77,9 @@ func triggerPowerScore(game *game.T, seat *seat.T, t *token.T, p *power.T) (targ
 		target, score = t.ID, 10
 	case 2:
 		// if ai.Settings.Aggro {
-		// target, score = game.Seats.GetOpponent(seat.Username).Username, 10
+		// target, score = g.PlayerOpponent(seat.Username).Username, 10
 		// } else if target, score = ai.TargetEnemyBeing("damage"); score < 1 {
-		target, score = game.Seats.GetOpponent(seat.Username).Username, 1
+		target, score = g.PlayerOpponent(seat.Username).Username, 1
 		// }
 	case 5:
 		// if ai.Settings.Aggro {

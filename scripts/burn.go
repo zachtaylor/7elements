@@ -1,30 +1,21 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const burnID = "burn"
 
-func init() {
-	script.Scripts[burnID] = Burn
-}
+func init() { game.Scripts[burnID] = Burn }
 
-func Burn(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsCard(me) {
-		err = ErrMeCard
-	} else if len(args) < 1 {
-		err = ErrNoTarget
-	} else if targetSeat := game.Seats.Get(args[0]); targetSeat != nil {
-		rs = trigger.DamageSeat(game, targetSeat, 2)
-	} else if token, _err := checktarget.PresentBeing(game, seat, args[0]); _err != nil {
-		err = _err
+func Burn(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if target, err := target.PresentBeing(g, ctx.Targets[0]); err != nil {
+		return nil, err
 	} else {
-		rs = trigger.DamageToken(game, token, 2)
+		return trigger.TokenDamage(g, target, 2), nil
 	}
-	return
 }

@@ -1,17 +1,12 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
 )
 
-func init() {
-	script.Scripts["time-runner"] = TimeRunner
-}
+func init() { game.Scripts["time-runner"] = TimeRunner }
 
-func TimeRunner(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	rs = trigger.DrawCard(game, seat, 1)
-	return
+func TimeRunner(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	return trigger.DrawCard(g, g.Player(ctx.Player), 1), nil
 }

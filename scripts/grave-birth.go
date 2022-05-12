@@ -1,31 +1,25 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const GraveBirthID = "grave-birth"
 
-func init() {
-	script.Scripts[GraveBirthID] = GraveBirth
-}
+func init() { game.Scripts[GraveBirthID] = GraveBirth }
 
-func GraveBirth(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsCard(me) {
-		err = ErrMeCard
-	} else if len(args) < 1 {
-		err = ErrNoTarget
-	} else if card, _err := checktarget.MyPastBeing(game, seat, args[0]); _err != nil {
-		err = _err
-	} else if card == nil {
-		err = ErrNoTarget
+func GraveBirth(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if player := g.Player(ctx.Player); player == nil {
+		return nil, ErrPlayerID
+	} else if target, err := target.MyPastBeing(g, player, ctx.Targets[0]); err != nil {
+		return nil, err
 	} else {
-		rs = trigger.NewToken(game, seat, token.New(card, seat.Username))
+		tokenCtx := game.NewTokenContext(target)
+		tokenCtx.Text = "Birthed from the grave"
+		return trigger.TokenAdd(g, player, tokenCtx), nil
 	}
-	return
 }

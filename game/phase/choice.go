@@ -1,94 +1,74 @@
 package phase
 
-import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
-	"taylz.io/http/websocket"
-)
+import "github.com/zachtaylor/7elements/game/v2"
 
 type Choice struct {
-	R
+	game.PriorityContext
 	Text     string
-	ExData   websocket.MsgData
-	Choices  []websocket.MsgData
-	Finisher func(answer interface{})
-	answer   interface{}
+	Data     map[string]any
+	Choices  []map[string]any
+	Finisher func(answer any)
+	answer   any
 }
 
-func NewChoice(seat, text string, data websocket.MsgData, choices []websocket.MsgData, fin func(answer interface{})) *Choice {
+func NewChoice(playerID, text string, data map[string]any, choices []map[string]any, fin func(any)) *Choice {
 	return &Choice{
-		R:        R(seat),
-		Text:     text,
-		ExData:   data,
-		Choices:  choices,
-		Finisher: fin,
+		PriorityContext: game.PriorityContext{playerID},
+		Text:            text,
+		Data:            data,
+		Choices:         choices,
+		Finisher:        fin,
 	}
 }
-func choiceIsPhaser(r *Choice) game.Phaser { return r }
 
-func (r *Choice) Name() string {
-	return "choice"
-}
+func (*Choice) Type() string { return "choice" }
 
-func (r *Choice) String() string {
-	return "choice (" + r.Seat() + ")"
-}
-
-// // OnActivate implements game.OnActivatePhaser
-// func (r *Choice) OnActivate(game *game.T) []game.Phaser {
-// 	return nil
-// }
-// func _activateStater(r *Choice) game.OnActivatePhaser {
-// 	return r
-// }
-
-// OnConnect implements game.OnConnectPhaser
-func (r *Choice) OnConnect(game *game.T, s *seat.T) {
-	if s == nil {
-		game.Log().Trace("send")
-		game.Seats.Get(r.Seat()).Writer.Write(wsout.GameChoiceJSON(r.Text, r.Choices, nil))
-	} else if s.Username == r.Seat() {
-		game.Log().Trace("resend")
-		s.Writer.Write(wsout.GameChoiceJSON(r.Text, r.Choices, nil))
+func (r *Choice) JSON() map[string]any {
+	return map[string]any{
+		"choice":  r.Text,
+		"data":    r.Data,
+		"options": r.Choices,
 	}
 }
-func (r *Choice) onConnectPhaser() game.OnConnectPhaser { return r }
+
+func (r *Choice) OnConnect(g *game.G, player *game.Player) {
+	if player == nil {
+		player = g.Player(r.Priority()[0])
+	} else if player.ID() != r.Priority()[0] {
+		return
+	}
+}
 
 // Finish implements game.OnFinishPhaser
-func (r *Choice) OnFinish(*game.T) []game.Phaser {
+func (r *Choice) OnFinish(g *game.G, _ *game.State) []game.Phaser {
 	if r.Finisher != nil {
 		r.Finisher(r.answer)
 	}
 	return nil
 }
-func (r *Choice) onFinishPhaser() game.OnFinishPhaser { return r }
 
-func (r *Choice) GetNext(game *game.T) game.Phaser { return nil }
-
-func (r *Choice) Data() map[string]interface{} {
-	return map[string]interface{}{
-		"choice":  r.Text,
-		"options": r.Choices,
-		"data":    r.ExData,
-	}
-}
-
-// Request implements Requester
-func (r *Choice) OnRequest(game *game.T, seat *seat.T, json map[string]interface{}) {
-	if seat.Username != r.Seat() {
-		game.Log().With(map[string]interface{}{
-			"Seat": seat,
-			"json": json,
+// Request implements game.OnFinishPhaser
+func (r *Choice) OnRequest(g *game.G, state *game.State, player *game.Player, json map[string]any) {
+	if player.ID() != r.Priority()[0] {
+		g.Log().With(map[string]any{
+			"Player": player,
+			"json":   json,
 		}).Warn("choice: receive")
 		return
 	}
 
 	r.answer = json["choice"]
 	if r.answer != "" {
-		for _, seat := range game.Seats.Keys() {
-			game.State.Reacts[seat] = "push"
-		}
+		state.T.React.Set(player.ID())
 	}
 }
-func (r *Choice) onRequestPhaser() game.OnRequestPhaser { return r }
+
+var ChoiceElementsData = []map[string]any{
+	{"choice": 1, "display": `<img src="/img/icon/element-1.png">`},
+	{"choice": 2, "display": `<img src="/img/icon/element-2.png">`},
+	{"choice": 3, "display": `<img src="/img/icon/element-3.png">`},
+	{"choice": 4, "display": `<img src="/img/icon/element-4.png">`},
+	{"choice": 5, "display": `<img src="/img/icon/element-5.png">`},
+	{"choice": 6, "display": `<img src="/img/icon/element-6.png">`},
+	{"choice": 7, "display": `<img src="/img/icon/element-7.png">`},
+}

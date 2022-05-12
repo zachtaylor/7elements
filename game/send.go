@@ -1,32 +1,28 @@
 package game
 
-import (
-	"github.com/zachtaylor/7elements/wsout"
-)
-
 // SendData populates game data in multiple writes to stay under ws frame limit
-func (game *T) SendData(username string) {
-	seat := game.Seats.Get(username)
-	if seat == nil {
-		return
-	}
+// func (game *T) SendData(username string) {
+// 	seat := g.Player(username)
+// 	if seat == nil {
+// 		return
+// 	}
 
-	seat.Writer.Write(wsout.Game(game.Data(seat)))
-	seat.Writer.Write(wsout.GameState(game.State.Data()).EncodeToJSON())
+// 	seat.Writer.WriteMessageData(wsout.Game(game.JSON(seat)))
+// 	seat.Writer.WriteMessageData(wsout.GameState(game.State.JSON()))
 
-	seat.Writer.Write(wsout.GameHand(seat.Hand.Keys()).EncodeToJSON())
-	for _, c := range seat.Hand {
-		seat.Writer.Write(wsout.GameCardJSON(c.Data()))
-	}
+// 	seat.Writer.WriteMessageData(wsout.GameHand(seat.Hand.Keys()))
+// 	for _, c := range seat.Hand {
+// 		seat.Writer.WriteMessageData(wsout.GameCard(c.JSON()))
+// 	}
 
-	for _, name := range game.Seats.Keys() {
-		s := game.Seats.Get(name)
-		seat.Writer.Write(wsout.GameSeatJSON(s.Data()))
-		for _, t := range s.Present {
-			seat.Writer.Write(wsout.GameTokenJSON(t.Data()))
-		}
-		for _, c := range s.Past {
-			seat.Writer.Write(wsout.GameCardJSON(c.Data()))
-		}
-	}
-}
+// 	for _, name := range game.Seats.Keys() {
+// 		s := g.Player(name)
+// 		seat.Writer.WriteMessageData(wsout.GameSeat(s.JSON()))
+// 		for _, t := range s.Present {
+// 			seat.Writer.WriteMessageData(wsout.GameToken(t.JSON()))
+// 		}
+// 		for _, c := range s.Past {
+// 			seat.Writer.WriteMessageData(wsout.GameCard(c.JSON()))
+// 		}
+// 	}
+// }

@@ -45,18 +45,16 @@ func GetAll(conn *db.DB) card.Prototypes {
 
 func scanCard(scanner db.Scanner) (*card.Prototype, error) {
 	c := card.NewPrototype()
-	var typebuff int
+	var kind int
 
-	err := scanner.Scan(&c.ID, &typebuff, &c.Name, &c.Text)
-	if err != nil {
+	if err := scanner.Scan(&c.ID, &kind, &c.Name, &c.Text); err != nil {
 		return nil, err
+	} else if k := card.Kind(kind); k.String() == "error" {
+		return nil, errors.New("cards: cardtype not recognized #" + strconv.FormatInt(int64(kind), 10))
+	} else {
+		c.Kind = k
 	}
 
-	t := card.Type(typebuff)
-	if t.String() == "error" {
-		return nil, errors.New("cards: cardtype not recognized #" + strconv.FormatInt(int64(typebuff), 10))
-	}
-	c.Type = t
 	return c, nil
 }
 
@@ -70,7 +68,7 @@ func loadCardBodies(conn *db.DB, cards card.Prototypes) error {
 	for rows.Next() {
 		var cardid int
 		body := &card.Body{}
-		err = rows.Scan(&cardid, &body.Attack, &body.Health)
+		err = rows.Scan(&cardid, &body.Attack, &body.Life)
 
 		if err != nil {
 			return err

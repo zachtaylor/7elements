@@ -55,13 +55,13 @@ func newPackSkipProtoID(pack []int, id int) bool {
 	return false
 }
 
-// Data returns a representation of this Prototype as type websocket.MsgData
-func (p *Prototype) Data() map[string]interface{} {
+// Data returns a representation of this Prototype as type map[string]any
+func (p *Prototype) Data() map[string]any {
 	cards := make([]int, 0)
 	for _, card := range p.Cards {
 		cards = append(cards, card.CardID)
 	}
-	return map[string]interface{}{
+	return map[string]any{
 		"id":    p.ID,
 		"name":  p.Name,
 		"size":  p.Size,
@@ -74,8 +74,8 @@ func (p *Prototype) Data() map[string]interface{} {
 type Prototypes map[int]*Prototype
 
 // Data returns a representation of these Prototypes as type fmt.Stringer
-func (packs Prototypes) Data() []map[string]interface{} {
-	json := make([]map[string]interface{}, len(packs))
+func (packs Prototypes) Data() []map[string]any {
+	json := make([]map[string]any, len(packs))
 	keys := make([]int, len(packs))
 	var i int
 	for k := range packs {

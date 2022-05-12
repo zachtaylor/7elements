@@ -1,9 +1,6 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/zachtaylor/7elements/env"
 	_ "github.com/zachtaylor/7elements/scripts"
 	"github.com/zachtaylor/7elements/server"
 	"github.com/zachtaylor/7elements/server/runtime"
@@ -17,19 +14,17 @@ func main() {
 
 	stdout.Info("vii: start")
 
-	env := env.New().ParseDefault()
+	env := DefaultENV().ParseDefault()
 	runtime, err := runtime.Parse(env, Patch)
 	if runtime == nil {
 		stdout.Add("Error", err).Error("vii: failed to parse env")
 		return
 	}
 
-	fs := http.FileSystem(http.Dir(env["WWW_PATH"]))
-
 	if runtime.IsDevEnv {
-		server.Start(runtime, fs, ":"+env["PORT"])
+		server.Start(runtime, ":"+env["PORT"])
 	} else {
 		// production has a different binary so this is never used
-		server.StartTLS(runtime, fs, "7elements.cert", "7elements.key")
+		server.StartTLS(runtime, "7tcg.cert", "7tcg.key")
 	}
 }

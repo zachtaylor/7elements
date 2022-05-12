@@ -2,15 +2,15 @@ package scripts
 
 // import (
 // 	vii "github.com/zachtaylor/7elements"
-// 	"github.com/zachtaylor/7elements/game"
-// 	"github.com/zachtaylor/7elements/game/engine/trigger"
+// 	"github.com/zachtaylor/7elements/game/v2"
+// 	"github.com/zachtaylor/7elements/game/trigger"
 // 	"ztaylor.me/cast"
 // )
 
 // const LightningStrikeID = "lightning-strike"
 
 // func init() {
-// 	script.Scripts[LightningStrikeID] = LightningStrike
+// 	game.Scripts[LightningStrikeID] = LightningStrike
 // }
 
 // func LightningStrike(g *game.T, seat *seat.T, target interface{}) []game.Phaser {

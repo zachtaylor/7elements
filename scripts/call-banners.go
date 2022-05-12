@@ -5,43 +5,34 @@ import (
 
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
 	"github.com/zachtaylor/7elements/power"
 )
 
-func init() {
-	script.Scripts["call-banners"] = CallTheBanners
-}
+func init() { game.Scripts["call-banners"] = CallTheBanners }
 
-var callthebannersTokenCardProto = &card.Prototype{
-	Type:  card.BodyType,
-	Name:  "Bannerman",
-	Text:  "At your call",
-	Costs: element.Count{},
-	Body: &card.Body{
-		Attack: 2,
-		Health: 2,
-	},
+var callthebannersTokenCardProto = card.Prototype{
+	ID:     3, // provides default image for clone
+	Kind:   card.Being,
+	Name:   "Bannerman",
+	Text:   "At your call",
+	Costs:  element.Count{},
+	Body:   &card.Body{Attack: 2, Life: 2},
 	Powers: power.NewSet(),
 }
 
-func CallTheBanners(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsCard(me) {
-		err = ErrMeCard
-	} else {
-		card := card.New(callthebannersTokenCardProto, seat.Username)
-		for i := 0; i < 3; i++ {
-			token := token.New(card, seat.Username)
-			token.Image = "17." + strconv.FormatInt(int64(i), 10)
-			if _rs := trigger.NewToken(game, seat, token); len(_rs) > 1 {
-				rs = append(rs, _rs...)
-			}
+func CallTheBanners(g *game.G, ctx game.ScriptContext) (rs []game.Phaser, err error) {
+	player := g.Player(ctx.Player)
+	card := g.NewCard(ctx.Player, callthebannersTokenCardProto)
+
+	for i := 0; i < 3; i++ {
+		tokenCtx := game.NewTokenContext(card)
+		tokenCtx.Image = "17." + strconv.FormatInt(int64(i), 10)
+
+		if triggered := trigger.TokenAdd(g, player, tokenCtx); len(triggered) > 1 {
+			rs = append(rs, triggered...)
 		}
 	}
-	return
+	return rs, nil
 }

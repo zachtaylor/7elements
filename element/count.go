@@ -3,7 +3,6 @@ package element
 import (
 	"strconv"
 
-	"taylz.io/http/websocket"
 	"taylz.io/types"
 )
 
@@ -68,9 +67,9 @@ func (c Count) Remove(c2 Count) error {
 	return nil
 }
 
-// JSON returns a representation of this count as type `websocket.MsgData`
-func (c Count) JSON() websocket.MsgData {
-	json := websocket.MsgData{}
+// JSON returns a representation of this count as type map[string]any
+func (c Count) JSON() map[string]any {
+	json := map[string]any{}
 	for k, v := range c {
 		json[strconv.FormatInt(int64(k), 10)] = v
 	}

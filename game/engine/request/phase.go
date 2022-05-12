@@ -6,6 +6,6 @@ import (
 	"github.com/zachtaylor/7elements/game/seat"
 )
 
-func Phase(game *game.T, seat *seat.T, json map[string]interface{}) {
+func Phase(game *game.T, seat *seat.T, json map[string]any) {
 	phase.TryOnRequest(game, seat, json)
 }

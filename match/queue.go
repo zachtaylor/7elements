@@ -6,19 +6,19 @@ import (
 
 	"github.com/zachtaylor/7elements/deck"
 	"github.com/zachtaylor/7elements/game"
-	"taylz.io/http/user"
+	"github.com/zachtaylor/7elements/game/seat"
 )
 
 type Queue struct {
 	start    time.Time
-	writer   user.Writer
+	writer   seat.Writer
 	settings QueueSettings
 	result   string
 	once     sync.Once
 	done     chan bool
 }
 
-func NewQueue(writer user.Writer, settings QueueSettings) *Queue {
+func NewQueue(writer seat.Writer, settings QueueSettings) *Queue {
 	return &Queue{
 		start:    time.Now(),
 		writer:   writer,
@@ -29,7 +29,7 @@ func NewQueue(writer user.Writer, settings QueueSettings) *Queue {
 
 func (q *Queue) Start() time.Time { return q.start }
 
-func (q *Queue) Writer() user.Writer { return q.writer }
+func (q *Queue) Writer() seat.Writer { return q.writer }
 
 func (q *Queue) Settings() QueueSettings { return q.settings }
 
@@ -62,8 +62,8 @@ func (q *Queue) Cancel() (ok bool) {
 	return
 }
 
-func (q *Queue) Data() map[string]interface{} {
-	return map[string]interface{}{
+func (q *Queue) Data() map[string]any {
+	return map[string]any{
 		"deckid": q.settings.Deck.ID,
 		"owner":  q.settings.Deck.User,
 		"hands":  q.settings.Hands,

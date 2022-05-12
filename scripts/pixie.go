@@ -1,33 +1,36 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const PixieID = "pixie"
 
-func init() {
-	script.Scripts[PixieID] = Pixie
-}
+func init() { game.Scripts[PixieID] = Pixie }
 
-func Pixie(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if token, ok := me.(*token.T); !ok || token == nil {
-		err = ErrMeToken
-	} else if len(args) < 1 {
-		err = ErrNoTarget
-	} else if targetSeat := game.Seats.Get(args[0]); targetSeat != nil {
-		rs = trigger.HealSeat(game, targetSeat, token.Body.Health)
-		rs = append(rs, trigger.RemoveToken(game, token)...)
-	} else if targetToken, _err := checktarget.OtherPresentBeing(game, seat, token, args[0]); _err != nil {
-		err = _err
+func Pixie(g *game.G, ctx game.ScriptContext) (rs []game.Phaser, err error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if token := g.Token(ctx.Source); token == nil {
+		return nil, ErrTokenID
+	} else if targetPlayer := g.Player(ctx.Targets[0]); targetPlayer != nil {
+		if triggered := trigger.PlayerHeal(g, targetPlayer, token.T.Body.Life); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
+		if triggered := trigger.TokenRemove(g, token); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
+	} else if targetToken, err := target.PresentBeing(g, ctx.Targets[0]); err != nil {
+		return nil, err
 	} else {
-		rs = trigger.HealToken(game, targetToken, token.Body.Health)
-		rs = append(rs, trigger.RemoveToken(game, token)...)
+		if triggered := trigger.TokenHeal(g, targetToken, token.T.Body.Life); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
+		if triggered := trigger.TokenRemove(g, token); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
 	}
 	return
 }

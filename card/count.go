@@ -65,9 +65,9 @@ func (c Count) Format() (string, error) {
 	return b.String(), nil
 }
 
-// Data returns a representation of this count of Cards as type websocket.MsgData
-func (c Count) Data() map[string]interface{} {
-	json := map[string]interface{}{}
+// Data returns a representation of this count of Cards as type map[string]any
+func (c Count) Data() map[string]any {
+	json := map[string]any{}
 	for id, count := range c {
 		json[strconv.FormatInt(int64(id), 10)] = count
 	}

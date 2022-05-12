@@ -3,14 +3,14 @@ package scripts
 // import (
 // 	vii "github.com/zachtaylor/7elements"
 
-// 	"github.com/zachtaylor/7elements/game"
+// 	"github.com/zachtaylor/7elements/game/v2"
 // 	"ztaylor.me/cast"
 // )
 
 // const WandOfSuppressionID = "wand-of-suppression"
 
 // func init() {
-// 	script.Scripts[WandOfSuppressionID] = WandOfSuppression
+// 	game.Scripts[WandOfSuppressionID] = WandOfSuppression
 // }
 
 // func WandOfSuppression(g *game.T, seat *seat.T, target interface{}) []game.Phaser {

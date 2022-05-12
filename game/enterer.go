@@ -1,31 +1,31 @@
 package game
 
-import (
-	"github.com/zachtaylor/7elements/deck"
-	"taylz.io/http/user"
-)
+// import (
+// 	"github.com/zachtaylor/7elements/deck"
+// 	"github.com/zachtaylor/7elements/game/seat"
+// )
 
-type Enterer interface {
-	Deck() *deck.Prototype
-	Writer() user.Writer
-}
+// type Enterer interface {
+// 	Deck() *deck.Prototype
+// 	Writer() seat.Writer
+// }
 
-type Entry struct {
-	deck   *deck.Prototype
-	writer user.Writer
-}
+// type Entry struct {
+// 	deck   *deck.Prototype
+// 	writer seat.Writer
+// }
 
-func (*T) NewEntry(deck *deck.Prototype, user user.Writer) *Entry {
-	return NewEntry(deck, user)
-}
+// func (*T) NewEntry(deck *deck.Prototype, w seat.Writer) *Entry {
+// 	return NewEntry(deck, w)
+// }
 
-func NewEntry(deck *deck.Prototype, user user.Writer) *Entry {
-	return &Entry{
-		deck:   deck,
-		writer: user,
-	}
-}
+// func NewEntry(deck *deck.Prototype, w seat.Writer) *Entry {
+// 	return &Entry{
+// 		deck:   deck,
+// 		writer: w,
+// 	}
+// }
 
-func (e Entry) Deck() *deck.Prototype { return e.deck }
+// func (e Entry) Deck() *deck.Prototype { return e.deck }
 
-func (e Entry) Writer() user.Writer { return e.writer }
+// func (e Entry) Writer() seat.Writer { return e.writer }

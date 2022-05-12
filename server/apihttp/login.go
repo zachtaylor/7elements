@@ -5,14 +5,14 @@ import (
 
 	"github.com/zachtaylor/7elements/db/accounts"
 	"github.com/zachtaylor/7elements/server/api"
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/server/internal"
 	"taylz.io/http/session"
 )
 
 // LoginHandler returns a http.HandlerFunc that performs internal login
-func LoginHandler(rt *runtime.T) http.Handler {
+func LoginHandler(server internal.Server) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log := rt.Log().Add("Addr", r.RemoteAddr)
+		log := server.Log().Add("Addr", r.RemoteAddr)
 
 		if r.Method != "POST" {
 			w.WriteHeader(404)
@@ -20,8 +20,8 @@ func LoginHandler(rt *runtime.T) http.Handler {
 			return
 		}
 
-		if s, err := rt.Sessions.GetRequestCookie(r); s == nil {
-			if err == session.ErrNoCookie {
+		if s, err := server.GetSessionManager().GetRequestCookie(r); s == nil {
+			if err == session.ErrNoID {
 				log.Add("Remote", r.RemoteAddr).Out("first time login")
 			}
 		} else {
@@ -37,17 +37,17 @@ func LoginHandler(rt *runtime.T) http.Handler {
 		}
 		log = log.Add("Username", username)
 
-		if account, err := accounts.Get(rt.DB, username); account == nil {
+		if account, err := accounts.Get(server.GetDB(), username); account == nil {
 			http.Redirect(w, r, "/login?account", http.StatusSeeOther)
 			log.Add("Error", err).Warn("invalid account")
-		} else if password := rt.PassHash(r.FormValue("password")); password != account.Password {
+		} else if password := server.HashPassword(r.FormValue("password")); password != account.Password {
 			http.Redirect(w, r, "/login?password", http.StatusSeeOther)
 			log.Warn("wrong password")
 		} else {
-			session := rt.Sessions.Must(username)
+			session := server.GetSessionManager().Must(username)
 			account.SessionID = session.ID()
-			rt.Accounts.Set(username, account)
-			rt.Sessions.WriteSetCookie(w, session)
+			server.GetAccounts().Set(username, account)
+			server.GetSessionManager().WriteSetCookie(w, session)
 			w.Write([]byte(redirectHomeTpl))
 			log.Add("SessionID", account.SessionID).Info("ok")
 		}

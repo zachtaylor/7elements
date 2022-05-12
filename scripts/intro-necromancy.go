@@ -1,32 +1,33 @@
 package scripts
 
 import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/checktarget"
-	"github.com/zachtaylor/7elements/game/engine/script"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/game/trigger"
+	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const IntroToNecromancyID = "intro-necromancy"
 
-func init() {
-	script.Scripts[IntroToNecromancyID] = IntroToNecromancy
-}
+func init() { game.Scripts[IntroToNecromancyID] = IntroToNecromancy }
 
-func IntroToNecromancy(game *game.T, seat *seat.T, me interface{}, args []string) (rs []game.Phaser, err error) {
-	if !checktarget.IsToken(me) {
-		err = ErrMeToken
-	} else if len(args) < 1 {
-		err = ErrNoTarget
-	} else if card, _err := checktarget.MyPastBeing(game, seat, args[0]); _err != nil {
-		err = _err
+func IntroToNecromancy(g *game.G, ctx game.ScriptContext) (rs []game.Phaser, err error) {
+	if len(ctx.Targets) < 1 {
+		return nil, ErrNoTarget
+	} else if player := g.Player(ctx.Player); player == nil {
+		return nil, ErrPlayerID
+	} else if target, err := target.MyPastBeing(g, player, ctx.Targets[0]); err != nil {
+		return nil, err
 	} else {
-		token := token.New(card, seat.Username)
-		token.Body.Health = 1
-		rs = trigger.NewToken(game, seat, token)
-		rs = append(rs, trigger.DamageSeat(game, seat, 1)...)
+		tokenCtx := game.NewTokenContext(target)
+		tokenCtx.Text = "A zombie!"
+		tokenCtx.Body.Life = 1
+
+		if triggered := trigger.TokenAdd(g, player, tokenCtx); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
+		if triggered := trigger.PlayerDamage(g, player, 1); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
 	}
 	return
 }

@@ -1,29 +1,36 @@
 package card
 
+import "fmt"
+
 // Body contains stats for Body Cards
 type Body struct {
+	Life   int
 	Attack int
-	Health int
 }
 
-// Copy returns a copy of this Body
 func (b *Body) Copy() *Body {
 	if b == nil {
 		return nil
 	}
 	return &Body{
+		Life:   b.Life,
 		Attack: b.Attack,
-		Health: b.Health,
 	}
 }
 
-// Data returns a representation of this Body as type fmt.Stringer
-func (b *Body) Data() map[string]interface{} {
+func (b *Body) String() string {
+	if b == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("Body{♥: %d, ♣: %d}", b.Life, b.Attack)
+}
+
+func (b *Body) JSON() map[string]any {
 	if b == nil {
 		return nil
 	}
-	return map[string]interface{}{
+	return map[string]any{
+		"life":   b.Life,
 		"attack": b.Attack,
-		"health": b.Health,
 	}
 }
