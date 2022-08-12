@@ -1,37 +1,31 @@
 package apiws
 
 import (
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/out"
 	"github.com/zachtaylor/7elements/server/internal"
-	"github.com/zachtaylor/7elements/wsout"
 	"taylz.io/http/websocket"
 )
 
-func Game(server internal.Server) websocket.Handler {
-	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
+func Game(server internal.Server) websocket.MessageHandler {
+	return websocket.MessageHandlerFunc(func(socket *websocket.T, m *websocket.Message) {
 		log := server.Log().Add("Socket", socket.ID())
 
-		if len(socket.SessionID()) < 1 {
-			log.Warn("no session")
-			socket.Write(wsout.Error("vii", "no user"))
-			return
-		}
-		log = log.Add("Session", socket.SessionID())
-
-		user, _, err := server.GetUserManager().GetSession(socket.SessionID())
+		user := server.Users().GetWebsocket(socket)
 		if user == nil {
-			log.Add("Error", err).Error("user missing")
-			socket.Write(wsout.Error("vii", "internal error"))
+			log.Warn("no session")
+			socket.Write(websocket.MessageText, out.Error("vii", "no user"))
 			return
 		}
-		log = log.Add("Username", user.Name())
+		log = log.Add("Session", user.Session())
 
-		account := server.GetAccounts().Get(user.Name())
+		account := server.Accounts().Get(user.Session().Name())
 		if account == nil {
 			log.Error("account missing")
 			return
 		} else if account.GameID == "" {
 			log.Warn("no game found")
-			socket.WriteSync(wsout.Error("vii", "you are not in a game"))
+			socket.Write(websocket.MessageText, out.Error("vii", "you are not in a game"))
 			return
 		}
 		log.Add("Game", account.GameID)
@@ -39,16 +33,16 @@ func Game(server internal.Server) websocket.Handler {
 		uri, _ := m.Data["uri"].(string)
 		if len(uri) < 1 {
 			log.Add("Data", m.Data).Warn("uri missing")
-			socket.WriteSync(wsout.Error("vii", "internal error"))
+			socket.Write(websocket.MessageText, out.Error("vii", "internal error"))
 			return
 		}
 		log.Add("URI", uri)
 
-		if game := server.GetGameManager().Get(account.GameID); game == nil {
+		if g := server.Games().Get(account.GameID); g == nil {
 			log.Warn("game missing")
 		} else {
-			server.GetSessionManager().Get(account.SessionID).Update()
-			game.Request(user.Name(), uri, m.Data)
+			server.Sessions().Update(account.SessionID)
+			g.AddRequest(game.NewReq(account.Username, uri, m.Data))
 		}
 	})
 }

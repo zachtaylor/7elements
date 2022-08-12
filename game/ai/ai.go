@@ -1,18 +1,16 @@
 package ai
 
 import (
+	"github.com/zachtaylor/7elements/content"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/ai/view"
 )
 
 type AI struct {
 	Settings
 	Name string
-	// Request causes the AI to submit input data to the game
-	Request RequestFunc
-	Game    *game.T
-	Seat    *seat.T
-	done    chan struct{}
+	View view.T
+	done chan struct{}
 }
 
 func New(name string) *AI {
@@ -23,38 +21,46 @@ func New(name string) *AI {
 	}
 }
 
-func (ai *AI) Connect(game *game.T) {
-	ai.Game = game
-	ai.Seat = g.Player(ai.Name)
-	ai.Request = NewRequestFunc(game, ai.Name)
+func (ai *AI) Connect(g *game.G) {
+	ai.View.Game = g
+	ai.View.Self = g.Player(ai.Name)
+	for _, playerID := range g.Players() {
+		if playerID != ai.View.Self.ID() { // todo err nil
+			ai.View.Enemy = g.Player(playerID)
+		}
+	}
 	ai.Request("connect", nil)
 }
 
-func (ai *AI) Entry(version *game.Version) *game.Entry {
-	return game.NewEntry(GetDeck(version), &Input{ai})
+func (ai *AI) Request(uri string, json map[string]any) {
+	ai.View.Game.AddRequest(game.NewReq(ai.Name, uri, json))
+}
+
+func (ai *AI) Entry(content content.T) game.Entry {
+	return game.NewEntry(&Writer{AI: ai}, GetDeck(content).Cards)
 }
 
 // RequestPass causes the AI to submit "pass" to the current state
 func (ai *AI) RequestPass() {
 	ai.Request("pass", map[string]any{
-		"pass": ai.Game.State.ID(),
+		"pass": ai.View.State.ID(),
 	})
 }
 
 func (ai *AI) GameState(data map[string]any) {
-	if ai.Game.State.Phase.Name() == "start" {
-		if ai.Game.State.Reacts[ai.Seat.Username] == "" {
-			ai.Request(ai.Game.State.ID(), map[string]any{
-				"choice": "keep",
-			})
-		}
-	} else if ai.Game.State.Phase.Name() == "sunrise" {
+	ai.View.Update(ai.View.Game.State(data["id"].(string)))
+
+	if ai.View.State.T.Phase.Type() == "start" {
+		ai.Request(ai.View.State.ID(), map[string]any{
+			"choice": "keep",
+		})
+	} else if ai.View.State.T.Phase.Type() == "sunrise" {
 		if choice := ai.NewPlan(); choice == nil {
 			ai.requestSunriseElement()
 		} else {
 			choice.Submit(ai.Request)
 		}
-	} else if ai.Game.State.Phase.Name() == "end" {
+	} else if ai.View.State.T.Phase.Type() == "end" {
 		ai.RequestPass()
 		ai.Request("disconnect", nil)
 	} else {
@@ -67,16 +73,16 @@ func (ai *AI) GameState(data map[string]any) {
 }
 
 func (ai *AI) GameChoice(data map[string]any) {
-	if ai.Game.State.Phase.Seat() != ai.Seat.Username {
+	if ai.View.State.T.Phase.Priority()[0] != ai.Name {
 		ai.RequestPass()
 		return
 	}
-	log := ai.Game.Log().With(map[string]any{
+	log := ai.View.Game.Log().With(map[string]any{
 		"Data": data,
 	})
 	if data["prompt"] == `Create a New Element` {
 		log.Info("create element")
-		ai.Request(ai.Game.State.ID(), map[string]any{
+		ai.Request(ai.View.State.ID(), map[string]any{
 			"choice": int(ai.getNewElement()),
 		})
 	} else {
@@ -149,7 +155,7 @@ func (ai *AI) GameChoice(data map[string]any) {
 // }
 
 func (ai *AI) requestSunriseElement() {
-	ai.Request(ai.Game.State.ID(), map[string]any{
+	ai.Request(ai.View.State.ID(), map[string]any{
 		"choice": int(ai.getNewElement()),
 	})
 }

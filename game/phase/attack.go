@@ -1,8 +1,8 @@
 package phase
 
 import (
-	"github.com/zachtaylor/7elements/game/v2"
-	"github.com/zachtaylor/7elements/game/v2/target"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/game/target"
 )
 
 type Attack struct {
@@ -18,7 +18,8 @@ func NewAttack(g *game.G, token *game.Token) game.Phaser {
 	}
 }
 
-func (r *Attack) Type() string { return "attack" }
+func (*Attack) Type() string      { return "attack" }
+func (*Attack) Next() game.Phaser { return nil }
 
 // func (r *Attack) String() string { return "Attack {" + r.A.ID + "}" }
 
@@ -47,7 +48,7 @@ func (r *Attack) GetNext(*game.G) game.Phaser {
 	return nil
 }
 
-func (r *Attack) JSON() map[string]any { return r.A.T.JSON() }
+func (r *Attack) JSON() map[string]any { return r.A.T.Data() }
 
 // Request implements Requester
 func (r *Attack) OnRequest(g *game.G, state *game.State, player *game.Player, json map[string]any) {
@@ -64,5 +65,5 @@ func (r *Attack) OnRequest(g *game.G, state *game.State, player *game.Player, js
 		r.B = t
 	}
 
-	state.T.React.Set(player.ID())
+	state.T.React.Add(player.ID())
 }

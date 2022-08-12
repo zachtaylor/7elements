@@ -3,8 +3,7 @@ package plan
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai/aim"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/game/ai/view"
 	"github.com/zachtaylor/7elements/power"
 )
 
@@ -32,9 +31,10 @@ func (trigger *Trigger) String() string {
 	return "Trigger " + trigger.TokenID
 }
 
-func ParseTrigger(game *game.T, seat *seat.T) (trigger *Trigger) {
-	for _, token := range seat.Present {
-		if t := ParseTriggerWith(game, seat, token); t == nil {
+func ParseTrigger(view view.T) (trigger *Trigger) {
+	for tokenID := range view.Self.T.Present {
+		token := view.Game.Token(tokenID)
+		if t := ParseTriggerWith(view, token); t == nil {
 		} else if trigger == nil || trigger.score < t.score {
 			trigger = t
 		}
@@ -42,15 +42,15 @@ func ParseTrigger(game *game.T, seat *seat.T) (trigger *Trigger) {
 	return
 }
 
-func ParseTriggerWith(game *game.T, seat *seat.T, token *token.T) (trigger *Trigger) {
-	powers := token.Powers.GetTrigger("")
+func ParseTriggerWith(view view.T, token *game.Token) (trigger *Trigger) {
+	powers := token.T.Powers.GetTrigger("")
 	if len(powers) < 1 {
 		return
 	}
 	for _, power := range powers {
-		if !seat.Karma.Active().Test(power.Costs) {
-		} else if power.UsesTurn && !token.IsAwake {
-		} else if t := ParseTriggerWithWith(game, seat, token, power); t == nil {
+		if !view.Self.T.Karma.Active().Test(power.Costs) {
+		} else if power.UsesTurn && !token.T.Awake {
+		} else if t := ParseTriggerWithWith(view, token, power); t == nil {
 		} else if trigger == nil || trigger.score < t.score {
 			trigger = t
 		}
@@ -58,10 +58,10 @@ func ParseTriggerWith(game *game.T, seat *seat.T, token *token.T) (trigger *Trig
 	return
 }
 
-func ParseTriggerWithWith(game *game.T, seat *seat.T, token *token.T, power *power.T) (trigger *Trigger) {
-	if target, score := triggerPowerScore(game, seat, token, power); score > 0 {
+func ParseTriggerWithWith(view view.T, token *game.Token, power *power.T) (trigger *Trigger) {
+	if target, score := triggerPowerScore(view, token, power); score > 0 {
 		trigger = &Trigger{
-			TokenID: token.ID,
+			TokenID: token.ID(),
 			PowerID: power.ID,
 			Target:  target,
 			score:   score,
@@ -71,21 +71,22 @@ func ParseTriggerWithWith(game *game.T, seat *seat.T, token *token.T, power *pow
 }
 
 // triggerPowerScore picks best Target for given Token and Power, and returns score for the choice
-func triggerPowerScore(game *game.T, seat *seat.T, t *token.T, p *power.T) (target interface{}, score int) {
-	switch t.Card.Proto.ID {
+func triggerPowerScore(view view.T, t *game.Token, p *power.T) (target interface{}, score int) {
+	castingCard := view.Game.Card(t.T.Card)
+	switch castingCard.T.ID {
 	case 1:
 		target, score = t.ID, 10
 	case 2:
 		// if ai.Settings.Aggro {
 		// target, score = g.PlayerOpponent(seat.Username).Username, 10
 		// } else if target, score = ai.TargetEnemyBeing("damage"); score < 1 {
-		target, score = g.PlayerOpponent(seat.Username).Username, 1
+		target, score = view.Enemy.ID(), 1
 		// }
 	case 5:
 		// if ai.Settings.Aggro {
-		if game.Phase() != `sunrise` || game.State.Phase.Seat() != seat.Username {
+		if !view.IsMyMain {
 		} else {
-			target, score = aim.EnemyBeing(game, seat, "sleep")
+			target, score = aim.EnemyBeing(view, "sleep")
 		}
 		// } else {
 		// if ai.Game.State.Phase.Name() != `main` || !ai.myturn() {
@@ -94,16 +95,16 @@ func triggerPowerScore(game *game.T, seat *seat.T, t *token.T, p *power.T) (targ
 		// }
 		// }
 	case 7:
-		target, score = aim.EnemyBeing(game, seat, "damage")
+		target, score = aim.EnemyBeing(view, "damage")
 	case 15:
-		target, score = aim.EnemyPastBeingItem(game, seat)
+		target, score = aim.EnemyPastBeingItem(view)
 	case 20:
-		target, score = seat.Username, 8-seat.Life
-		if targetT, scoreT := aim.MyPresentBeing(game, seat, "health"); scoreT > score {
+		target, score = view.Self.ID(), 8-view.Self.T.Life
+		if targetT, scoreT := aim.MyPresentBeing(view, "health"); scoreT > score {
 			target, score = targetT, scoreT
 		}
 	case 21:
-		target, score = aim.MyPastBeing(game, seat)
+		target, score = aim.MyPastBeing(view)
 	}
 	return
 }

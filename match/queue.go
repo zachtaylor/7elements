@@ -4,50 +4,51 @@ import (
 	"sync"
 	"time"
 
-	"github.com/zachtaylor/7elements/deck"
+	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/seat"
 )
 
 type Queue struct {
 	start    time.Time
-	writer   seat.Writer
+	writer   game.Writer
 	settings QueueSettings
-	result   string
+	cards    card.Count
+	gameid   string
 	once     sync.Once
 	done     chan bool
 }
 
-func NewQueue(writer seat.Writer, settings QueueSettings) *Queue {
+func NewQueue(writer game.Writer, settings QueueSettings, cards card.Count) *Queue {
 	return &Queue{
 		start:    time.Now(),
 		writer:   writer,
 		settings: settings,
+		cards:    cards,
 		done:     make(chan bool),
 	}
 }
 
 func (q *Queue) Start() time.Time { return q.start }
 
-func (q *Queue) Writer() seat.Writer { return q.writer }
+func (q *Queue) Writer() game.Writer { return q.writer }
 
 func (q *Queue) Settings() QueueSettings { return q.settings }
 
-func (q *Queue) GetRules() game.Rules { return q.settings.Rules() }
+// func (q *Queue) GetRules() game.Rules { return q.settings.Rules() }
 
-func (q *Queue) Deck() *deck.Prototype { return q.settings.Deck }
+// func (q *Queue) Deck() *deck.Prototype { return q.settings.Deck }
 
-// SyncGameID waits to receive the id
-func (q *Queue) SyncGameID() string {
+// Sync waits to receive gameID, playerID
+func (q *Queue) Sync() string {
 	<-q.done
-	return q.result
+	return q.gameid
 }
 
 // Resolve saves the result and closes the Queue
 func (q *Queue) Resolve(gameid string) (ok bool) {
 	q.once.Do(func() {
 		ok = true
-		q.result = gameid
+		q.gameid = gameid
 		close(q.done)
 	})
 	return
@@ -64,8 +65,8 @@ func (q *Queue) Cancel() (ok bool) {
 
 func (q *Queue) Data() map[string]any {
 	return map[string]any{
-		"deckid": q.settings.Deck.ID,
-		"owner":  q.settings.Deck.User,
+		"owner":  q.settings.Owner,
+		"deckid": q.settings.DeckID,
 		"hands":  q.settings.Hands,
 		"speed":  q.settings.Speed,
 		"timer":  int(time.Since(q.start).Seconds()),
@@ -73,28 +74,30 @@ func (q *Queue) Data() map[string]any {
 }
 
 type QueueSettings struct {
-	Deck  *deck.Prototype
-	Hands string
-	Speed string
+	Owner  string
+	DeckID int
+	Hands  string
+	Speed  string
 }
 
-func NewQueueSettings(deck *deck.Prototype, hands string, speed string) QueueSettings {
+func NewQueueSettings(owner string, deckID int, hands, speed string) QueueSettings {
 	return QueueSettings{
-		Deck:  deck,
-		Hands: hands,
-		Speed: speed,
+		Owner:  owner,
+		DeckID: deckID,
+		Hands:  hands,
+		Speed:  speed,
 	}
 }
 
-func (s QueueSettings) Rules() game.Rules {
+func RulesFromSettings(s QueueSettings) game.Rules {
 	rules := game.DefaultRules()
 	switch s.Hands {
 	case "small":
-		rules.StartingHand = 3
+		rules.PlayerHand = 3
 	case "med":
-		rules.StartingHand = 4
+		rules.PlayerHand = 4
 	case "large":
-		rules.StartingHand = 5
+		rules.PlayerHand = 5
 	}
 	switch s.Speed {
 	case "fast":

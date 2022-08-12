@@ -2,7 +2,7 @@ package scripts
 
 // import (
 // 	vii "github.com/zachtaylor/7elements"
-// 	"github.com/zachtaylor/7elements/game/v2"
+// 	"github.com/zachtaylor/7elements/game"
 // 	"github.com/zachtaylor/7elements/game/trigger"
 // 	"ztaylor.me/cast"
 // )

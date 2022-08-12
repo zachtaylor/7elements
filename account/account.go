@@ -19,6 +19,7 @@ type T struct {
 	Verify    int
 	// runtime
 	GameID    string
+	PlayerID  string
 	SessionID string
 	Cards     card.Count
 	Decks     deck.Prototypes

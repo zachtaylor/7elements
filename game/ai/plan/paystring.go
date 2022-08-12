@@ -2,13 +2,13 @@ package plan
 
 import (
 	"github.com/zachtaylor/7elements/element"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/ai/view"
 )
 
 // PayString allows the AI to choose which elements to pay for an elements cost
-func PayString(seat *seat.T, costs element.Count) string {
+func PayString(view view.T, costs element.Count) string {
 	pay := make(element.Count)
-	active := seat.Karma.Active()
+	active := view.Self.T.Karma.Active()
 
 	for el, count := range costs {
 		if el == element.Nil {

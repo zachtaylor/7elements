@@ -3,31 +3,20 @@ package server
 import (
 	"os"
 	"strings"
+	"time"
 
-	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/db"
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine"
-	"github.com/zachtaylor/7elements/match"
+	"github.com/zachtaylor/7elements/internal/user"
 	"github.com/zachtaylor/7elements/server/internal"
-	"github.com/zachtaylor/7elements/server/runtime"
-	"taylz.io/http"
 	"taylz.io/http/hash"
 	"taylz.io/http/session"
-	"taylz.io/http/user"
 	"taylz.io/http/websocket"
-	"taylz.io/keygen"
 	"taylz.io/log"
 	"taylz.io/types"
 )
 
-type T struct {
-	runtime runtime.T
-	fork    *http.Fork
-	forkws  *websocket.MessageFork
-}
-
-func New(env map[string]string, ex_patch int) (*T, error) {
+func NewRuntime(env map[string]string, ex_patch int) (internal.Server, error) {
 	var isprod bool
 	if env["ENV"] == "prod" {
 		isprod = true
@@ -38,17 +27,13 @@ func New(env map[string]string, ex_patch int) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-	version, err := game.BuildVersion(db)
-	if err != nil {
-		return nil, err
-	}
 
 	passhash := hash.NewMD5SaltHash(env["DB_PWSALT"])
 
 	// logging
 	var logger *log.T
 	filePath := types.NewSource(0).File()
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		filePath = filePath[:strings.LastIndex(filePath, "/")]
 	}
 	loglvl, err := log.GetLevel(env["LOG_LEVEL"])
@@ -72,59 +57,39 @@ func New(env map[string]string, ex_patch int) (*T, error) {
 		}, log.DailyRotatingFile(env["LOG_PATH"]))))
 	}
 
-	// game deps
-	gameRT := game.NewRuntime(db, engine.New())
-
 	// server
-	sessionSettings := session.DefaultSettings(keygen.NewFunc(8))
+	sessionSettings := session.DefaultSettings()
 	if !isprod {
-		sessionSettings.Lifetime = 1 * types.Minute
-		sessionSettings.GC = 15 * types.Second
+		sessionSettings.Lifetime = 10 * time.Minute
+		sessionSettings.GC = 15 * time.Second
 	} else {
 		sessionSettings.Secure = true
 		// sessionSettings.Lifetime = 1 * types.Hour // default is 1 hour
 	}
-	sessions := session.NewManager(sessionSettings)
 
-	// wsHandler := &websocket.Fork{}
+	origins := strings.Split(env["ORIGINS"], ",")
 
-	sockets := websocket.NewManager(websocket.NewSettings(keygen.NewFunc(12)))
-
-	users := user.NewManager(user.NewSettings(sessions, sockets))
-
-	// chatKeygen := keygen.NewFunc(4)
-
-	gameKeygen := keygen.NewFunc(21)
-	games := game.NewManager(game.NewSettings(env["LOG_PATH"]+"game/", cards, logger, engine.New(), gameKeygen))
-
-	matchMaker := match.NewMaker(match.NewSettings(logger, cards, decks, games))
-
-	runtime := internal.NewRuntime(
-		isprod,
-		logger,
-		db,
-		glob,
-		passhash,
-		sessions,
-		sockets,
-		users,
-		account.NewCache(),
-		cards,
-		decks,
-		packs,
-		games,
-		matchMaker,
-	)
-
-	fork := &http.Fork{}
-
-	server := T{
-		runtime: runtime,
-		fork:    fork,
-		forkws:  &websocket.Fork{},
+	websocketSettings := websocket.Settings{
+		OriginPatterns: origins,
 	}
 
-	// todo observe various caches for logging and desyncing account data in time
+	userSettings := user.Settings{
+		ReadSpeedLimit: time.Second,
+		Websocket:      websocketSettings,
+	}
 
-	// todo  replace runtime/parse.go
+	gameSettings := game.NewSettings(env["LOG_DIR"])
+
+	return internal.NewRuntime(
+		isprod,
+		db,
+		passhash,
+		logger,
+		sessionSettings,
+		userSettings,
+		gameSettings,
+		origins,
+		Routes,
+		WSRoutes(),
+	)
 }

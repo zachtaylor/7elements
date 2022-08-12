@@ -1,9 +1,12 @@
 package match
 
-import "github.com/zachtaylor/7elements/game"
+import (
+	"github.com/zachtaylor/7elements/account"
+	"github.com/zachtaylor/7elements/game"
+)
 
 type Server interface {
-	// Log() log.Writer
-	GetGameVersion() *game.Version
-	GetGameManager() *game.Manager
+	game.Server
+	Accounts() *account.Cache
+	Games() game.Manager
 }

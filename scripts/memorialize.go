@@ -1,9 +1,9 @@
 package scripts
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/out"
-	"github.com/zachtaylor/7elements/game/v2"
-	"github.com/zachtaylor/7elements/game/v2/target"
+	"github.com/zachtaylor/7elements/game/target"
 )
 
 const memorializeID = "memorialize"
@@ -19,9 +19,9 @@ func Memorialize(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
 		return nil, err
 	} else {
 		card := g.NewCard(player.ID(), targetCard.T)
-		player.T.Hand.Set(card.ID())
-		out.PrivateCard(g, player, card.ID())
-		out.PrivateHand(g, player)
+		player.T.Hand.Add(card.ID())
+		out.PrivateCard(player, card)
+		out.PrivateHand(player)
 		return nil, nil
 	}
 }

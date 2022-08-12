@@ -3,8 +3,6 @@ package api
 import (
 	"errors"
 	"strings"
-
-	"taylz.io/keygen/charset"
 )
 
 var userAllow = []string{
@@ -18,8 +16,11 @@ var userBan = []string{
 var (
 	ErrUsernameTooShort = errors.New("username too short")
 	ErrUsernameTooLong  = errors.New("username too long")
+	ErrUsernameSymbols  = errors.New("username must contain only letters and numbers")
 	ErrUsernameBanned   = errors.New("username contains banned word")
 )
+
+const UsernameCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func CheckUsername(username string) error {
 	for _, allow := range userAllow {
@@ -32,8 +33,8 @@ func CheckUsername(username string) error {
 		return ErrUsernameTooShort
 	} else if len(username) > 21 {
 		return ErrUsernameTooLong
-	} else if symbols := strings.Trim(username, charset.AlphaCapitalNumeric); len(symbols) > 0 {
-		return errors.New("username symbols not allowed: " + symbols)
+	} else if symbols := strings.Trim(username, UsernameCharset); len(symbols) > 0 {
+		return ErrUsernameSymbols
 	} else if ban := checkUsernameContainsBan(username); len(ban) > 1 {
 		return ErrUsernameBanned
 	}

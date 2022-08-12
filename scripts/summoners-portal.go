@@ -3,9 +3,9 @@ package scripts
 import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/v2"
-	"github.com/zachtaylor/7elements/yas/slices"
+	"taylz.io/yas"
 )
 
 const summonersportalID = "summoners-portal"
@@ -19,7 +19,7 @@ func SummonersPortal(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
 	} else if len(player.T.Future) < 1 {
 		return nil, ErrFutureEmpty
 	}
-	cardID, future := slices.Shift(player.T.Future)
+	cardID, future := yas.Shift(player.T.Future)
 	player.T.Future = future
 	c := g.Card(cardID)
 	g.MarkUpdate(ctx.Player)
@@ -30,7 +30,7 @@ func SummonersPortal(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
 			phase.NewPlay(g, ctx.Player, c, element.Count{}, []string{}),
 		}, nil
 	} else {
-		player.T.Past.Set(cardID)
+		player.T.Past.Add(cardID)
 		// seat.Writer.WriteMessageData(wsout.Error("Summoners Portal", "Next card was "+c.Proto.Name))
 		return nil, nil
 	}

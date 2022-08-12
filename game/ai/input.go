@@ -8,41 +8,41 @@ import (
 	"taylz.io/http/websocket"
 )
 
-// Input is where the ai receives input
-type Input struct {
+// Writer is where the ai receives input
+type Writer struct {
 	AI *AI
 }
 
-func (i *Input) Name() string { return i.AI.Name }
+func (w *Writer) Name() string { return w.AI.Name }
 
-func (i *Input) Done() <-chan struct{} { return i.AI.done }
+func (w *Writer) Done() <-chan struct{} { return w.AI.done }
 
-func (i *Input) WriteMessage(msg *websocket.Message) error {
-	i.Receive(msg.URI, msg.Data)
-	return nil
-}
-func (i *Input) WriteMessageData(data []byte) error {
+// func (w *Writer) WriteMessage(msg *websocket.Message) error {
+// 	w.Receive(msg.URI, msg.Data)
+// 	return nil
+// }
+func (w *Writer) Write(data []byte) error {
 	msg := &websocket.Message{}
 	if err := json.NewDecoder(bytes.NewBufferString(string(data))).Decode(msg); err != nil {
-		i.AI.Game.Log().Add("Error", err).Warn("failed to parse message")
+		w.AI.View.Game.Log().Add("Error", err).Warn("failed to parse message")
 	} else {
-		i.AI.Game.Log().Trace("received ", msg.URI)
+		w.AI.View.Game.Log().Trace("received ", msg.URI)
 	}
-	i.Receive(msg.URI, msg.Data)
+	w.Receive(msg.URI, msg.Data)
 	return nil
 }
 
 // Receive data from the game runtime
-func (i *Input) Receive(uri string, data map[string]any) {
-	go time.AfterFunc(i.AI.Delay, func() {
-		i.receive(uri, data)
+func (w *Writer) Receive(uri string, data map[string]any) {
+	go time.AfterFunc(w.AI.Delay, func() {
+		w.receive(uri, data)
 	})
 }
-func (i *Input) receive(uri string, data map[string]any) {
+func (w *Writer) receive(uri string, data map[string]any) {
 	if uri == "/game/state" {
-		i.AI.GameState(data)
+		w.AI.GameState(data)
 	} else if uri == "/game/choice" {
-		i.AI.GameChoice(data)
+		w.AI.GameChoice(data)
 	} else if uri == "/game" {
 	} else if uri == "/game/react" {
 	} else if uri == "/game/card" {
@@ -50,10 +50,6 @@ func (i *Input) receive(uri string, data map[string]any) {
 	} else if uri == "/game/seat" {
 	} else if uri == "/alert" {
 	} else {
-		i.AI.Game.Log().With(map[string]any{
-			"URI":      uri,
-			"GameId":   i.AI.Game.ID(),
-			"Username": i.AI.Seat.Username,
-		}).Warn("uri unknown")
+		w.AI.View.Game.Log().Warn("uri unknown", uri)
 	}
 }

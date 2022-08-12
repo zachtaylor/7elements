@@ -1,8 +1,8 @@
 package scripts
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 func init() { game.Scripts["time-runner"] = TimeRunner }

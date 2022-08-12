@@ -1,8 +1,6 @@
 package element
 
-import (
-	"taylz.io/types"
-)
+import "taylz.io/types"
 
 // ParseCount reads a string for count code
 func ParseCount(str string) (Count, error) {

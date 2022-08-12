@@ -1,9 +1,9 @@
 package trigger
 
-import "github.com/zachtaylor/7elements/game/v2"
+import "github.com/zachtaylor/7elements/game"
 
 func PlayerDamage(g *game.G, player *game.Player, n int) (rs []game.Phaser) {
-	g.Log().Trace("damage-player", player.T.Username, player.T.Life, n)
+	g.Log().Trace("damage-player", player.T.Writer.Name(), player.T.Life, n)
 	player.T.Life -= n
 	g.MarkUpdate(player.ID())
 	if player.T.Life < 1 {
@@ -16,7 +16,7 @@ func PlayerDamage(g *game.G, player *game.Player, n int) (rs []game.Phaser) {
 }
 
 func PlayerHeal(g *game.G, player *game.Player, n int) []game.Phaser {
-	g.Log().Trace("player-heal", player.T.Username, player.T.Life, n)
+	g.Log().Trace("player-heal", player.T.Writer.Name(), player.T.Life, n)
 	player.T.Life += n
 	// game.Chat(seat.Username, "gain "+strconv.FormatInt(int64(n), 10)+" Life")
 	g.MarkUpdate(player.ID())
@@ -81,7 +81,7 @@ func TokenHeal(g *game.G, token *game.Token, n int) []game.Phaser {
 
 func TokenAdd(g *game.G, player *game.Player, ctx game.TokenContext) (rs []game.Phaser) {
 	token := g.NewToken(player.ID(), ctx)
-	player.T.Present.Set(token.ID())
+	player.T.Present.Add(token.ID())
 	g.MarkUpdate(player.ID())
 	g.MarkUpdate(token.ID())
 	return nil // todo

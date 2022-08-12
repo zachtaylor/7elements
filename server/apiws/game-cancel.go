@@ -1,36 +1,29 @@
 package apiws
 
 import (
+	"github.com/zachtaylor/7elements/out"
 	"github.com/zachtaylor/7elements/server/internal"
-	"github.com/zachtaylor/7elements/wsout"
 	"taylz.io/http/websocket"
 )
 
-func GameCancel(server internal.Server) websocket.Handler {
-	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
+func GameCancel(server internal.Server) websocket.MessageHandler {
+	return websocket.MessageHandlerFunc(func(socket *websocket.T, m *websocket.Message) {
 		log := server.Log().Add("Socket", socket.ID())
 
-		if len(socket.SessionID()) < 1 {
-			log.Warn("no session")
-			socket.Write(wsout.Error("vii", "no user"))
-			return
-		}
-		log = log.Add("Session", socket.SessionID())
-
-		user, _, err := server.GetUserManager().GetSession(socket.SessionID())
+		user := server.Users().GetWebsocket(socket)
 		if user == nil {
-			log.Add("Error", err).Error("user missing")
-			socket.Write(wsout.Error("vii", "internal error"))
+			log.Warn("no session")
+			socket.Write(websocket.MessageText, out.Error("vii", "no user"))
 			return
 		}
-		log = log.Add("Username", user.Name())
+		log = log.Add("Session", user.Session())
 
-		if err := server.GetMatchMaker().Cancel(user.Name()); err != nil {
-			log.Add("Error", err).Warn("failed")
-			socket.Write(wsout.Error("vii", "internal error"))
+		if !server.MatchMaker().Cancel(user.Session().Name()) {
+			log.Warn("failed")
+			socket.Write(websocket.MessageText, out.Error("vii", "internal error"))
 		} else {
 			log.Info("ok")
-			socket.WriteSync(wsout.Queue(nil))
+			socket.WriteMessage(websocket.NewMessage("/game/queue", nil))
 		}
 	})
 }

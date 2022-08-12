@@ -4,13 +4,13 @@ import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai/aim"
-	"github.com/zachtaylor/7elements/game/seat"
+	"github.com/zachtaylor/7elements/game/ai/view"
 	"github.com/zachtaylor/7elements/power"
 )
 
 // Play is a plan to make a play
 type Play struct {
-	card   *card.T
+	card   string
 	pay    string
 	target interface{}
 	score  int
@@ -22,28 +22,29 @@ func (play *Play) Score() int {
 
 func (play *Play) Submit(request RequestFunc) {
 	request("play", map[string]any{
-		"id":     play.card.ID,
+		"id":     play.card,
 		"pay":    play.pay,
 		"target": play.target,
 	})
 }
 
 func (play *Play) String() string {
-	return "Play " + play.card.ID
+	return "Play " + play.card
 }
 
-func ParsePlay(game *game.T, seat *seat.T) (play *Play) {
-	for _, card := range seat.Hand {
-		if !seat.Karma.Active().Test(card.Proto.Costs) {
+func ParsePlay(view view.T) (play *Play) {
+	for cardID := range view.Self.T.Hand {
+		card := view.Game.Card(cardID)
+		if !view.Self.T.Karma.Active().Test(card.T.Costs) {
 			continue
 		}
 
-		p := ParsePlayWith(game, seat, card)
+		p := ParsePlayWith(view, card)
 		if p == nil {
 			continue
 		}
 
-		game.Log().With(map[string]any{
+		view.Game.Log().With(map[string]any{
 			"Card":  p.card,
 			"Score": p.score,
 		}).Trace("potential")
@@ -58,36 +59,36 @@ func ParsePlay(game *game.T, seat *seat.T) (play *Play) {
 	return
 }
 
-func ParsePlayWith(game *game.T, seat *seat.T, c *card.T) *Play {
-	switch c.Proto.Type {
-	case card.BodyType:
-		if game.Phase() != "main" || game.State.Phase.Seat() != seat.Username {
+func ParsePlayWith(view view.T, c *game.Card) *Play {
+	switch c.T.Kind {
+	case card.Being:
+		if !view.IsMyMain {
 			return nil
 		}
 		return &Play{
-			card:   c,
-			pay:    PayString(seat, c.Proto.Costs),
+			card:   c.ID(),
+			pay:    PayString(view, c.T.Costs),
 			target: nil,
 			score:  1,
 		}
-	case card.ItemType:
-		if game.Phase() != "main" || game.State.Phase.Seat() != seat.Username {
+	case card.Item:
+		if !view.IsMyMain {
 			return nil
 		}
 		return &Play{
-			card:   c,
-			pay:    PayString(seat, c.Proto.Costs),
+			card:   c.ID(),
+			pay:    PayString(view, c.T.Costs),
 			target: nil,
 			score:  1,
 		}
-	case card.SpellType:
-		if ps := c.Proto.Powers.GetTrigger("play"); len(ps) < 1 {
+	case card.Spell:
+		if ps := c.T.Powers.GetTrigger("play"); len(ps) < 1 {
 		} else if p := ps[0]; p == nil {
-		} else if id, score := playTargetScore(game, seat, c, p); score < 1 {
+		} else if id, score := playTargetScore(view, c, p); score < 1 {
 		} else {
 			return &Play{
-				card:   c,
-				pay:    PayString(seat, c.Proto.Costs),
+				card:   c.ID(),
+				pay:    PayString(view, c.T.Costs),
 				target: id,
 				score:  score,
 			}
@@ -96,20 +97,20 @@ func ParsePlayWith(game *game.T, seat *seat.T, c *card.T) *Play {
 	return nil
 }
 
-func playTargetScore(game *game.T, seat *seat.T, card *card.T, p *power.T) (interface{}, int) {
-	switch card.Proto.ID {
+func playTargetScore(view view.T, card *game.Card, p *power.T) (interface{}, int) {
+	switch card.T.ID {
 	case 9:
-		return aim.EnemyBeing(game, seat, "damage")
+		return aim.EnemyBeing(view, "damage")
 	case 10:
-		return aim.MyPresentBeingItem(game, seat, "wake")
+		return aim.MyPresentBeingItem(view, "wake")
 	case 11:
-		return aim.MyPresentBeing(game, seat, "wake")
+		return aim.MyPresentBeing(view, "wake")
 	case 12:
-		return aim.EnemyBeing(game, seat, "")
+		return aim.EnemyBeing(view, "")
 	case 13:
-		return aim.MyPresentBeing(game, seat, "health")
+		return aim.MyPresentBeing(view, "health")
 	case 14:
-		return aim.MyPastBeing(game, seat)
+		return aim.MyPastBeing(view)
 	}
 	return nil, 0
 }

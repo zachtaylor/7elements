@@ -2,13 +2,13 @@ package accounts
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/db/accounts_decks"
 	"taylz.io/db"
-	"taylz.io/types"
 )
 
 func Get(conn *db.DB, username string) (*account.T, error) {
@@ -118,7 +118,7 @@ func Insert(conn *db.DB, account *account.T) (err error) {
 // }
 
 func InsertCards(conn *db.DB, account *account.T, cardids []int) error {
-	statement := types.StringBuilder{}
+	statement := strings.Builder{}
 	statement.WriteString("INSERT INTO accounts_cards(username, card) VALUES ")
 	for i, cardid := range cardids {
 		if i > 0 {

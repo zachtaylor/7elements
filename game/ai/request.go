@@ -1,11 +1,11 @@
 package ai
 
-import "github.com/zachtaylor/7elements/game/v2"
+// import "github.com/zachtaylor/7elements/game"
 
-type RequestFunc = func(string, map[string]any)
+// type RequestFunc = func(string, map[string]any)
 
-func NewRequestFunc(g *game.G, username string) RequestFunc {
-	return func(uri string, json map[string]any) {
-		g.Request(username, uri, json)
-	}
-}
+// func NewRequestFunc(g *game.G, username string) RequestFunc {
+// 	return func(uri string, json map[string]any) {
+// 		g.AddRequest(game.NewReq(username, uri, json))
+// 	}
+// }

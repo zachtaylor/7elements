@@ -2,8 +2,8 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/card"
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 const PainfulMemoriesID = "painful-memories"

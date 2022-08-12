@@ -13,7 +13,7 @@ package apihttp
 // func NewGameHandler(server internal.Server) http.Handler {
 // 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 // 		log := server.Log()
-// 		session, _ := server.GetSessionManager().Cookie(r)
+// 		session, _ := server.Sessions().Cookie(r)
 // 		if session == nil {
 // 			w.WriteHeader(http.StatusUnauthorized)
 // 			log.Add("RemoteAddr", r.RemoteAddr).Warn("session required")

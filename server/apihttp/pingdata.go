@@ -7,6 +7,6 @@ package apihttp
 
 // func PingData(server internal.Server) map[string]any {
 // 	return map[string]any{
-// 		"online": len(server.GetSessionManager().Keys()),
+// 		"online": len(server.Sessions().Keys()),
 // 	}
 // }

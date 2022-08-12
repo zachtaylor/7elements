@@ -1,12 +1,13 @@
 package accounts_decks
 
 import (
+	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/zachtaylor/7elements/deck"
 	"taylz.io/db"
-	"taylz.io/types"
 )
 
 func Update(conn *db.DB, deck *deck.Prototype) (err error) {
@@ -22,13 +23,13 @@ func Update(conn *db.DB, deck *deck.Prototype) (err error) {
 	} else if change, e := res.RowsAffected(); e != nil {
 		err = e
 	} else if change != 1 {
-		err = types.NewErr("rows affected: " + strconv.FormatInt(change, 10))
+		err = errors.New("rows affected: " + strconv.FormatInt(change, 10))
 	}
 	return
 }
 
 func InsertCards(conn *db.DB, username string, deckid int, diff map[int]int) (err error) {
-	sb := types.StringBuilder{}
+	sb := strings.Builder{}
 	deckidstr := strconv.FormatInt(int64(deckid), 10)
 	sb.WriteString("INSERT INTO accounts_decks_items (username, id, cardid, amount) VALUES ")
 	first := true

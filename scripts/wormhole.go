@@ -1,10 +1,10 @@
 package scripts
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/out"
+	"github.com/zachtaylor/7elements/game/target"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/v2"
-	"github.com/zachtaylor/7elements/game/v2/target"
 )
 
 const WormholeID = "wormhole"
@@ -32,9 +32,9 @@ func Wormhole(g *game.G, ctx game.ScriptContext) ([]game.Phaser, error) {
 
 		if cardOwner.T.Past.Has(card.ID()) {
 			delete(cardOwner.T.Past, card.ID())
-			cardOwner.T.Hand.Set(card.ID())
+			cardOwner.T.Hand.Add(card.ID())
 			g.MarkUpdate(cardOwner.ID())
-			out.PrivateCard(g, cardOwner, card.ID())
+			out.PrivateCard(cardOwner, card)
 		}
 		return rs, nil
 	}

@@ -8,6 +8,6 @@ import (
 
 func GlobalDataHandler(server internal.Server) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(server.GetGameVersion().GetData())
+		w.Write(server.Content().Data())
 	})
 }

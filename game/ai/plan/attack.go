@@ -3,8 +3,7 @@ package plan
 import (
 	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai/inspection"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/game/token"
+	"github.com/zachtaylor/7elements/game/ai/view"
 )
 
 // Attack is a plan to make an attack
@@ -27,21 +26,22 @@ func (attack *Attack) String() string {
 	return "Attack " + attack.id
 }
 
-func ParseAttack(game *game.T, seat *seat.T) (attack *Attack) {
-	if game.Phase() != "main" || game.State.Phase.Seat() != seat.Username {
-		game.Log().Add("Phase", game.Phase()).Add("Seat", game.State.Phase.Seat()).Trace("skip")
+func ParseAttack(v view.T) (attack *Attack) {
+	if !v.IsMyMain {
+		v.Game.Log().Add("Phase", v.State.T.Phase.Type()).Add("Seat", v.State.Player()).Trace("skip")
 		return nil
 	}
 
-	insme := inspection.Parse(seat)
-	insop := inspection.Parse(g.PlayerOpponent(seat.Username))
-	for _, token := range seat.Present {
-		a := ParseAttackWith(game, seat, insme, insop, token)
+	insme := inspection.Parse(v.Game, v.Self)
+	insop := inspection.Parse(v.Game, v.Enemy)
+	for tokenID := range v.Self.T.Present {
+		token := v.Game.Token(tokenID)
+		a := ParseAttackWith(v, insme, insop, token)
 		if a == nil {
 			continue
 		}
 
-		game.Log().Trace("potential", a)
+		v.Game.Log().Trace("potential", a)
 
 		if attack == nil {
 			attack = a
@@ -53,24 +53,24 @@ func ParseAttack(game *game.T, seat *seat.T) (attack *Attack) {
 	return
 }
 
-func ParseAttackWith(game *game.T, seat *seat.T, insme, insop inspection.T, token *token.T) *Attack {
-	if token.Body == nil {
+func ParseAttackWith(view view.T, insme, insop inspection.T, token *game.Token) *Attack {
+	if token.T.Body == nil {
 		return nil
-	} else if !token.IsAwake {
+	} else if !token.T.Awake {
 		return nil
 	}
 	score := 0
-	score += token.Body.Attack
-	score += 2 * (seat.Life - insop.BeingsAttack)
-	score -= 2 * (g.PlayerOpponent(token.User).Life - insme.AwakeBeingsAttack)
+	score += token.T.Body.Attack
+	score += 2 * (view.Self.T.Life - insop.BeingsAttack)
+	score -= 2 * (view.Enemy.T.Life - insme.AwakeBeingsAttack)
 
-	game.Log().With(map[string]any{
+	view.Game.Log().With(map[string]any{
 		"Score": score,
 		"TID":   token.ID,
 	}).Trace("potential")
 
 	return &Attack{
-		id:    token.ID,
+		id:    token.ID(),
 		score: score,
 	}
 }

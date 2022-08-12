@@ -1,13 +1,20 @@
 package element
 
 import (
+	"errors"
 	"strconv"
-
-	"taylz.io/types"
+	"strings"
 )
 
 // Count is a count of elements
 type Count map[T]int
+
+// Add increments all values by another values
+func (c Count) Add(d Count) {
+	for e, count := range d {
+		c[e] += count
+	}
+}
 
 // Copy returns a copy of this `Count`
 func (c Count) Copy() Count {
@@ -50,7 +57,7 @@ func (c Count) Test(c2 Count) bool {
 // Remove will reduce the individual values of this count
 func (c Count) Remove(c2 Count) error {
 	if c2[Nil] > 0 {
-		return types.NewErr("cannot remove nil element")
+		return errors.New("cannot remove nil element")
 	}
 
 	for element, count := range c2 {
@@ -59,7 +66,7 @@ func (c Count) Remove(c2 Count) error {
 		}
 
 		if c[element] < count {
-			return types.NewErr("requires more element: " + element.String())
+			return errors.New("requires more element: " + element.String())
 		}
 		c[element] -= count
 	}
@@ -77,7 +84,7 @@ func (c Count) JSON() map[string]any {
 }
 
 func (c Count) String() string {
-	var buf types.StringBuilder
+	var buf strings.Builder
 	buf.Grow(c.Total())
 	for e := Nil; e <= Black; e++ {
 		if c[e] < 1 {

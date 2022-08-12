@@ -1,7 +1,7 @@
 package phase
 
 // import (
-// 	"github.com/zachtaylor/7elements/game/v2"
+// 	"github.com/zachtaylor/7elements/game"
 // 	"github.com/zachtaylor/7elements/power"
 // )
 

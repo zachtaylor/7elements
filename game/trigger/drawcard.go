@@ -1,9 +1,9 @@
 package trigger
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/out"
-	"github.com/zachtaylor/7elements/game/v2"
-	"github.com/zachtaylor/7elements/yas/slices"
+	"taylz.io/yas"
 )
 
 func DrawCard(g *game.G, player *game.Player, n int) []game.Phaser {
@@ -13,16 +13,16 @@ func DrawCard(g *game.G, player *game.Player, n int) []game.Phaser {
 	}
 	newcards := make([]string, n)
 	for i := 0; i < n; i++ {
-		newcards[i], future = slices.Shift(future)
+		newcards[i], future = yas.Shift(future)
 	}
 	if len(newcards) > 0 {
 		for _, cardID := range newcards {
-			player.T.Hand.Set(cardID)
-			out.PrivateCard(g, player, cardID)
+			player.T.Hand.Add(cardID)
+			out.PrivateCard(player, g.Card(cardID))
 		}
 
 		g.MarkUpdate(player.ID())
-		out.PrivateHand(g, player)
+		out.PrivateHand(player)
 	}
 	return nil // todo
 }

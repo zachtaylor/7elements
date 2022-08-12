@@ -33,7 +33,7 @@ export class VII {
     setTimeout(() => { this.init() })
   }
   private init() {
-    this.ws = new WebSocket(window.location.protocol.replace('http', 'ws') + window.location.host + '/api/websocket')
+    this.ws = new WebSocket(window.location.protocol.replace('http', 'ws') + '//' + window.location.host + '/websocket')
     this.ws.onopen = () => { this.wsOpen() }
     this.ws.onmessage = msg => { this.wsMessage(msg) }
     this.ws.onclose = err => { this.wsClose(err) }

@@ -1,8 +1,6 @@
 package inspection
 
-import (
-	"github.com/zachtaylor/7elements/game/seat"
-)
+import "github.com/zachtaylor/7elements/game"
 
 type T struct {
 	Items             int
@@ -15,21 +13,22 @@ type T struct {
 	AwakeBeingsLife   int
 }
 
-func Parse(seat *seat.T) (t T) {
-	for _, token := range seat.Present {
-		if token.Body == nil {
+func Parse(game *game.G, player *game.Player) (t T) {
+	for tokenID := range player.T.Present {
+		token := game.Token(tokenID)
+		if token.T.Body == nil {
 			t.Items++
-			if token.IsAwake {
+			if token.T.Awake {
 				t.AwakeItems++
 			}
 		} else {
 			t.Beings++
-			t.BeingsAttack += token.Body.Attack
-			t.BeingsLife += token.Body.Life
-			if token.IsAwake {
+			t.BeingsAttack += token.T.Body.Attack
+			t.BeingsLife += token.T.Body.Life
+			if token.T.Awake {
 				t.AwakeBeings++
-				t.AwakeBeingsAttack += token.Body.Attack
-				t.AwakeBeingsLife += token.Body.Life
+				t.AwakeBeingsAttack += token.T.Body.Attack
+				t.AwakeBeingsLife += token.T.Body.Life
 			}
 		}
 	}

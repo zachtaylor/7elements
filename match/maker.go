@@ -3,15 +3,18 @@ package match
 import (
 	"errors"
 
+	"github.com/zachtaylor/7elements/card"
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/ai"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/game/v2"
+	"github.com/zachtaylor/7elements/game/engine"
 )
 
 var (
 	ErrDuplicate = errors.New("queue exists")
 	ErrNotFound  = errors.New("matching error")
 	ErrMatchSync = errors.New("match sync error")
+	ErrDeckID    = errors.New("deckid out of range")
+	ErrOwner     = errors.New("owner must be self or system")
 )
 
 // Maker is a match manager
@@ -23,71 +26,94 @@ type Maker struct {
 
 func NewMaker(server Server) *Maker {
 	return &Maker{
-
-		cache: NewCache(),
-		live:  make(map[game.Rules]string),
+		server: server,
+		cache:  NewCache(),
+		live:   make(map[game.Rules]string),
 	}
 }
 
-func (m *Maker) Make(rules game.Rules, q1, q2 *Queue) (err error) {
-	game := m.server.GetGameManager().New(rules, q1, q2)
+func (m *Maker) Make(rules game.Rules, q1, q2 *Queue) {
+	game := m.server.Games().New(
+		rules,
+		engine.NewRunner(),
+		game.NewEntry(q1.writer, q1.cards),
+		game.NewEntry(q2.writer, q2.cards),
+	)
 	gameid := game.ID()
-	if !q2.Resolve(gameid) {
-		err = ErrMatchSync
-	} else if !q1.Resolve(gameid) {
-		err = ErrMatchSync
-	}
+	q2.Resolve(gameid)
+	q1.Resolve(gameid)
 	return
 }
 
-func (m *Maker) Queue(user seat.Writer, settings QueueSettings) (q *Queue, err error) {
-
+func (m *Maker) Queue(user game.Writer, settings QueueSettings) (*Queue, error) {
 	username := user.Name()
-	rules := settings.Rules()
-
-	// TODO 2nd player doesn't release the lock or what ?
-	m.cache.Sync(func(get CacheGetter, set CacheSetter) {
-		if q = get(username); q != nil {
-			err = ErrDuplicate
-			return
-		}
-		q = NewQueue(user, settings)
-		if foundUsername := m.live[rules]; foundUsername == "" {
-			err = ErrNotFound
-		} else if foundWaiting := get(foundUsername); foundWaiting == nil {
-			err = ErrNotFound
-		} else if err = m.Make(rules, q, foundWaiting); err != nil {
-			// err != nil
+	var count card.Count
+	if settings.Owner == username {
+		if account := m.server.Accounts().Get(username); account != nil {
+			if settings.DeckID > -1 && settings.DeckID < len(account.Decks) {
+				count = account.Decks[settings.DeckID].Cards
+			} else {
+				return nil, ErrDeckID
+			}
 		} else {
-			set(foundUsername, nil)
-			delete(m.live, rules)
+			return nil, errors.New("account missing")
 		}
+	} else if settings.Owner == "vii" {
+		if settings.DeckID > -1 && settings.DeckID < len(m.server.Content().Decks()) {
+			count = m.server.Content().Decks()[settings.DeckID].Cards
+		} else {
+			return nil, ErrDeckID
+		}
+	} else {
+		return nil, ErrOwner
+	}
+	rules := RulesFromSettings(settings)
 
-		if err != nil {
-			set(username, q)
-			m.live[rules] = username
-			err = nil
+	if err := game.VerifyRulesDeck(rules, count); err != nil {
+		return nil, err
+	}
+
+	q := NewQueue(user, settings, count)
+	m.cache.Set(username, q)
+
+	go m.TryMatch(rules, q)
+
+	return q, nil
+}
+
+func (m *Maker) TryMatch(rules game.Rules, q *Queue) {
+	m.cache.Sync(func() {
+		if matchID := m.live[rules]; matchID == "" {
+			m.live[rules] = q.Writer().Name()
+		} else if match := m.cache.Get(matchID); match == nil {
+			m.live[rules] = q.Writer().Name()
+		} else {
+			delete(m.live, rules)
+			go m.Make(rules, q, match)
 		}
 	})
-
-	return
 }
 
-func (m *Maker) VSAI(user seat.Writer, settings QueueSettings) *game.T {
-	return m.server.GetGameManager().New(settings.Rules(), game.NewEntry(settings.Deck, user), ai.New("A.I.").Entry(m.server.GetGameVersion()))
+func (m *Maker) VSAI(user game.Entry, settings QueueSettings) *game.G {
+	rules := RulesFromSettings(settings)
+	ai := ai.New("A.I.")
+	aiEntry := ai.Entry(m.server.Content())
+	g := m.server.Games().New(rules, engine.NewRunner(), user, aiEntry)
+	ai.Connect(g)
+	return g
 }
 
 // Get returns the active Queue for the given username
 func (m *Maker) Get(username string) *Queue { return m.cache.Get(username) }
 
-func (m *Maker) Cancel(name string) (err error) {
-	m.cache.Sync(func(get CacheGetter, set CacheSetter) {
-		if q := get(name); q == nil {
-			err = ErrNotFound
-		} else {
-			set(name, nil)
-			delete(m.live, q.GetRules())
+func (m *Maker) Cancel(name string) (ok bool) {
+	m.cache.Sync(func() {
+		if q := m.cache.Get(name); q != nil {
+			ok = true
+			rules := RulesFromSettings(q.settings)
+			delete(m.live, rules)
 		}
 	})
+	m.cache.Remove(name)
 	return
 }

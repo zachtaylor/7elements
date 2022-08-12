@@ -1,92 +1,178 @@
 package game
 
-// type T struct {
-// 	id    string
-// 	in    chan *Request
-// 	close chan bool
-// 	obj   map[string]any
-// 	rules Rules
-// 	log   log.Writer
-// 	Seats *seat.List
-// 	State *State
-// }
+import (
+	"github.com/zachtaylor/7elements/card"
+	"taylz.io/log"
+	"taylz.io/yas"
+)
 
-// func New(id string, rules Rules, log log.Writer) *T {
-// 	return &T{
+type G struct {
+	id      string
+	keygen  func() string
+	done    chan struct{}
+	request chan *Request
+	data    map[string]any
+	seat    yas.Set[string]
+	dirty   yas.Set[string]
+	rules   Rules
+	log     log.Writer
+}
+
+func New(id string, rules Rules, keygen func() string, log log.Writer) *G {
+	return &G{
+		id:      id,
+		keygen:  keygen,
+		done:    make(chan struct{}),
+		request: make(chan *Request, 7),
+		data:    map[string]any{},
+		seat:    yas.Set[string]{},
+		dirty:   yas.Set[string]{},
+		rules:   rules,
+		log:     log,
+	}
+}
+
+func (g *G) ID() string      { return g.id }
+func (g *G) Log() log.Writer { return g.log }
+
+func (g *G) AddRequest(r *Request) {
+	select {
+	case <-g.done:
+	case g.request <- r:
+	}
+}
+
+func (g *G) RequestChan() <-chan *Request { return g.request }
+
+func (g *G) Close() {
+	close(g.done)
+	g.log.Close()
+}
+
+func (g *G) Object(id string) any     { return g.data[id] }
+func (g *G) Card(id string) *Card     { return Get[*card.Prototype](g, id) }
+func (g *G) Player(id string) *Player { return Get[PlayerContext](g, id) }
+func (g *G) State(id string) *State   { return Get[StateContext](g, id) }
+func (g *G) Token(id string) *Token   { return Get[TokenContext](g, id) }
+
+func (g *G) Players() []string { return g.seat.Slice() }
+func (g *G) PlayerCount() int  { return len(g.seat) }
+
+func (g *G) NewPriority(playerID string) Priority {
+	priority := Priority{playerID}
+	for v := range g.seat {
+		if v != playerID {
+			priority = append(priority, v)
+		}
+	}
+	return priority
+}
+
+func (g *G) MarkUpdate(id string) { g.dirty.Add(id) }
+func (g *G) ReadUpdates() (dirtyIDs []string) {
+	dirtyIDs = g.dirty.Slice()
+	g.dirty = yas.Set[string]{}
+	return
+}
+
+func (g *G) Rules() Rules { return g.rules }
+
+func Get[T Target](g *G, id string) *Object[T] {
+	if obj, _ := g.data[id].(*Object[T]); obj != nil {
+		return obj
+	}
+	return nil
+}
+
+// func (g *G) Keygen() string { return g.keygen() }
+
+func (g *G) NewPlayer(ctx PlayerContext) *Player {
+	id := ""
+	for ok := true; ok; _, ok = g.data[id] {
+		id = g.keygen()
+	}
+	player := NewObject(id, "vii", ctx)
+	g.data[id] = player
+	g.seat.Add(id)
+	return player
+}
+
+func (g *G) NewState(playerID string, ctx StateContext) *State {
+	id := ""
+	for ok := true; ok; _, ok = g.data[id] {
+		id = g.keygen()
+	}
+	state := NewObject(id, playerID, ctx)
+	g.data[id] = state
+	return state
+}
+
+func (g *G) NewCard(playerID string, proto *card.Prototype) *Card {
+	id := ""
+	for ok := true; ok; _, ok = g.data[id] {
+		id = g.keygen()
+	}
+	card := NewObject(id, playerID, proto)
+	g.data[id] = card
+	return card
+}
+
+func (g *G) NewToken(playerID string, ctx TokenContext) *Token {
+	id := ""
+	for ok := true; ok; _, ok = g.data[id] {
+		id = g.keygen()
+	}
+	token := NewObject(id, playerID, ctx)
+	g.data[id] = token
+	return token
+}
+
+func (g *G) Write(bytes []byte) {
+	for _, playerID := range g.Players() {
+		if player := g.Player(playerID); player != nil {
+			player.T.Writer.Write(bytes)
+		}
+	}
+}
+
+// func (t *T) Save(obj any) (id string) {
+// 	t.sync.Lock()
+// 	for ok := true; ok; _, ok = t.data[id] {
+// 		id = t.keygen()
+// 	}
+// 	t.data[id] = Object{
 // 		id: id,
-// 		// in:    make(chan *Request),
-// 		close: make(chan bool),
-// 		obj:   make(map[string]any),
-// 		rules: rules,
-// 		log:   log,
-// 		Seats: seat.NewList(),
+// 		it: obj,
 // 	}
+// 	t.sync.Unlock()
+// 	return
 // }
 
-// func (game *T) ID() string { return game.id }
-
-// func (game *T) Log() log.Writer { return game.log }
-
-// func (game *T) Rules() Rules { return game.rules }
-
-// func (game *T) String() string { return "Game#" + game.id }
-
-// func (game *T) Close() {
-// 	if game.in != nil {
-// 		close(game.in)
-// 		game.in = nil
-// 		close(game.close)
-// 		game.close = nil
-// 	}
-// 	game.log.Close()
-// 	// game.chat.Destroy()
+// func (t *T) SaveCard(card *Card) {
+// 	card.ID = t.objSave(card)
 // }
 
-// // RequestChan returns the raw ordered game input
-// func (game *T) RequestChan() <-chan *Request { return game.in }
-
-// // Request starts a go routine to call RequestSync
-// func (game *T) Request(username, uri string, json map[string]any) {
-// 	go game.RequestSync(NewReq(username, uri, json))
+// func (t *T) SaveToken(token *token.T) {
+// 	token.ID = t.objSave(token)
 // }
 
-// // RequestSync waits to request the game engine
-// func (game *T) RequestSync(r *Request) {
-// 	if game.in != nil {
-// 		game.in <- r
+// func (t *T) GetState(key string) *State {
+// 	if state, ok := t.obj[key].(*State); ok {
+// 		return state
 // 	}
+// 	return nil
 // }
 
-// // func (game *T) Chat(source, message string) { game.chat.Add(source, message) }
-
-// func (game *T) Phase() string { return game.State.Phase.Name() }
-
-// func (game *T) JSON(seat *seat.T) map[string]any {
-// 	return map[string]any{
-// 		"id":       game.ID(),
-// 		"stateid":  game.State.ID(),
-// 		"username": seat.Username,
-// 		"seats":    game.Seats.Keys(),
+// func (t *T) GetCard(key string) *card.T {
+// 	if card, ok := t.obj[key].(*card.T); ok {
+// 		return card
 // 	}
+// 	return nil
 // }
 
-// func (t *T) Register(deck *deck.T, writer seat.Writer) *seat.T {
-// 	log := t.Log().Add("Username", deck.User)
-
-// 	if t.Seats.Get(deck.User) != nil {
-// 		log.Warn("username already registered")
-// 		return nil
+// func (t *T) GetToken(key string) *token.T {
+// 	if token, ok := t.obj[key].(*token.T); ok {
+// 		return token
 // 	}
-
-// 	seat := seat.New(t.rules.StartingLife, deck, writer)
-
-// 	t.Seats.Add(seat)
-
-// 	for _, card := range deck.Cards {
-// 		t.RegisterCard(card)
-// 	}
-
-// 	log.Add("Name", deck.Proto.Name).Info("register")
-
-// 	return seat
+// 	return nil
 // }

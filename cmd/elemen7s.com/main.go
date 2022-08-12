@@ -3,25 +3,32 @@ package main
 import (
 	_ "github.com/zachtaylor/7elements/scripts"
 	"github.com/zachtaylor/7elements/server"
-	"github.com/zachtaylor/7elements/server/runtime"
 	"taylz.io/log"
 )
 
-const Patch = 4
+const (
+	buildVersion = 1
+
+	expectedPatch = 4
+)
 
 func main() {
 	stdout := log.Default()
 
-	stdout.Info("vii: start")
+	env := DefaultENV().ShouldParseDefault()
 
-	env := DefaultENV().ParseDefault()
-	runtime, err := runtime.Parse(env, Patch)
+	runtime, err := server.NewRuntime(env, expectedPatch)
 	if runtime == nil {
 		stdout.Add("Error", err).Error("vii: failed to parse env")
 		return
 	}
 
-	if runtime.IsDevEnv {
+	stdout.With(map[string]any{
+		"web_dir":       env["WWW_PATH"],
+		"build_version": buildVersion,
+	}).Info("starting")
+
+	if !runtime.IsProd() {
 		server.Start(runtime, ":"+env["PORT"])
 	} else {
 		// production has a different binary so this is never used

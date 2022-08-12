@@ -5,8 +5,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+)
 
-	"taylz.io/types"
+const (
+	charNumeric      = "0123456789"
+	charAlphaCapital = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
 
 // Count is a map(cardid->quantity)
@@ -20,8 +23,8 @@ func ParseCount(format string) (Count, error) {
 	}
 	count := Count{}
 	for i := 0; i < lenfmt; i += 2 {
-		v := strings.Index(types.CharsetNumeric, string([]byte{format[i]}))
-		k := 1 + strings.Index(types.CharsetAlphaCapital, string([]byte{format[i+1]}))
+		v := strings.Index(charNumeric, string([]byte{format[i]}))
+		k := 1 + strings.Index(charAlphaCapital, string([]byte{format[i+1]}))
 		count[k] = v
 	}
 	return count, nil
@@ -59,8 +62,8 @@ func (c Count) Format() (string, error) {
 	b := strings.Builder{}
 	b.Grow(len(c) * 2)
 	for i = 0; i < len(keys); i++ {
-		b.WriteByte(types.CharsetNumeric[c[keys[i]]])
-		b.WriteByte(types.CharsetAlphaCapital[keys[i]-1])
+		b.WriteByte(charNumeric[c[keys[i]]])
+		b.WriteByte(charAlphaCapital[keys[i]-1])
 	}
 	return b.String(), nil
 }

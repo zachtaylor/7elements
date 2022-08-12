@@ -1,8 +1,8 @@
 package scripts
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 const CounterID = "counter"

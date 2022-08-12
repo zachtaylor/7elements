@@ -1,8 +1,8 @@
 package phase_test
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 func StartIsOnActivatePhaser(r *phase.Start) game.OnActivatePhaser { return r }

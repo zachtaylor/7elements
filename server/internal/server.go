@@ -1,123 +1,169 @@
 package internal
 
 import (
+	"github.com/zachtaylor/7elements/account"
 	"github.com/zachtaylor/7elements/content"
+	"github.com/zachtaylor/7elements/db/accounts"
+	"github.com/zachtaylor/7elements/game"
+	"github.com/zachtaylor/7elements/internal/user"
+	"github.com/zachtaylor/7elements/match"
+	"taylz.io/db"
+	"taylz.io/http"
+	"taylz.io/http/session"
+	"taylz.io/http/websocket"
+	"taylz.io/keygen"
 	"taylz.io/log"
 )
 
-// import (
-// 	"github.com/zachtaylor/7elements/account"
-// 	"github.com/zachtaylor/7elements/card"
-// 	"github.com/zachtaylor/7elements/card/pack"
-// 	"github.com/zachtaylor/7elements/db/accounts"
-// 	"github.com/zachtaylor/7elements/deck"
-// 	"github.com/zachtaylor/7elements/game"
-// 	"github.com/zachtaylor/7elements/match"
-// 	"github.com/zachtaylor/7elements/wsout"
-// 	"taylz.io/db"
-// 	"taylz.io/http/session"
-// 	"taylz.io/http/user"
-// 	"taylz.io/http/websocket"
-// )
-
+// Server is the internally exposed server api
 type Server interface {
+	IsProd() bool
+	Accounts() *account.Cache
 	Content() content.T
+	DB() *db.DB
+	Games() game.Manager
+	HashPassword(string) string
 	Log() log.Writer
+	MatchMaker() *match.Maker
+	Ping()
+	Sessions() session.Manager
+	user.Server
+	Websockets() *websocket.Cache
+	http.Handler
+	websocket.MessageHandler
 }
 
-// Server is the interally exposed server api
-// type Server interface {
-// 	EnvProd() bool
-// 	Log() log.Writer
-// 	GetDB() *db.DB
-// 	GetFileSystem() http.FileSystem
-// 	GetAccounts() *account.Cache
-// 	GetSessionManager() session.Manager
-// 	// GetWebsocketManager() *websocket.Manager
-// 	GetUserManager() user.Manager
-// 	HashPassword(string) string
-// 	GetGameVersion() *game.Version
-// 	GetGameManager() *game.Manager
-// 	GetMatchMaker() *match.Maker
-// 	Ping()
-// }
+type runtime struct {
+	isprod   bool
+	hostpath string
+	accounts *account.Cache
+	fork     *http.Fork
+	wsFork   *websocket.MessageFork
+	log      log.Writer
+	db       *db.DB
+	content  content.T
+	sessions session.Manager
+	sockets  *websocket.Cache
+	users    user.Manager
+	games    game.Manager
+	cupid    *match.Maker
+	hashPass func(string) string
+}
 
-// // Runtime is the internal-facing API routes consume
-// type Runtime interface {
-// 	EnvProd() bool
-// 	Log() log.Writer
-// 	GetDB() *db.DB
-// 	GetSessions() *session.Manager
-// 	GetSockets() *websocket.Manager
-// 	GetUsers() *user.Manager
-// 	GetAccounts() *account.Cache
-// 	GetCards() card.Prototypes
-// 	GetDecks() deck.Prototypes
-// 	GetPacks() pack.Prototypes
-// 	GetGames() *game.Manager
-// 	GetMatchMaker() *match.Maker
-// }
+func (rt *runtime) IsProd() bool { return rt.isprod }
 
-// type runtime struct {
-// 	envProd    bool
-// 	log        log.Writer
-// 	db         *db.DB
-// 	patchData  []byte
-// 	passHash   func(string) string
-// 	sessions   *session.Manager
-// 	sockets    *websocket.Manager
-// 	users      *user.Manager
-// 	accounts   *account.Cache
-// 	cards      card.Prototypes
-// 	decks      deck.Prototypes
-// 	packs      pack.Prototypes
-// 	games      *game.Manager
-// 	matchMaker *match.Maker
-// }
+// Content implements Server
+func (rt *runtime) Accounts() *account.Cache { return rt.accounts }
 
-// func NewRuntime(
-// 	isprod bool,
-// 	log log.Writer,
-// 	db *db.DB,
-// 	patchData []byte,
-// 	passHash func(string) string,
-// 	sessions *session.Manager,
-// 	sockets *websocket.Manager,
-// 	users *user.Manager,
-// 	accounts *account.Cache,
-// 	cards card.Prototypes,
-// 	decks deck.Prototypes,
-// 	packs pack.Prototypes,
-// 	games *game.Manager,
-// 	matchMaker *match.Maker,
-// ) runtime {
-// 	return runtime{
-// 		envProd:    isprod,
-// 		log:        log,
-// 		db:         db,
-// 		patchData:  patchData,
-// 		passHash:   passHash,
-// 		sessions:   sessions,
-// 		sockets:    sockets,
-// 		users:      users,
-// 		accounts:   accounts,
-// 		cards:      cards,
-// 		decks:      decks,
-// 		packs:      packs,
-// 		games:      games,
-// 		matchMaker: matchMaker,
-// 	}
-// }
+// Content implements Server
+func (rt *runtime) Content() content.T { return rt.content }
 
-// // Ping sends updated user counts
-// func (rt runtime) Ping() {
-// 	users, _ := accounts.Count(rt.db)
-// 	bytes := wsout.Ping(map[string]any{
-// 		"ping":   rt.GetSockets().Count(),
-// 		"online": rt.GetSessions().Count(),
-// 		"users":  users,
-// 	})
-// 	rt.GetSockets().Each(func(id string, ws *websocket.T) {
-// 		ws.Write(bytes)
-// 	})
-// }
+// Games implements Server
+func (rt *runtime) Games() game.Manager { return rt.games }
+
+// GetDB implements Server
+func (rt *runtime) DB() *db.DB { return rt.db }
+
+// Sessions implements Server
+func (rt *runtime) Sessions() session.Manager { return rt.sessions }
+
+// HashPassword implements Server
+func (rt *runtime) HashPassword(val string) string { return rt.hashPass(val) }
+
+// Log implements Server
+func (rt *runtime) Log() log.Writer { return rt.log }
+
+// MatchMaker implements Server
+func (rt *runtime) MatchMaker() *match.Maker { return rt.cupid }
+
+// Users implements Server
+func (rt *runtime) Users() user.Manager { return rt.users }
+
+// Websockets implements Server
+func (rt *runtime) Websockets() *websocket.Cache { return rt.sockets }
+
+func (rt *runtime) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	rt.fork.ServeHTTP(w, r)
+}
+
+func (rt *runtime) ServeWS(ws *websocket.T, msg *websocket.Message) {
+	rt.wsFork.ServeWS(ws, msg)
+}
+
+// Ping sends updated user counts
+func (rt runtime) Ping() {
+	users, _ := accounts.Count(rt.db)
+	bytes := websocket.NewMessage("/ping", map[string]any{
+		"ping":   rt.Websockets().Count(),
+		"online": rt.Sessions().Count(),
+		"users":  users,
+	}).ShouldMarshal()
+	rt.Websockets().Each(func(id string, ws *websocket.T) {
+		ws.Write(websocket.MessageText, bytes)
+	})
+}
+
+func NewRuntime(
+	isprod bool,
+	db *db.DB,
+	hashPass func(string) string,
+	log log.Writer,
+	sessionSettings session.Settings,
+	userSettings user.Settings,
+	gameSettings game.Settings,
+	origins []string,
+	routes func(wsUpgrader http.Handler) []RouteBuilder,
+	wsRoutes []WSRouteBuilder,
+) (Server, error) {
+	accounts := account.NewCache()
+
+	content, err := content.Build(db)
+	if err != nil {
+		return nil, err
+	}
+
+	sessions := session.NewService(sessionSettings, keygen.DefaultFunc())
+
+	rt := &runtime{
+		isprod:   isprod,
+		accounts: accounts,
+		content:  content,
+		log:      log,
+		db:       db,
+		hashPass: hashPass,
+		sessions: sessions,
+	}
+
+	var wsUpgrader http.Handler
+	rt.users, rt.sockets, wsUpgrader = user.NewServiceHandler(
+		userSettings,
+		keygen.DefaultFunc(),
+		sessions,
+		rt,
+	)
+
+	rt.games = game.NewService(
+		gameSettings,
+		keygen.DefaultFunc(),
+		rt,
+	)
+
+	rt.cupid = match.NewMaker(rt)
+
+	rt.wsFork = websocket.NewMessageFork()
+	for _, route := range wsRoutes {
+		rt.wsFork.Path(route.Router, route.Provider(rt))
+	}
+
+	cors := CORS(origins)
+	rt.fork = http.NewFork()
+	for _, route := range routes(wsUpgrader) {
+		rt.fork.Path(route.Router, cors(route.Provider(rt)))
+	}
+
+	rt.sessions.Observe(OnSession(rt))
+	rt.sockets.Observe(OnSocket(rt))
+	rt.users.Observe(OnUser(rt))
+
+	return rt, nil
+}

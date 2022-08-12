@@ -4,8 +4,8 @@ import (
 	"reflect"
 
 	"github.com/zachtaylor/7elements/deck"
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 const crystalballID = "crystal-ball"

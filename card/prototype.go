@@ -21,7 +21,10 @@ type Prototype struct {
 
 // NewPrototype returns a new empty Card Prototype
 func NewPrototype() *Prototype {
-	return &Prototype{}
+	return &Prototype{
+		Costs:  element.Count{},
+		Powers: power.Set{},
+	}
 }
 
 func (proto *Prototype) String() string {

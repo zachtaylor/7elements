@@ -1,6 +1,6 @@
 package phase
 
-import "github.com/zachtaylor/7elements/game/v2"
+import "github.com/zachtaylor/7elements/game"
 
 type Choice struct {
 	game.PriorityContext
@@ -21,7 +21,8 @@ func NewChoice(playerID, text string, data map[string]any, choices []map[string]
 	}
 }
 
-func (*Choice) Type() string { return "choice" }
+func (*Choice) Type() string      { return "choice" }
+func (*Choice) Next() game.Phaser { return nil }
 
 func (r *Choice) JSON() map[string]any {
 	return map[string]any{
@@ -32,11 +33,11 @@ func (r *Choice) JSON() map[string]any {
 }
 
 func (r *Choice) OnConnect(g *game.G, player *game.Player) {
-	if player == nil {
-		player = g.Player(r.Priority()[0])
-	} else if player.ID() != r.Priority()[0] {
-		return
-	}
+	// if player == nil {
+	// player = g.Player(r.Priority()[0])
+	// } else if player.ID() != r.Priority()[0] {
+	// return
+	// }
 }
 
 // Finish implements game.OnFinishPhaser
@@ -59,7 +60,7 @@ func (r *Choice) OnRequest(g *game.G, state *game.State, player *game.Player, js
 
 	r.answer = json["choice"]
 	if r.answer != "" {
-		state.T.React.Set(player.ID())
+		state.T.React.Add(player.ID())
 	}
 }
 

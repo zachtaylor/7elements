@@ -2,14 +2,14 @@ package accounts_decks
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/zachtaylor/7elements/deck"
 	"taylz.io/db"
-	"taylz.io/types"
 )
 
 func InsertAll(conn *db.DB, decks deck.Prototypes) (err error) {
-	statement := types.StringBuilder{}
+	statement := strings.Builder{}
 	statement.WriteString("INSERT INTO accounts_decks (username, id, name, cover) VALUES ")
 	first := true
 	for _, proto := range decks {

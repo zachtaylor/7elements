@@ -3,22 +3,15 @@ package server
 import (
 	"net/http"
 
-	"github.com/zachtaylor/7elements/server/runtime"
+	"github.com/zachtaylor/7elements/server/internal"
 	"taylz.io/http/handler"
 )
 
-func preStart(runtime *runtime.T) {
-	runtime.Log().Info("7tcg server starting")
-	setRoutes(runtime)
+func Start(server internal.Server, port string) {
+	http.ListenAndServe(port, server)
 }
 
-func Start(runtime *runtime.T, port string) {
-	preStart(runtime)
-	http.ListenAndServe(port, runtime.Handler)
-}
-
-func StartTLS(runtime *runtime.T, cert string, key string) {
-	preStart(runtime)
+func StartTLS(server internal.Server, cert string, key string) {
 	go http.ListenAndServe(":80", handler.RedirectHTTPS)
-	http.ListenAndServeTLS(":443", cert, key, runtime.Handler)
+	http.ListenAndServeTLS(":443", cert, key, server)
 }

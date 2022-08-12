@@ -1,8 +1,8 @@
 package phase
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 type Combat struct {
@@ -19,7 +19,8 @@ func NewCombat(pc game.PriorityContext, t1 *game.Token, t2 *game.Token) game.Pha
 	}
 }
 
-func (r *Combat) Type() string { return "combat" }
+func (*Combat) Type() string      { return "combat" }
+func (*Combat) Next() game.Phaser { return nil }
 
 // OnActivate implements game.OnActivatePhaser
 func (r *Combat) OnActivate(g *game.G) []game.Phaser {
@@ -83,7 +84,7 @@ func (r *Combat) OnFinish(g *game.G, _ *game.State) (rs []game.Phaser) {
 
 func (r *Combat) JSON() map[string]any {
 	return map[string]any{
-		"attack": r.A.T.JSON(),
-		"block":  r.B.T.JSON(),
+		"attack": r.A.T.Data(),
+		"block":  r.B.T.Data(),
 	}
 }

@@ -3,8 +3,8 @@ package phase
 import (
 	"github.com/zachtaylor/7elements/card"
 	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 func NewPlay(g *game.G, playerID string, card *game.Card, karma element.Count, targets []string) game.Phaser {
@@ -24,7 +24,8 @@ type Play struct {
 	IsCancelled bool
 }
 
-func (r *Play) Type() string { return "play" }
+func (*Play) Type() string      { return "play" }
+func (*Play) Next() game.Phaser { return nil }
 
 // OnActivate implements game.OnActivatePhaser
 func (r *Play) OnActivate(game *game.G) []game.Phaser {
@@ -44,7 +45,7 @@ func (r *Play) OnFinish(g *game.G, _ *game.State) (rs []game.Phaser) {
 		"Card":        r.Card,
 		"IsCancelled": r.IsCancelled,
 	}).Debug("play finish")
-	player.T.Past.Set(r.Card.ID())
+	player.T.Past.Add(r.Card.ID())
 	g.MarkUpdate(player.ID())
 
 	if r.IsCancelled {

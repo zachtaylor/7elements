@@ -1,11 +1,11 @@
 package accounts_decks
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/zachtaylor/7elements/deck"
 	"taylz.io/db"
-	"taylz.io/types"
 )
 
 func Get(conn *db.DB, username string) (deck.Prototypes, error) {
@@ -46,7 +46,7 @@ func Get(conn *db.DB, username string) (deck.Prototypes, error) {
 
 		deck := decks[deckid]
 		if deck == nil {
-			return nil, types.NewErr("deckid missing:" + strconv.FormatInt(int64(deckid), 10))
+			return nil, errors.New("deckid missing:" + strconv.FormatInt(int64(deckid), 10))
 		}
 		deck.Cards[cardid] = amount
 	}

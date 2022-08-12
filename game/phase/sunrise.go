@@ -5,13 +5,13 @@ import (
 	"strconv"
 
 	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/trigger"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
-func NewSunrise(g *game.G, id string) game.Phaser {
+func NewSunrise(priority []string) game.Phaser {
 	return &Sunrise{
-		PriorityContext: game.PriorityContext(g.NewPriority(id)),
+		PriorityContext: game.PriorityContext(priority),
 		Ans:             make(map[string]element.T),
 	}
 }
@@ -21,7 +21,8 @@ type Sunrise struct {
 	Ans map[string]element.T
 }
 
-func (r *Sunrise) Type() string { return "sunrise" }
+func (r *Sunrise) Type() string      { return "sunrise" }
+func (r *Sunrise) Next() game.Phaser { return NewMain(r.Priority()) }
 
 // OnActivate implements game.OnActivatePhaser
 func (r *Sunrise) OnActivate(g *game.G) (rs []game.Phaser) {
@@ -44,9 +45,9 @@ func (r *Sunrise) OnActivate(g *game.G) (rs []game.Phaser) {
 // OnConnect implements game.OnConnectPhaser
 func (r *Sunrise) OnConnect(g *game.G, player *game.Player) {
 	g.Log().Add("Player", player).Trace("connect")
-	if player == nil {
-		// go game.Chat("sunrise", r.Seat())
-	}
+	// if player == nil {
+	// go game.Chat("sunrise", r.Seat())
+	// }
 }
 
 // Finish implements game.OnFinishPhaser
@@ -61,7 +62,7 @@ func (r *Sunrise) OnFinish(g *game.G, _ *game.State) (rs []game.Phaser) {
 
 	for _, playerID := range priority {
 		player := g.Player(playerID)
-		log := g.Log().Add("Username", player.T.Username)
+		log := g.Log().Add("Username", player.T.Writer.Name())
 
 		if el := r.Ans[playerID]; el < element.White || el > element.Black {
 			log.Error("el is out of bounds", el)
@@ -90,7 +91,7 @@ func (r *Sunrise) OnRequest(g *game.G, state *game.State, player *game.Player, j
 	} else {
 		g.Log().Add("Player", player).Add("Choice", i).Info("confirm")
 		r.Ans[player.ID()] = el
-		state.T.React.Set(player.ID())
+		state.T.React.Add(player.ID())
 		g.MarkUpdate(state.ID())
 	}
 }

@@ -6,11 +6,11 @@ package request
 // 	"taylz.io/http/websocket"
 // )
 
-// func Chat(game *game.T, seat *seat.T, json map[string]any) {
+// func Chat(game *game.G, player *game.Player, json map[string]any) {
 // 	text, _ := json["text"].(string)
 // 	game.Log().With(map[string]any{
-// 		"Username": seat.Username,
+// 		"Username": player.T.Writer.Name(),
 // 		"Text":     text,
 // 	}).Trace()
-// 	go game.Chat(seat.Username, text)
+// 	go game.Chat(player.T.Writer.Name(), text)
 // }

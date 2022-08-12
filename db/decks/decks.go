@@ -1,11 +1,11 @@
 package decks
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/zachtaylor/7elements/deck"
 	"taylz.io/db"
-	"taylz.io/types"
 )
 
 func GetAll(conn *db.DB) (deck.Prototypes, error) {
@@ -50,7 +50,7 @@ func getItems(conn *db.DB, decks deck.Prototypes) error {
 
 		deck := decks[deckid]
 		if deck == nil {
-			return types.NewErr("deckid missing: " + strconv.FormatInt(int64(deckid), 10))
+			return errors.New("deckid missing: " + strconv.FormatInt(int64(deckid), 10))
 		}
 
 		deck.Cards[cardid] = amount

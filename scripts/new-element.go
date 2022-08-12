@@ -2,8 +2,8 @@ package scripts
 
 import (
 	"github.com/zachtaylor/7elements/element"
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/v2"
 )
 
 func init() { game.Scripts["new-element"] = NewElement }

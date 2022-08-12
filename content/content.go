@@ -14,6 +14,11 @@ import (
 	"taylz.io/db"
 )
 
+// Server is an interface for acquiring content
+type Server interface {
+	Content() T
+}
+
 // T is content data
 type T struct {
 	cards card.Prototypes
@@ -22,24 +27,24 @@ type T struct {
 	data  []byte
 }
 
-func (*T) Version() string          { return vii.Version }
-func (t *T) Cards() card.Prototypes { return t.cards }
-func (t *T) Decks() deck.Prototypes { return t.decks }
-func (t *T) Packs() pack.Prototypes { return t.packs }
-func (t *T) Data() []byte           { return t.data }
+func (T) Version() string          { return vii.Version }
+func (t T) Cards() card.Prototypes { return t.cards }
+func (t T) Decks() deck.Prototypes { return t.decks }
+func (t T) Packs() pack.Prototypes { return t.packs }
+func (t T) Data() []byte           { return t.data }
 
-func Build(db *db.DB) (*T, error) {
+func Build(db *db.DB) (T, error) {
 	cards := cards.GetAll(db)
 	if cards == nil {
-		return nil, errors.New("failed to load cards")
+		return T{}, errors.New("failed to load cards")
 	}
 	decks, err := decks.GetAll(db)
 	if decks == nil {
-		return nil, err
+		return T{}, err
 	}
 	packs, err := packs.GetAll(db)
 	if packs == nil {
-		return nil, err
+		return T{}, err
 	}
 	glob, err := json.Marshal(map[string]any{
 		"cards": cards.Data(),
@@ -47,10 +52,10 @@ func Build(db *db.DB) (*T, error) {
 		"packs": packs.Data(),
 	})
 	if err != nil {
-		return nil, err
+		return T{}, err
 	}
 
-	return &T{
+	return T{
 		cards: cards,
 		decks: decks,
 		packs: packs,

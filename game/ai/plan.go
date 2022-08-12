@@ -5,19 +5,19 @@ import "github.com/zachtaylor/7elements/game/ai/plan"
 // Plan is a kind of thing an AI may elect to do in game
 type Plan interface {
 	Score() int
-	Submit(RequestFunc)
+	Submit(func(string, map[string]any))
 }
 
 func (ai *AI) NewPlan() (do Plan) {
-	if ai.Game.Phase() == "sunrise" {
+	if ai.View.State.T.Phase.Type() == "sunrise" {
 		return &plan.NewElement{
-			StateID: ai.Game.State.ID(),
+			StateID: ai.View.State.ID(),
 			Element: ai.getNewElement(),
 		}
 	}
 
 	plans := ai.NewPlans()
-	log := ai.Game.Log()
+	log := ai.View.Game.Log()
 	var score int
 	for _, p := range plans {
 		if p.Score() > score {
@@ -34,13 +34,13 @@ func (ai *AI) NewPlan() (do Plan) {
 }
 
 func (ai *AI) NewPlans() (plans []Plan) {
-	if attack := plan.ParseAttack(ai.Game, ai.Seat); attack != nil {
+	if attack := plan.ParseAttack(ai.View); attack != nil {
 		plans = append(plans, attack)
 	}
-	if play := plan.ParsePlay(ai.Game, ai.Seat); play != nil {
+	if play := plan.ParsePlay(ai.View); play != nil {
 		plans = append(plans, play)
 	}
-	if trigger := plan.ParseTrigger(ai.Game, ai.Seat); trigger != nil {
+	if trigger := plan.ParseTrigger(ai.View); trigger != nil {
 		plans = append(plans, trigger)
 	}
 	return

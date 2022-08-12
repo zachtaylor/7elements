@@ -1,9 +1,9 @@
 package scripts
 
 import (
+	"github.com/zachtaylor/7elements/game"
 	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/v2"
-	"github.com/zachtaylor/7elements/game/v2/target"
+	"github.com/zachtaylor/7elements/game/target"
 )
 
 const PantherID = "panther"

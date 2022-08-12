@@ -3,13 +3,18 @@ package chat
 import "taylz.io/http/user"
 
 type Manager struct {
-	Settings
-	cache *Cache
+	cache  *Cache
+	keygen func() string
+	server Server
 }
 
-func NewManager(settings Settings) (manager *Manager) {
-	manager = &Manager{Settings: settings, cache: NewCache()}
-	settings.Users.Observe(manager.onUser)
+func NewManager(keygen func() string, server Server) (manager *Manager) {
+	manager = &Manager{
+		cache:  NewCache(),
+		keygen: keygen,
+		server: server,
+	}
+	server.Users().Observe(user.ObserverFunc(manager.onUser))
 	return
 }
 
@@ -33,7 +38,7 @@ func (m *Manager) TryMessage(roomNo, username, message string) (err error) {
 	} else if !room.users[username] {
 		err = ErrUserNotInRoom
 	} else {
-		room.AddSync(NewMessage(username, message))
+		// room.AddSync(NewMessage(username, message))
 	}
 	return
 }
@@ -43,7 +48,7 @@ func (m *Manager) New(name string, messageBuffer int) (room *Room) {
 	m.cache.Sync(func(get CacheGetter, set CacheSetter) {
 		id := ""
 		for ok := true; ok; ok = (get(id) != nil) {
-			id = m.Keygen()
+			id = m.keygen()
 		}
 		room = NewRoom(m, id, name, 16)
 		set(id, room)

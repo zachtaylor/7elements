@@ -2,23 +2,22 @@ package request
 
 import (
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/game/out"
 )
 
-func Pass(game *game.T, seat *seat.T, json map[string]any) {
+func Pass(game *game.G, state *game.State, player *game.Player, json map[string]any) {
 	log := game.Log().With(map[string]any{
 		"State":    game.State,
-		"Username": seat.Username,
+		"Username": player.T.Writer.Name(),
 	})
 	if pass, _ := json["pass"].(string); pass == "" {
 		log.Warn("target missing")
-	} else if pass != game.State.ID() {
+	} else if pass != state.ID() {
 		log.Add("PassID", pass).Warn("target mismatch")
-	} else if len(game.State.Reacts[seat.Username]) > 0 {
-		seat.Writer.WriteMessageData(wsout.Error("pass", "response already recorded"))
+	} else if state.T.React.Has(player.T.Writer.Name()) {
+		player.T.Writer.Write(out.ErrorMessage("pass", "response already recorded"))
 	} else {
-		game.State.Reacts[seat.Username] = "pass"
-		game.Seats.WriteMessageData(wsout.GameReact(game.State.ID(), seat.Username, "pass", game.State.Timer))
+		state.T.React.Add(player.T.Writer.Name())
+		game.MarkUpdate(state.ID())
 	}
 }

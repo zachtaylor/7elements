@@ -1,11 +1,7 @@
 package request
 
-import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/seat"
-)
+import "github.com/zachtaylor/7elements/game"
 
-func Phase(game *game.T, seat *seat.T, json map[string]any) {
-	phase.TryOnRequest(game, seat, json)
+func Phase(g *game.G, state *game.State, player *game.Player, json map[string]any) {
+	game.TryOnRequest(g, state, player, json)
 }

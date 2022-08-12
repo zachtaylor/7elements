@@ -1,27 +1,30 @@
 package engine
 
-import (
-	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/phase"
-)
+import "github.com/zachtaylor/7elements/game"
 
-func (t *T) resolve(game *game.T) {
-	log := game.Log().Add("State", game.State)
+func resolve(g *game.G, state *game.State) (next *game.State) {
+	log := g.Log().Add("State", state)
 	log.Trace("done")
-	game.State.Timer = 0
-	states := phase.TryOnFinish(game) // combine states
-	if game.State.Stack != nil {
-		log.Add("Next", game.State.Stack).Debug("stackpop")
-		game.State = game.State.Stack
-		phase.TryOnConnect(game, nil)
-	} else if next := game.State.Phase.GetNext(game); next == nil {
-		game.State = nil
-		return // that's a wrap
+	state.T.Timer = 0
+	states := make([]game.Phaser, 0)
+	if triggered := game.TryOnFinish(g, state); len(triggered) > 0 {
+		states = append(states, triggered...)
+	}
+	if state.T.Stack != nil {
+		log.Add("Next", state.T.Stack).Debug("stackpop")
+		next = state.T.Stack
+		game.TryOnConnect(g, state.T.Stack.T.Phase, nil)
+	} else if nextp := state.T.Phase.Next(); nextp == nil {
+		log.Debug("no next")
 	} else {
 		log.Add("Next", next).Debug("getnext")
-		game.State = t.NewState(game, next)
-		states = append(states, phase.TryOnActivate(game)...) // combine states
+		next = g.NewState(nextp.Priority()[0], game.NewStateContext(nextp))
+		if triggered := game.TryOnActivate(g, nextp); len(triggered) > 0 {
+			states = append(states, triggered...)
+		}
 	}
 
-	t.stack(game, states) // stack new states
+	next = stack(g, next, states) // stack new states
+
+	return
 }

@@ -19,9 +19,9 @@ func SignupHandler(server internal.Server) http.Handler {
 			return
 		}
 
-		session, _ := server.GetSessionManager().GetRequestCookie(r)
+		session, _ := server.Sessions().ReadHTTP(r)
 		if session != nil {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, r.Header.Get("Origin"), http.StatusTemporaryRedirect)
 			log.Add("SessionID", session.ID).Warn("session exists")
 			return
 		}
@@ -34,18 +34,18 @@ func SignupHandler(server internal.Server) http.Handler {
 
 		if err := api.CheckUsername(username); err != nil {
 			log.Add("Error", err.Error()).Warn("invalid username")
-			http.Redirect(w, r, "/signup?username", http.StatusSeeOther)
-		} else if a, err := accounts.Get(server.GetDB(), username); a != nil {
-			http.Redirect(w, r, "/signup?usernametaken&email="+email, http.StatusSeeOther)
+			http.Redirect(w, r, r.Header.Get("Origin")+"/account#signup", http.StatusSeeOther)
+		} else if a, err := accounts.Get(server.DB(), username); a != nil {
+			http.Redirect(w, r, r.Header.Get("Origin")+"/account#signup"+email, http.StatusSeeOther)
 			log.Add("Error", err).Error("duplicate exists")
 		} else if password1 != password2 {
-			http.Redirect(w, r, "/signup?passwordmatch&email="+email+"&username="+username, http.StatusSeeOther)
+			http.Redirect(w, r, r.Header.Get("Origin")+"/account#signup", http.StatusSeeOther)
 			log.Warn("password mismatch")
 		} else if _, _, err := api.Signup(server, username, email, password1); err != nil {
-			http.Redirect(w, r, "/signup", http.StatusSeeOther)
+			http.Redirect(w, r, r.Header.Get("Origin")+"/account#signup", http.StatusSeeOther)
 			log.Add("Error", err).Error("internal error")
 		} else {
-			log.Info("ok")
+			log.Add("Username", username).Info("ok")
 		}
 	})
 }

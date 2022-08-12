@@ -1,6 +1,6 @@
 package scripts
 
-import "github.com/zachtaylor/7elements/game/v2"
+import "github.com/zachtaylor/7elements/game"
 
 const vinespiritID = "vine-spirit"
 

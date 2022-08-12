@@ -4,14 +4,13 @@ import (
 	"reflect"
 
 	"github.com/zachtaylor/7elements/game"
-	"github.com/zachtaylor/7elements/game/engine/trigger"
-	"github.com/zachtaylor/7elements/game/phase"
-	"github.com/zachtaylor/7elements/game/seat"
-	"github.com/zachtaylor/7elements/wsout"
+	"github.com/zachtaylor/7elements/game/out"
+	"github.com/zachtaylor/7elements/game/target"
+	"github.com/zachtaylor/7elements/game/trigger"
 )
 
-func Trigger(game *game.T, seat *seat.T, json map[string]any) (rs []game.Phaser) {
-	log := game.Log().Add("Seat", seat)
+func Trigger(g *game.G, state *game.State, player *game.Player, json map[string]any) (rs []game.Phaser) {
+	log := g.Log().Add("Player", player.ID())
 
 	// validation
 
@@ -23,16 +22,16 @@ func Trigger(game *game.T, seat *seat.T, json map[string]any) (rs []game.Phaser)
 
 	log = log.Add("TokenID", tokenID)
 
-	token, err := target.MyPresent(game, seat, tokenID)
+	token, err := target.MyPresent(g, player, tokenID)
 	if err != nil {
 		log.Add("Error", err).Error()
-		seat.Writer.WriteMessageData(wsout.Error("trigger", err.Error()))
+		player.T.Writer.Write(out.ErrorMessage("trigger", err.Error()))
 		return nil
 	}
 
 	var powerID int
 	if poweridbuff, _ := json["powerid"].(float64); int(poweridbuff) < 1 {
-		game.Log().Add("powerid", json["powerid"]).Add("type", reflect.TypeOf(json["powerid"])).Warn("powerid missing")
+		g.Log().Add("powerid", json["powerid"]).Add("type", reflect.TypeOf(json["powerid"])).Warn("powerid missing")
 		return nil
 	} else {
 		powerID = int(poweridbuff)
@@ -40,38 +39,42 @@ func Trigger(game *game.T, seat *seat.T, json map[string]any) (rs []game.Phaser)
 
 	log = log.Add("PowerId", powerID)
 
-	power := token.Powers[powerID]
+	power := token.T.Powers[powerID]
 	if power == nil {
-		log.Add("Keys", token.Powers.Keys()).Error("power not found")
+		log.Add("Keys", token.T.Powers.Keys()).Error("power not found")
 		return
-	} else if !token.IsAwake && power.UsesTurn {
+	} else if !token.T.Awake && power.UsesTurn {
 		log.Error("card is asleep")
-		seat.Writer.WriteMessageData(wsout.Error(token.Card.Proto.Name, "not awake"))
+		player.T.Writer.Write(out.ErrorMessage(token.T.Name, "not awake"))
 		return
-	} else if !seat.Karma.Active().Test(power.Costs) {
+	} else if !player.T.Karma.Active().Test(power.Costs) {
 		log.Add("Costs", power.Costs).Error("cannot afford")
-		seat.Writer.WriteMessageData(wsout.Error(token.Card.Proto.Name, "not enough elements"))
+		player.T.Writer.Write(out.ErrorMessage(token.T.Name, "not enough elements"))
 		return
 	}
 
 	targetID, _ := json["target"].(string)
-	if !target.IsValid(game, seat, power.Target, targetID) {
+	if !target.IsValid(g, player, power.Target, targetID) {
 		log.Error("targetid: ", json["target"])
 	}
 
-	seat.Karma.Deactivate(power.Costs)
+	player.T.Karma.Deactivate(power.Costs)
 	if power.Costs.Total() > 0 {
-		game.Seats.WriteMessageData(wsout.GameSeat(seat.JSON()))
+		g.MarkUpdate(player.ID())
 	}
 	if power.UsesTurn {
-		rs = append(rs, trigger.SleepToken(game, token)...)
+		if triggered := trigger.TokenSleep(g, token); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
 	}
 	if power.UsesLife {
-		rs = append(rs, trigger.RemoveToken(game, token)...)
+		if triggered := trigger.TokenRemove(g, token); len(triggered) > 0 {
+			rs = append(rs, triggered...)
+		}
 	}
 
 	log.Add("TargetID", targetID).Add("Power", power).Trace()
 
-	rs = append(rs, phase.NewTrigger(seat.Username, token, power, targetID))
+	rs = append(rs, game.NewTriggerPhase(g, token, power))
 	return
 }

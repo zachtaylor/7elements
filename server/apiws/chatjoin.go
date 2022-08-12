@@ -11,17 +11,17 @@ package apiws
 
 // const SpeechCharset = charset.AlphaCapitalNumeric + " ,.-_+=!@$^&*()☺☻♥♦♣♠♂♀♪♫"
 
-// func ChatJoin(server internal.Server) websocket.Handler {
-// 	return websocket.HandlerFunc(func(socket *websocket.T, m *websocket.Message) {
+// func ChatJoin(server internal.Server) websocket.MessageHandler {
+// 	return websocket.MessageHandlerFunc(func(socket *websocket.T, m *websocket.Message) {
 // 		if len(socket.Name()) < 1 {
 // 			server.Log().Warn("anon chat")
-// 			socket.Write(wsout.Error("vii", "you must log in to chat"))
+// 			socket.Write(websocket.MessageText, out.Error("vii", "you must log in to chat"))
 // 		} else if channel, _ := m.Data["channel"].(string); len(channel) < 1 {
 // 			server.Log().Add("User", socket.Name()).Warn("channel missing")
-// 			socket.Write(wsout.Error("vii", "channel missing"))
+// 			socket.Write(websocket.MessageText, out.Error("vii", "channel missing"))
 // 		} else if symbols := strings.Trim(channel, charset.AlphaCapitalNumeric); len(symbols) > 1 {
 // 			server.Log().Add("User", socket.Name()).Add("Symbols", symbols).Warn("bad channel name: ", channel)
-// 			socket.Write(wsout.Error("vii", "bad channel name"))
+// 			socket.Write(websocket.MessageText, out.Error("vii", "bad channel name"))
 // 		} else if room := rt.Chats.Get(channel); room == nil {
 // 			server.Log().Add("User", socket.Name()).Info("create")
 // 			room = rt.Chats.New(channel, 42)
@@ -40,7 +40,7 @@ package apiws
 // 			// })
 
 // 			for _, data := range room.History() {
-// 				socket.WriteSync(data)
+// 				socket.Write(data)
 // 			}
 // 		}
 // 	})

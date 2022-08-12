@@ -15,32 +15,32 @@ var (
 	ErrSignupExists = errors.New("username exists")
 )
 
-func Signup(server internal.Server, username, email, password string) (account *account.T, session *session.T, err error) {
+func Signup(server internal.Server, username, email, password string) (a *account.T, s *session.T, err error) {
 	if err = CheckUsername(username); err != nil {
 		return
 	} else if err = CheckEmail(email); err != nil {
 		return
-	} else if _, err = accounts.Get(server.GetDB(), username); err != sql.ErrNoRows {
+	} else if _, err = accounts.Get(server.DB(), username); err != sql.ErrNoRows {
 		return nil, nil, ErrSignupExists
 	} else {
-		session = server.GetSessionManager().Must(username)
+		s = server.Sessions().Must(username)
 	}
 
-	account = account.Make(username, email, password, session.ID())
+	a = account.Make(username, email, password, s.ID())
 	for i := 0; i < 3; i++ {
 		proto := deck.NewPrototype(username)
 		proto.ID = i + 1
-		account.Decks[proto.ID] = proto
+		a.Decks[proto.ID] = proto
 	}
 
-	err = accounts.Insert(server.GetDB(), account)
+	err = accounts.Insert(server.DB(), a)
 	if err != nil {
-		server.GetSessionManager().Remove(session.ID())
+		server.Sessions().Remove(s.ID())
 		return nil, nil, err
 	}
-	server.GetAccounts().Set(username, account)
+	server.Accounts().Set(username, a)
 
 	go server.Ping()
 
-	return account, session, nil
+	return a, s, nil
 }

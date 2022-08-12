@@ -4,13 +4,13 @@ import "github.com/zachtaylor/7elements/element"
 
 // getNewElement returns the ai preferred new element
 func (ai *AI) getNewElement() element.T {
-	devotion := ai.Seat.Hand.Devotion()
-	for e, stack := range ai.Seat.Karma {
-		for _, ok := range stack {
-			if ok {
-				devotion[e]--
-			}
-		}
+	devotion := element.Count{}
+	for cardID := range ai.View.Self.T.Hand {
+		card := ai.View.Game.Card(cardID)
+		devotion.Add(card.T.Costs)
+	}
+	for e, stack := range ai.View.Self.T.Karma {
+		devotion[e] -= len(stack)
 	}
 	delete(devotion, 0)
 
@@ -30,10 +30,11 @@ func (ai *AI) getNewElement() element.T {
 
 // getHandCanAfford returns a slice of gcid of cards ai can afford to play
 func (ai *AI) getHandCanAfford() (hand []string) {
-	elements := ai.Seat.Karma.Active()
-	for _, c := range ai.Seat.Hand {
-		if elements.Test(c.Proto.Costs) {
-			hand = append(hand, c.ID)
+	elements := ai.View.Self.T.Karma.Active()
+	for cardID := range ai.View.Self.T.Hand {
+		c := ai.View.Game.Card(cardID)
+		if elements.Test(c.T.Costs) {
+			hand = append(hand, cardID)
 		}
 	}
 	return
@@ -41,9 +42,10 @@ func (ai *AI) getHandCanAfford() (hand []string) {
 
 // getPresentCanAttack returns a slice of gcid of cards ai can use to attack
 func (ai *AI) getPresentCanAttack() (awake []string) {
-	for _, c := range ai.Seat.Present {
-		if c.IsAwake {
-			awake = append(awake, c.ID)
+	for tokenID := range ai.View.Self.T.Present {
+		t := ai.View.Game.Token(tokenID)
+		if t.T.Awake {
+			awake = append(awake, tokenID)
 		}
 	}
 	return

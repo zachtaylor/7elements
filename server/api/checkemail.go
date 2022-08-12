@@ -1,22 +1,9 @@
 package api
 
-import (
-	"errors"
-	"strings"
+// const charsetEmail = charset.AlphaCapitalNumeric + `-+@.`
 
-	"taylz.io/keygen/charset"
-)
-
-const charsetEmail = charset.AlphaCapitalNumeric + `-+@.`
-
-var ErrIllegalEmail = errors.New("illegal email address")
+// var ErrIllegalEmail = errors.New("illegal email address")
 
 func CheckEmail(email string) (err error) {
-	if illegal := strings.Trim(email, charsetEmail); len(illegal) > 0 {
-		err = ErrIllegalEmail
-	}
-	if strings.ContainsAny(email, "'()\"") {
-		err = ErrIllegalEmail
-	}
 	return
 }
